@@ -5,11 +5,9 @@ This file provides guidance for AI assistants (Claude and others) working in thi
 ## Repository Overview
 
 **Repository:** `rkdwlgus585-glitch/main`
-**Status:** Initial setup — notification utility added.
+**Status:** Claude Chat app — Next.js chatbot with streaming, multi-turn, and conversation history.
 
-Current contents:
-- `scripts/notify.sh` — push notification helper via ntfy.sh
-- `.env.example` — environment variable template
+**Tech stack:** Next.js 15, TypeScript, Tailwind CSS, Anthropic SDK
 
 ---
 
@@ -56,33 +54,41 @@ Never force-push to `master` or `main`.
 
 ### Environment Variables
 
-Copy `.env.example` to `.env` and fill in your values:
+Copy `.env.example` to `.env.local` and fill in your values:
 
 ```bash
-cp .env.example .env
+cp .env.example .env.local
 ```
 
 | Variable | Required | Description |
 |---|---|---|
-| `NTFY_TOPIC` | Yes | ntfy.sh topic name. Subscribe at `https://ntfy.sh/<topic>` |
-| `NTFY_SERVER` | No | Custom ntfy server URL (default: `https://ntfy.sh`) |
+| `ANTHROPIC_API_KEY` | **Yes** | Anthropic API 키. [console.anthropic.com](https://console.anthropic.com/) 에서 발급 |
+| `NTFY_TOPIC` | No | ntfy.sh 알림 토픽. Subscribe at `https://ntfy.sh/<topic>` |
+| `NTFY_SERVER` | No | Custom ntfy 서버 URL (기본값: `https://ntfy.sh`) |
 
-> Never commit `.env` to version control.
+> Never commit `.env.local` to version control.
+
+### 로컬 개발 서버 실행
+
+```bash
+npm run dev
+# → http://localhost:3000
+```
+
+### 프로덕션 빌드
+
+```bash
+npm run build
+npm start
+```
 
 ### Notifications (`scripts/notify.sh`)
 
-Send a push notification to your PC/phone via [ntfy.sh](https://ntfy.sh):
-
 ```bash
-# Basic
 export NTFY_TOPIC=my-project-alerts
 ./scripts/notify.sh "배포 완료"
-
-# With title and priority (min|low|default|high|urgent)
 ./scripts/notify.sh "테스트 실패" "CI Alert" "high"
 ```
-
-**Subscribe on your PC:** open `https://ntfy.sh/<NTFY_TOPIC>` in a browser and allow notifications, or install the [ntfy desktop app](https://docs.ntfy.sh/subscribe/phone/).
 
 ---
 
@@ -114,10 +120,25 @@ When linting is set up, document here:
 
 ```
 /
+├── app/
+│   ├── api/chat/route.ts    # Anthropic streaming API endpoint
+│   ├── layout.tsx           # Root layout
+│   ├── page.tsx             # Entry point → ChatInterface
+│   └── globals.css
+├── components/
+│   ├── ChatInterface.tsx    # 메인 채팅 UI (상태 관리)
+│   ├── Sidebar.tsx          # 대화 목록 사이드바
+│   ├── MessageList.tsx      # 메시지 렌더링
+│   ├── MessageInput.tsx     # 입력창 + 전송 버튼
+│   └── ModelSelector.tsx    # 모델 선택 드롭다운
+├── hooks/
+│   └── useConversations.ts  # 대화 CRUD + localStorage 영속화
+├── types/
+│   └── index.ts             # TypeScript 타입 정의 + 모델 목록
 ├── scripts/
-│   └── notify.sh     # Push notification helper (ntfy.sh)
-├── .env.example      # Environment variable template
-└── CLAUDE.md         # This file
+│   └── notify.sh            # ntfy.sh 알림 헬퍼
+├── .env.example             # 환경변수 템플릿
+└── CLAUDE.md                # This file
 ```
 
 ---
@@ -156,4 +177,4 @@ When a CI pipeline (GitHub Actions, etc.) is added, document here:
 
 ---
 
-*Last updated: 2026-02-19 — added ntfy.sh notification setup. Update this file whenever the project structure, tooling, or conventions change.*
+*Last updated: 2026-02-19 — added Claude Chat Next.js app with streaming, multi-turn conversations, and model selection. Update this file whenever the project structure, tooling, or conventions change.*
