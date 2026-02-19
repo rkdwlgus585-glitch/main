@@ -5,9 +5,11 @@ This file provides guidance for AI assistants (Claude and others) working in thi
 ## Repository Overview
 
 **Repository:** `rkdwlgus585-glitch/main`
-**Status:** Newly initialized — no application code exists yet.
+**Status:** Initial setup — notification utility added.
 
-The repository currently contains only a `.gitkeep` file. This CLAUDE.md will be updated as the codebase grows.
+Current contents:
+- `scripts/notify.sh` — push notification helper via ntfy.sh
+- `.env.example` — environment variable template
 
 ---
 
@@ -52,13 +54,35 @@ Never force-push to `master` or `main`.
 
 ## Development Setup
 
-> This section will be populated once a tech stack is chosen.
+### Environment Variables
 
-When a language/framework is established, document here:
-- Required runtime versions (Node, Python, Go, etc.)
-- Dependency installation command
-- Environment variable setup (`.env.example` to copy)
-- Local server start command
+Copy `.env.example` to `.env` and fill in your values:
+
+```bash
+cp .env.example .env
+```
+
+| Variable | Required | Description |
+|---|---|---|
+| `NTFY_TOPIC` | Yes | ntfy.sh topic name. Subscribe at `https://ntfy.sh/<topic>` |
+| `NTFY_SERVER` | No | Custom ntfy server URL (default: `https://ntfy.sh`) |
+
+> Never commit `.env` to version control.
+
+### Notifications (`scripts/notify.sh`)
+
+Send a push notification to your PC/phone via [ntfy.sh](https://ntfy.sh):
+
+```bash
+# Basic
+export NTFY_TOPIC=my-project-alerts
+./scripts/notify.sh "배포 완료"
+
+# With title and priority (min|low|default|high|urgent)
+./scripts/notify.sh "테스트 실패" "CI Alert" "high"
+```
+
+**Subscribe on your PC:** open `https://ntfy.sh/<NTFY_TOPIC>` in a browser and allow notifications, or install the [ntfy desktop app](https://docs.ntfy.sh/subscribe/phone/).
 
 ---
 
@@ -88,16 +112,12 @@ When linting is set up, document here:
 
 ## Project Structure
 
-> This section will be populated once directories are created.
-
-As the codebase grows, document the top-level layout here:
-
 ```
 /
-├── src/          # Application source code
-├── tests/        # Test files
-├── docs/         # Documentation
-└── CLAUDE.md     # This file
+├── scripts/
+│   └── notify.sh     # Push notification helper (ntfy.sh)
+├── .env.example      # Environment variable template
+└── CLAUDE.md         # This file
 ```
 
 ---
@@ -136,4 +156,4 @@ When a CI pipeline (GitHub Actions, etc.) is added, document here:
 
 ---
 
-*Last updated: 2026-02-19. Update this file whenever the project structure, tooling, or conventions change.*
+*Last updated: 2026-02-19 — added ntfy.sh notification setup. Update this file whenever the project structure, tooling, or conventions change.*
