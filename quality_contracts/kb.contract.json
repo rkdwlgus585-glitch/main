@@ -1,0 +1,36 @@
+{
+  "$schema": "./contract.schema.json",
+  "automation": "kb",
+  "description": "Fact validation and knowledge base module.",
+  "checks": [
+    {
+      "id": "entry_files_exist",
+      "type": "file_exists",
+      "paths": [
+        "kb.py"
+      ]
+    },
+    {
+      "id": "compile_kb",
+      "type": "python_compile",
+      "paths": [
+        "kb.py"
+      ]
+    },
+    {
+      "id": "import_kb",
+      "type": "python_import",
+      "modules": [
+        "kb"
+      ],
+      "timeout_sec": 20
+    },
+    {
+      "id": "kb_tests",
+      "type": "unittest_discover",
+      "start_dir": "tests",
+      "pattern": "test_kb_fact_validation.py",
+      "timeout_sec": 120
+    }
+  ]
+}

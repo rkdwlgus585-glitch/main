@@ -1,0 +1,40 @@
+.env
+service_account.json
+*.p12
+*.pfx
+*.pem
+*.key
+*.log
+
+__pycache__/
+*.pyc
+
+mnakr_scheduler.lock
+scheduler_state.json
+content_lifecycle.json
+content_portfolio_actions.json
+semantic_embeddings_cache.json
+internal_link_memory.json
+wp_posts_cache*.json
+site_topic_cache.json
+
+# OS / editor
+Thumbs.db
+.DS_Store
+
+# Local outputs / artifacts (too large / machine-specific)
+output/
+logs/
+tmp/
+.playwright/
+.playwright-cli/
+
+# Local runtime state
+*_state.json
+*_upload_state.json
+
+# Secrets / credentials (DO NOT COMMIT)
+broth*.txt
+
+# Locks
+*.lock

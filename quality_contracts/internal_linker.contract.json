@@ -1,0 +1,36 @@
+{
+  "$schema": "./contract.schema.json",
+  "automation": "internal_linker",
+  "description": "Internal link injection and relevance scoring module.",
+  "checks": [
+    {
+      "id": "entry_files_exist",
+      "type": "file_exists",
+      "paths": [
+        "internal_linker.py"
+      ]
+    },
+    {
+      "id": "compile_internal_linker",
+      "type": "python_compile",
+      "paths": [
+        "internal_linker.py"
+      ]
+    },
+    {
+      "id": "import_internal_linker",
+      "type": "python_import",
+      "modules": [
+        "internal_linker"
+      ],
+      "timeout_sec": 20
+    },
+    {
+      "id": "internal_linker_tests",
+      "type": "unittest_discover",
+      "start_dir": "tests",
+      "pattern": "test_internal_linker.py",
+      "timeout_sec": 120
+    }
+  ]
+}

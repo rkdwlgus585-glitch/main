@@ -1,0 +1,45 @@
+{
+  "$schema": "./contract.schema.json",
+  "automation": "sales_pipeline",
+  "description": "Sales pipeline orchestration automation.",
+  "checks": [
+    {
+      "id": "entry_files_exist",
+      "type": "file_exists",
+      "paths": [
+        "sales_pipeline.py",
+        "match.py",
+        "listing_matcher.py",
+        "quote_engine.py"
+      ]
+    },
+    {
+      "id": "compile_sales_stack",
+      "type": "python_compile",
+      "paths": [
+        "sales_pipeline.py",
+        "match.py",
+        "listing_matcher.py",
+        "quote_engine.py"
+      ]
+    },
+    {
+      "id": "import_sales_pipeline",
+      "type": "python_import",
+      "modules": [
+        "sales_pipeline"
+      ],
+      "timeout_sec": 20
+    },
+    {
+      "id": "cli_help",
+      "type": "command",
+      "command": [
+        "{python}",
+        "sales_pipeline.py",
+        "--help"
+      ],
+      "timeout_sec": 20
+    }
+  ]
+}

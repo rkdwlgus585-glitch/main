@@ -1,0 +1,68 @@
+{
+  "$schema": "./contract.schema.json",
+  "automation": "batch_entrypoints",
+  "description": "Windows entrypoint smoke checks for root .bat shims, launchers/launch_*.bat, and scripts/*.cmd.",
+  "checks": [
+    {
+      "id": "entrypoint_files_exist",
+      "type": "file_exists",
+      "paths": [
+        "\uac11\uc9c0\uc0dd\uc131\uae30.bat",
+        "\uacac\uc801\uc0dd\uc131\uae30.bat",
+        "\ub9e4\ubb3c\uc218\uc9d1\uae30.bat",
+        "\ube14\ub85c\uadf8\uc0dd\uc131\uae30.bat",
+        "\ube14\ub85c\uadf8\uc790\ub3d9\ubc1c\ud589.bat",
+        "\uc0c1\ub2f4\ub9e4\uce6d\uc790\ub3d9\uac31\uc2e0.bat",
+        "\uc601\uc5c5\ud30c\uc774\ud504\ub77c\uc778.bat",
+        "\ucd94\ucc9c\ubc1c\uc1a1\uae30.bat",
+        "\ud504\ub9ac\ubbf8\uc5c4\uae00\uc0dd\uc131.bat",
+        "launchers/launch_gabji.bat",
+        "launchers/launch_quote_engine.bat",
+        "launchers/launch_listing_pipeline.bat",
+        "launchers/launch_blog.bat",
+        "launchers/launch_consult_match_scheduler.bat",
+        "launchers/launch_sales_pipeline.bat",
+        "launchers/launch_listing_matcher.bat",
+        "launchers/launch_premium_auto.bat",
+        "scripts/run_low_conf_sync.cmd",
+        "scripts/run_parallel_debug.cmd",
+        "scripts/run_quality_daily.cmd",
+        "scripts/batch_smoke_check.py",
+        "scripts/cmd_smoke_check.py",
+        "scripts/show_entrypoints.py",
+        "ENTRYPOINTS.md",
+        "launchers/README.md"
+      ]
+    },
+    {
+      "id": "batch_smoke_strict",
+      "type": "command",
+      "command": [
+        "{python}",
+        "scripts/batch_smoke_check.py",
+        "--strict"
+      ],
+      "timeout_sec": 180
+    },
+    {
+      "id": "entrypoint_role_map_strict",
+      "type": "command",
+      "command": [
+        "{python}",
+        "scripts/show_entrypoints.py",
+        "--strict"
+      ],
+      "timeout_sec": 60
+    },
+    {
+      "id": "cmd_smoke_strict",
+      "type": "command",
+      "command": [
+        "{python}",
+        "scripts/cmd_smoke_check.py",
+        "--strict"
+      ],
+      "timeout_sec": 180
+    }
+  ]
+}

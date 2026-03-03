@@ -1,0 +1,37 @@
+{
+  "$schema": "./contract.schema.json",
+  "automation": "match",
+  "description": "Consult-to-listing matching automation.",
+  "checks": [
+    {
+      "id": "entry_files_exist",
+      "type": "file_exists",
+      "paths": [
+        "match.py"
+      ]
+    },
+    {
+      "id": "compile_match",
+      "type": "python_compile",
+      "paths": [
+        "match.py",
+        "listing_matcher.py"
+      ]
+    },
+    {
+      "id": "import_match",
+      "type": "python_import",
+      "modules": [
+        "match"
+      ],
+      "timeout_sec": 20
+    },
+    {
+      "id": "priority_tests",
+      "type": "unittest_discover",
+      "start_dir": "tests",
+      "pattern": "test_listing_price_priority.py",
+      "timeout_sec": 120
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-02-22T14:11:54.247879",
+  "requested": 1,
+  "actions": [
+    {
+      "post_id": 1373,
+      "status": "publish",
+      "old_post_id": 1373,
+      "new_post_id": 1401,
+      "slug": "construction-license-return-procedure",
+      "new_link": "https://seoulmna.kr/construction-license-return-procedure/"
+    }
+  ],
+  "before_flagged_count": 1,
+  "after_flagged_count": 0,
+  "after_flagged": []
+}

@@ -1,0 +1,48 @@
+{
+  "$schema": "./contract.schema.json",
+  "automation": "mnakr",
+  "description": "Blog content generation and QA gate flow.",
+  "checks": [
+    {
+      "id": "entry_files_exist",
+      "type": "file_exists",
+      "paths": [
+        "mnakr.py",
+        "kb.py",
+        "internal_linker.py"
+      ]
+    },
+    {
+      "id": "compile_modules",
+      "type": "python_compile",
+      "paths": [
+        "mnakr.py",
+        "kb.py",
+        "internal_linker.py",
+        "utils.py"
+      ]
+    },
+    {
+      "id": "import_mnakr",
+      "type": "python_import",
+      "modules": [
+        "mnakr"
+      ],
+      "timeout_sec": 25
+    },
+    {
+      "id": "mnakr_unit_tests",
+      "type": "unittest_discover",
+      "start_dir": "tests",
+      "pattern": "test_mnakr*.py",
+      "timeout_sec": 180
+    },
+    {
+      "id": "kb_fact_validation_tests",
+      "type": "unittest_discover",
+      "start_dir": "tests",
+      "pattern": "test_kb_fact_validation.py",
+      "timeout_sec": 120
+    }
+  ]
+}

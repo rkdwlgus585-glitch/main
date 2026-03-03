@@ -1,0 +1,39 @@
+{
+  "$schema": "./contract.schema.json",
+  "automation": "maemul",
+  "description": "Maemul listing collection automation.",
+  "checks": [
+    {
+      "id": "entry_files_exist",
+      "type": "file_exists",
+      "paths": [
+        "maemul.py"
+      ]
+    },
+    {
+      "id": "compile_maemul",
+      "type": "python_compile",
+      "paths": [
+        "maemul.py"
+      ]
+    },
+    {
+      "id": "import_maemul",
+      "type": "python_import",
+      "modules": [
+        "maemul"
+      ],
+      "timeout_sec": 20
+    },
+    {
+      "id": "cli_help",
+      "type": "command",
+      "command": [
+        "{python}",
+        "maemul.py",
+        "--help"
+      ],
+      "timeout_sec": 20
+    }
+  ]
+}

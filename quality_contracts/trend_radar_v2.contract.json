@@ -1,0 +1,36 @@
+{
+  "$schema": "./contract.schema.json",
+  "automation": "trend_radar_v2",
+  "description": "Trend radar collection and filtering module.",
+  "checks": [
+    {
+      "id": "entry_files_exist",
+      "type": "file_exists",
+      "paths": [
+        "trend_radar_v2.py"
+      ]
+    },
+    {
+      "id": "compile_trend_radar",
+      "type": "python_compile",
+      "paths": [
+        "trend_radar_v2.py"
+      ]
+    },
+    {
+      "id": "import_trend_radar",
+      "type": "python_import",
+      "modules": [
+        "trend_radar_v2"
+      ],
+      "timeout_sec": 20
+    },
+    {
+      "id": "trend_radar_tests",
+      "type": "unittest_discover",
+      "start_dir": "tests",
+      "pattern": "test_trend_radar_v2.py",
+      "timeout_sec": 120
+    }
+  ]
+}

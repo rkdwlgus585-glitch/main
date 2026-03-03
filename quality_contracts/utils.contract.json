@@ -1,0 +1,36 @@
+{
+  "$schema": "./contract.schema.json",
+  "automation": "utils",
+  "description": "Shared configuration, logging, and notifier utilities.",
+  "checks": [
+    {
+      "id": "entry_files_exist",
+      "type": "file_exists",
+      "paths": [
+        "utils.py"
+      ]
+    },
+    {
+      "id": "compile_utils",
+      "type": "python_compile",
+      "paths": [
+        "utils.py"
+      ]
+    },
+    {
+      "id": "import_utils",
+      "type": "python_import",
+      "modules": [
+        "utils"
+      ],
+      "timeout_sec": 20
+    },
+    {
+      "id": "utils_tests",
+      "type": "unittest_discover",
+      "start_dir": "tests",
+      "pattern": "test_utils_config.py",
+      "timeout_sec": 120
+    }
+  ]
+}

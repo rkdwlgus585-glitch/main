@@ -1,0 +1,48 @@
+{
+  "project": "seoulmna calculator autopilot",
+  "effective_date": "2026-03-03",
+  "deployment_guardrail": {
+    "mode": "kr_only",
+    "co_publish_default": false,
+    "co_publish_requires_explicit_flag": "--publish-co",
+    "note": "기본 배포는 seoulmna.kr만 허용. co.kr 반영은 최종 승인 시점에만 수동 허용."
+  },
+  "yangdo_policy": {
+    "separate_balance_paid_groups": [
+      "전기",
+      "정보통신",
+      "소방"
+    ],
+    "rule": "전기/정보통신/소방은 공제조합 잔액을 별도 지급 관행으로 간주하여 양도가 산정 영향에서 제외",
+    "ui_note_required": true
+  },
+  "acquisition_policy": {
+    "primary_mode": "중간 정산표 중심",
+    "first_stage_scope": [
+      "자본금",
+      "접수 수수료",
+      "건설업 등록면허세",
+      "지방세",
+      "채권 즉시매도 손실"
+    ],
+    "exclude_from_stage1": [
+      "인건비"
+    ],
+    "consulting_fee_increment_rule": "기본 업종 + 추가 면허당 50% 가산",
+    "enterprise_diagnosis_rule": "건설업 내 다업종은 기본 1회, 전기/통신/소방 등 타법 체계는 별도 반영"
+  },
+  "ux_policy": {
+    "target_age": "40~60",
+    "simple_mode_required": true,
+    "high_contrast_phone_cta": true,
+    "avoid_internal_formula_exposure": true
+  },
+  "validation_policy": {
+    "regression_tests_required": true,
+    "minimum_checks": [
+      "전기/정보통신/소방 balance_excluded 동작",
+      "일반 업종 공제조합 반영 동작",
+      "KR 배포 후 co.skipped=true 로그 확인"
+    ]
+  }
+}

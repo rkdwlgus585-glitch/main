@@ -1,0 +1,39 @@
+{
+  "$schema": "./contract.schema.json",
+  "automation": "lead_intake",
+  "description": "Lead ingestion automation.",
+  "checks": [
+    {
+      "id": "entry_files_exist",
+      "type": "file_exists",
+      "paths": [
+        "lead_intake.py"
+      ]
+    },
+    {
+      "id": "compile_lead_intake",
+      "type": "python_compile",
+      "paths": [
+        "lead_intake.py"
+      ]
+    },
+    {
+      "id": "import_lead_intake",
+      "type": "python_import",
+      "modules": [
+        "lead_intake"
+      ],
+      "timeout_sec": 20
+    },
+    {
+      "id": "cli_help",
+      "type": "command",
+      "command": [
+        "{python}",
+        "lead_intake.py",
+        "--help"
+      ],
+      "timeout_sec": 20
+    }
+  ]
+}

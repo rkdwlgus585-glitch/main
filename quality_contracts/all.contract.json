@@ -1,0 +1,51 @@
+{
+  "$schema": "./contract.schema.json",
+  "automation": "all",
+  "description": "Main listing collector and price trace updater.",
+  "checks": [
+    {
+      "id": "entry_files_exist",
+      "type": "file_exists",
+      "paths": [
+        "all.py",
+        "utils.py",
+        "kb.py"
+      ]
+    },
+    {
+      "id": "compile_core_modules",
+      "type": "python_compile",
+      "paths": [
+        "all.py",
+        "utils.py",
+        "kb.py",
+        "internal_linker.py"
+      ]
+    },
+    {
+      "id": "import_all",
+      "type": "python_import",
+      "modules": [
+        "all"
+      ],
+      "timeout_sec": 20
+    },
+    {
+      "id": "cli_help",
+      "type": "command",
+      "command": [
+        "{python}",
+        "all.py",
+        "--help"
+      ],
+      "timeout_sec": 20
+    },
+    {
+      "id": "targeted_tests",
+      "type": "unittest_discover",
+      "start_dir": "tests",
+      "pattern": "test_all_price_trace.py",
+      "timeout_sec": 180
+    }
+  ]
+}

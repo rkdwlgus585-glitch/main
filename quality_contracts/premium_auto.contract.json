@@ -1,0 +1,29 @@
+{
+  "$schema": "./contract.schema.json",
+  "automation": "premium_auto",
+  "description": "Premium article automation.",
+  "checks": [
+    {
+      "id": "entry_files_exist",
+      "type": "file_exists",
+      "paths": [
+        "premium_auto.py"
+      ]
+    },
+    {
+      "id": "compile_premium_auto",
+      "type": "python_compile",
+      "paths": [
+        "premium_auto.py"
+      ]
+    },
+    {
+      "id": "import_premium_auto",
+      "type": "python_import",
+      "modules": [
+        "premium_auto"
+      ],
+      "timeout_sec": 20
+    }
+  ]
+}

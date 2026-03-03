@@ -1,0 +1,39 @@
+{
+  "$schema": "./contract.schema.json",
+  "automation": "listing_matcher",
+  "description": "Listing recommendation message generator.",
+  "checks": [
+    {
+      "id": "entry_files_exist",
+      "type": "file_exists",
+      "paths": [
+        "listing_matcher.py"
+      ]
+    },
+    {
+      "id": "compile_listing_matcher",
+      "type": "python_compile",
+      "paths": [
+        "listing_matcher.py"
+      ]
+    },
+    {
+      "id": "import_listing_matcher",
+      "type": "python_import",
+      "modules": [
+        "listing_matcher"
+      ],
+      "timeout_sec": 20
+    },
+    {
+      "id": "cli_help",
+      "type": "command",
+      "command": [
+        "{python}",
+        "listing_matcher.py",
+        "--help"
+      ],
+      "timeout_sec": 20
+    }
+  ]
+}

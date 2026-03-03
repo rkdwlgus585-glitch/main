@@ -1,0 +1,36 @@
+{
+  "$schema": "./contract.schema.json",
+  "automation": "gabji",
+  "description": "Gabji document generator.",
+  "checks": [
+    {
+      "id": "entry_files_exist",
+      "type": "file_exists",
+      "paths": [
+        "gabji.py"
+      ]
+    },
+    {
+      "id": "compile_gabji",
+      "type": "python_compile",
+      "paths": [
+        "gabji.py"
+      ]
+    },
+    {
+      "id": "import_gabji",
+      "type": "python_import",
+      "modules": [
+        "gabji"
+      ],
+      "timeout_sec": 20
+    },
+    {
+      "id": "gabji_tests",
+      "type": "unittest_discover",
+      "start_dir": "tests",
+      "pattern": "test_gabji*.py",
+      "timeout_sec": 180
+    }
+  ]
+}

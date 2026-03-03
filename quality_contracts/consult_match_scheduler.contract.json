@@ -1,0 +1,42 @@
+{
+  "$schema": "./contract.schema.json",
+  "automation": "consult_match_scheduler",
+  "description": "Scheduler automation for consult and listing sync.",
+  "checks": [
+    {
+      "id": "entry_files_exist",
+      "type": "file_exists",
+      "paths": [
+        "consult_match_scheduler.py",
+        "match.py"
+      ]
+    },
+    {
+      "id": "compile_scheduler_stack",
+      "type": "python_compile",
+      "paths": [
+        "consult_match_scheduler.py",
+        "match.py",
+        "listing_matcher.py"
+      ]
+    },
+    {
+      "id": "import_scheduler",
+      "type": "python_import",
+      "modules": [
+        "consult_match_scheduler"
+      ],
+      "timeout_sec": 20
+    },
+    {
+      "id": "cli_help",
+      "type": "command",
+      "command": [
+        "{python}",
+        "consult_match_scheduler.py",
+        "--help"
+      ],
+      "timeout_sec": 20
+    }
+  ]
+}
