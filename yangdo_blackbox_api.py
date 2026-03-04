@@ -92,6 +92,59 @@ def _safe_ratio(num_value: Any, den_value: Any) -> Optional[float]:
     return float(val)
 
 
+def _bounded(value: Any, lo: Optional[float] = None, hi: Optional[float] = None) -> Optional[float]:
+    vv = _to_float(value)
+    if vv is None:
+        return None
+    out = float(vv)
+    if lo is not None:
+        out = max(float(lo), out)
+    if hi is not None:
+        out = min(float(hi), out)
+    return out
+
+
+def _normalize_credit_level(raw: Any) -> str:
+    txt = _compact(raw).lower().replace(" ", "")
+    if not txt:
+        return ""
+    if any(x in txt for x in ["우수", "상", "high", "a등급", "a+", "aa", "aaa"]):
+        return "high"
+    if any(x in txt for x in ["주의", "저", "low", "c등급", "연체", "미흡", "위험"]):
+        return "low"
+    if any(x in txt for x in ["보통", "중", "중간", "b등급", "bb"]):
+        return "medium"
+    return txt
+
+
+def _normalize_admin_history(raw: Any) -> str:
+    txt = _compact(raw).lower().replace(" ", "")
+    if not txt:
+        return ""
+    if any(x in txt for x in ["없", "무", "none", "정상"]):
+        return "none"
+    if any(x in txt for x in ["있", "has", "행정처분", "제재", "정지", "영업정지", "과태료", "시정명령"]):
+        return "has"
+    return txt
+
+
+def _normalize_reorg_mode(raw: Any) -> str:
+    txt = _compact(raw).lower().replace(" ", "")
+    if not txt:
+        return ""
+    has_split = ("분할" in txt) or ("split" in txt)
+    has_comprehensive = ("포괄" in txt) or ("흡수" in txt) or ("comprehensive" in txt)
+    if has_split and has_comprehensive:
+        return "분할포괄"
+    if has_split:
+        return "분할"
+    if has_comprehensive:
+        return "포괄"
+    if ("합병" in txt) or ("merge" in txt):
+        return "합병"
+    return txt
+
+
 def _year_value(source: Dict[str, Any], key: str) -> Optional[float]:
     direct = _to_float(source.get(key))
     if direct is not None:
@@ -227,10 +280,19 @@ class YangdoBlackboxEstimator:
 
     @staticmethod
     def _is_separate_balance_group_token(raw: Any) -> bool:
-        txt = _normalize_license_key(raw)
+        txt = _normalize_license_key(raw).lower()
         if not txt:
             return False
-        return ("전기" in txt) or ("정보통신" in txt) or ("통신" in txt) or ("소방" in txt)
+        return (
+            ("전기" in txt)
+            or ("정보통신" in txt)
+            or ("통신" in txt)
+            or ("소방" in txt)
+            or ("electric" in txt)
+            or ("telecom" in txt)
+            or ("communication" in txt)
+            or ("fire" in txt)
+        )
 
     def _is_balance_separate_paid_group(self, target: Dict[str, Any]) -> bool:
         tokens = self._canonical_tokens(target.get("license_tokens") or set())
@@ -540,13 +602,29 @@ class YangdoBlackboxEstimator:
 
     def _target_from_payload(self, payload: Dict[str, Any]) -> Dict[str, Any]:
         license_text = _compact(payload.get("license_text") or payload.get("license") or "")
-        y23 = _to_float(payload.get("y23"))
-        y24 = _to_float(payload.get("y24"))
-        y25 = _to_float(payload.get("y25"))
-        sales3 = _to_float(payload.get("sales3_eok"))
+        y23 = _bounded(payload.get("y23"), 0.0, 1000.0)
+        y24 = _bounded(payload.get("y24"), 0.0, 1000.0)
+        y25 = _bounded(payload.get("y25"), 0.0, 1000.0)
+        sales3 = _bounded(payload.get("sales3_eok"), 0.0, 3000.0)
         if sales3 is None:
             vals = [v for v in [y23, y24, y25] if isinstance(v, float)]
             sales3 = sum(vals) if vals else None
+        sales5_raw = _bounded(payload.get("sales5_eok"), 0.0, 5000.0)
+        sales5 = sales5_raw if sales5_raw is not None else sales3
+        license_year = _bounded(payload.get("license_year"), 1950.0, 2100.0)
+        reorg_mode = _normalize_reorg_mode(
+            payload.get("reorg_mode")
+            if payload.get("reorg_mode") is not None
+            else (
+                payload.get("split_merge_type")
+                if payload.get("split_merge_type") is not None
+                else (
+                    payload.get("merge_mode")
+                    if payload.get("merge_mode") is not None
+                    else payload.get("reorganization_type")
+                )
+            )
+        )
 
         return {
             "uid": "",
@@ -554,32 +632,33 @@ class YangdoBlackboxEstimator:
             "license_text": license_text,
             "raw_license_key": _normalize_license_key(license_text),
             "license_tokens": core._license_token_set_for_estimate(license_text),
-            "license_year": _to_float(payload.get("license_year")),
-            "specialty": _to_float(payload.get("specialty")),
+            "license_year": int(license_year) if isinstance(license_year, float) else None,
+            "specialty": _bounded(payload.get("specialty"), 0.0, 1000.0),
             "y23": y23,
             "y24": y24,
             "y25": y25,
             "sales3_eok": sales3,
-            "sales5_eok": _to_float(payload.get("sales5_eok")) if _to_float(payload.get("sales5_eok")) is not None else sales3,
-            "balance_eok": _to_float(payload.get("balance_eok")),
-            "claim_price_eok": _to_float(
+            "sales5_eok": sales5,
+            "balance_eok": _bounded(payload.get("balance_eok"), 0.0, 5000.0),
+            "claim_price_eok": _bounded(
                 payload.get("claim_price_eok")
                 if payload.get("claim_price_eok") is not None
                 else (payload.get("claim_eok") if payload.get("claim_eok") is not None else payload.get("claim_price"))
-            ),
-            "capital_eok": _to_float(payload.get("capital_eok")),
-            "surplus_eok": _to_float(payload.get("surplus_eok")),
-            "debt_ratio": _to_float(payload.get("debt_ratio")),
-            "liq_ratio": _to_float(payload.get("liq_ratio")),
+            , 0.0, 10000.0),
+            "capital_eok": _bounded(payload.get("capital_eok"), 0.0, 1000.0),
+            "surplus_eok": _bounded(payload.get("surplus_eok"), 0.0, 100.0),
+            "debt_ratio": _bounded(payload.get("debt_ratio"), 0.0, 1000.0),
+            "liq_ratio": _bounded(payload.get("liq_ratio"), 0.0, 1000000.0),
             "debt_level": _compact(payload.get("debt_level")).lower(),
             "liq_level": _compact(payload.get("liq_level")).lower(),
             "company_type": _compact(payload.get("company_type")),
-            "credit_level": _compact(payload.get("credit_level")),
-            "admin_history": _compact(payload.get("admin_history")),
+            "credit_level": _normalize_credit_level(payload.get("credit_level")),
+            "admin_history": _normalize_admin_history(payload.get("admin_history")),
+            "reorg_mode": reorg_mode,
             "ok_capital": bool(payload.get("ok_capital", True)),
             "ok_engineer": bool(payload.get("ok_engineer", True)),
             "ok_office": bool(payload.get("ok_office", True)),
-            "provided_signals": int(payload.get("provided_signals") or 0),
+            "provided_signals": max(0, int(_to_float(payload.get("provided_signals")) or 0)),
             "missing_critical": list(payload.get("missing_critical") or []),
             "missing_guide": list(payload.get("missing_guide") or []),
         }
@@ -1289,6 +1368,7 @@ class YangdoBlackboxEstimator:
         elif company_type == "유한회사":
             post_factor -= 0.01
 
+        surplus_val = _to_float(target.get("surplus_eok"))
         credit_level = str(target.get("credit_level") or "").lower()
         admin_history = str(target.get("admin_history") or "").lower()
         if credit_level == "high":
@@ -1302,6 +1382,80 @@ class YangdoBlackboxEstimator:
         elif admin_history == "has":
             post_factor -= 0.11
             notes.append("행정처분 이력 있음: 리스크 반영")
+
+        # 3년/5년 실적의 구조 차이를 반영한다.
+        sales3_val = _to_float(target.get("sales3_eok"))
+        sales5_val = _to_float(target.get("sales5_eok"))
+        if sales3_val is not None and sales3_val > 0.05 and sales5_val is not None:
+            span_ratio = float(sales5_val) / max(0.05, float(sales3_val))
+            span_adj = 0.0
+            if span_ratio < 1.05:
+                span_adj -= 0.030
+            elif span_ratio < 1.20:
+                span_adj -= 0.015
+            elif span_ratio > 3.20:
+                span_adj -= min(0.050, ((span_ratio - 3.20) * 0.010) + 0.010)
+            elif span_ratio > 2.20:
+                span_adj += 0.010
+            post_factor += span_adj
+            if abs(span_adj) >= 0.008:
+                notes.append(f"3년·5년 실적 구조 반영: {'+' if span_adj >= 0 else ''}{span_adj * 100:.1f}%")
+
+        # 부채/유동 극단값(0~1000%, 0~1,000,000%)에서도 안정적으로 반영한다.
+        debt_ratio_val = _to_float(target.get("debt_ratio"))
+        if debt_ratio_val is not None:
+            debt_penalty = min(0.18, (math.log1p(max(0.0, float(debt_ratio_val))) / math.log(1001.0)) * 0.18)
+            post_factor -= debt_penalty
+            if debt_penalty >= 0.008:
+                notes.append(f"부채비율 레벨 반영: -{debt_penalty * 100:.1f}%")
+
+        liq_ratio_val = _to_float(target.get("liq_ratio"))
+        if liq_ratio_val is not None:
+            liq_clamped = max(0.0, float(liq_ratio_val))
+            liq_gain = min(0.085, (math.log1p(min(liq_clamped, 10000.0)) / math.log(10001.0)) * 0.085)
+            liq_extreme_penalty = 0.0
+            if liq_clamped > 200000.0:
+                liq_extreme_penalty = min(0.05, math.log1p(liq_clamped / 200000.0) * 0.04)
+            liq_adj = liq_gain - liq_extreme_penalty
+            post_factor += liq_adj
+            if abs(liq_adj) >= 0.008:
+                notes.append(f"유동비율 레벨 반영: {'+' if liq_adj >= 0 else ''}{liq_adj * 100:.1f}%")
+
+        # 이익잉여금은 커질수록 감가(단조 감소)하도록 별도 보정한다.
+        if surplus_val is not None:
+            surplus_monotonic_penalty = min(
+                0.20,
+                (math.log1p(max(0.0, float(surplus_val))) / math.log(101.0)) * 0.20,
+            )
+            post_factor -= surplus_monotonic_penalty
+            if surplus_monotonic_penalty >= 0.008:
+                notes.append(f"이익잉여금 단조 감가 반영: -{surplus_monotonic_penalty * 100:.1f}%")
+
+        # 전기/정보통신/소방의 분할·포괄 특수성 반영
+        reorg_mode = str(target.get("reorg_mode") or "").strip()
+        reorg_range_boost = 0.0
+        reorg_conf_penalty = 0.0
+        if reorg_mode and (balance_excluded or self._is_separate_balance_group_token(target.get("license_text"))):
+            reorg_adj = 0.0
+            if reorg_mode == "분할포괄":
+                reorg_adj -= 0.045
+                reorg_range_boost = 0.20
+                reorg_conf_penalty = 8.0
+            elif reorg_mode == "분할":
+                reorg_adj -= 0.030
+                reorg_range_boost = 0.14
+                reorg_conf_penalty = 6.0
+            elif reorg_mode == "포괄":
+                reorg_adj -= 0.018
+                reorg_range_boost = 0.10
+                reorg_conf_penalty = 4.0
+            elif reorg_mode == "합병":
+                reorg_adj -= 0.012
+                reorg_range_boost = 0.08
+                reorg_conf_penalty = 3.0
+            post_factor += reorg_adj
+            if abs(reorg_adj) >= 0.008:
+                notes.append(f"분할/포괄 구조 반영: {'+' if reorg_adj >= 0 else ''}{reorg_adj * 100:.1f}%")
 
         def post_percentile_adj(
             label: str,
@@ -1364,7 +1518,6 @@ class YangdoBlackboxEstimator:
             if abs(license_adj) >= 0.008:
                 notes.append(f"면허 업력 반영: {'+' if license_adj >= 0 else ''}{license_adj * 100:.1f}%")
 
-        surplus_val = _to_float(target.get("surplus_eok"))
         if surplus_val is not None:
             capital_val = _to_float(target.get("capital_eok"))
             surplus_adj = 0.0
@@ -1444,6 +1597,22 @@ class YangdoBlackboxEstimator:
         if high < low:
             high = low
 
+        if reorg_range_boost > 0:
+            extra = max((float(high) - float(low)) * reorg_range_boost, float(center) * (0.04 + (reorg_range_boost * 0.4)))
+            low = max(0.05, float(low) - (extra * 0.45))
+            high = max(float(low), float(high) + (extra * 0.55))
+            notes.append("분할/포괄 구조 변동성을 반영해 오차 범위를 보수적으로 확장했습니다.")
+
+        if surplus_val is not None:
+            # 최종 단조 가드: 이익잉여금이 커질수록 결과가 내려가도록 보장
+            final_surplus_guard = max(
+                0.72,
+                1.0 - min(0.28, (math.log1p(max(0.0, float(surplus_val))) / math.log(101.0)) * 0.28),
+            )
+            center = float(center) * final_surplus_guard
+            low = float(low) * final_surplus_guard
+            high = float(high) * final_surplus_guard
+
         coverage = min(1.0, len(stat_neighbors) / 8.0)
         dispersion = mad / max(float(center), 0.1)
         confidence_score = (avg_sim * 0.60) + (coverage * 24.0) + max(0.0, 20.0 - dispersion * 60.0)
@@ -1466,6 +1635,7 @@ class YangdoBlackboxEstimator:
         elif len(stat_neighbors) <= 4:
             confidence_score -= 6.0
         confidence_score -= discount * 40.0
+        confidence_score -= reorg_conf_penalty
         confidence_score = max(0.0, min(100.0, confidence_score))
 
         neighbor_rows: List[Dict[str, Any]] = []

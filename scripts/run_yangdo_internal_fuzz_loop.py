@@ -162,8 +162,17 @@ def _shape_shift_years_same_sum(
 
 def _build_payload_from_record(rec: Dict[str, Any], rng: random.Random) -> Tuple[Dict[str, Any], str]:
     scenario = rng.choices(
-        population=["near", "sparse", "extreme", "unit_typo", "year_shift", "shape_shift_same_sum"],
-        weights=[0.47, 0.14, 0.15, 0.07, 0.07, 0.10],
+        population=[
+            "near",
+            "sparse",
+            "extreme",
+            "unit_typo",
+            "year_shift",
+            "shape_shift_same_sum",
+            "axis_wide_stress",
+            "split_merge_stress",
+        ],
+        weights=[0.38, 0.12, 0.12, 0.06, 0.06, 0.10, 0.10, 0.06],
         k=1,
     )[0]
 
@@ -177,6 +186,8 @@ def _build_payload_from_record(rec: Dict[str, Any], rng: random.Random) -> Tuple
     balance = _to_float(rec.get("balance_eok"))
     capital = _to_float(rec.get("capital_eok"))
     surplus = _to_float(rec.get("surplus_eok"))
+    debt_ratio = _to_float(rec.get("debt_ratio"))
+    liq_ratio = _to_float(rec.get("liq_ratio"))
     license_year = int(_to_float(rec.get("license_year")) or rng.randint(1995, 2025))
 
     payload: Dict[str, Any] = {
@@ -190,10 +201,13 @@ def _build_payload_from_record(rec: Dict[str, Any], rng: random.Random) -> Tuple
         "balance_eok": _jitter(balance, rng, 0.50, 1.90, floor=0.0),
         "capital_eok": _jitter(capital, rng, 0.50, 1.80, floor=0.05),
         "surplus_eok": _jitter(surplus, rng, 0.25, 2.10, floor=0.0),
+        "debt_ratio": _jitter(debt_ratio, rng, 0.45, 2.20, floor=0.0),
+        "liq_ratio": _jitter(liq_ratio, rng, 0.35, 3.20, floor=0.0),
         "license_year": int(license_year + rng.randint(-4, 4)),
         "company_type": rng.choice(["주식회사", "유한회사", "개인"]),
         "credit_level": rng.choice(["우수", "보통", "주의"]),
         "admin_history": rng.choice(["없음", "있음"]),
+        "reorg_mode": rng.choice(["", "포괄", "분할", "분할포괄"]),
         "top_k": rng.choice([10, 12, 14, 16]),
     }
 
@@ -208,6 +222,9 @@ def _build_payload_from_record(rec: Dict[str, Any], rng: random.Random) -> Tuple
         payload["sales5_eok"] = _jitter(sales5 if sales5 is not None else sales3, rng, 0.08, 3.60, floor=0.1)
         payload["balance_eok"] = _jitter(balance, rng, 0.03, 12.0, floor=0.0)
         payload["capital_eok"] = _jitter(capital, rng, 0.08, 3.20, floor=0.05)
+        payload["surplus_eok"] = round(rng.uniform(0.0, 100.0), 4)
+        payload["debt_ratio"] = round(rng.uniform(0.0, 1000.0), 4)
+        payload["liq_ratio"] = round(rng.uniform(0.0, 1000000.0), 4)
     elif scenario == "unit_typo":
         # Intentional unit typo stress.
         b = _to_float(payload.get("balance_eok"))
@@ -228,6 +245,29 @@ def _build_payload_from_record(rec: Dict[str, Any], rng: random.Random) -> Tuple
         if sales3_fix is not None:
             if s5 is None or s5 < sales3_fix:
                 payload["sales5_eok"] = round(float(sales3_fix) * rng.uniform(1.05, 1.85), 4)
+    elif scenario == "axis_wide_stress":
+        payload["specialty"] = round(rng.uniform(0.0, 1000.0), 4)
+        payload["y23"] = round(rng.uniform(0.0, 1000.0), 4)
+        payload["y24"] = round(rng.uniform(0.0, 1000.0), 4)
+        payload["y25"] = round(rng.uniform(0.0, 1000.0), 4)
+        payload["sales3_eok"] = round(rng.uniform(0.0, 3000.0), 4)
+        payload["sales5_eok"] = round(rng.uniform(max(0.0, float(payload["sales3_eok"]) * 0.6), 5000.0), 4)
+        payload["surplus_eok"] = round(rng.uniform(0.0, 100.0), 4)
+        payload["debt_ratio"] = round(rng.uniform(0.0, 1000.0), 4)
+        payload["liq_ratio"] = round(rng.uniform(0.0, 1000000.0), 4)
+        payload["company_type"] = rng.choice(["주식회사", "유한회사", "개인"])
+        payload["admin_history"] = rng.choice(["없음", "있음", "영업정지 이력"])
+        payload["credit_level"] = rng.choice(["우수", "보통", "주의"])
+    elif scenario == "split_merge_stress":
+        payload["license_text"] = rng.choice(["전기", "정보통신", "소방"])
+        payload["reorg_mode"] = rng.choice(["포괄", "분할", "분할포괄"])
+        payload["specialty"] = round(rng.uniform(1.0, 120.0), 4)
+        payload["sales3_eok"] = round(rng.uniform(0.0, 150.0), 4)
+        payload["sales5_eok"] = round(rng.uniform(float(payload["sales3_eok"]), 260.0), 4)
+        payload["surplus_eok"] = round(rng.uniform(0.0, 60.0), 4)
+        payload["debt_ratio"] = round(rng.uniform(0.0, 700.0), 4)
+        payload["liq_ratio"] = round(rng.uniform(0.0, 300000.0), 4)
+        payload["balance_eok"] = round(rng.uniform(0.0, 3000.0), 4)
 
     return payload, scenario
 
@@ -246,6 +286,8 @@ def _validate_result(ctx: RunContext, payload: Dict[str, Any], result: Dict[str,
     if center is None or low is None or high is None:
         anomalies.append("missing_core_numbers")
         return anomalies
+    if center < 0.0 or center > 10000.0 or low < 0.0 or high > 20000.0:
+        anomalies.append("out_of_numeric_guard")
     if not (low <= center <= high):
         anomalies.append("range_invariant_violation")
 
@@ -427,6 +469,168 @@ def _run_cycle(
                                 }
                             )
                         continue
+
+        # Policy invariant: 이익잉여금이 커질수록 감가(단조 감소)되는지 확인
+        if rng.random() < 0.02:
+            sweep_vals = [0.0, 1.0, 5.0, 20.0, 100.0]
+            centers: List[float] = []
+            valid = True
+            for sv in sweep_vals:
+                pp = dict(payload)
+                pp["surplus_eok"] = sv
+                rr = est.estimate(pp)
+                if not bool(rr.get("ok")):
+                    valid = False
+                    break
+                cv = _to_float(rr.get("estimate_center_eok"))
+                if cv is None:
+                    valid = False
+                    break
+                centers.append(float(cv))
+            if valid and len(centers) == len(sweep_vals):
+                for i in range(len(centers) - 1):
+                    if centers[i + 1] > centers[i] + max(0.03, centers[i] * 0.03):
+                        anomaly_counter["surplus_monotonic_violation"] += 1
+                        license_bucket_anomaly_counter[license_bucket] += 1
+                        if len(samples) < sample_limit:
+                            samples.append(
+                                {
+                                    "type": "surplus_monotonic_violation",
+                                    "payload": payload,
+                                    "surplus_sweep": list(zip(sweep_vals, [_round4(x) for x in centers])),
+                                }
+                            )
+                        break
+
+        # Policy invariant: 부채비율 증가 시 감가 방향성 유지
+        if rng.random() < 0.02:
+            sweep_vals = [0.0, 80.0, 250.0, 600.0, 1000.0]
+            centers = []
+            valid = True
+            for dv in sweep_vals:
+                pp = dict(payload)
+                pp["debt_ratio"] = dv
+                rr = est.estimate(pp)
+                if not bool(rr.get("ok")):
+                    valid = False
+                    break
+                cv = _to_float(rr.get("estimate_center_eok"))
+                if cv is None:
+                    valid = False
+                    break
+                centers.append(float(cv))
+            if valid and len(centers) == len(sweep_vals):
+                for i in range(len(centers) - 1):
+                    if centers[i + 1] > centers[i] + max(0.03, centers[i] * 0.035):
+                        anomaly_counter["debt_monotonic_violation"] += 1
+                        license_bucket_anomaly_counter[license_bucket] += 1
+                        if len(samples) < sample_limit:
+                            samples.append(
+                                {
+                                    "type": "debt_monotonic_violation",
+                                    "payload": payload,
+                                    "debt_sweep": list(zip(sweep_vals, [_round4(x) for x in centers])),
+                                }
+                            )
+                        break
+
+        # Policy invariant: 유동비율 극단에서 폭주/붕괴 없이 안정적인지 확인
+        if rng.random() < 0.015:
+            sweep_vals = [0.0, 100.0, 5000.0, 200000.0, 1000000.0]
+            centers = []
+            valid = True
+            for lv in sweep_vals:
+                pp = dict(payload)
+                pp["liq_ratio"] = lv
+                rr = est.estimate(pp)
+                if not bool(rr.get("ok")):
+                    valid = False
+                    break
+                cv = _to_float(rr.get("estimate_center_eok"))
+                if cv is None or not (cv == cv):
+                    valid = False
+                    break
+                centers.append(float(cv))
+            if valid and len(centers) == len(sweep_vals):
+                cmin = max(0.05, min(centers))
+                cmax = max(centers)
+                if (cmax / cmin) > 4.2:
+                    anomaly_counter["liq_explosive_response"] += 1
+                    license_bucket_anomaly_counter[license_bucket] += 1
+                    if len(samples) < sample_limit:
+                        samples.append(
+                            {
+                                "type": "liq_explosive_response",
+                                "payload": payload,
+                                "liq_sweep": list(zip(sweep_vals, [_round4(x) for x in centers])),
+                            }
+                        )
+
+        # Policy invariant: 회사형태/행정처분 차이를 반영하는지 확인
+        if rng.random() < 0.015:
+            p_corp = dict(payload)
+            p_ind = dict(payload)
+            p_corp["company_type"] = "주식회사"
+            p_ind["company_type"] = "개인"
+            r_c = est.estimate(p_corp)
+            r_i = est.estimate(p_ind)
+            if bool(r_c.get("ok")) and bool(r_i.get("ok")):
+                c_c = _to_float(r_c.get("estimate_center_eok"))
+                c_i = _to_float(r_i.get("estimate_center_eok"))
+                if c_c is not None and c_i is not None and c_i > (c_c * 1.12):
+                    anomaly_counter["company_type_pricing_violation"] += 1
+                    license_bucket_anomaly_counter[license_bucket] += 1
+            p_none = dict(payload)
+            p_has = dict(payload)
+            p_none["admin_history"] = "없음"
+            p_has["admin_history"] = "있음"
+            r_n = est.estimate(p_none)
+            r_h = est.estimate(p_has)
+            if bool(r_n.get("ok")) and bool(r_h.get("ok")):
+                c_n = _to_float(r_n.get("estimate_center_eok"))
+                c_h = _to_float(r_h.get("estimate_center_eok"))
+                if c_n is not None and c_h is not None and c_h > (c_n * 1.08):
+                    anomaly_counter["admin_history_pricing_violation"] += 1
+                    license_bucket_anomaly_counter[license_bucket] += 1
+
+        # 전기/정보통신/소방의 분할/포괄 특수성 검증
+        if est._is_balance_separate_paid_group(target) and rng.random() < 0.02:
+            reorg_modes = ["", "포괄", "분할", "분할포괄"]
+            centers: Dict[str, float] = {}
+            valid = True
+            for mode in reorg_modes:
+                pp = dict(payload)
+                pp["reorg_mode"] = mode
+                rr = est.estimate(pp)
+                if not bool(rr.get("ok")):
+                    valid = False
+                    break
+                cv = _to_float(rr.get("estimate_center_eok"))
+                if cv is None:
+                    valid = False
+                    break
+                centers[mode] = float(cv)
+            if valid and len(centers) == len(reorg_modes):
+                base_c = centers.get("", 0.0)
+                comp_c = centers.get("포괄", base_c)
+                split_c = centers.get("분할", base_c)
+                split_pack_c = centers.get("분할포괄", base_c)
+                violated = (
+                    (comp_c > (base_c * 1.08))
+                    or (split_c > (comp_c * 1.10))
+                    or (split_pack_c > (split_c * 1.08))
+                )
+                if violated:
+                    anomaly_counter["split_merge_specialty_violation"] += 1
+                    license_bucket_anomaly_counter[license_bucket] += 1
+                    if len(samples) < sample_limit:
+                        samples.append(
+                            {
+                                "type": "split_merge_specialty_violation",
+                                "payload": payload,
+                                "reorg_centers": {k: _round4(v) for k, v in centers.items()},
+                            }
+                        )
 
         ok_count += 1
 
