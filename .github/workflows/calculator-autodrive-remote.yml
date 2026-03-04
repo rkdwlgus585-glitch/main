@@ -1,0 +1,204 @@
+name: Calculator Autodrive (Remote, Yangdo+Acq)
+
+on:
+  workflow_dispatch:
+    inputs:
+      max_cycles:
+        description: "How many autodrive cycles to run"
+        required: false
+        default: "3"
+      pilot_minutes:
+        description: "Behavior pilot duration (minutes)"
+        required: false
+        default: "3"
+      stress_yangdo_iterations:
+        description: "Structured stress iterations for yangdo"
+        required: false
+        default: "60"
+      stress_acq_iterations:
+        description: "Structured stress iterations for acquisition"
+        required: false
+        default: "60"
+      cycle_cooldown_sec:
+        description: "Cooldown seconds between cycles"
+        required: false
+        default: "25"
+      blocked_backoff_sec:
+        description: "Backoff seconds when KR precheck is blocked"
+        required: false
+        default: "1200"
+      max_prechecks_per_day:
+        description: "Daily precheck budget"
+        required: false
+        default: "40"
+      max_train_rows:
+        description: "Max train rows for KR-only heal step"
+        required: false
+        default: "260"
+  schedule:
+    - cron: "25 */4 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: calculator-autodrive-remote
+  cancel-in-progress: true
+
+jobs:
+  autodrive:
+    if: ${{ github.event_name != 'schedule' || vars.ENABLE_CALCULATOR_AUTODRIVE_SCHEDULE == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 170
+    env:
+      PYTHONUNBUFFERED: "1"
+      TZ: "Asia/Seoul"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Setup Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      - name: Install runtime dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install \
+            requests \
+            beautifulsoup4 \
+            selenium \
+            webdriver-manager \
+            gspread \
+            oauth2client
+          python --version
+          google-chrome --version || true
+
+      - name: Run autodrive loop (KR-only guard on)
+        env:
+          MAX_CYCLES: ${{ github.event.inputs.max_cycles || '3' }}
+          PILOT_MINUTES: ${{ github.event.inputs.pilot_minutes || '3' }}
+          STRESS_Y_ITER: ${{ github.event.inputs.stress_yangdo_iterations || '60' }}
+          STRESS_A_ITER: ${{ github.event.inputs.stress_acq_iterations || '60' }}
+          COOLDOWN_SEC: ${{ github.event.inputs.cycle_cooldown_sec || '25' }}
+          BACKOFF_SEC: ${{ github.event.inputs.blocked_backoff_sec || '1200' }}
+          MAX_PRECHECKS: ${{ github.event.inputs.max_prechecks_per_day || '40' }}
+          MAX_TRAIN_ROWS: ${{ github.event.inputs.max_train_rows || '260' }}
+        run: |
+          python scripts/run_calculator_autodrive.py \
+            --max-cycles "${MAX_CYCLES}" \
+            --pilot-minutes "${PILOT_MINUTES}" \
+            --stress-yangdo-iterations "${STRESS_Y_ITER}" \
+            --stress-acq-iterations "${STRESS_A_ITER}" \
+            --cycle-cooldown-sec "${COOLDOWN_SEC}" \
+            --blocked-backoff-sec "${BACKOFF_SEC}" \
+            --max-prechecks-per-day "${MAX_PRECHECKS}" \
+            --max-train-rows "${MAX_TRAIN_ROWS}"
+
+      - name: Validate closed-loop evidence
+        run: |
+          python - <<'PY'
+          import json, pathlib, sys
+          p = pathlib.Path("logs/calculator_autodrive_latest.json")
+          if not p.exists():
+            print("missing logs/calculator_autodrive_latest.json")
+            sys.exit(1)
+          data = json.loads(p.read_text(encoding="utf-8", errors="replace"))
+          cycle = data.get("last_cycle") or {}
+          precheck = cycle.get("precheck") or {}
+          behavior = cycle.get("step_behavior") or {}
+          stress = cycle.get("step_stress") or {}
+          verify = cycle.get("step_verify") or {}
+          heal = cycle.get("step_heal") or {}
+          reverify = cycle.get("step_reverify") or {}
+          acq_anom = cycle.get("stress_acq_anomaly_counter")
+          errors = []
+
+          behavior_cmd = " ".join(behavior.get("cmd") or [])
+          stress_cmd = " ".join(stress.get("cmd") or [])
+          verify_cmd = " ".join(verify.get("cmd") or [])
+          heal_cmd = " ".join(heal.get("cmd") or [])
+          reverify_cmd = " ".join(reverify.get("cmd") or [])
+
+          if precheck.get("ok"):
+            if "run_calculator_behavior_pilot.py" not in behavior_cmd:
+              errors.append("behavior pilot command missing")
+            if "run_calculator_structured_stress.py" not in stress_cmd:
+              errors.append("structured stress command missing")
+            if "verify_calculator_runtime.py" not in verify_cmd:
+              errors.append("runtime verify command missing")
+            if acq_anom is None:
+              errors.append("acquisition anomaly counter missing")
+            verify_ok = bool(cycle.get("verify_ok"))
+            if (not verify_ok) and (not heal_cmd or not reverify_cmd):
+              errors.append("verify failed but heal/reverify chain missing")
+          else:
+            blocked = int(precheck.get("blocked_count") or 0)
+            if blocked <= 0:
+              errors.append("precheck not-ok but blocked_count not set")
+
+          if errors:
+            print("closed_loop_validation_failed")
+            for e in errors:
+              print("-", e)
+            sys.exit(1)
+
+          print("closed_loop_validation_ok")
+          PY
+
+      - name: Build summary
+        run: |
+          python - <<'PY'
+          import json, pathlib
+          p = pathlib.Path("logs/calculator_autodrive_latest.json")
+          if not p.exists():
+            print("report_not_found")
+            raise SystemExit(1)
+          data = json.loads(p.read_text(encoding="utf-8", errors="replace"))
+          c = data.get("last_cycle") or {}
+          pre = c.get("precheck") or {}
+          lines = [
+            "## Calculator Autodrive (Remote, Yangdo+Acq)",
+            "",
+            f"- generated_at: `{data.get('generated_at')}`",
+            f"- status: `{data.get('status')}`",
+            f"- ok: `{data.get('ok')}`",
+            f"- cycles_completed: `{data.get('cycles_completed')}`",
+            f"- verify_ok: `{c.get('verify_ok')}`",
+            f"- healed: `{c.get('healed')}`",
+            f"- precheck_ok: `{pre.get('ok')}`",
+            f"- precheck_blocked_count: `{pre.get('blocked_count')}`",
+            f"- behavior_ok_rate: `{c.get('behavior_ok_rate')}`",
+            f"- behavior_fail_events: `{c.get('behavior_fail_events')}`",
+            f"- stress_yangdo_anomaly_counter: `{c.get('stress_yangdo_anomaly_counter')}`",
+            f"- stress_acq_anomaly_counter: `{c.get('stress_acq_anomaly_counter')}`",
+          ]
+          notes = list(c.get("improvement_notes") or [])
+          if notes:
+            lines.append("")
+            lines.append("- improvement_notes:")
+            lines.extend([f"  - {n}" for n in notes[:10]])
+          out = pathlib.Path("logs/calculator_autodrive_summary.md")
+          out.write_text("\n".join(lines), encoding="utf-8")
+          print(out.read_text(encoding="utf-8"))
+          PY
+          cat logs/calculator_autodrive_summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: calculator-autodrive-report
+          path: |
+            logs/calculator_autodrive_latest.json
+            logs/calculator_autodrive_state.json
+            logs/calculator_autodrive_backlog.md
+            logs/calculator_autodrive_cycles.jsonl
+            logs/calculator_autodrive_summary.md
+            logs/calculator_autodrive_traffic_guard.json
+          if-no-files-found: error
