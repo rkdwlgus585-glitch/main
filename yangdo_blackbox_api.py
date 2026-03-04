@@ -200,6 +200,25 @@ def _yearly_shape_similarity(left: Dict[str, Any], right: Dict[str, Any]) -> Dic
     return {"shape": shape, "trend": trend, "tail": tail, "strength": strength}
 
 
+def _yearly_share_profile(source: Dict[str, Any]) -> Dict[str, Any]:
+    years = [_year_value(source, "y23"), _year_value(source, "y24"), _year_value(source, "y25")]
+    pairs = [(idx, max(0.0, float(v))) for idx, v in enumerate(years) if v is not None]
+    if len(pairs) < 2:
+        return {"count": len(pairs), "dominant_idx": None, "dominant_share": 0.0, "shares": {}}
+    total = sum(v for _idx, v in pairs)
+    if total <= 0:
+        return {"count": len(pairs), "dominant_idx": None, "dominant_share": 0.0, "shares": {}}
+    shares = {idx: (val / total) for idx, val in pairs}
+    dominant_idx = max(shares.items(), key=lambda x: x[1])[0]
+    dominant_share = float(shares.get(dominant_idx) or 0.0)
+    return {
+        "count": len(pairs),
+        "dominant_idx": int(dominant_idx),
+        "dominant_share": float(dominant_share),
+        "shares": shares,
+    }
+
+
 class YangdoBlackboxEstimator:
     def __init__(self) -> None:
         self._lock = threading.Lock()
@@ -1131,6 +1150,44 @@ class YangdoBlackboxEstimator:
         min_stat_size = max(10, top_k)
         if len(stat_neighbors) < min_stat_size:
             stat_neighbors = stat_candidates[: max(min_stat_size, top_k * 4)]
+
+        # 연도별 실적 분포(23/24/25 share)가 강하게 치우친 입력은 동일 패턴 후보를 우선한다.
+        target_profile = _yearly_share_profile(target)
+        if target_profile.get("count", 0) >= 2 and len(stat_neighbors) >= max(10, top_k):
+            target_dom_idx = target_profile.get("dominant_idx")
+            target_dom_share = float(target_profile.get("dominant_share") or 0.0)
+            skewed_target = target_dom_idx is not None and target_dom_share >= 0.76
+            prof_filtered: List[Tuple[float, Dict[str, Any]]] = []
+            for sim, rec in stat_neighbors:
+                cand_profile = _yearly_share_profile(rec)
+                if cand_profile.get("count", 0) < 2:
+                    # 후보의 연도 데이터가 부족하면 약한 가중만 허용
+                    if float(sim) >= 92:
+                        prof_filtered.append((sim, rec))
+                    continue
+                ys = _yearly_shape_similarity(target, rec)
+                shape = float(ys.get("shape") or 0.0)
+                strength = float(ys.get("strength") or 0.0)
+                cand_dom_idx = cand_profile.get("dominant_idx")
+                cand_dom_share = float(cand_profile.get("dominant_share") or 0.0)
+                same_dom = (target_dom_idx is not None) and (cand_dom_idx == target_dom_idx)
+                if skewed_target:
+                    if same_dom and cand_dom_share >= 0.56 and shape >= 0.30:
+                        prof_filtered.append((sim, rec))
+                        continue
+                    if shape >= 0.52 and strength >= 0.55:
+                        prof_filtered.append((sim, rec))
+                        continue
+                    if float(sim) >= 96 and shape >= 0.42:
+                        prof_filtered.append((sim, rec))
+                        continue
+                    continue
+                # 일반 케이스도 극단적 패턴 불일치는 제거
+                if strength >= 0.60 and shape < 0.24:
+                    continue
+                prof_filtered.append((sim, rec))
+            if len(prof_filtered) >= max(8, top_k):
+                stat_neighbors = prof_filtered
 
         single_core = self._single_token_target_core(token_set)
         if single_core:
