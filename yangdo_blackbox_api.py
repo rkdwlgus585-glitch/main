@@ -430,6 +430,14 @@ class YangdoBlackboxEstimator:
             if single_core_target and s_year_shape < 0.48:
                 score *= 0.82
 
+            # 동일 3년합계라도 연도별 분포/추이가 다르면 유사도를 강하게 낮춘다.
+            shape_penalty = (0.45 + (0.55 * s_year_shape))
+            shape_penalty *= (0.55 + (0.45 * s_year_tail))
+            shape_penalty *= (0.65 + (0.35 * s_year_trend))
+            if single_core_target:
+                shape_penalty *= (0.90 + (0.10 * s_year_shape))
+            score *= max(0.35, min(1.0, shape_penalty))
+
         if tokens_t and tokens_c:
             if not inter:
                 score *= 0.08
