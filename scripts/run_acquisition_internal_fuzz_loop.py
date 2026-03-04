@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import functools
 import json
 import random
 import re
@@ -95,22 +96,15 @@ class LocalAcqServer:
         target.write_text(html, encoding="utf-8")
 
         # Bind ephemeral port on localhost.
-        self._server = QuietThreadingHTTPServer(("127.0.0.1", 0), QuietHandler)
+        handler = functools.partial(QuietHandler, directory=str(self.temp_dir))
+        self._server = QuietThreadingHTTPServer(("127.0.0.1", 0), handler)
         self._server.timeout = 1.0
         port = int(self._server.server_address[1])
         self.base_url = f"http://127.0.0.1:{port}/{self.html_name}"
 
         def _run() -> None:
             assert self._server is not None
-            cwd = Path.cwd()
-            try:
-                # Serve from temp_dir.
-                import os
-
-                os.chdir(str(self.temp_dir))
-                self._server.serve_forever(poll_interval=0.2)
-            finally:
-                os.chdir(str(cwd))
+            self._server.serve_forever(poll_interval=0.2)
 
         self._thread = threading.Thread(target=_run, daemon=True)
         self._thread.start()
@@ -284,7 +278,7 @@ def run_one_cycle(
                             "iter": idx + 1,
                             "ok": False,
                             "anomalies": ["runtime_exception"],
-                            "error": str(exc),
+                            "error": f"{type(exc).__name__}: {exc}",
                         }
                     )
                 driver = recover_server_and_driver(driver, server)
