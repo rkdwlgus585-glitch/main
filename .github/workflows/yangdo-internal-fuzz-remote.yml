@@ -102,6 +102,13 @@ jobs:
           data = json.loads(p.read_text(encoding="utf-8", errors="replace"))
           t = data.get("totals") or {}
           ac = data.get("aggregate_anomaly_counter") or {}
+          buckets = list(data.get("aggregate_license_bucket_quality") or [])
+          top_bucket_lines = []
+          for row in buckets[:8]:
+            name = str(row.get("license_bucket") or "")
+            rate = row.get("anomaly_rate_pct")
+            samples = row.get("samples")
+            top_bucket_lines.append(f"  - {name}: anomaly_rate={rate}% (samples={samples})")
           lines = [
             "## Yangdo Internal Fuzz (Remote)",
             "",
@@ -112,6 +119,8 @@ jobs:
             f"- anomaly_rate_pct: `{t.get('anomaly_rate_pct')}`",
             f"- aggregate_anomaly_counter: `{ac}`",
           ]
+          if top_bucket_lines:
+            lines.extend(["", "- worst_license_buckets:", *top_bucket_lines])
           out = pathlib.Path("logs/yangdo_internal_fuzz_summary.md")
           out.write_text("\n".join(lines), encoding="utf-8")
           print(out.read_text(encoding="utf-8"))

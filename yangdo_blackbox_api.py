@@ -92,6 +92,61 @@ def _safe_ratio(num_value: Any, den_value: Any) -> Optional[float]:
     return float(val)
 
 
+def _year_value(source: Dict[str, Any], key: str) -> Optional[float]:
+    direct = _to_float(source.get(key))
+    if direct is not None:
+        return direct
+    years = source.get("years")
+    if isinstance(years, dict):
+        return _to_float(years.get(key))
+    return None
+
+
+def _yearly_shape_similarity(left: Dict[str, Any], right: Dict[str, Any]) -> Dict[str, float]:
+    ly = [_year_value(left, "y23"), _year_value(left, "y24"), _year_value(left, "y25")]
+    ry = [_year_value(right, "y23"), _year_value(right, "y24"), _year_value(right, "y25")]
+    common_idx = [i for i in range(3) if ly[i] is not None and ry[i] is not None]
+    if len(common_idx) < 2:
+        return {"shape": 0.55, "trend": 0.55, "tail": 0.55, "strength": 0.0}
+
+    l_vals = [max(0.0, float(ly[i])) for i in common_idx]
+    r_vals = [max(0.0, float(ry[i])) for i in common_idx]
+    l_sum = sum(l_vals)
+    r_sum = sum(r_vals)
+    if l_sum <= 0 or r_sum <= 0:
+        return {"shape": 0.55, "trend": 0.55, "tail": 0.55, "strength": 0.0}
+
+    l_share = [v / l_sum for v in l_vals]
+    r_share = [v / r_sum for v in r_vals]
+    l1 = sum(abs(a - b) for a, b in zip(l_share, r_share))
+    shape = max(0.0, 1.0 - min(1.0, l1 / 2.0))
+
+    tail = max(0.0, 1.0 - min(1.0, abs(l_share[-1] - r_share[-1]) * 2.0))
+
+    def growth(a: Optional[float], b: Optional[float]) -> Optional[float]:
+        if a is None or b is None:
+            return None
+        denom = max(abs(float(a)), 0.3)
+        return (float(b) - float(a)) / denom
+
+    trend_scores: List[float] = []
+    for a_idx, b_idx in ((0, 1), (1, 2)):
+        if a_idx not in common_idx or b_idx not in common_idx:
+            continue
+        lg = growth(ly[a_idx], ly[b_idx])
+        rg = growth(ry[a_idx], ry[b_idx])
+        if lg is None or rg is None:
+            continue
+        rel = abs(lg - rg) / max(1.0, abs(lg), abs(rg))
+        trend_scores.append(max(0.0, 1.0 - min(1.0, rel)))
+    trend = sum(trend_scores) / float(len(trend_scores)) if trend_scores else 0.55
+
+    pair_strength = float(len(trend_scores)) / 2.0
+    value_strength = float(len(common_idx)) / 3.0
+    strength = max(0.0, min(1.0, (value_strength * 0.55) + (pair_strength * 0.45)))
+    return {"shape": shape, "trend": trend, "tail": tail, "strength": strength}
+
+
 class YangdoBlackboxEstimator:
     def __init__(self) -> None:
         self._lock = threading.Lock()
@@ -264,6 +319,11 @@ class YangdoBlackboxEstimator:
             return True
         if sales_ratio is not None and (sales_ratio < 0.30 or sales_ratio > 3.30):
             return True
+        yearly = _yearly_shape_similarity(target, candidate)
+        if yearly["strength"] >= 0.65 and yearly["shape"] < 0.22:
+            return True
+        if yearly["strength"] >= 0.65 and yearly["trend"] < 0.18 and yearly["tail"] < 0.25:
+            return True
         return False
 
     def _has_fuzzy_token_overlap(self, left_tokens: set, right_tokens: set) -> bool:
@@ -300,6 +360,11 @@ class YangdoBlackboxEstimator:
         s_capital = _relative_closeness(target.get("capital_eok"), candidate.get("capital_eok"))
         s_balance = _relative_closeness(target.get("balance_eok"), candidate.get("balance_eok"))
         s_surplus = _relative_closeness(target.get("surplus_eok"), candidate.get("surplus_eok"))
+        yearly = _yearly_shape_similarity(target, candidate)
+        s_year_shape = float(yearly["shape"])
+        s_year_trend = float(yearly["trend"])
+        s_year_tail = float(yearly["tail"])
+        s_year_strength = float(yearly["strength"])
 
         score = 0.0
         score += token_jaccard * 42.0
@@ -317,6 +382,10 @@ class YangdoBlackboxEstimator:
         if not balance_excluded:
             score += s_balance * 12.0
         score += s_surplus * 10.0
+        if s_year_strength > 0:
+            score += s_year_shape * (6.0 + 8.0 * s_year_strength)
+            score += s_year_trend * (3.0 + 4.0 * s_year_strength)
+            score += s_year_tail * (2.0 + 3.0 * s_year_strength)
 
         if s_specialty >= 0.90 and s_sales3 >= 0.90:
             score += 4.5
@@ -340,6 +409,26 @@ class YangdoBlackboxEstimator:
                 score *= 0.78
             elif sales_ratio < 0.20 or sales_ratio > 5.0:
                 score *= 0.90
+        if s_year_strength >= 0.60:
+            if s_year_shape < 0.28:
+                score *= 0.55
+            elif s_year_shape < 0.42:
+                score *= 0.72
+            elif s_year_shape < 0.56:
+                score *= 0.86
+
+            if s_year_tail < 0.22:
+                score *= 0.72
+            elif s_year_tail < 0.38:
+                score *= 0.86
+
+            if s_year_trend < 0.22:
+                score *= 0.80
+            elif s_year_trend < 0.36:
+                score *= 0.90
+
+            if single_core_target and s_year_shape < 0.48:
+                score *= 0.82
 
         if tokens_t and tokens_c:
             if not inter:
@@ -943,6 +1032,38 @@ class YangdoBlackboxEstimator:
         min_stat_size = max(10, top_k)
         if len(stat_neighbors) < min_stat_size:
             stat_neighbors = stat_candidates[: max(min_stat_size, top_k * 4)]
+
+        single_core = self._single_token_target_core(token_set)
+        if single_core:
+            strict_neighbors: List[Tuple[float, Dict[str, Any]]] = []
+            for sim, rec in stat_neighbors:
+                cand_tokens = self._canonical_tokens(rec.get("license_tokens") or set())
+                if self._is_single_token_cross_combo(token_set, cand_tokens, rec.get("license_text")):
+                    continue
+                if not self._is_single_token_same_core(token_set, cand_tokens, rec.get("license_text")):
+                    continue
+                yearly = _yearly_shape_similarity(target, rec)
+                if yearly["strength"] >= 0.65 and yearly["shape"] < 0.32:
+                    continue
+                strict_neighbors.append((sim, rec))
+
+            if len(strict_neighbors) >= max(8, top_k):
+                stat_neighbors = strict_neighbors
+            elif len(strict_neighbors) >= 4 and len(stat_neighbors) >= max(8, top_k):
+                selected: List[Tuple[float, Dict[str, Any]]] = list(strict_neighbors)
+                picked = {
+                    (int(x[1].get("row", 0) or 0), str(x[1].get("uid", "")).strip())
+                    for x in strict_neighbors
+                }
+                for sim, rec in stat_neighbors:
+                    marker = (int(rec.get("row", 0) or 0), str(rec.get("uid", "")).strip())
+                    if marker in picked:
+                        continue
+                    selected.append((sim, rec))
+                    if len(selected) >= max(8, top_k):
+                        break
+                stat_neighbors = selected
+
         display_neighbors = stat_neighbors[: max(top_k, 12)]
 
         prices = [float(rec.get("current_price_eok")) for _sim, rec in stat_neighbors]

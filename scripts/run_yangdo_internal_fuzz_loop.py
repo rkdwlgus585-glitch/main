@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import argparse
 import json
@@ -125,10 +125,45 @@ def _jitter(base: Optional[float], rng: random.Random, lo: float, hi: float, flo
     return round(out, 4)
 
 
+def _shape_shift_years_same_sum(
+    rng: random.Random,
+    y23: Optional[float],
+    y24: Optional[float],
+    y25: Optional[float],
+    sales3: Optional[float],
+) -> Tuple[Optional[float], Optional[float], Optional[float], Optional[float]]:
+    total = _to_float(sales3)
+    if total is None or total <= 0:
+        vals = [v for v in (_to_float(y23), _to_float(y24), _to_float(y25)) if v is not None and v > 0]
+        total = sum(vals) if vals else None
+    if total is None or total <= 0:
+        return y23, y24, y25, sales3
+
+    patterns = [
+        (0.33, 0.33, 0.34),  # flat
+        (0.12, 0.18, 0.70),  # late spike
+        (0.70, 0.18, 0.12),  # early spike
+        (0.18, 0.64, 0.18),  # mid spike
+        (0.08, 0.22, 0.70),  # stronger late spike
+    ]
+    a, b, c = patterns[rng.randrange(0, len(patterns))]
+    if rng.random() < 0.5:
+        # small jitter while preserving "same sales3" intent
+        a = max(0.03, min(0.90, a + rng.uniform(-0.03, 0.03)))
+        b = max(0.03, min(0.90, b + rng.uniform(-0.03, 0.03)))
+        c = max(0.03, min(0.90, c + rng.uniform(-0.03, 0.03)))
+        s = a + b + c
+        a, b, c = a / s, b / s, c / s
+    out23 = round(float(total) * a, 4)
+    out24 = round(float(total) * b, 4)
+    out25 = round(float(total) * c, 4)
+    return out23, out24, out25, round(float(total), 4)
+
+
 def _build_payload_from_record(rec: Dict[str, Any], rng: random.Random) -> Tuple[Dict[str, Any], str]:
     scenario = rng.choices(
-        population=["near", "sparse", "extreme", "unit_typo", "year_shift"],
-        weights=[0.52, 0.15, 0.17, 0.08, 0.08],
+        population=["near", "sparse", "extreme", "unit_typo", "year_shift", "shape_shift_same_sum"],
+        weights=[0.47, 0.14, 0.15, 0.07, 0.07, 0.10],
         k=1,
     )[0]
 
@@ -183,6 +218,16 @@ def _build_payload_from_record(rec: Dict[str, Any], rng: random.Random) -> Tuple
             payload["sales3_eok"] = round(s * rng.choice([0.1, 10]), 4)
     elif scenario == "year_shift":
         payload["license_year"] = int(payload["license_year"]) - rng.randint(5, 15)
+    elif scenario == "shape_shift_same_sum":
+        ny23, ny24, ny25, sales3_fix = _shape_shift_years_same_sum(rng, y23, y24, y25, sales3)
+        payload["y23"] = ny23
+        payload["y24"] = ny24
+        payload["y25"] = ny25
+        payload["sales3_eok"] = sales3_fix
+        s5 = _to_float(payload.get("sales5_eok"))
+        if sales3_fix is not None:
+            if s5 is None or s5 < sales3_fix:
+                payload["sales5_eok"] = round(float(sales3_fix) * rng.uniform(1.05, 1.85), 4)
 
     return payload, scenario
 
@@ -231,6 +276,26 @@ def _validate_result(ctx: RunContext, payload: Dict[str, Any], result: Dict[str,
         if ("전기" in target_core) and any(int(_to_float(n.get("seoul_no")) or 0) == 7238 for n in neighbors):
             anomalies.append("jeongi_contains_7238")
 
+    yearly_target_values = [target.get("y23"), target.get("y24"), target.get("y25")]
+    yearly_target_count = len([v for v in yearly_target_values if isinstance(v, (int, float))])
+    if yearly_target_count >= 2:
+        yearly_shapes: List[float] = []
+        for n in neighbors[:8]:
+            no = _to_float(n.get("seoul_no"))
+            rec = ctx.by_seoul_no.get(int(no)) if no is not None else None
+            if not rec:
+                continue
+            sig = yangdo_blackbox_api._yearly_shape_similarity(target, rec)
+            if float(sig.get("strength") or 0.0) < 0.45:
+                continue
+            yearly_shapes.append(float(sig.get("shape") or 0.0))
+        if len(yearly_shapes) >= 3:
+            mean_shape = sum(yearly_shapes) / float(len(yearly_shapes))
+            if mean_shape < 0.33:
+                anomalies.append("weak_year_shape_neighbors")
+            elif mean_shape < 0.40:
+                anomalies.append("year_shape_neighbors_low")
+
     return anomalies
 
 
@@ -244,9 +309,20 @@ def _run_cycle(
     train = ctx.train_records
     anomaly_counter: Counter[str] = Counter()
     scenario_counter: Counter[str] = Counter()
+    license_bucket_counter: Counter[str] = Counter()
+    license_bucket_anomaly_counter: Counter[str] = Counter()
     ok_count = 0
     recovered_count = 0
     samples: List[Dict[str, Any]] = []
+
+    def _license_bucket(payload_obj: Dict[str, Any]) -> str:
+        target_obj = est._target_from_payload(payload_obj)
+        tok = est._canonical_tokens(target_obj.get("license_tokens") or set())
+        core = sorted(est._core_tokens(tok))
+        if core:
+            return "+".join(core)
+        raw = str(target_obj.get("license_text") or "").strip()
+        return raw[:32] if raw else "미분류"
 
     for _ in range(max(1, int(iterations))):
         rec = rng.choice(train)
@@ -298,10 +374,13 @@ def _run_cycle(
                     result = retried
                     payload = retry_payload
 
+        license_bucket = _license_bucket(payload)
+        license_bucket_counter[license_bucket] += 1
         anomalies = _validate_result(ctx, payload, result)
         if anomalies:
             for a in anomalies:
                 anomaly_counter[a] += 1
+            license_bucket_anomaly_counter[license_bucket] += 1
             if len(samples) < sample_limit:
                 samples.append(
                     {
@@ -337,6 +416,7 @@ def _run_cycle(
                 if c_lo is not None and c_hi is not None:
                     if abs(c_lo - c_hi) > 0.015:
                         anomaly_counter["balance_exclusion_violation"] += 1
+                        license_bucket_anomaly_counter[license_bucket] += 1
                         if len(samples) < sample_limit:
                             samples.append(
                                 {
@@ -352,6 +432,26 @@ def _run_cycle(
 
     total = max(1, int(iterations))
     anomaly_total = sum(int(v) for v in anomaly_counter.values())
+    bucket_quality: List[Dict[str, Any]] = []
+    for name, total_count in license_bucket_counter.items():
+        bad = int(license_bucket_anomaly_counter.get(name, 0))
+        rate = (bad / max(1, int(total_count))) * 100.0
+        bucket_quality.append(
+            {
+                "license_bucket": str(name),
+                "samples": int(total_count),
+                "anomalies": int(bad),
+                "anomaly_rate_pct": round(rate, 3),
+                "ok_rate_pct": round(100.0 - rate, 3),
+            }
+        )
+    bucket_quality.sort(
+        key=lambda x: (
+            -float(x.get("anomaly_rate_pct", 0.0)),
+            -int(x.get("samples", 0)),
+            str(x.get("license_bucket", "")),
+        )
+    )
     return {
         "generated_at": now_str(),
         "iterations": total,
@@ -362,6 +462,9 @@ def _run_cycle(
         "anomaly_rate_pct": round((anomaly_total / total) * 100.0, 3),
         "scenario_counter": dict(scenario_counter),
         "anomaly_counter": dict(anomaly_counter),
+        "license_bucket_counter": dict(license_bucket_counter),
+        "license_bucket_anomaly_counter": dict(license_bucket_anomaly_counter),
+        "license_bucket_quality": bucket_quality[:40],
         "samples": samples,
     }
 
@@ -395,6 +498,8 @@ def main() -> int:
     all_cycle_reports: List[Dict[str, Any]] = []
     aggregate_anomaly: Counter[str] = Counter()
     aggregate_scenario: Counter[str] = Counter()
+    aggregate_license_bucket: Counter[str] = Counter()
+    aggregate_license_bucket_anomaly: Counter[str] = Counter()
     total_iterations = 0
     total_ok = 0
     total_recovered = 0
@@ -424,6 +529,29 @@ def main() -> int:
         total_recovered += int(cycle_report.get("recovered_count", 0))
         aggregate_anomaly.update(cycle_report.get("anomaly_counter") or {})
         aggregate_scenario.update(cycle_report.get("scenario_counter") or {})
+        aggregate_license_bucket.update(cycle_report.get("license_bucket_counter") or {})
+        aggregate_license_bucket_anomaly.update(cycle_report.get("license_bucket_anomaly_counter") or {})
+
+        aggregate_bucket_quality: List[Dict[str, Any]] = []
+        for bucket, total_count in aggregate_license_bucket.items():
+            bad = int(aggregate_license_bucket_anomaly.get(bucket, 0))
+            rate = (bad / max(1, int(total_count))) * 100.0
+            aggregate_bucket_quality.append(
+                {
+                    "license_bucket": str(bucket),
+                    "samples": int(total_count),
+                    "anomalies": int(bad),
+                    "anomaly_rate_pct": round(rate, 3),
+                    "ok_rate_pct": round(100.0 - rate, 3),
+                }
+            )
+        aggregate_bucket_quality.sort(
+            key=lambda x: (
+                -float(x.get("anomaly_rate_pct", 0.0)),
+                -int(x.get("samples", 0)),
+                str(x.get("license_bucket", "")),
+            )
+        )
 
         latest = {
             "generated_at": now_str(),
@@ -445,6 +573,9 @@ def main() -> int:
             },
             "aggregate_scenario_counter": dict(aggregate_scenario),
             "aggregate_anomaly_counter": dict(aggregate_anomaly),
+            "aggregate_license_bucket_counter": dict(aggregate_license_bucket),
+            "aggregate_license_bucket_anomaly_counter": dict(aggregate_license_bucket_anomaly),
+            "aggregate_license_bucket_quality": aggregate_bucket_quality[:60],
             "meta": ctx.meta,
             "latest_cycle": cycle_report,
         }
@@ -472,3 +603,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
