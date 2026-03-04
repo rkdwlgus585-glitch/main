@@ -443,7 +443,8 @@ class YangdoBlackboxEstimator:
         score += s_capital * 10.0
         if not balance_excluded:
             score += s_balance * 12.0
-        score += s_surplus * 10.0
+        # 이익잉여금은 "고객 리스크" 성격이므로 유사도 매칭 영향은 낮춘다.
+        score += s_surplus * 2.5
         if s_year_strength > 0:
             score += s_year_shape * (6.0 + 8.0 * s_year_strength)
             score += s_year_trend * (3.0 + 4.0 * s_year_strength)
@@ -472,12 +473,12 @@ class YangdoBlackboxEstimator:
             elif sales_ratio < 0.20 or sales_ratio > 5.0:
                 score *= 0.90
         if s_year_strength >= 0.60:
-            if s_year_shape < 0.28:
-                score *= 0.55
-            elif s_year_shape < 0.42:
-                score *= 0.72
-            elif s_year_shape < 0.56:
-                score *= 0.86
+            if s_year_shape < 0.34:
+                score *= 0.48
+            elif s_year_shape < 0.46:
+                score *= 0.68
+            elif s_year_shape < 0.58:
+                score *= 0.84
 
             if s_year_tail < 0.22:
                 score *= 0.72
@@ -489,8 +490,8 @@ class YangdoBlackboxEstimator:
             elif s_year_trend < 0.36:
                 score *= 0.90
 
-            if single_core_target and s_year_shape < 0.48:
-                score *= 0.82
+            if single_core_target and s_year_shape < 0.52:
+                score *= 0.78
 
             # 동일 3년합계라도 연도별 분포/추이가 다르면 유사도를 강하게 낮춘다.
             shape_penalty = (0.45 + (0.55 * s_year_shape))
@@ -1141,7 +1142,7 @@ class YangdoBlackboxEstimator:
                 if not self._is_single_token_same_core(token_set, cand_tokens, rec.get("license_text")):
                     continue
                 yearly = _yearly_shape_similarity(target, rec)
-                if yearly["strength"] >= 0.65 and yearly["shape"] < 0.38:
+                if yearly["strength"] >= 0.60 and yearly["shape"] < 0.44:
                     continue
                 strict_neighbors.append((sim, rec))
 

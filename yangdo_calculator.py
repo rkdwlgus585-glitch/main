@@ -1559,6 +1559,39 @@ def build_page_html(
         const rel = Math.abs(left - right) / denom;
         return Math.max(0, 1 - Math.min(rel, 1));
       }};
+      const yearlySeries = (obj) => {{
+        const vals = [num(obj && obj.y23), num(obj && obj.y24), num(obj && obj.y25)]
+          .map((v) => (Number.isFinite(v) ? Math.max(0, v) : null));
+        let sum = 0;
+        let count = 0;
+        vals.forEach((v) => {{
+          if (!Number.isFinite(v)) return;
+          sum += v;
+          count += 1;
+        }});
+        return {{ vals, sum, count }};
+      }};
+      const yearlyShapeSimilarity = (target, cand) => {{
+        const t = yearlySeries(target);
+        const c = yearlySeries(cand);
+        if (t.count < 2 || c.count < 2 || t.sum <= 0 || c.sum <= 0) return 0.5;
+        const w = [0.34, 0.33, 0.33];
+        let wSum = 0;
+        let diff = 0;
+        for (let i = 0; i < 3; i += 1) {{
+          const tv = t.vals[i];
+          const cv = c.vals[i];
+          if (!Number.isFinite(tv) || !Number.isFinite(cv)) continue;
+          const tw = w[i];
+          const tr = tv / Math.max(0.01, t.sum);
+          const cr = cv / Math.max(0.01, c.sum);
+          diff += Math.abs(tr - cr) * tw;
+          wSum += tw;
+        }}
+        if (wSum <= 0.2) return 0.5;
+        const norm = diff / wSum;
+        return clamp(1 - Math.min(1, norm / 0.9), 0, 1);
+      }};
       const positiveRatio = (left, right) => {{
         const l = num(left);
         const r = num(right);
@@ -2007,6 +2040,9 @@ def build_page_html(
         const sCapital = relativeCloseness(target.capital_eok, cand.capital_eok);
         const sBalance = relativeCloseness(target.balance_eok, cand.balance_eok);
         const sSurplus = relativeCloseness(target.surplus_eok, cand.surplus_eok);
+        const sYearShape = yearlyShapeSimilarity(target, cand);
+        const targetYearInfo = yearlySeries(target);
+        const candYearInfo = yearlySeries(cand);
         let score = 0;
         score += tokenJac * 42;
         score += tokenContain * 24;
@@ -2021,7 +2057,8 @@ def build_page_html(
         score += sLiq * 2.5;
         score += sCapital * 10;
         if (!balanceExcluded) score += sBalance * 12;
-        score += sSurplus * 10;
+        score += sSurplus * 2.5;
+        score += sYearShape * 9;
         if (sSpecialty >= 0.90 && sSales3 >= 0.90) score += 4.5;
         if (target.tokens.size && inter.length === target.tokens.size) score += 8;
         const targetComp = normalizeCompanyType(target.company_type);
@@ -2038,6 +2075,10 @@ def build_page_html(
         if (Number.isFinite(salesRatio)) {{
           if (salesRatio < 0.08 || salesRatio > 12.0) score *= 0.78;
           else if (salesRatio < 0.20 || salesRatio > 5.0) score *= 0.90;
+        }}
+        if (targetYearInfo.count >= 2 && candYearInfo.count >= 2) {{
+          if (sYearShape < 0.22) score *= 0.62;
+          else if (sYearShape < 0.35) score *= 0.80;
         }}
         if (target.tokens.size && candTokens.size) {{
           if (!inter.length) score *= 0.08;
@@ -2398,9 +2439,14 @@ def build_page_html(
           const strictTokenScored = scored.filter((row) => {{
             const candTokens = new Set(Array.isArray(row && row[1] && row[1].tokens) ? row[1].tokens : []);
             const candLicenseText = row && row[1] ? row[1].license_text : "";
+            const candRec = row && row[1] ? row[1] : null;
+            const tYear = yearlySeries(target);
+            const cYear = yearlySeries(candRec);
+            const shapeSim = yearlyShapeSimilarity(target, candRec);
             if (strictSameCore && !isSingleTokenSameCore(target.tokens, candTokens, candLicenseText)) return false;
             if (isSingleTokenCrossCombo(target.tokens, candTokens, candLicenseText)) return false;
             if (isSingleTokenProfileOutlier(target, row && row[1] ? row[1] : null)) return false;
+            if (tYear.count >= 2 && cYear.count >= 2 && shapeSim < 0.24) return false;
             const interCount = [...target.tokens].filter((x) => candTokens.has(x)).length;
             const precision = candTokens.size ? (interCount / Math.max(1, candTokens.size)) : 0;
             if (strictSameCore) {{
@@ -2440,6 +2486,19 @@ def build_page_html(
             return ratio >= lower && ratio <= upper;
           }});
           if (filtered.length >= 8) neighbors = filtered;
+        }}
+        const targetYearInfo = yearlySeries(target);
+        if (targetYearInfo.count >= 2 && neighbors.length >= 8) {{
+          const shapeFiltered = neighbors.filter((row) => {{
+            const rec = row && row[1] ? row[1] : null;
+            const candYearInfo = yearlySeries(rec);
+            if (candYearInfo.count < 2) return true;
+            const shape = yearlyShapeSimilarity(target, rec);
+            if (shape >= 0.26) return true;
+            return Number(row[0]) >= 94 && shape >= 0.18;
+          }});
+          if (shapeFiltered.length >= 8) neighbors = shapeFiltered;
+          else if (shapeFiltered.length >= 6 && shapeFiltered.length >= Math.floor(neighbors.length * 0.55)) neighbors = shapeFiltered;
         }}
         const displayNeighbors = neighbors.slice(0, 12);
         const hotMatchCount = Math.max(
@@ -2726,9 +2785,26 @@ def build_page_html(
           }}
           return adj;
         }})();
+        const surplusMonotonicAdj = (() => {{
+          const surplus = num(target.surplus_eok);
+          if (!Number.isFinite(surplus) || surplus <= 0) return 0;
+          const capital = num(target.capital_eok);
+          let adj = -Math.min(0.14, Math.log1p(Math.max(0, surplus)) * 0.055);
+          if (Number.isFinite(capital) && capital > 0.05) {{
+            const ratio = surplus / Math.max(0.05, capital);
+            if (ratio >= 0.5) adj -= Math.min(0.06, (ratio - 0.5) * 0.04);
+            if (ratio >= 1.2) adj -= Math.min(0.06, (ratio - 1.2) * 0.05);
+          }}
+          adj = clamp(adj, -0.22, 0);
+          if (Math.abs(adj) >= 0.008) {{
+            riskNotes.push(`이익잉여금 단조 감가 반영: ${{(adj * 100).toFixed(1)}}%`);
+          }}
+          return adj;
+        }})();
         postFactor += applySalesTrend();
         postFactor += licenseAgeAdj;
         postFactor += surplusRiskAdj;
+        postFactor += surplusMonotonicAdj;
         postFactor = Math.max(0.72, Math.min(1.24, postFactor));
         center *= postFactor;
         low *= postFactor;
