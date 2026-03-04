@@ -1,19 +1,16 @@
 from __future__ import annotations
 
 import argparse
-import functools
 import json
 import random
 import re
 import sys
 import tempfile
-import threading
 import time
 from dataclasses import dataclass
 from datetime import datetime
-from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from selenium import webdriver  # type: ignore
 from selenium.webdriver.chrome.options import Options  # type: ignore
@@ -72,59 +69,22 @@ def set_value_js(driver: webdriver.Chrome, wait: WebDriverWait, element_id: str,
     )
 
 
-class QuietHandler(SimpleHTTPRequestHandler):
-    def log_message(self, *_args: Any) -> None:  # noqa: D401
-        return
-
-
-class QuietThreadingHTTPServer(ThreadingHTTPServer):
-    def handle_error(self, _request: Any, _client_address: Any) -> None:  # noqa: D401
-        return
-
-
 @dataclass
-class LocalAcqServer:
+class LocalAcqPage:
     temp_dir: Path
     html_name: str = "acq_fuzz_page.html"
-    _server: Optional[QuietThreadingHTTPServer] = None
-    _thread: Optional[threading.Thread] = None
-    base_url: str = ""
+    file_uri: str = ""
+    file_path: Optional[Path] = None
 
     def start(self) -> None:
         html = acquisition_calculator.build_page_html()
         target = self.temp_dir / self.html_name
         target.write_text(html, encoding="utf-8")
-
-        # Bind ephemeral port on localhost.
-        handler = functools.partial(QuietHandler, directory=str(self.temp_dir))
-        self._server = QuietThreadingHTTPServer(("127.0.0.1", 0), handler)
-        self._server.timeout = 1.0
-        port = int(self._server.server_address[1])
-        self.base_url = f"http://127.0.0.1:{port}/{self.html_name}"
-
-        def _run() -> None:
-            assert self._server is not None
-            self._server.serve_forever(poll_interval=0.2)
-
-        self._thread = threading.Thread(target=_run, daemon=True)
-        self._thread.start()
-        time.sleep(0.15)
+        self.file_path = target
+        self.file_uri = target.resolve().as_uri()
 
     def stop(self) -> None:
-        if self._server is not None:
-            try:
-                self._server.shutdown()
-            except Exception:
-                pass
-            try:
-                self._server.server_close()
-            except Exception:
-                pass
-        if self._thread is not None:
-            try:
-                self._thread.join(timeout=1.2)
-            except Exception:
-                pass
+        return
 
 
 def run_one_cycle(
@@ -143,7 +103,7 @@ def run_one_cycle(
     def bump(key: str) -> None:
         anomalies[key] = int(anomalies.get(key, 0)) + 1
 
-    def recover_server_and_driver(driver: Optional[webdriver.Chrome], server: LocalAcqServer) -> webdriver.Chrome:
+    def recover_page_and_driver(driver: Optional[webdriver.Chrome], page: LocalAcqPage) -> webdriver.Chrome:
         nonlocal heal_attempts, recoveries
         heal_attempts += 1
         try:
@@ -151,16 +111,12 @@ def run_one_cycle(
                 driver.quit()
         except Exception:
             pass
-        try:
-            server.stop()
-        except Exception:
-            pass
-        server.start()
+        page.start()
         recoveries += 1
         return build_driver()
 
-    server = LocalAcqServer(temp_dir=temp_dir)
-    server.start()
+    page = LocalAcqPage(temp_dir=temp_dir)
+    page.start()
     driver: Optional[webdriver.Chrome] = None
     wait: Optional[WebDriverWait] = None
 
@@ -184,7 +140,7 @@ def run_one_cycle(
 
             try:
                 assert driver is not None and wait is not None
-                driver.get(server.base_url)
+                driver.get(page.file_uri)
                 wait.until(EC.presence_of_element_located((By.ID, "smna-acq-calculator")))
 
                 select = wait.until(EC.presence_of_element_located((By.ID, "acq-license-type")))
@@ -281,7 +237,7 @@ def run_one_cycle(
                             "error": f"{type(exc).__name__}: {exc}",
                         }
                     )
-                driver = recover_server_and_driver(driver, server)
+                driver = recover_page_and_driver(driver, page)
                 wait = WebDriverWait(driver, 40)
     finally:
         try:
@@ -289,7 +245,7 @@ def run_one_cycle(
                 driver.quit()
         except Exception:
             pass
-        server.stop()
+        page.stop()
 
     total = max(1, int(iterations))
     anomaly_events = sum(int(v) for v in anomalies.values())
