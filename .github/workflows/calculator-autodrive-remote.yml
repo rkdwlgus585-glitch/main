@@ -1,40 +1,32 @@
-name: Calculator Autodrive (Remote, Yangdo+Acq)
+name: Calculator Internal Autodrive (Remote)
 
 on:
   workflow_dispatch:
     inputs:
-      max_cycles:
-        description: "How many autodrive cycles to run"
+      cycles:
+        description: "Cycle count for both yangdo/acquisition loops"
         required: false
-        default: "3"
-      pilot_minutes:
-        description: "Behavior pilot duration (minutes)"
+        default: "2"
+      yangdo_iterations_per_cycle:
+        description: "Yangdo internal fuzz iterations per cycle"
         required: false
-        default: "3"
-      stress_yangdo_iterations:
-        description: "Structured stress iterations for yangdo"
+        default: "5000"
+      acq_iterations_per_cycle:
+        description: "Acquisition internal fuzz iterations per cycle"
         required: false
-        default: "60"
-      stress_acq_iterations:
-        description: "Structured stress iterations for acquisition"
+        default: "500"
+      sleep_sec:
+        description: "Sleep seconds between cycles"
         required: false
-        default: "60"
-      cycle_cooldown_sec:
-        description: "Cooldown seconds between cycles"
+        default: "0.1"
+      seed:
+        description: "Random seed"
         required: false
-        default: "25"
-      blocked_backoff_sec:
-        description: "Backoff seconds when KR precheck is blocked"
+        default: "20260304"
+      sheet_name:
+        description: "Override Google Sheet name (optional)"
         required: false
-        default: "1200"
-      max_prechecks_per_day:
-        description: "Daily precheck budget"
-        required: false
-        default: "40"
-      max_train_rows:
-        description: "Max train rows for KR-only heal step"
-        required: false
-        default: "260"
+        default: ""
   schedule:
     - cron: "25 */4 * * *"
 
@@ -42,14 +34,14 @@ permissions:
   contents: read
 
 concurrency:
-  group: calculator-autodrive-remote
+  group: calculator-internal-autodrive-remote
   cancel-in-progress: true
 
 jobs:
-  autodrive:
-    if: ${{ github.event_name != 'schedule' || vars.ENABLE_CALCULATOR_AUTODRIVE_SCHEDULE == 'true' }}
+  internal_autodrive:
+    if: ${{ github.event_name != 'schedule' || vars.ENABLE_CALCULATOR_INTERNAL_AUTODRIVE_SCHEDULE == 'true' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 170
+    timeout-minutes: 180
     env:
       PYTHONUNBUFFERED: "1"
       TZ: "Asia/Seoul"
@@ -71,84 +63,100 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install \
+            gspread \
+            oauth2client \
             requests \
             beautifulsoup4 \
             selenium \
-            webdriver-manager \
-            gspread \
-            oauth2client
+            webdriver-manager
           python --version
           google-chrome --version || true
 
-      - name: Run autodrive loop (KR-only guard on)
+      - name: Prepare service account file from secret
         env:
-          MAX_CYCLES: ${{ github.event.inputs.max_cycles || '3' }}
-          PILOT_MINUTES: ${{ github.event.inputs.pilot_minutes || '3' }}
-          STRESS_Y_ITER: ${{ github.event.inputs.stress_yangdo_iterations || '60' }}
-          STRESS_A_ITER: ${{ github.event.inputs.stress_acq_iterations || '60' }}
-          COOLDOWN_SEC: ${{ github.event.inputs.cycle_cooldown_sec || '25' }}
-          BACKOFF_SEC: ${{ github.event.inputs.blocked_backoff_sec || '1200' }}
-          MAX_PRECHECKS: ${{ github.event.inputs.max_prechecks_per_day || '40' }}
-          MAX_TRAIN_ROWS: ${{ github.event.inputs.max_train_rows || '260' }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
         run: |
-          python scripts/run_calculator_autodrive.py \
-            --max-cycles "${MAX_CYCLES}" \
-            --pilot-minutes "${PILOT_MINUTES}" \
-            --stress-yangdo-iterations "${STRESS_Y_ITER}" \
-            --stress-acq-iterations "${STRESS_A_ITER}" \
-            --cycle-cooldown-sec "${COOLDOWN_SEC}" \
-            --blocked-backoff-sec "${BACKOFF_SEC}" \
-            --max-prechecks-per-day "${MAX_PRECHECKS}" \
-            --max-train-rows "${MAX_TRAIN_ROWS}"
+          if [ -z "${GOOGLE_SERVICE_ACCOUNT_JSON}" ]; then
+            echo "Missing required secret: GOOGLE_SERVICE_ACCOUNT_JSON"
+            exit 1
+          fi
+          mkdir -p .secrets
+          printf '%s' "${GOOGLE_SERVICE_ACCOUNT_JSON}" > .secrets/service_account.json
+          test -s .secrets/service_account.json
 
-      - name: Validate closed-loop evidence
+      - name: Run Yangdo internal fuzz loop
+        env:
+          JSON_FILE: .secrets/service_account.json
+          SHEET_NAME: ${{ github.event.inputs.sheet_name || secrets.SHEET_NAME }}
+        run: |
+          CYCLES="${{ github.event.inputs.cycles || '2' }}"
+          ITER="${{ github.event.inputs.yangdo_iterations_per_cycle || '5000' }}"
+          SLEEP="${{ github.event.inputs.sleep_sec || '0.1' }}"
+          SEED="${{ github.event.inputs.seed || '20260304' }}"
+          if [ -z "${SHEET_NAME}" ]; then
+            echo "Missing SHEET_NAME (set workflow input or repository secret SHEET_NAME)"
+            exit 1
+          fi
+          python scripts/run_yangdo_internal_fuzz_loop.py \
+            --cycles "${CYCLES}" \
+            --iterations-per-cycle "${ITER}" \
+            --sleep-sec "${SLEEP}" \
+            --seed "${SEED}" \
+            --report logs/yangdo_internal_fuzz_latest.json \
+            --jsonl logs/yangdo_internal_fuzz_cycles.jsonl
+
+      - name: Run Acquisition internal fuzz loop
+        run: |
+          CYCLES="${{ github.event.inputs.cycles || '2' }}"
+          ITER="${{ github.event.inputs.acq_iterations_per_cycle || '500' }}"
+          SLEEP="${{ github.event.inputs.sleep_sec || '0.1' }}"
+          SEED="${{ github.event.inputs.seed || '20260304' }}"
+          python scripts/run_acquisition_internal_fuzz_loop.py \
+            --cycles "${CYCLES}" \
+            --iterations-per-cycle "${ITER}" \
+            --sleep-sec "${SLEEP}" \
+            --seed "${SEED}" \
+            --report logs/acquisition_internal_fuzz_latest.json \
+            --jsonl logs/acquisition_internal_fuzz_cycles.jsonl
+
+      - name: Validate test + fix-review chain evidence
         run: |
           python - <<'PY'
           import json, pathlib, sys
-          p = pathlib.Path("logs/calculator_autodrive_latest.json")
-          if not p.exists():
-            print("missing logs/calculator_autodrive_latest.json")
+
+          y = pathlib.Path("logs/yangdo_internal_fuzz_latest.json")
+          a = pathlib.Path("logs/acquisition_internal_fuzz_latest.json")
+          if not y.exists() or not a.exists():
+            print("missing_report", {"yangdo": y.exists(), "acquisition": a.exists()})
             sys.exit(1)
-          data = json.loads(p.read_text(encoding="utf-8", errors="replace"))
-          cycle = data.get("last_cycle") or {}
-          precheck = cycle.get("precheck") or {}
-          behavior = cycle.get("step_behavior") or {}
-          stress = cycle.get("step_stress") or {}
-          verify = cycle.get("step_verify") or {}
-          heal = cycle.get("step_heal") or {}
-          reverify = cycle.get("step_reverify") or {}
-          acq_anom = cycle.get("stress_acq_anomaly_counter")
-          errors = []
 
-          behavior_cmd = " ".join(behavior.get("cmd") or [])
-          stress_cmd = " ".join(stress.get("cmd") or [])
-          verify_cmd = " ".join(verify.get("cmd") or [])
-          heal_cmd = " ".join(heal.get("cmd") or [])
-          reverify_cmd = " ".join(reverify.get("cmd") or [])
+          yj = json.loads(y.read_text(encoding="utf-8", errors="replace"))
+          aj = json.loads(a.read_text(encoding="utf-8", errors="replace"))
 
-          if precheck.get("ok"):
-            if "run_calculator_behavior_pilot.py" not in behavior_cmd:
-              errors.append("behavior pilot command missing")
-            if "run_calculator_structured_stress.py" not in stress_cmd:
-              errors.append("structured stress command missing")
-            if "verify_calculator_runtime.py" not in verify_cmd:
-              errors.append("runtime verify command missing")
-            if acq_anom is None:
-              errors.append("acquisition anomaly counter missing")
-            verify_ok = bool(cycle.get("verify_ok"))
-            if (not verify_ok) and (not heal_cmd or not reverify_cmd):
-              errors.append("verify failed but heal/reverify chain missing")
+          errs = []
+          if int(yj.get("cycles_done") or 0) <= 0:
+            errs.append("yangdo cycles_done <= 0")
+          if int(aj.get("cycles_done") or 0) <= 0:
+            errs.append("acquisition cycles_done <= 0")
+
+          # Evidence for fix-review path:
+          # - Yangdo script has self-heal/recovery counting.
+          if "totals" not in yj:
+            errs.append("yangdo totals missing")
+          # - Acquisition script records recoveries/heal attempts by cycle.
+          cycle_rows = list(aj.get("cycle_results") or [])
+          if not cycle_rows:
+            errs.append("acquisition cycle_results missing")
           else:
-            blocked = int(precheck.get("blocked_count") or 0)
-            if blocked <= 0:
-              errors.append("precheck not-ok but blocked_count not set")
+            row = cycle_rows[-1]
+            if "heal_attempts" not in row or "recoveries" not in row:
+              errs.append("acquisition heal/recovery evidence missing")
 
-          if errors:
+          if errs:
             print("closed_loop_validation_failed")
-            for e in errors:
+            for e in errs:
               print("-", e)
             sys.exit(1)
-
           print("closed_loop_validation_ok")
           PY
 
@@ -156,49 +164,51 @@ jobs:
         run: |
           python - <<'PY'
           import json, pathlib
-          p = pathlib.Path("logs/calculator_autodrive_latest.json")
-          if not p.exists():
-            print("report_not_found")
-            raise SystemExit(1)
-          data = json.loads(p.read_text(encoding="utf-8", errors="replace"))
-          c = data.get("last_cycle") or {}
-          pre = c.get("precheck") or {}
+          y = json.loads(pathlib.Path("logs/yangdo_internal_fuzz_latest.json").read_text(encoding="utf-8", errors="replace"))
+          a = json.loads(pathlib.Path("logs/acquisition_internal_fuzz_latest.json").read_text(encoding="utf-8", errors="replace"))
+
+          yt = y.get("totals") or {}
+          at = a.get("totals") or {}
+          yn = y.get("aggregate_anomaly_counter") or {}
+          an = a.get("aggregate_anomaly_counter") or {}
+
           lines = [
-            "## Calculator Autodrive (Remote, Yangdo+Acq)",
+            "## Calculator Internal Autodrive (Remote)",
             "",
-            f"- generated_at: `{data.get('generated_at')}`",
-            f"- status: `{data.get('status')}`",
-            f"- ok: `{data.get('ok')}`",
-            f"- cycles_completed: `{data.get('cycles_completed')}`",
-            f"- verify_ok: `{c.get('verify_ok')}`",
-            f"- healed: `{c.get('healed')}`",
-            f"- precheck_ok: `{pre.get('ok')}`",
-            f"- precheck_blocked_count: `{pre.get('blocked_count')}`",
-            f"- behavior_ok_rate: `{c.get('behavior_ok_rate')}`",
-            f"- behavior_fail_events: `{c.get('behavior_fail_events')}`",
-            f"- stress_yangdo_anomaly_counter: `{c.get('stress_yangdo_anomaly_counter')}`",
-            f"- stress_acq_anomaly_counter: `{c.get('stress_acq_anomaly_counter')}`",
+            f"- generated_at: `{a.get('generated_at')}`",
+            "",
+            "### Yangdo",
+            f"- cycles_done: `{y.get('cycles_done')}`",
+            f"- iterations: `{yt.get('iterations')}`",
+            f"- ok_rate_pct: `{yt.get('ok_rate_pct')}`",
+            f"- anomaly_rate_pct: `{yt.get('anomaly_rate_pct')}`",
+            f"- anomaly_counter: `{yn}`",
+            "",
+            "### Acquisition",
+            f"- cycles_done: `{a.get('cycles_done')}`",
+            f"- iterations: `{at.get('iterations')}`",
+            f"- ok_rate_pct: `{at.get('ok_rate_pct')}`",
+            f"- anomaly_rate_pct: `{at.get('anomaly_rate_pct')}`",
+            f"- anomaly_counter: `{an}`",
+            "",
+            "### Fix-Review Evidence",
+            "- acquisition report includes `heal_attempts` + `recoveries` per cycle.",
+            "- yangdo/acquisition both produced fresh cycle-level reports.",
           ]
-          notes = list(c.get("improvement_notes") or [])
-          if notes:
-            lines.append("")
-            lines.append("- improvement_notes:")
-            lines.extend([f"  - {n}" for n in notes[:10]])
-          out = pathlib.Path("logs/calculator_autodrive_summary.md")
+          out = pathlib.Path("logs/calculator_internal_autodrive_summary.md")
           out.write_text("\n".join(lines), encoding="utf-8")
           print(out.read_text(encoding="utf-8"))
           PY
-          cat logs/calculator_autodrive_summary.md >> "$GITHUB_STEP_SUMMARY"
+          cat logs/calculator_internal_autodrive_summary.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: calculator-autodrive-report
+          name: calculator-internal-autodrive-report
           path: |
-            logs/calculator_autodrive_latest.json
-            logs/calculator_autodrive_state.json
-            logs/calculator_autodrive_backlog.md
-            logs/calculator_autodrive_cycles.jsonl
-            logs/calculator_autodrive_summary.md
-            logs/calculator_autodrive_traffic_guard.json
+            logs/yangdo_internal_fuzz_latest.json
+            logs/yangdo_internal_fuzz_cycles.jsonl
+            logs/acquisition_internal_fuzz_latest.json
+            logs/acquisition_internal_fuzz_cycles.jsonl
+            logs/calculator_internal_autodrive_summary.md
           if-no-files-found: error

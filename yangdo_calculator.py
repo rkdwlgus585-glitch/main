@@ -1410,6 +1410,8 @@ def build_page_html(
         "상하수도": "상하수도설비",
         "의장": "실내건축",
         "실내": "실내건축",
+        "통신": "정보통신",
+        "기계": "기계설비",
         "토목건축": "토건",
         "토목건축공사업": "토건",
         "철콘": "철근콘크리트",
@@ -1556,6 +1558,39 @@ def build_page_html(
         const denom = Math.max(Math.abs(left), Math.abs(right), 1.0);
         const rel = Math.abs(left - right) / denom;
         return Math.max(0, 1 - Math.min(rel, 1));
+      }};
+      const yearlySeries = (obj) => {{
+        const vals = [num(obj && obj.y23), num(obj && obj.y24), num(obj && obj.y25)]
+          .map((v) => (Number.isFinite(v) ? Math.max(0, v) : null));
+        let sum = 0;
+        let count = 0;
+        vals.forEach((v) => {{
+          if (!Number.isFinite(v)) return;
+          sum += v;
+          count += 1;
+        }});
+        return {{ vals, sum, count }};
+      }};
+      const yearlyShapeSimilarity = (target, cand) => {{
+        const t = yearlySeries(target);
+        const c = yearlySeries(cand);
+        if (t.count < 2 || c.count < 2 || t.sum <= 0 || c.sum <= 0) return 0.5;
+        const w = [0.34, 0.33, 0.33];
+        let wSum = 0;
+        let diff = 0;
+        for (let i = 0; i < 3; i += 1) {{
+          const tv = t.vals[i];
+          const cv = c.vals[i];
+          if (!Number.isFinite(tv) || !Number.isFinite(cv)) continue;
+          const tw = w[i];
+          const tr = tv / Math.max(0.01, t.sum);
+          const cr = cv / Math.max(0.01, c.sum);
+          diff += Math.abs(tr - cr) * tw;
+          wSum += tw;
+        }}
+        if (wSum <= 0.2) return 0.5;
+        const norm = diff / wSum;
+        return clamp(1 - Math.min(1, norm / 0.9), 0, 1);
       }};
       const positiveRatio = (left, right) => {{
         const l = num(left);
@@ -1891,6 +1926,99 @@ def build_page_html(
         sa.forEach((t) => {{ if (sb.has(t)) inter += 1; }});
         return inter / Math.max(1, Math.min(sa.size, sb.size));
       }};
+      const CORE_LICENSE_TOKENS = new Set([
+        "전기", "정보통신", "소방", "기계설비", "가스",
+        "토건", "토목", "건축", "조경", "실내",
+        "토공", "포장", "철콘", "상하", "석공", "비계", "석면", "습식", "도장",
+        "조경식재", "조경시설", "산림토목", "도시정비", "보링", "수중", "금속",
+      ]);
+      const CORE_LICENSE_TOKENS_SORTED = [...CORE_LICENSE_TOKENS].sort((a, b) => b.length - a.length);
+      const CORE_TEXT_ALIAS_MAP = {{
+        "실내건축": "실내",
+        "철근콘크리트": "철콘",
+        "상하수도설비": "상하",
+        "토목건축": "토건",
+        "정보통신공사업": "정보통신",
+        "통신공사업": "정보통신",
+        "통신": "정보통신",
+        "기계설비공사업": "기계설비",
+        "기계가스설비공사업": "기계설비",
+        "기계가스": "기계설비",
+        "기계": "기계설비",
+        "금속구조물창호온실": "금속",
+        "비계구조물해체": "비계",
+        "석면해체제거": "석면",
+        "습식방수석공": "습식",
+        "소방시설": "소방",
+        "전기공사업": "전기",
+        "소방공사업": "소방",
+      }};
+      const coreTokensFromText = (raw) => {{
+        const key = normalizeLicenseKey(raw || "");
+        const out = new Set();
+        if (!key) return out;
+        if (CORE_TEXT_ALIAS_MAP[key]) {{
+          out.add(CORE_TEXT_ALIAS_MAP[key]);
+          return out;
+        }}
+        for (const token of CORE_LICENSE_TOKENS_SORTED) {{
+          if (token && key.indexOf(token) >= 0) out.add(token);
+        }}
+        return out;
+      }};
+      const coreTokens = (tokens) => {{
+        const src = tokens instanceof Set ? tokens : new Set();
+        const out = new Set();
+        src.forEach((t) => {{
+          const token = String(t || "");
+          if (!token) return;
+          if (CORE_LICENSE_TOKENS.has(token)) out.add(token);
+          coreTokensFromText(token).forEach((v) => out.add(v));
+        }});
+        return out;
+      }};
+      const isSingleTokenCrossCombo = (targetTokens, candTokens, candLicenseText) => {{
+        const c = candTokens instanceof Set ? candTokens : new Set();
+        const target = singleTokenTargetCore(targetTokens);
+        if (!target) return false;
+        const candCore = new Set([...coreTokens(c), ...coreTokensFromText(candLicenseText || "")]);
+        if (!c.has(target) && !candCore.has(target)) return false;
+        if (candCore.size <= 1) return false;
+        for (const tok of candCore) {{
+          if (tok !== target) return true;
+        }}
+        return false;
+      }};
+      const singleTokenTargetCore = (targetTokens) => {{
+        const t = targetTokens instanceof Set ? targetTokens : new Set();
+        const fromCore = new Set([...coreTokens(t)]);
+        if (fromCore.size === 1) return [...fromCore][0];
+        if (t.size === 1) return [...t][0];
+        return "";
+      }};
+      const isSingleTokenSameCore = (targetTokens, candTokens, candLicenseText) => {{
+        const target = singleTokenTargetCore(targetTokens);
+        if (!target) return false;
+        const c = candTokens instanceof Set ? candTokens : new Set();
+        const candCore = new Set([...coreTokens(c), ...coreTokensFromText(candLicenseText || "")]);
+        if (candCore.size >= 2) return false;
+        if (candCore.size === 1) return candCore.has(target);
+        if (c.size === 1) {{
+          const arr = [...c];
+          const tok = arr.length ? arr[0] : "";
+          return !!tok && (tok.indexOf(target) >= 0 || target.indexOf(tok) >= 0);
+        }}
+        return false;
+      }};
+      const isSingleTokenProfileOutlier = (target, cand) => {{
+        const t = target && target.tokens instanceof Set ? target.tokens : new Set();
+        if (!singleTokenTargetCore(t)) return false;
+        const sr = positiveRatio(target ? target.specialty : null, cand ? cand.specialty : null);
+        const tr = positiveRatio(target ? target.sales3_eok : null, cand ? cand.sales3_eok : null);
+        if (Number.isFinite(sr) && (sr < 0.30 || sr > 3.30)) return true;
+        if (Number.isFinite(tr) && (tr < 0.30 || tr > 3.30)) return true;
+        return false;
+      }};
 
       const neighborScore = (target, cand) => {{
         const balanceExcluded = !!(target && target.balance_excluded);
@@ -1899,6 +2027,7 @@ def build_page_html(
         const tokenJac = jaccard(target.tokens, candTokens);
         const tokenContain = tokenContainment(target.tokens, candTokens);
         const tokenPrecision = candTokens.size ? (inter.length / Math.max(1, candTokens.size)) : 0;
+        const singleCoreTarget = !!singleTokenTargetCore(target.tokens);
         const rawLicenseSimilarity = (!target.tokens.size && target.raw_license_key)
           ? bigramJaccard(target.raw_license_key, cand.license_text || "")
           : 0;
@@ -1911,6 +2040,9 @@ def build_page_html(
         const sCapital = relativeCloseness(target.capital_eok, cand.capital_eok);
         const sBalance = relativeCloseness(target.balance_eok, cand.balance_eok);
         const sSurplus = relativeCloseness(target.surplus_eok, cand.surplus_eok);
+        const sYearShape = yearlyShapeSimilarity(target, cand);
+        const targetYearInfo = yearlySeries(target);
+        const candYearInfo = yearlySeries(cand);
         let score = 0;
         score += tokenJac * 42;
         score += tokenContain * 24;
@@ -1925,7 +2057,8 @@ def build_page_html(
         score += sLiq * 2.5;
         score += sCapital * 10;
         if (!balanceExcluded) score += sBalance * 12;
-        score += sSurplus * 10;
+        score += sSurplus * 2.5;
+        score += sYearShape * 9;
         if (sSpecialty >= 0.90 && sSales3 >= 0.90) score += 4.5;
         if (target.tokens.size && inter.length === target.tokens.size) score += 8;
         const targetComp = normalizeCompanyType(target.company_type);
@@ -1943,11 +2076,35 @@ def build_page_html(
           if (salesRatio < 0.08 || salesRatio > 12.0) score *= 0.78;
           else if (salesRatio < 0.20 || salesRatio > 5.0) score *= 0.90;
         }}
+        if (targetYearInfo.count >= 2 && candYearInfo.count >= 2) {{
+          if (sYearShape < 0.22) score *= 0.62;
+          else if (sYearShape < 0.35) score *= 0.80;
+        }}
         if (target.tokens.size && candTokens.size) {{
           if (!inter.length) score *= 0.08;
           else if (target.tokens.size >= 2 && inter.length <= 1) score *= 0.55;
-          if (target.tokens.size === 1 && tokenPrecision < 0.28) score *= 0.74;
+          if (singleCoreTarget && tokenPrecision < 0.28) score *= 0.74;
           else if (target.tokens.size >= 2 && tokenPrecision < 0.36) score *= 0.80;
+          if (singleCoreTarget && candTokens.size >= 2) {{
+            // 단일 업종 검색에서 복합면허(예: 전기+소방) 과대매칭 억제
+            const extraTokenCount = [...candTokens].filter((t) => !target.tokens.has(t)).length;
+            if (extraTokenCount >= 1) {{
+              score *= 0.62;
+              if (tokenPrecision < 0.60) score *= 0.72;
+              const specRatio2 = positiveRatio(target.specialty, cand.specialty);
+              const salesRatio2 = positiveRatio(target.sales3_eok, cand.sales3_eok);
+              if (
+                (Number.isFinite(specRatio2) && (specRatio2 < 0.35 || specRatio2 > 2.85)) ||
+                (Number.isFinite(salesRatio2) && (salesRatio2 < 0.35 || salesRatio2 > 2.85))
+              ) {{
+                score *= 0.72;
+              }}
+            }}
+          }}
+          if (isSingleTokenCrossCombo(target.tokens, candTokens, cand.license_text)) {{
+            // 단일 업종 입력에서 타 핵심업종 포함 복합면허는 하드 감점
+            score *= 0.10;
+          }}
         }} else if (!target.tokens.size && target.raw_license_key) {{
           if (rawLicenseSimilarity < 0.28) score *= 0.55;
           else if (rawLicenseSimilarity < 0.42) score *= 0.78;
@@ -2221,17 +2378,37 @@ def build_page_html(
         const balanceExcluded = !!(target && target.balance_excluded);
         const candidates = selectCandidates(target);
         let scored = [];
-        let minSimilarity = target.tokens.size ? 26 : 12;
+        let minSimilarity = target.tokens.size ? 26 : 14;
         if (target.tokens.size >= 2) minSimilarity = 32;
-        if (target.tokens.size && candidates.length <= 16) minSimilarity = Math.max(20, minSimilarity - 5);
+        if (target.tokens.size && candidates.length <= 16) minSimilarity = Math.max(20, minSimilarity - 4);
         if (target.provided_signals <= 2) minSimilarity = minSimilarity + 6;
         if (target.tokens.size && !target.missing_critical.length) minSimilarity += 3;
-        for (const cand of candidates) {{
-          const p = Number(cand.price_eok);
-          if (!Number.isFinite(p) || p <= 0) continue;
-          const sim = neighborScore(target, cand);
-          if (sim < minSimilarity) continue;
-          scored.push([sim, cand]);
+        const strictSameCore = !!singleTokenTargetCore(target.tokens);
+        const targetCoreSet = coreTokens(target.tokens);
+        const targetCoreCount = targetCoreSet.size;
+        const scorePool = (pool, strictOnly, threshold) => {{
+          const rows = [];
+          for (const cand of pool) {{
+            const p = Number(cand.price_eok);
+            if (!Number.isFinite(p) || p <= 0) continue;
+            const candTokens = new Set(Array.isArray(cand.tokens) ? cand.tokens : []);
+            const candCore = new Set([...coreTokens(candTokens), ...coreTokensFromText(cand.license_text || "")]);
+            if (targetCoreCount >= 2) {{
+              const hasCoreOverlap = [...targetCoreSet].some((x) => candCore.has(x));
+              if (!hasCoreOverlap) continue;
+            }}
+            if (strictOnly && !isSingleTokenSameCore(target.tokens, candTokens, cand.license_text)) continue;
+            if (isSingleTokenCrossCombo(target.tokens, candTokens, cand.license_text)) continue;
+            if (isSingleTokenProfileOutlier(target, cand)) continue;
+            const sim = neighborScore(target, cand);
+            if (sim < threshold) continue;
+            rows.push([sim, cand]);
+          }}
+          return rows;
+        }};
+        scored = scorePool(candidates, strictSameCore, minSimilarity);
+        if (strictSameCore && !scored.length) {{
+          scored = scorePool(candidates, true, Math.max(12, minSimilarity - 8));
         }}
         if (!scored.length) {{
           const coarse = [];
@@ -2239,6 +2416,15 @@ def build_page_html(
           for (const cand of coarsePool) {{
             const p = Number(cand.price_eok);
             if (!Number.isFinite(p) || p <= 0) continue;
+            const candTokens = new Set(Array.isArray(cand.tokens) ? cand.tokens : []);
+            const candCore = new Set([...coreTokens(candTokens), ...coreTokensFromText(cand.license_text || "")]);
+            if (targetCoreCount >= 2) {{
+              const hasCoreOverlap = [...targetCoreSet].some((x) => candCore.has(x));
+              if (!hasCoreOverlap) continue;
+            }}
+            if (strictSameCore && !isSingleTokenSameCore(target.tokens, candTokens, cand.license_text)) continue;
+            if (isSingleTokenCrossCombo(target.tokens, candTokens, cand.license_text)) continue;
+            if (isSingleTokenProfileOutlier(target, cand)) continue;
             const sim = neighborScore(target, cand);
             coarse.push([Math.max(0.1, sim), cand]);
           }}
@@ -2252,20 +2438,42 @@ def build_page_html(
         if (target.tokens.size) {{
           const strictTokenScored = scored.filter((row) => {{
             const candTokens = new Set(Array.isArray(row && row[1] && row[1].tokens) ? row[1].tokens : []);
+            const candLicenseText = row && row[1] ? row[1].license_text : "";
+            const candRec = row && row[1] ? row[1] : null;
+            const tYear = yearlySeries(target);
+            const cYear = yearlySeries(candRec);
+            const shapeSim = yearlyShapeSimilarity(target, candRec);
+            if (strictSameCore && !isSingleTokenSameCore(target.tokens, candTokens, candLicenseText)) return false;
+            if (isSingleTokenCrossCombo(target.tokens, candTokens, candLicenseText)) return false;
+            if (isSingleTokenProfileOutlier(target, row && row[1] ? row[1] : null)) return false;
+            if (tYear.count >= 2 && cYear.count >= 2 && shapeSim < 0.24) return false;
+            const interCount = [...target.tokens].filter((x) => candTokens.has(x)).length;
+            const precision = candTokens.size ? (interCount / Math.max(1, candTokens.size)) : 0;
+            if (strictSameCore) {{
+              return (candTokens.size <= 1) || (precision >= 0.60);
+            }}
             return tokenContainment(target.tokens, candTokens) >= 0.52;
           }});
           if (strictTokenScored.length >= 6) {{
             scored = strictTokenScored;
           }}
         }}
-        const seedNeighbors = scored.slice(0, 12);
-        let neighbors = seedNeighbors.slice();
-        const seedHotCount = seedNeighbors.filter((row) => Number(row[0]) >= 90).length;
+        const simWindow = targetCoreCount >= 2 ? 18 : (strictSameCore ? 14 : 10);
+        const bestSim = Number(scored[0] && scored[0][0]) || 0;
+        const statFloor = Math.max(minSimilarity, bestSim - simWindow);
+        let statNeighbors = scored.filter((row) => Number(row[0]) >= statFloor);
+        const minStatSize = Math.max(10, 12);
+        if (statNeighbors.length < minStatSize) {{
+          statNeighbors = scored.slice(0, Math.max(minStatSize, 48));
+        }}
+
+        const seedNeighbors = statNeighbors.slice(0, 18);
+        let neighbors = statNeighbors.slice();
         const seedPrices = seedNeighbors.map((x) => Number(x[1].price_eok));
         const seedSims = seedNeighbors.map((x) => Number(x[0]));
         const seedCenter = weightedQuantile(seedPrices, seedSims, 0.5);
         if (Number.isFinite(seedCenter) && seedCenter > 0 && seedNeighbors.length >= 8) {{
-          const filtered = seedNeighbors.filter((row) => {{
+          const filtered = statNeighbors.filter((row) => {{
             const p = Number(row[1].price_eok);
             if (!Number.isFinite(p) || p <= 0) return false;
             const ratio = p / seedCenter;
@@ -2277,10 +2485,24 @@ def build_page_html(
             }}
             return ratio >= lower && ratio <= upper;
           }});
-          if (filtered.length >= 6) neighbors = filtered;
+          if (filtered.length >= 8) neighbors = filtered;
         }}
+        const targetYearInfo = yearlySeries(target);
+        if (targetYearInfo.count >= 2 && neighbors.length >= 8) {{
+          const shapeFiltered = neighbors.filter((row) => {{
+            const rec = row && row[1] ? row[1] : null;
+            const candYearInfo = yearlySeries(rec);
+            if (candYearInfo.count < 2) return true;
+            const shape = yearlyShapeSimilarity(target, rec);
+            if (shape >= 0.26) return true;
+            return Number(row[0]) >= 94 && shape >= 0.18;
+          }});
+          if (shapeFiltered.length >= 8) neighbors = shapeFiltered;
+          else if (shapeFiltered.length >= 6 && shapeFiltered.length >= Math.floor(neighbors.length * 0.55)) neighbors = shapeFiltered;
+        }}
+        const displayNeighbors = neighbors.slice(0, 12);
         const hotMatchCount = Math.max(
-          seedHotCount,
+          displayNeighbors.filter((row) => Number(row[0]) >= 90).length,
           neighbors.filter((row) => Number(row[0]) >= 90).length,
         );
         const prices = neighbors.map((x) => Number(x[1].price_eok));
@@ -2563,9 +2785,26 @@ def build_page_html(
           }}
           return adj;
         }})();
+        const surplusMonotonicAdj = (() => {{
+          const surplus = num(target.surplus_eok);
+          if (!Number.isFinite(surplus) || surplus <= 0) return 0;
+          const capital = num(target.capital_eok);
+          let adj = -Math.min(0.14, Math.log1p(Math.max(0, surplus)) * 0.055);
+          if (Number.isFinite(capital) && capital > 0.05) {{
+            const ratio = surplus / Math.max(0.05, capital);
+            if (ratio >= 0.5) adj -= Math.min(0.06, (ratio - 0.5) * 0.04);
+            if (ratio >= 1.2) adj -= Math.min(0.06, (ratio - 1.2) * 0.05);
+          }}
+          adj = clamp(adj, -0.22, 0);
+          if (Math.abs(adj) >= 0.008) {{
+            riskNotes.push(`이익잉여금 단조 감가 반영: ${{(adj * 100).toFixed(1)}}%`);
+          }}
+          return adj;
+        }})();
         postFactor += applySalesTrend();
         postFactor += licenseAgeAdj;
         postFactor += surplusRiskAdj;
+        postFactor += surplusMonotonicAdj;
         postFactor = Math.max(0.72, Math.min(1.24, postFactor));
         center *= postFactor;
         low *= postFactor;
@@ -2699,7 +2938,9 @@ def build_page_html(
           balancePassThrough: Number.isFinite(balanceSlope) ? balanceSlope : null,
           balanceAdditionEok: Number.isFinite(balanceAddition) ? balanceAddition : null,
           avgSim,
-          neighbors,
+          neighbor_count: neighbors.length,
+          display_neighbor_count: displayNeighbors.length,
+          neighbors: displayNeighbors,
           hotMatchCount,
           riskNotes,
           yoy,
@@ -2753,6 +2994,7 @@ def build_page_html(
           if (!Number.isFinite(center) || !Number.isFinite(low) || !Number.isFinite(high)) {{
             return {{ error: "AI 서버 응답 형식이 올바르지 않습니다.", target }};
           }}
+          const strictSameCore = !!singleTokenTargetCore(target.tokens);
           const neighbors = Array.isArray(data.neighbors) ? data.neighbors.map((row) => {{
             const sim = Number(row.similarity ?? row.sim ?? 0);
             const rec = {{
@@ -2770,6 +3012,13 @@ def build_page_html(
               url: String(row.url || siteMna),
             }};
             return [Number.isFinite(sim) ? sim : 0, rec];
+          }}).filter((row) => {{
+            const rec = row && row[1] ? row[1] : null;
+            const candTokens = licenseTokenSet((rec && rec.license_text) || "");
+            if (strictSameCore && !isSingleTokenSameCore(target.tokens, candTokens, rec ? rec.license_text : "")) return false;
+            if (isSingleTokenCrossCombo(target.tokens, candTokens, rec ? rec.license_text : "")) return false;
+            if (isSingleTokenProfileOutlier(target, rec)) return false;
+            return true;
           }}) : [];
           const confRaw = num(data.confidence_score ?? data.confidence_percent ?? data.confidence_value);
           const confidenceScore = Number.isFinite(confRaw) ? confRaw : null;
@@ -3180,7 +3429,9 @@ def build_page_html(
       const buildPublicResultMessage = (out) => {{
         if (!out) return "AI 산정 결과가 준비되지 않았습니다.";
         const lines = [];
-        const neighborCount = out && out.neighbors ? out.neighbors.length : 0;
+        const neighborCount = Number.isFinite(Number(out && out.neighbor_count))
+          ? Number(out.neighbor_count)
+          : (out && out.neighbors ? out.neighbors.length : 0);
         lines.push(`AI 산정 완료: 근거 매물 ${{neighborCount}}건 + 유사도 기반으로 결과를 계산했습니다.`);
         const target = out && out.target ? out.target : null;
         const scaleNotes = target && Array.isArray(target.scale_notes) ? target.scale_notes : [];
@@ -3414,7 +3665,10 @@ def build_page_html(
           $("out-center").textContent = fmtEok(out.center);
           $("out-range").textContent = buildDisplayRange(out.low, out.high).text;
           $("out-confidence").textContent = out.confidence;
-          $("out-neighbors").textContent = `${{out.neighbors.length}}건`;
+          const neighborCountText = Number.isFinite(Number(out.neighbor_count))
+            ? Number(out.neighbor_count)
+            : ((out.neighbors && out.neighbors.length) ? out.neighbors.length : 0);
+          $("out-neighbors").textContent = `${{neighborCountText}}건`;
           renderYoyCompare(out);
           $("risk-note").innerHTML = buildPublicResultMessage(out);
           renderNeighbors(out.neighbors);

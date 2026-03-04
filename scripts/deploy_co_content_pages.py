@@ -182,10 +182,26 @@ def main() -> int:
     parser.add_argument("--customer-co-id", default="ai_calc")
     parser.add_argument("--acquisition-co-id", default="ai_acq")
     parser.add_argument("--customer-subject", default="AI 양도가 산정 계산기")
-    parser.add_argument("--acquisition-subject", default="AI 건설업 신규등록 비용 산정 계산기")
+    parser.add_argument("--acquisition-subject", default="AI 인허가 사전검토 진단기(신규등록)")
+    parser.add_argument("--confirm-live", default="", help="실서비스 반영 승인 토큰 (`--confirm-live YES`)")
     parser.add_argument("--report", default="logs/co_content_pages_deploy_latest.json")
     args = parser.parse_args()
     base = str(args.base_url).rstrip("/")
+    if str(args.confirm_live or "").strip().upper() != "YES":
+        blocked = {
+            "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "ok": False,
+            "base_url": base,
+            "results": [],
+            "error": "live apply blocked: add --confirm-live YES",
+            "blocking_issues": ["confirm_live_missing"],
+        }
+        _save_json((ROOT / args.report).resolve(), blocked)
+        print(f"[saved] {(ROOT / args.report).resolve()}")
+        print("[ok] False")
+        print("[error] live apply blocked: add --confirm-live YES")
+        return 2
+
     out_path = (ROOT / args.report).resolve()
     if _is_kr_only_mode() and "seoulmna.co.kr" in base.lower():
         blocked = {
@@ -227,7 +243,7 @@ def main() -> int:
     acquisition_text = (
         "<div id=\"smna-content-fallback-acquisition\" style=\"max-width:1180px;margin:0 auto;\">"
         "<div style=\"font-size:15px;color:#334155;line-height:1.6;margin:0 0 10px;\">"
-        "AI 건설업 신규등록 비용 산정 계산기 페이지입니다. 페이지 로딩 후 계산기 UI가 자동 표시됩니다. (SMNA_BRIDGE_ACQUISITION)"
+        "AI 인허가 사전검토 진단기(신규등록) 페이지입니다. 페이지 로딩 후 계산기 UI가 자동 표시됩니다. (SMNA_BRIDGE_ACQUISITION)"
         "</div>"
         "<div style=\"margin:0 0 10px;\">"
         "<a href=\"https://seoulmna.kr/ai-license-acquisition-calculator/\" target=\"_blank\" rel=\"noopener noreferrer\" "
@@ -297,5 +313,6 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
 
 

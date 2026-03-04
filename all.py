@@ -606,6 +606,21 @@ PRICE_TRACE_HEADERS = [
     "가격fallback",
 ]
 
+# Core listing columns
+# - AJ(index 35): 신용 별표 표시
+# - AK(index 36): 신용 주체(별도 관리)
+# - AL~AP(index 37~41): 가격 추적 컬럼
+CREDIT_DISPLAY_COL_IDX = 35
+CREDIT_SUBJECT_COL_IDX = 36
+TRACE_START_COL_IDX = 37
+TRACE_COL_COUNT = 5
+
+# 특정 UID는 신용 주체명을 고정한다. (수기 운영 정책 반영)
+CREDIT_SUBJECT_UID_OVERRIDES = {
+    "11537": "서울건설정보",
+    "11538": "서울건설정보",
+}
+
 
 def _col_to_a1(col_1based):
     n = int(col_1based)
@@ -647,7 +662,7 @@ def _extract_sheet_uid_from_row(row):
 
 
 def _is_listing_anchor_row(row):
-    # A sparse row with only trace columns(AK~AO) should not move append anchor.
+    # A sparse row with only trace columns(AL~AP) should not move append anchor.
     if _sheet_no_to_int(_row_text(row, 0)) > 0:
         return True
     if _extract_sheet_uid_from_row(row):
@@ -659,8 +674,8 @@ def _is_listing_anchor_row(row):
 
 
 def _has_listing_core_cells(row):
-    # Price trace columns start at AK(index 36); core listing columns are A~AJ.
-    max_idx = min(len(row), 36)
+    # Price trace columns start at AL(index 37); core listing columns are A~AK.
+    max_idx = min(len(row), TRACE_START_COL_IDX)
     for idx in range(max_idx):
         if _row_text(row, idx):
             return True
@@ -669,28 +684,40 @@ def _has_listing_core_cells(row):
 
 def _ensure_price_trace_headers(worksheet, all_values):
     row1 = all_values[0] if all_values else []
-    start_col = 37  # AK
+    subject_col = CREDIT_SUBJECT_COL_IDX + 1  # AK
+    start_col = TRACE_START_COL_IDX + 1  # AL
     expected = list(PRICE_TRACE_HEADERS)
 
-    need_update = False
+    current_subject = str(row1[subject_col - 1]).strip() if (subject_col - 1) < len(row1) else ""
+    need_subject_update = current_subject != "신용주체"
+    need_trace_update = False
     for offset, header in enumerate(expected):
         idx = (start_col - 1) + offset
         current = str(row1[idx]).strip() if idx < len(row1) else ""
         if current != header:
-            need_update = True
+            need_trace_update = True
             break
 
-    if not need_update:
+    if not need_subject_update and not need_trace_update:
         return
 
-    start_a1 = _col_to_a1(start_col)
-    end_a1 = _col_to_a1(start_col + len(expected) - 1)
-    range_name = f"{start_a1}1:{end_a1}1"
-    try:
-        worksheet.update(range_name=range_name, values=[expected])
-    except TypeError:
-        worksheet.update(range_name, [expected])
-    print(f"   🧭 가격 추적 헤더 설정: {range_name}")
+    if need_subject_update:
+        subject_a1 = _col_to_a1(subject_col) + "1"
+        try:
+            worksheet.update(range_name=subject_a1, values=[["신용주체"]])
+        except TypeError:
+            worksheet.update(subject_a1, [["신용주체"]])
+        print(f"   🧭 신용 주체 헤더 설정: {subject_a1}")
+
+    if need_trace_update:
+        start_a1 = _col_to_a1(start_col)
+        end_a1 = _col_to_a1(start_col + len(expected) - 1)
+        range_name = f"{start_a1}1:{end_a1}1"
+        try:
+            worksheet.update(range_name=range_name, values=[expected])
+        except TypeError:
+            worksheet.update(range_name, [expected])
+        print(f"   🧭 가격 추적 헤더 설정: {range_name}")
 
 
 def _build_price_trace_updates(all_values):
@@ -710,16 +737,71 @@ def _build_price_trace_updates(all_values):
     recovered_rows = 0
     changed_examples = []
 
+    def _looks_like_trace_source(text):
+        src = str(text or "").strip().lower()
+        if not src:
+            return False
+        keywords = ("primary", "claim", "memo", "consult", "empty", "fallback")
+        return any(k in src for k in keywords)
+
+    def _looks_like_trace_confidence(text):
+        src = str(text or "").strip().lower()
+        return src in {"high", "medium", "low"}
+
+    def _looks_like_trace_fallback(text):
+        src = str(text or "").strip().upper()
+        return src in {"Y", "N"}
+
+    def _looks_like_trace_raw(text):
+        src = str(text or "").strip()
+        if not src:
+            return False
+        if "협의" in src:
+            return True
+        return bool(re.search(r"\d", src))
+
+    def _trace_layout_score(trace_values):
+        vals = list(trace_values or [])
+        while len(vals) < TRACE_COL_COUNT:
+            vals.append("")
+        score = 0
+        if _looks_like_trace_raw(vals[0]):
+            score += 1
+        if _looks_like_trace_source(vals[1]):
+            score += 2
+        if _compact_text(vals[2]):
+            score += 1
+        if _looks_like_trace_confidence(vals[3]):
+            score += 2
+        if _looks_like_trace_fallback(vals[4]):
+            score += 1
+        return score
+
+    def _read_existing_trace_cols(row):
+        new_vals = [
+            _row_text(row, TRACE_START_COL_IDX + 0),
+            _row_text(row, TRACE_START_COL_IDX + 1),
+            _row_text(row, TRACE_START_COL_IDX + 2),
+            _row_text(row, TRACE_START_COL_IDX + 3),
+            _row_text(row, TRACE_START_COL_IDX + 4),
+        ]
+        legacy_vals = [
+            _row_text(row, CREDIT_SUBJECT_COL_IDX + 0),
+            _row_text(row, CREDIT_SUBJECT_COL_IDX + 1),
+            _row_text(row, CREDIT_SUBJECT_COL_IDX + 2),
+            _row_text(row, CREDIT_SUBJECT_COL_IDX + 3),
+            _row_text(row, CREDIT_SUBJECT_COL_IDX + 4),
+        ]
+        new_score = _trace_layout_score(new_vals)
+        legacy_score = _trace_layout_score(legacy_vals)
+        if legacy_score > new_score:
+            return legacy_vals
+        return new_vals
+
     for row_idx, row in enumerate(all_values[1:], start=2):
         if not _has_listing_core_cells(row):
             primary = _row_text(row, 18)
-            old_trace = [
-                _row_text(row, 36),
-                _row_text(row, 37),
-                _row_text(row, 38),
-                _row_text(row, 39),
-                _row_text(row, 40),
-            ]
+            old_trace = _read_existing_trace_cols(row)
             price_values.append([primary])
             trace_values.append(old_trace)
             continue
@@ -738,13 +820,7 @@ def _build_price_trace_updates(all_values):
             trace["fallback_used"],
         ]
 
-        old_trace = [
-            _row_text(row, 36),
-            _row_text(row, 37),
-            _row_text(row, 38),
-            _row_text(row, 39),
-            _row_text(row, 40),
-        ]
+        old_trace = _read_existing_trace_cols(row)
 
         if primary != new_price or old_trace != new_trace:
             changed_rows += 1
@@ -1027,6 +1103,44 @@ def _collect_low_confidence_rows(all_values, limit=0, recent_rows=0, recent_numb
     if len(all_values) <= 1:
         return rows
 
+    def _looks_like_trace_source(text):
+        src = str(text or "").strip().lower()
+        if not src:
+            return False
+        keywords = ("primary", "claim", "memo", "consult", "empty", "fallback")
+        return any(k in src for k in keywords)
+
+    def _looks_like_trace_confidence(text):
+        return str(text or "").strip().lower() in {"high", "medium", "low"}
+
+    def _looks_like_trace_fallback(text):
+        return str(text or "").strip().upper() in {"Y", "N"}
+
+    def _looks_like_trace_raw(text):
+        src = str(text or "").strip()
+        if not src:
+            return False
+        if "협의" in src:
+            return True
+        return bool(re.search(r"\d", src))
+
+    def _trace_layout_score(trace_values):
+        vals = list(trace_values or [])
+        while len(vals) < TRACE_COL_COUNT:
+            vals.append("")
+        score = 0
+        if _looks_like_trace_raw(vals[0]):
+            score += 1
+        if _looks_like_trace_source(vals[1]):
+            score += 2
+        if _compact_text(vals[2]):
+            score += 1
+        if _looks_like_trace_confidence(vals[3]):
+            score += 2
+        if _looks_like_trace_fallback(vals[4]):
+            score += 1
+        return score
+
     min_row_idx = 2
     recent_rows = max(0, _to_int_safe(recent_rows))
     if recent_rows > 0:
@@ -1057,19 +1171,35 @@ def _collect_low_confidence_rows(all_values, limit=0, recent_rows=0, recent_numb
             if not seq.isdigit() or int(seq) not in top_seq_set:
                 continue
 
-        raw = _row_text(row, 36)         # AK
-        source = _row_text(row, 37)      # AL
-        evidence = _row_text(row, 38)    # AM
-        confidence = _row_text(row, 39)  # AN
-        fallback = _row_text(row, 40)    # AO
+        new_trace = [
+            _row_text(row, TRACE_START_COL_IDX + 0),
+            _row_text(row, TRACE_START_COL_IDX + 1),
+            _row_text(row, TRACE_START_COL_IDX + 2),
+            _row_text(row, TRACE_START_COL_IDX + 3),
+            _row_text(row, TRACE_START_COL_IDX + 4),
+        ]
+        legacy_trace = [
+            _row_text(row, CREDIT_SUBJECT_COL_IDX + 0),
+            _row_text(row, CREDIT_SUBJECT_COL_IDX + 1),
+            _row_text(row, CREDIT_SUBJECT_COL_IDX + 2),
+            _row_text(row, CREDIT_SUBJECT_COL_IDX + 3),
+            _row_text(row, CREDIT_SUBJECT_COL_IDX + 4),
+        ]
 
-        if not confidence:
+        if _trace_layout_score(legacy_trace) > _trace_layout_score(new_trace):
+            raw, source, evidence, confidence, fallback = legacy_trace
+        else:
+            raw, source, evidence, confidence, fallback = new_trace
+
+        if not _looks_like_trace_confidence(confidence):
             trace = resolve_yangdo_price_trace(raw or primary, claim, memo)
             raw = raw or primary
-            source = trace["source"]
-            evidence = trace["evidence"]
+            if not _looks_like_trace_source(source):
+                source = trace["source"]
+            evidence = evidence or trace["evidence"]
             confidence = trace["confidence"]
-            fallback = trace["fallback_used"]
+            if not _looks_like_trace_fallback(fallback):
+                fallback = trace["fallback_used"]
 
         if str(confidence).strip().lower() != "low":
             continue
@@ -1339,10 +1469,131 @@ def _relative_closeness(left, right):
     return max(0.0, 1.0 - min(rel, 1.0))
 
 
+def _safe_ratio(num_value, den_value):
+    num = _to_float_safe(num_value)
+    den = _to_float_safe(den_value)
+    if num <= 0 or den <= 0:
+        return None
+    val = num / den
+    if val <= 0:
+        return None
+    return float(val)
+
+
+_CORE_LICENSE_TOKENS = {
+    "전기", "정보통신", "소방", "기계설비", "가스",
+    "토건", "토목", "건축", "조경", "실내",
+    "토공", "포장", "철콘", "상하", "석공", "비계", "석면", "습식", "도장",
+    "조경식재", "조경시설", "산림토목", "도시정비", "보링", "수중", "금속",
+}
+_CORE_LICENSE_TOKENS_SORTED = sorted(_CORE_LICENSE_TOKENS, key=len, reverse=True)
+_CORE_TEXT_ALIAS_MAP = {
+    "실내건축": "실내",
+    "철근콘크리트": "철콘",
+    "상하수도설비": "상하",
+    "토목건축": "토건",
+    "정보통신공사업": "정보통신",
+    "통신공사업": "정보통신",
+    "통신": "정보통신",
+    "기계설비공사업": "기계설비",
+    "기계가스설비공사업": "기계설비",
+    "기계가스": "기계설비",
+    "기계": "기계설비",
+    "금속구조물창호온실": "금속",
+    "비계구조물해체": "비계",
+    "석면해체제거": "석면",
+    "습식방수석공": "습식",
+    "소방시설": "소방",
+    "전기공사업": "전기",
+    "소방공사업": "소방",
+}
+
+
+def _core_tokens_from_text(raw):
+    key = _normalize_license_key(raw)
+    if not key:
+        return set()
+    alias = _CORE_TEXT_ALIAS_MAP.get(key)
+    if alias:
+        return {alias}
+    hits = set()
+    for token in _CORE_LICENSE_TOKENS_SORTED:
+        if token and token in key:
+            hits.add(token)
+    return hits
+
+
+def _core_license_tokens(tokens):
+    out = set()
+    for raw in set(tokens or set()):
+        token = str(raw or "").strip()
+        if not token:
+            continue
+        if token in _CORE_LICENSE_TOKENS:
+            out.add(token)
+        out.update(_core_tokens_from_text(token))
+    return out
+
+
+def _is_single_token_cross_combo(target_tokens, candidate_tokens, candidate_license_text=""):
+    tset = set(target_tokens or set())
+    cset = set(candidate_tokens or set())
+    target = _single_token_target_core(tset)
+    if not target:
+        return False
+    cand_core = _core_license_tokens(cset) | _core_tokens_from_text(candidate_license_text)
+    if target not in cset and target not in cand_core:
+        return False
+    if len(cand_core) <= 1:
+        return False
+    return any(tok != target for tok in cand_core)
+
+
+def _single_token_target_core(target_tokens):
+    tset = set(target_tokens or set())
+    core = _core_license_tokens(tset)
+    if len(core) == 1:
+        return next(iter(sorted(core)))
+    if len(tset) == 1:
+        return next(iter(tset))
+    return ""
+
+
+def _is_single_token_same_core(target_tokens, candidate_tokens, candidate_license_text=""):
+    target = _single_token_target_core(target_tokens)
+    if not target:
+        return False
+    cset = set(candidate_tokens or set())
+    cand_core = _core_license_tokens(cset) | _core_tokens_from_text(candidate_license_text)
+    if len(cand_core) >= 2:
+        return False
+    if len(cand_core) == 1:
+        return target in cand_core
+    if len(cset) == 1:
+        tok = next(iter(cset))
+        return (target in tok) or (tok in target)
+    return False
+
+
+def _is_single_token_profile_outlier(target, candidate):
+    tset = set(target.get("license_tokens", set()) or set())
+    if not _single_token_target_core(tset):
+        return False
+    spec_ratio = _safe_ratio(target.get("specialty"), candidate.get("specialty"))
+    sales_ratio = _safe_ratio(target.get("sales3_eok"), candidate.get("sales3_eok"))
+    if spec_ratio is not None and (spec_ratio < 0.30 or spec_ratio > 3.30):
+        return True
+    if sales_ratio is not None and (sales_ratio < 0.30 or sales_ratio > 3.30):
+        return True
+    return False
+
+
 def _neighbor_similarity_score(target, candidate):
     tokens_t = set(target.get("license_tokens", set()) or set())
     tokens_c = set(candidate.get("license_tokens", set()) or set())
     inter = tokens_t & tokens_c
+    token_precision = (len(inter) / float(max(1, len(tokens_c)))) if tokens_c else 0.0
+    single_core_target = bool(_single_token_target_core(tokens_t))
     score = 0.0
 
     lic_j = _jaccard_similarity(tokens_t, tokens_c)
@@ -1364,6 +1615,35 @@ def _neighbor_similarity_score(target, candidate):
     # 업종이 완전히 다르면 과도한 매칭 방지
     if tokens_t and tokens_c and not inter:
         score *= 0.55
+    if _is_single_token_cross_combo(tokens_t, tokens_c, candidate.get("license_text")):
+        # 단일 업종 입력 시 타 핵심업종이 섞인 복합면허를 하드 감점
+        score *= 0.10
+    if tokens_t and tokens_c and single_core_target and len(tokens_c) >= 2 and (tokens_t & tokens_c):
+        # 단일 업종 검색에서 복합면허 과대매칭 억제
+        score *= 0.62
+        if token_precision < 0.60:
+            score *= 0.72
+        spec_ratio = None
+        sales_ratio = None
+        try:
+            a = target.get("specialty")
+            b = candidate.get("specialty")
+            if isinstance(a, (int, float)) and isinstance(b, (int, float)) and float(b) != 0:
+                spec_ratio = float(a) / float(b)
+        except Exception:
+            spec_ratio = None
+        try:
+            a = target.get("sales3_eok")
+            b = candidate.get("sales3_eok")
+            if isinstance(a, (int, float)) and isinstance(b, (int, float)) and float(b) != 0:
+                sales_ratio = float(a) / float(b)
+        except Exception:
+            sales_ratio = None
+        if (
+            (spec_ratio is not None and (spec_ratio < 0.35 or spec_ratio > 2.85))
+            or (sales_ratio is not None and (sales_ratio < 0.35 or sales_ratio > 2.85))
+        ):
+            score *= 0.72
 
     return max(0.0, min(100.0, score))
 
@@ -1408,7 +1688,7 @@ def _build_neighbor_index(train_records):
     return index
 
 
-def _estimate_row_price(target, train_records, token_index=None, top_k=12, min_score=22.0):
+def _estimate_row_price(target, train_records, token_index=None, top_k=12, min_score=26.0):
     token_index = token_index or {}
     if not train_records:
         return None
@@ -1427,39 +1707,80 @@ def _estimate_row_price(target, train_records, token_index=None, top_k=12, min_s
                     continue
                 seen_ids.add(marker)
                 candidates.append(rec)
-    if len(candidates) < max(40, int(top_k) * 4):
+    if len(candidates) < max(40, int(top_k) * 4) and not token_pool:
+        candidates = list(train_records)
+    elif token_pool and not candidates:
         candidates = list(train_records)
 
-    scored = []
-    for cand in candidates:
-        price_eok = cand.get("current_price_eok")
-        if price_eok is None:
-            continue
-        if target_uid and str(cand.get("uid", "")).strip() == target_uid:
-            continue
-        if target_row > 0 and int(cand.get("row", 0) or 0) == target_row:
-            continue
-        sim = _neighbor_similarity_score(target, cand)
-        if sim < float(min_score):
-            continue
-        scored.append((sim, cand))
+    target_core_set = _core_license_tokens(token_pool)
+    target_core_count = len(target_core_set)
+
+    def _score_candidates(pool, strict_same_core, threshold):
+        out = []
+        for cand in pool:
+            price_eok = cand.get("current_price_eok")
+            if price_eok is None:
+                continue
+            if target_uid and str(cand.get("uid", "")).strip() == target_uid:
+                continue
+            if target_row > 0 and int(cand.get("row", 0) or 0) == target_row:
+                continue
+            cand_tokens = set(cand.get("license_tokens", set()) or set())
+            cand_core = _core_license_tokens(cand_tokens) | _core_tokens_from_text(cand.get("license_text"))
+            if target_core_count >= 2 and target_core_set and not (target_core_set & cand_core):
+                continue
+            if strict_same_core and not _is_single_token_same_core(token_pool, cand_tokens, cand.get("license_text")):
+                continue
+            if _is_single_token_cross_combo(token_pool, cand_tokens, cand.get("license_text")):
+                continue
+            if _is_single_token_profile_outlier(target, cand):
+                continue
+            sim = _neighbor_similarity_score(target, cand)
+            if sim < float(threshold):
+                continue
+            out.append((sim, cand))
+        return out
+
+    strict_same_core = bool(_single_token_target_core(token_pool))
+    threshold = float(min_score)
+    scored = _score_candidates(candidates, strict_same_core, threshold)
+    if strict_same_core and not scored:
+        scored = _score_candidates(candidates, True, max(12.0, threshold - 8.0))
 
     scored.sort(key=lambda x: x[0], reverse=True)
     if not scored:
         return None
 
-    neighbors = scored[: max(1, int(top_k))]
-    prices = [float(rec.get("current_price_eok")) for _, rec in neighbors]
-    sims = [float(sim) for sim, _ in neighbors]
+    display_neighbors = scored[: max(1, int(top_k))]
+    token_count = target_core_count if target_core_count > 0 else len(token_pool)
+    sim_window = 18.0 if token_count >= 2 else (14.0 if token_count == 1 else 10.0)
+    best_sim = float(scored[0][0])
+    stat_floor = max(float(min_score), best_sim - sim_window)
+    stat_neighbors = [(sim, rec) for sim, rec in scored if float(sim) >= stat_floor]
+    min_stat_size = max(10, int(top_k))
+    if len(stat_neighbors) < min_stat_size:
+        stat_neighbors = scored[: max(min_stat_size, int(top_k) * 4)]
+
+    prices = [float(rec.get("current_price_eok")) for _, rec in stat_neighbors]
+    sims = [float(sim) for sim, _ in stat_neighbors]
     center = _weighted_quantile(prices, sims, 0.5)
     p25 = _weighted_quantile(prices, sims, 0.25)
     p75 = _weighted_quantile(prices, sims, 0.75)
+    p10 = _weighted_quantile(prices, sims, 0.10)
+    p90 = _weighted_quantile(prices, sims, 0.90)
+    p95 = _weighted_quantile(prices, sims, 0.95)
     if center is None:
         return None
     if p25 is None:
         p25 = min(prices)
     if p75 is None:
         p75 = max(prices)
+    if p10 is None:
+        p10 = min(prices)
+    if p90 is None:
+        p90 = max(prices)
+    if p95 is None:
+        p95 = max(prices)
 
     abs_dev = [abs(x - center) for x in prices]
     mad = _weighted_quantile(abs_dev, sims, 0.5)
@@ -1468,15 +1789,65 @@ def _estimate_row_price(target, train_records, token_index=None, top_k=12, min_s
     spread = max(float(p75) - float(p25), mad * 1.8, float(center) * 0.08, 0.08)
     low = max(0.05, float(center) - spread * 0.55)
     high = max(low, float(center) + spread * 0.55)
+    avg_sim = sum(sims) / max(1.0, len(sims))
+    token_count = len(set(target.get("license_tokens", set()) or set()))
 
     claim_eok = target.get("claim_price_eok")
     if isinstance(claim_eok, (int, float)) and claim_eok > 0:
-        center = (float(center) * 0.82) + (float(claim_eok) * 0.18)
+        base_center = float(center)
+        gap_ratio = abs(float(claim_eok) - base_center) / max(base_center, 0.1)
+        claim_weight = min(0.35, 0.18 + max(0.0, gap_ratio - 0.15) * 0.20)
+        p90_safe = max(float(p90), 0.1)
+        p10_safe = max(float(p10), 0.1)
+        if float(claim_eok) > (p90_safe * 1.25) and avg_sim >= 52:
+            uplift = min(0.40, max(0.0, ((float(claim_eok) / p90_safe) - 1.25) * 0.28))
+            if len(stat_neighbors) <= 6:
+                uplift *= 1.15
+            if token_count >= 2:
+                uplift *= 1.10
+            claim_weight = min(0.72, claim_weight + uplift)
+        elif float(claim_eok) < (p10_safe * 0.80) and avg_sim >= 52:
+            down = min(0.20, max(0.0, (0.80 - (float(claim_eok) / p10_safe)) * 0.18))
+            claim_weight = max(0.10, claim_weight - down)
+        center = (base_center * (1.0 - claim_weight)) + (float(claim_eok) * claim_weight)
         low = min(low, center)
         high = max(high, center)
+        # 고가 희소구간(20억+) 과소추정 완화: 신뢰 가능한 청구가와 추가 합성
+        if float(claim_eok) >= 20 and avg_sim >= 55:
+            high_gap = (float(claim_eok) / max(float(center), 0.1)) - 1.0
+            if high_gap > 0.22:
+                sparse_pull = min(0.34, max(0.10, ((high_gap - 0.22) * 0.28) + 0.10))
+                center = (float(center) * (1.0 - sparse_pull)) + (float(claim_eok) * sparse_pull)
+                low = min(low, center)
+                high = max(high, center)
+        if float(claim_eok) > high * 1.18:
+            extra = min(float(claim_eok) - high, max(float(center) * 0.45, (high - low) * 0.80))
+            extra_w = 0.55
+            if float(claim_eok) >= 20 and avg_sim >= 55:
+                extra_w = 0.86
+            high = high + max(0.0, extra * extra_w)
+        if float(claim_eok) >= 20 and avg_sim >= 55 and float(claim_eok) > max(float(p90) * 1.20, float(center) * 1.18):
+            high = max(high, float(claim_eok))
 
-    avg_sim = sum(sims) / max(1.0, len(sims))
-    coverage = min(1.0, len(neighbors) / 8.0)
+    # 저가 구간 과대추정 억제: 유사군 상단 분위보다 지나치게 높으면 상단 캡으로 안정화
+    upper_cap = max(float(p95) * 1.35, float(p90) * 1.45, float(p75) * 1.60, 0.15)
+    claim_allows_high = isinstance(claim_eok, (int, float)) and float(claim_eok) > (upper_cap * 1.05)
+    if float(center) > upper_cap and not claim_allows_high:
+        ratio = (float(center) / max(upper_cap, 0.1)) - 1.0
+        pull = min(0.65, max(0.18, ratio * 0.55 + 0.18))
+        next_center = (float(center) * (1.0 - pull)) + (upper_cap * pull)
+        scale = next_center / max(float(center), 0.1)
+        center = next_center
+        low = max(0.05, float(low) * scale)
+        high = max(low, float(high) * scale)
+    if float(center) < float(low):
+        low = float(center)
+    if float(center) > float(high):
+        high = float(center)
+    if float(high) < float(low):
+        high = float(low)
+
+    coverage = min(1.0, len(stat_neighbors) / 8.0)
     dispersion = mad / max(float(center), 0.1)
     confidence_score = (avg_sim * 0.62) + (coverage * 25.0) + max(0.0, 20.0 - dispersion * 60.0)
     confidence_score = max(0.0, min(100.0, confidence_score))
@@ -1493,9 +1864,10 @@ def _estimate_row_price(target, train_records, token_index=None, top_k=12, min_s
         "estimate_high_eok": _round4(high),
         "confidence": confidence,
         "confidence_score": _round4(confidence_score),
-        "neighbor_count": len(neighbors),
+        "neighbor_count": len(stat_neighbors),
+        "display_neighbor_count": len(display_neighbors),
         "avg_similarity": _round4(avg_sim),
-        "neighbor_uids": [str(rec.get("uid", "")).strip() for _, rec in neighbors if str(rec.get("uid", "")).strip()],
+        "neighbor_uids": [str(rec.get("uid", "")).strip() for _, rec in display_neighbors if str(rec.get("uid", "")).strip()],
     }
 
 
@@ -1517,7 +1889,7 @@ def _estimate_price_judgement(current_eok, claim_eok, center, low, high):
     return "신규추정"
 
 
-def _build_yangdo_estimate_rows(all_values, uid_filter="", limit=0, only_missing=False, top_k=12, min_score=22.0):
+def _build_yangdo_estimate_rows(all_values, uid_filter="", limit=0, only_missing=False, top_k=12, min_score=26.0):
     uid_filter = str(uid_filter or "").strip()
     records = _build_estimate_records(all_values)
     train_records = [r for r in records if isinstance(r.get("current_price_eok"), (int, float)) and r.get("current_price_eok", 0) > 0]
@@ -3820,6 +4192,7 @@ def _reconcile_sheet_sync(worksheet, runtime, uid, status_label, item=None, dry_
             status_label=status_label,
             old_memo=_row_text(old_row, 31),
             keep_display_col=_row_text(old_row, 35),
+            keep_subject_col=_row_text(old_row, 36),
         )
         if _sheet_rows_equal(old_row, new_row):
             return {
@@ -3851,7 +4224,7 @@ def _reconcile_sheet_sync(worksheet, runtime, uid, status_label, item=None, dry_
 
     row_no = max(1, int(runtime.get("last_no", 0)) + 1)
     row_idx = max(2, int(runtime.get("last_row", 1)) + 1)
-    new_row = _build_sheet_row(item, row_no=row_no, status_label=status_label, keep_display_col="")
+    new_row = _build_sheet_row(item, row_no=row_no, status_label=status_label, keep_display_col="", keep_subject_col="")
     if not dry_run:
         cell = f"A{row_idx}"
         try:
@@ -3902,12 +4275,177 @@ def _sanitize_credit_display_col(value):
     return txt
 
 
-def _build_sheet_row(item, row_no, status_label="가능", old_memo="", keep_display_col=""):
+def _sanitize_credit_subject_col(value):
+    txt = _compact_text(value)
+    if not txt:
+        return ""
+    txt = txt.replace("⭐", "").replace("★", "").replace("🌟", "").strip()
+    if not txt:
+        return ""
+    # AK(신용 주체)에는 가격/협의 문구를 쓰지 않는다.
+    if any(marker in txt for marker in ("협의", "억", "만", "~")):
+        return ""
+    return txt
+
+
+def _extract_credit_subject_candidates(item, reviewed_memo):
+    subject_candidates = []
+    for raw in (
+        (item or {}).get("license", ""),
+        (item or {}).get("claim_price", ""),
+        (item or {}).get("price_raw", ""),
+        reviewed_memo,
+        (item or {}).get("memo", ""),
+    ):
+        txt = str(raw or "")
+        if not txt:
+            continue
+        for m in re.finditer(r"\(([^()]{2,40})\)", txt):
+            cand = _compact_text(m.group(1))
+            if not cand:
+                continue
+            low = cand.lower()
+            if low in {"종합", "전문", "수정하세요", "삭제", "협의중"}:
+                continue
+            if any(token in cand for token in ("건설정보", "행정사", "법무", "컨설팅", "MNA", "mna")):
+                subject_candidates.append(cand)
+                continue
+            if len(cand) >= 4 and not re.search(r"^\d+$", cand):
+                subject_candidates.append(cand)
+    return subject_candidates
+
+
+def _build_credit_subject_col(item, reviewed_memo, keep_subject_col="", keep_display_col=""):
+    uid = str((item or {}).get("uid", "")).strip()
+    forced = _compact_text(CREDIT_SUBJECT_UID_OVERRIDES.get(uid, ""))
+    if forced:
+        return forced
+
+    candidates = []
+
+    keep_subject = _sanitize_credit_subject_col(keep_subject_col)
+    if keep_subject:
+        candidates.extend([x.strip() for x in keep_subject.split("/") if _compact_text(x)])
+
+    keep_display = _sanitize_credit_display_col(keep_display_col)
+    disp = keep_display.replace("⭐", "🌟").replace("★", "🌟").strip()
+    if disp.startswith("🌟"):
+        tail = _sanitize_credit_subject_col(disp.lstrip("🌟").strip())
+        if tail:
+            candidates.extend([x.strip() for x in tail.split("/") if _compact_text(x)])
+
+    candidates.extend(_extract_credit_subject_candidates(item, reviewed_memo))
+
+    if not candidates:
+        return ""
+    seen = set()
+    uniq = []
+    for cand in candidates:
+        key = _normalize_compare_text(cand)
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        uniq.append(cand)
+    return " / ".join(uniq[:2])
+
+
+_CREDIT_GRADE_SCORE = {
+    "AAA": 100,
+    "AA+": 95,
+    "AA": 94,
+    "AA-": 93,
+    "A+": 90,
+    "A": 89,
+    "A-": 88,
+    "BBB+": 85,
+    "BBB": 84,
+    "BBB-": 83,
+    "BB+": 80,
+    "BB": 79,
+    "BB-": 78,
+    "B+": 72,
+    "B": 71,
+    "B-": 70,
+    "CCC+": 64,
+    "CCC": 63,
+    "CCC-": 62,
+    "CC": 55,
+    "C": 50,
+    "D": 0,
+}
+
+_CREDIT_GRADE_PATTERN = re.compile(
+    r"(?<![A-Z])(AAA|AA[\+\-0]?|A[\+\-0]?|BBB[\+\-0]?|BB[\+\-0]?|B[\+\-0]?|CCC[\+\-0]?|CC|C|D)(?![A-Z])",
+    flags=re.I,
+)
+
+
+def _normalize_credit_grade_token(token):
+    t = _compact_text(token).upper().replace("＋", "+").replace("－", "-")
+    if not t:
+        return ""
+    if t.endswith("0"):
+        t = t[:-1]
+    if t == "AAA+":
+        t = "AAA"
+    return t
+
+
+def _iter_credit_grade_tokens(text):
+    src = str(text or "")
+    if not src:
+        return []
+    out = []
+    for raw_line in _split_text_lines(src):
+        line = str(raw_line or "").strip()
+        norm = _compact_text(line)
+        if not norm:
+            continue
+        upper_line = line.upper()
+        is_context_line = any(key in norm for key in ("신용", "등급", "조합", "외부"))
+        if not is_context_line:
+            simple = _normalize_credit_grade_token(norm)
+            if simple in _CREDIT_GRADE_SCORE:
+                out.append(simple)
+            continue
+        for match in _CREDIT_GRADE_PATTERN.finditer(upper_line):
+            token = _normalize_credit_grade_token(match.group(1))
+            if token in _CREDIT_GRADE_SCORE:
+                out.append(token)
+    return out
+
+
+def _has_bb_plus_or_higher_credit(text):
+    threshold = _CREDIT_GRADE_SCORE.get("BB+", 80)
+    for token in _iter_credit_grade_tokens(text):
+        score = _CREDIT_GRADE_SCORE.get(token)
+        if score is not None and score >= threshold:
+            return True
+    return False
+
+
+def _build_credit_display_col(item, reviewed_memo, keep_display_col):
+    prev = _sanitize_credit_display_col(keep_display_col)
+    prev_norm = prev.replace("⭐", "🌟").replace("★", "🌟").strip()
+    prev_has_star = prev_norm.startswith("🌟")
+    src = [reviewed_memo, (item or {}).get("memo", ""), (item or {}).get("association", ""), prev]
+    for key in ("external_credit", "ext_credit", "coop_credit", "association_credit"):
+        src.append((item or {}).get(key, ""))
+    merged = "\n".join(str(x or "") for x in src if _compact_text(x))
+    has_star = prev_has_star or _has_bb_plus_or_higher_credit(merged)
+    if not has_star:
+        return ""
+    return "🌟"
+
+
+def _build_sheet_row(item, row_no, status_label="가능", old_memo="", keep_display_col="", keep_subject_col=""):
     status_label = _normalize_sync_status_label(status_label)
     uid = str((item or {}).get("uid", "")).strip()
     reviewed_memo = _review_memo_typo_for_sheet(uid, (item or {}).get("memo", ""))
     if _compact_text(old_memo):
         reviewed_memo = _merge_sheet_memo_preserve_credit(old_memo, reviewed_memo)
+    credit_display_col = _build_credit_display_col(item, reviewed_memo, keep_display_col)
+    credit_subject_col = _build_credit_subject_col(item, reviewed_memo, keep_subject_col, keep_display_col)
     return [
         row_no,
         status_label,
@@ -3944,7 +4482,8 @@ def _build_sheet_row(item, row_no, status_label="가능", old_memo="", keep_disp
         MY_COMPANY_NAME,
         item.get("claim_price", ""),
         str(item.get("uid", "")),
-        _sanitize_credit_display_col(keep_display_col),
+        credit_display_col,
+        credit_subject_col,
         item.get("price_raw", ""),
         item.get("price_source", ""),
         item.get("price_evidence", ""),
@@ -4301,6 +4840,7 @@ def _upsert_item_to_sheet(worksheet, all_values, item):
             row_no,
             old_memo=old_memo,
             keep_display_col=_row_text(old_row, 35),
+            keep_subject_col=_row_text(old_row, 36),
         )
         cell = f"A{update_row_idx}"
         try:
@@ -4311,7 +4851,7 @@ def _upsert_item_to_sheet(worksheet, all_values, item):
 
     insert_row_idx = context["real_last_row"] + 1
     row_no = max(1, context["last_my_number"] + 1)
-    row_values = _build_sheet_row(item, row_no, keep_display_col="")
+    row_values = _build_sheet_row(item, row_no, keep_display_col="", keep_subject_col="")
     cell = f"A{insert_row_idx}"
     try:
         worksheet.update(values=[row_values], range_name=cell)
@@ -6893,7 +7433,7 @@ def run_reconcile_rollback(snapshot_path="", dry_run=False, limit=0):
                             except TypeError:
                                 worksheet.update(cell, [before_row])
                         else:
-                            clear_cols = max(40, len(before_row) or 40)
+                            clear_cols = max(42, len(before_row) or 42)
                             cell = f"A{row_idx}"
                             blanks = [[""] * clear_cols]
                             try:
@@ -6954,7 +7494,7 @@ def run_price_trace_backfill(dry_run=False):
 
     end_row = total_rows + 1
     price_range = f"S2:S{end_row}"
-    trace_range = f"AK2:AO{end_row}"
+    trace_range = f"AL2:AP{end_row}"
 
     try:
         worksheet.update(range_name=price_range, values=payload["price_values"])
@@ -7702,7 +8242,7 @@ def run_restore_claim_from_kakao(
     )
 
 
-def run_yangdo_estimation(uid="", limit=0, only_missing=False, sync_sheet=True, top_k=12, min_score=22.0):
+def run_yangdo_estimation(uid="", limit=0, only_missing=False, sync_sheet=True, top_k=12, min_score=26.0):
     print("📈 [Estimate] 양도가 산정 실행...")
 
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
@@ -7722,7 +8262,7 @@ def run_yangdo_estimation(uid="", limit=0, only_missing=False, sync_sheet=True, 
         limit=max(0, int(limit or 0)),
         only_missing=bool(only_missing),
         top_k=max(3, int(top_k or 12)),
-        min_score=float(min_score or 22.0),
+        min_score=float(min_score or 26.0),
     )
     print(
         f"   학습대상 {meta.get('train_count', 0)}건 / "
@@ -8277,7 +8817,7 @@ def main():
     parser.add_argument("--allow-sheet-jump", action="store_true", help="시트 행 점프 watchdog 경고를 무시하고 진행")
     parser.add_argument("--allow-low-quality-upload", action="store_true", help="저품질 콘텐츠 게이트를 무시하고 업로드")
     parser.add_argument("--no-upload", action="store_true", help="사이트 업로드 단계를 건너뜁니다.")
-    parser.add_argument("--backfill-price-trace", action="store_true", help="기존 시트 가격/추적 컬럼(C19, AK~AO) 백필")
+    parser.add_argument("--backfill-price-trace", action="store_true", help="기존 시트 가격/추적 컬럼(C19, AL~AP) 백필")
     parser.add_argument("--backfill-dry-run", action="store_true", help="백필 결과 미리보기만 수행")
     parser.add_argument("--export-low-confidence", action="store_true", help="가격신뢰도 low 리포트(CSV/JSON) 생성")
     parser.add_argument("--sync-low-confidence-sheet", action="store_true", help="가격신뢰도 low 행을 검수 탭에 동기화")
@@ -8291,7 +8831,7 @@ def main():
     parser.add_argument("--estimate-only-missing", action="store_true", help="현재 양도가 숫자가 없는 행만 산정")
     parser.add_argument("--estimate-no-sheet-sync", action="store_true", help="양도가 산정 결과를 시트 탭에 쓰지 않음")
     parser.add_argument("--estimate-top-k", type=int, default=12, help="양도가 산정 시 유사 매물 참조 건수")
-    parser.add_argument("--estimate-min-score", type=float, default=22.0, help="양도가 산정 유사도 최소 점수")
+    parser.add_argument("--estimate-min-score", type=float, default=26.0, help="양도가 산정 유사도 최소 점수")
     parser.add_argument("--build-yangdo-page", action="store_true", help="입력형 양도가 산정 페이지 HTML 생성")
     parser.add_argument("--publish-yangdo-page", action="store_true", help="입력형 양도가 산정 페이지를 seoulmna 게시판에 생성/수정")
     parser.add_argument("--yangdo-page-output", type=str, default="", help="양도가 산정 페이지 HTML 저장 경로")
@@ -8300,6 +8840,12 @@ def main():
     parser.add_argument("--yangdo-page-board-slug", type=str, default="", help="양도가 산정 페이지 게시 보드 slug(미입력시 설정값/기본 mna)")
     parser.add_argument("--yangdo-page-mode", type=str, default=YANGDO_CALCULATOR_MODE, choices=["customer", "owner"], help="양도가 산정 페이지 뷰 모드(customer|owner)")
     parser.add_argument("--yangdo-page-max-train-rows", type=int, default=0, help="양도가 산정 페이지 학습데이터 상한(0=전체)")
+    parser.add_argument(
+        "--confirm-bulk",
+        type=str,
+        default="",
+        help="대량 수정 실행 확인 토큰. 고위험 실행 시 `--confirm-bulk YES`가 필요합니다.",
+    )
     args = parser.parse_args()
     approved_uid_raw = args.memo_typo_approved_uids or " ".join(sorted(MEMO_TYPO_APPROVED_UIDS))
     _configure_memo_typo_runtime(
@@ -8308,6 +8854,46 @@ def main():
         approve_all=(bool(MEMO_TYPO_APPROVE_ALL) or args.memo_typo_approve_all),
         approved_uids=approved_uid_raw,
     )
+
+    def _bulk_warning_reasons() -> list:
+        reasons = []
+        # 게시글/시트 대조를 무제한으로 실제 반영하는 경우
+        if bool(args.reconcile_published) and (not bool(args.reconcile_dry_run)):
+            if int(args.reconcile_max_updates or 0) == 0:
+                reasons.append("reconcile-published apply (무제한 변경 가능)")
+        # 롤백 전체 적용
+        if str(args.reconcile_rollback or "").strip() and (not bool(args.rollback_dry_run)):
+            if int(args.rollback_limit or 0) == 0:
+                reasons.append("reconcile-rollback apply (전체 롤백)")
+        # 관리자 메모 일괄 교정
+        if bool(args.fix_admin_memo) and (not bool(args.fix_admin_memo_dry_run)):
+            is_single_uid = bool(str(args.fix_admin_memo_uid or "").strip())
+            is_unbounded = bool(args.fix_admin_memo_all) or int(args.fix_admin_memo_limit or 0) == 0
+            if (not bool(args.fix_admin_memo_plan_only)) and (not is_single_uid) and is_unbounded:
+                reasons.append("fix-admin-memo apply (대량 메모 교정)")
+        # 카카오 원문 기반 청구가 원복 대량 적용
+        if bool(args.restore_claim_from_kakao) and (not bool(args.restore_claim_dry_run)):
+            if int(args.restore_claim_max_updates or 0) == 0:
+                reasons.append("restore-claim-from-kakao apply (무제한 원복)")
+        # 가격/추적 컬럼 백필 대량 적용
+        if bool(args.backfill_price_trace) and (not bool(args.backfill_dry_run)):
+            reasons.append("backfill-price-trace apply (대량 시트 업데이트)")
+        # 양도가 산정 결과를 시트에 무제한 동기화
+        if bool(args.estimate_yangdo) and (not bool(args.estimate_no_sheet_sync)):
+            no_uid_bound = not bool(str(args.estimate_uid or "").strip())
+            unlimited = int(args.estimate_limit or 0) == 0
+            if no_uid_bound and unlimited:
+                reasons.append("estimate-yangdo apply (무제한 산정결과 동기화)")
+        return reasons
+
+    bulk_reasons = _bulk_warning_reasons()
+    confirm_token = str(args.confirm_bulk or "").strip().upper()
+    if bulk_reasons and confirm_token != "YES":
+        print("⚠️ 대량 데이터 수정 경고")
+        for idx, reason in enumerate(bulk_reasons, start=1):
+            print(f"  {idx}. {reason}")
+        print("실행을 계속하려면 `--confirm-bulk YES`를 추가하세요.")
+        return
 
     if args.reconcile_rollback is not None and str(args.reconcile_rollback).strip():
         run_reconcile_rollback(

@@ -201,7 +201,7 @@ function renderPage_(fileName, execUrl, mode) {{
   let html = HtmlService.createHtmlOutputFromFile(fileName).getContent();
   html = html.replace(/__GAS_EXEC_URL__/g, String(execUrl || ''));
   const pageTitle = (String(mode || '').toLowerCase() === 'acquisition')
-    ? 'AI 건설업 신규등록 비용 산정 계산기'
+    ? 'AI 인허가 사전검토 진단기(신규등록)'
     : 'AI 양도가 산정 계산기';
   return HtmlService
     .createHtmlOutput(html)
@@ -295,6 +295,12 @@ function relClose_(x, y) {{
   return Math.max(0, 1 - Math.min(1, r));
 }}
 
+function positiveRatio_(num, den) {{
+  if (!Number.isFinite(num) || !Number.isFinite(den) || den <= 0) return NaN;
+  const v = num / den;
+  return Number.isFinite(v) && v > 0 ? v : NaN;
+}}
+
 function weightedQuantile_(values, weights, q) {{
   const arr = [];
   for (let i = 0; i < values.length; i += 1) {{
@@ -335,6 +341,7 @@ function estimate_(payload) {{
     license_year: toNum_(payload.license_year),
     specialty: toNum_(payload.specialty),
     balance_eok: toNum_(payload.balance_eok || payload.balance),
+    claim_price_eok: toNum_(payload.claim_price_eok || payload.claim_eok || payload.claim_price),
     capital_eok: toNum_(payload.capital_eok || payload.capital),
     surplus_eok: toNum_(payload.surplus_eok || payload.surplus),
     focus_sales: focusSales,
@@ -346,6 +353,96 @@ function estimate_(payload) {{
     provided_signals: Number(payload.provided_signals || 0),
     missing_critical: Array.isArray(payload.missing_critical) ? payload.missing_critical : [],
   }};
+  const CORE_LICENSE_TOKENS = new Set([
+    "전기", "정보통신", "소방", "기계설비", "가스",
+    "토건", "토목", "건축", "조경", "실내",
+    "토공", "포장", "철콘", "상하", "석공", "비계", "석면", "습식", "도장",
+    "조경식재", "조경시설", "산림토목", "도시정비", "보링", "수중", "금속",
+  ]);
+  const CORE_LICENSE_TOKENS_SORTED = Array.from(CORE_LICENSE_TOKENS).sort((a, b) => b.length - a.length);
+  const CORE_TEXT_ALIAS_MAP = {{
+    "실내건축": "실내",
+    "철근콘크리트": "철콘",
+    "상하수도설비": "상하",
+    "토목건축": "토건",
+    "정보통신공사업": "정보통신",
+    "통신공사업": "정보통신",
+    "통신": "정보통신",
+    "기계설비공사업": "기계설비",
+    "기계가스설비공사업": "기계설비",
+    "기계가스": "기계설비",
+    "기계": "기계설비",
+    "금속구조물창호온실": "금속",
+    "비계구조물해체": "비계",
+    "석면해체제거": "석면",
+    "습식방수석공": "습식",
+    "소방시설": "소방",
+    "전기공사업": "전기",
+    "소방공사업": "소방",
+  }};
+  const coreTokensFromText_ = (raw) => {{
+    const key = normToken_(raw || "");
+    const out = new Set();
+    if (!key) return out;
+    if (CORE_TEXT_ALIAS_MAP[key]) {{
+      out.add(CORE_TEXT_ALIAS_MAP[key]);
+      return out;
+    }}
+    for (const token of CORE_LICENSE_TOKENS_SORTED) {{
+      if (token && key.indexOf(token) >= 0) out.add(token);
+    }}
+    return out;
+  }};
+  const coreTokens_ = (arr) => {{
+    const set = new Set(Array.isArray(arr) ? arr : []);
+    const out = new Set();
+    set.forEach((t) => {{
+      const s = String(t || "");
+      if (!s) return;
+      if (CORE_LICENSE_TOKENS.has(s)) out.add(s);
+      coreTokensFromText_(s).forEach((v) => out.add(v));
+    }});
+    return out;
+  }};
+  const isSingleTokenCrossCombo_ = (targetArr, candArr, candLicenseText) => {{
+    const c = new Set(Array.isArray(candArr) ? candArr : []);
+    const tv = singleTokenTargetCore_(targetArr);
+    const cc = new Set([...coreTokens_(Array.from(c)), ...coreTokensFromText_(candLicenseText || "")]);
+    if (!tv || (!c.has(tv) && !cc.has(tv))) return false;
+    if (cc.size <= 1) return false;
+    for (const tok of cc) {{
+      if (tok !== tv) return true;
+    }}
+    return false;
+  }};
+  const singleTokenTargetCore_ = (targetArr) => {{
+    const t = new Set(Array.isArray(targetArr) ? targetArr : []);
+    const core = new Set([...coreTokens_(Array.from(t))]);
+    if (core.size === 1) return Array.from(core)[0];
+    if (t.size === 1) return Array.from(t)[0] || '';
+    return '';
+  }};
+  const isSingleTokenSameCore_ = (targetArr, candArr, candLicenseText) => {{
+    const target = singleTokenTargetCore_(targetArr);
+    if (!target) return false;
+    const c = new Set(Array.isArray(candArr) ? candArr : []);
+    const candCore = new Set([...coreTokens_(Array.from(c)), ...coreTokensFromText_(candLicenseText || '')]);
+    if (candCore.size >= 2) return false;
+    if (candCore.size === 1) return candCore.has(target);
+    if (c.size === 1) {{
+      const tok = Array.from(c)[0] || '';
+      return !!tok && (tok.indexOf(target) >= 0 || target.indexOf(tok) >= 0);
+    }}
+    return false;
+  }};
+  const isSingleTokenProfileOutlier_ = (targetObj, rowObj) => {{
+    if (!targetObj || !Array.isArray(targetObj.tokens) || !singleTokenTargetCore_(targetObj.tokens) || !rowObj) return false;
+    const specRatio = positiveRatio_(targetObj.specialty, Number(rowObj.specialty));
+    const salesRatio = positiveRatio_(targetObj.focus_sales, Number(rowObj.sales3_eok));
+    if (Number.isFinite(specRatio) && (specRatio < 0.30 || specRatio > 3.30)) return true;
+    if (Number.isFinite(salesRatio) && (salesRatio < 0.30 || salesRatio > 3.30)) return true;
+    return false;
+  }};
 
   const rows = Array.isArray(SMNA_DATASET) ? SMNA_DATASET : [];
   if (!rows.length) {{
@@ -353,41 +450,150 @@ function estimate_(payload) {{
   }}
 
   let scored = [];
-  for (const row of rows) {{
-    const price = Number(row.price_eok);
-    if (!Number.isFinite(price) || price <= 0) continue;
-    const candTokens = Array.isArray(row.tokens) ? row.tokens.map(normToken_).filter(Boolean) : tokenize_(row.license_text || '');
-    const inter = intersectCount_(target.tokens, candTokens);
-    let sim = 0;
-    sim += jaccard_(target.tokens, candTokens) * 52;
-    sim += Math.min(16, inter * 4.5);
-    sim += relClose_(target.specialty, Number(row.specialty)) * 6;
-    sim += relClose_(target.focus_sales, Math.max(Number(row.sales3_eok) || 0, Number(row.sales5_eok) || 0)) * 8;
-    sim += relClose_(target.license_year, Number(row.license_year)) * 2;
-    sim += relClose_(target.balance_eok, Number(row.balance_eok)) * 10;
-    sim += relClose_(target.capital_eok, Number(row.capital_eok)) * 9;
-    sim += relClose_(target.surplus_eok, Number(row.surplus_eok)) * 8;
-    if (target.tokens.length && candTokens.length && inter === 0) sim *= 0.58;
-    sim = Math.max(0, Math.min(100, sim));
-    if (sim < 8) continue;
-    scored.push([sim, row]);
-  }}
+  const minSimilarity = target.tokens.length >= 2 ? 26 : (target.tokens.length ? 20 : 10);
+  const strictSameCore = !!singleTokenTargetCore_(target.tokens);
+  const targetCoreSet = coreTokens_(target.tokens);
+  const targetCoreCount = targetCoreSet.size;
+  const scoreRows_ = (pool, strictOnly, threshold) => {{
+    const out = [];
+    for (const row of pool) {{
+      const price = Number(row.price_eok);
+      if (!Number.isFinite(price) || price <= 0) continue;
+      const candTokens = Array.isArray(row.tokens) ? row.tokens.map(normToken_).filter(Boolean) : tokenize_(row.license_text || '');
+      const candCore = new Set([...coreTokens_(candTokens), ...coreTokensFromText_(row.license_text || '')]);
+      if (targetCoreCount >= 2) {{
+        const hasCoreOverlap = Array.from(targetCoreSet).some((x) => candCore.has(x));
+        if (!hasCoreOverlap) continue;
+      }}
+      if (strictOnly && !isSingleTokenSameCore_(target.tokens, candTokens, row.license_text || '')) continue;
+      if (isSingleTokenCrossCombo_(target.tokens, candTokens, row.license_text || '')) continue;
+      if (isSingleTokenProfileOutlier_(target, row)) continue;
+      const inter = intersectCount_(target.tokens, candTokens);
+      const tokenPrecision = candTokens.length ? (inter / candTokens.length) : 0;
+      let sim = 0;
+      sim += jaccard_(target.tokens, candTokens) * 52;
+      sim += Math.min(16, inter * 4.5);
+      sim += relClose_(target.specialty, Number(row.specialty)) * 6;
+      sim += relClose_(target.focus_sales, Math.max(Number(row.sales3_eok) || 0, Number(row.sales5_eok) || 0)) * 8;
+      sim += relClose_(target.license_year, Number(row.license_year)) * 2;
+      sim += relClose_(target.balance_eok, Number(row.balance_eok)) * 10;
+      sim += relClose_(target.capital_eok, Number(row.capital_eok)) * 9;
+      sim += relClose_(target.surplus_eok, Number(row.surplus_eok)) * 8;
+      if (target.tokens.length && candTokens.length && inter === 0) sim *= 0.58;
+      if (strictSameCore && candTokens.length >= 2 && inter > 0) {{
+        sim *= 0.62;
+        if (tokenPrecision < 0.60) sim *= 0.72;
+        const specRatio = (Number.isFinite(target.specialty) && Number(row.specialty)) ? (target.specialty / Number(row.specialty)) : NaN;
+        const salesRatio = (Number.isFinite(target.focus_sales) && Number(row.sales3_eok)) ? (target.focus_sales / Number(row.sales3_eok)) : NaN;
+        if (
+          (Number.isFinite(specRatio) && (specRatio < 0.35 || specRatio > 2.85)) ||
+          (Number.isFinite(salesRatio) && (salesRatio < 0.35 || salesRatio > 2.85))
+        ) {{
+          sim *= 0.72;
+        }}
+      }}
+      sim = Math.max(0, Math.min(100, sim));
+      if (sim < threshold) continue;
+      out.push([sim, row, tokenPrecision, candTokens.length]);
+    }}
+    return out;
+  }};
+  scored = scoreRows_(rows, strictSameCore, minSimilarity);
+  if (strictSameCore && !scored.length) scored = scoreRows_(rows, true, Math.max(12, minSimilarity - 8));
 
   if (!scored.length) {{
     return {{ ok: false, error: 'neighbors_not_found' }};
   }}
 
   scored.sort((a, b) => b[0] - a[0]);
-  scored = scored.slice(0, 12);
+  const minStats = Math.max(10, Number(payload.top_k || 12));
+  const tokenCount = targetCoreCount > 0 ? targetCoreCount : target.tokens.length;
+  const simWindow = tokenCount >= 2 ? 18 : (strictSameCore ? 14 : 10);
+  const bestSim = Number(scored[0][0]);
+  const statsFloor = Math.max(minSimilarity, bestSim - simWindow);
+  let statsScored = scored.filter((x) => Number(x[0]) >= statsFloor);
+  if (strictSameCore) {{
+    const strict = statsScored.filter((x) => {{
+      const row = x && x[1] ? x[1] : {{}};
+      const candTokens = Array.isArray(row.tokens) ? row.tokens : [];
+      if (!isSingleTokenSameCore_(target.tokens, candTokens, row.license_text || '')) return false;
+      if (isSingleTokenCrossCombo_(target.tokens, candTokens, row.license_text || '')) return false;
+      if (isSingleTokenProfileOutlier_(target, row)) return false;
+      return Number(x[3] || 0) <= 1 || Number(x[2] || 0) >= 0.60;
+    }});
+    if (strict.length >= Math.max(10, minStats)) statsScored = strict;
+  }}
+  if (statsScored.length < minStats) {{
+    statsScored = scored.slice(0, Math.max(minStats, 48));
+  }}
+  const scoredDisplay = scored.slice(0, 12);
 
-  const prices = scored.map((x) => Number(x[1].price_eok));
-  const weights = scored.map((x) => Math.max(0.1, Number(x[0])));
+  const prices = statsScored.map((x) => Number(x[1].price_eok));
+  const weights = statsScored.map((x) => Math.max(0.1, Number(x[0])));
   let center = weightedQuantile_(prices, weights, 0.5);
   let low = weightedQuantile_(prices, weights, 0.25);
   let high = weightedQuantile_(prices, weights, 0.75);
+  let p10 = weightedQuantile_(prices, weights, 0.10);
+  let p90 = weightedQuantile_(prices, weights, 0.90);
+  let p95 = weightedQuantile_(prices, weights, 0.95);
   if (!Number.isFinite(center)) center = prices.reduce((a, b) => a + b, 0) / prices.length;
   if (!Number.isFinite(low)) low = Math.min(...prices);
   if (!Number.isFinite(high)) high = Math.max(...prices);
+  if (!Number.isFinite(p10)) p10 = Math.min(...prices);
+  if (!Number.isFinite(p90)) p90 = Math.max(...prices);
+  if (!Number.isFinite(p95)) p95 = Math.max(...prices);
+  const avgSim = statsScored.reduce((s, x) => s + Number(x[0]), 0) / statsScored.length;
+
+  const claim = Number(target.claim_price_eok);
+  if (Number.isFinite(claim) && claim > 0) {{
+    const baseCenter = Number(center);
+    const gapRatio = Math.abs(claim - baseCenter) / Math.max(baseCenter, 0.1);
+    let claimWeight = Math.min(0.35, 0.18 + Math.max(0, gapRatio - 0.15) * 0.20);
+    const p90Safe = Math.max(Number(p90), 0.1);
+    const p10Safe = Math.max(Number(p10), 0.1);
+    if (claim > (p90Safe * 1.25) && avgSim >= 52) {{
+      let uplift = Math.min(0.40, Math.max(0, ((claim / p90Safe) - 1.25) * 0.28));
+      if (statsScored.length <= 6) uplift *= 1.15;
+      if (target.tokens.length >= 2) uplift *= 1.10;
+      claimWeight = Math.min(0.72, claimWeight + uplift);
+    }} else if (claim < (p10Safe * 0.80) && avgSim >= 52) {{
+      const down = Math.min(0.20, Math.max(0, (0.80 - (claim / p10Safe)) * 0.18));
+      claimWeight = Math.max(0.10, claimWeight - down);
+    }}
+    center = (baseCenter * (1 - claimWeight)) + (claim * claimWeight);
+    low = Math.min(low, center);
+    high = Math.max(high, center);
+    if (claim >= 20 && avgSim >= 55) {{
+      const highGap = (claim / Math.max(center, 0.1)) - 1;
+      if (highGap > 0.22) {{
+        const sparsePull = Math.min(0.34, Math.max(0.10, ((highGap - 0.22) * 0.28) + 0.10));
+        center = (center * (1 - sparsePull)) + (claim * sparsePull);
+        low = Math.min(low, center);
+        high = Math.max(high, center);
+      }}
+    }}
+    if (claim > high * 1.18) {{
+      const extra = Math.min(claim - high, Math.max(center * 0.45, (high - low) * 0.80));
+      let extraW = 0.55;
+      if (claim >= 20 && avgSim >= 55) extraW = 0.86;
+      high = high + Math.max(0, extra * extraW);
+    }}
+    if (claim >= 20 && avgSim >= 55 && claim > Math.max(p90 * 1.20, center * 1.18)) {{
+      high = Math.max(high, claim);
+    }}
+  }}
+
+  const upperCap = Math.max(Number(p95) * 1.35, Number(p90) * 1.45, Number(high) * 1.15, 0.15);
+  const claimAllowsHigh = Number.isFinite(claim) && claim > (upperCap * 1.05);
+  if (center > upperCap && !claimAllowsHigh) {{
+    const ratio = (center / Math.max(upperCap, 0.1)) - 1;
+    const pull = Math.min(0.65, Math.max(0.18, ratio * 0.55 + 0.18));
+    const nextCenter = (center * (1 - pull)) + (upperCap * pull);
+    const scale = nextCenter / Math.max(center, 0.1);
+    center = nextCenter;
+    low = Math.max(0.05, low * scale);
+    high = Math.max(low, high * scale);
+  }}
 
   const avgBalance = avg_(rows, 'balance_eok');
   const avgCapital = avg_(rows, 'capital_eok');
@@ -426,7 +632,7 @@ function estimate_(payload) {{
 
     const trendVals = [];
     const trendWts = [];
-    for (const [sim, row] of scored) {{
+    for (const [sim, row] of statsScored) {{
       const n23 = Number(row.y23);
       const n25 = Number(row.y25);
       if (!Number.isFinite(n23) || !Number.isFinite(n25) || Math.abs(n23) <= 0.1) continue;
@@ -484,14 +690,13 @@ function estimate_(payload) {{
   high *= factor;
   if (high < low) {{ const t = low; low = high; high = t; }}
 
-  const avgSim = scored.reduce((s, x) => s + Number(x[0]), 0) / scored.length;
-  const coverage = Math.min(1, scored.length / 8);
+  const coverage = Math.min(1, statsScored.length / 8);
   const dispersion = Math.max(0, (high - low) / Math.max(center, 0.1));
   let confidence = (avgSim * 0.60) + (coverage * 24) + Math.max(0, 20 - dispersion * 42);
   confidence -= (target.missing_critical.length * 7);
   confidence = Math.max(0, Math.min(100, confidence));
 
-  const neighbors = scored.map((x) => {{
+  const neighbors = scoredDisplay.map((x) => {{
     const sim = Math.round(Number(x[0]) * 10) / 10;
     const row = x[1] || {{}};
     const lo = Number(row.display_low_eok || row.price_eok || 0);
@@ -525,7 +730,8 @@ function estimate_(payload) {{
     confidence_percent: Math.round(confidence),
     confidence: `${{Math.round(confidence)}}%`,
     avg_similarity: Math.round(avgSim * 10) / 10,
-    neighbor_count: neighbors.length,
+    neighbor_count: statsScored.length,
+    display_neighbor_count: neighbors.length,
     hot_match_count: neighbors.filter((n) => Number(n.similarity) >= 90).length,
     risk_notes: notes,
     neighbors,
@@ -683,19 +889,26 @@ def main() -> int:
         _run(
             _py_cmd(
                 [
-                    "acquisition_calculator.py",
+                    "scripts/collect_kr_permit_industries.py",
+                    "--output",
+                    str((ROOT / "config" / "kr_permit_industries_localdata.json").resolve()),
+                    "--strict",
+                ]
+            ),
+            timeout_sec=240,
+        )
+    )
+    steps.append(
+        _run(
+            _py_cmd(
+                [
+                    "permit_diagnosis_calculator.py",
+                    "--catalog",
+                    str((ROOT / "config" / "kr_permit_industries_localdata.json").resolve()),
                     "--output",
                     str(acquisition_src),
                     "--title",
-                    "AI 건설업 신규등록 비용 산정 계산기",
-                    "--contact-phone",
-                    contact_phone,
-                    "--openchat-url",
-                    str(env.get("KAKAO_OPENCHAT_URL", "")),
-                    "--consult-endpoint",
-                    placeholder,
-                    "--usage-endpoint",
-                    placeholder,
+                    "AI 인허가 사전검토 진단기(신규등록)",
                 ]
             ),
             timeout_sec=240,
@@ -784,3 +997,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

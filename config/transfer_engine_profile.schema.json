@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://seoulmna.co.kr/schemas/transfer_engine_profile.schema.json",
+  "title": "Transfer Estimator Domain Profile",
+  "type": "object",
+  "required": ["profile_id", "feature_weights", "risk_adjustments"],
+  "properties": {
+    "profile_id": {"type": "string"},
+    "domain": {"type": "string"},
+    "tokenization": {
+      "type": "object",
+      "properties": {
+        "alias_map": {"type": "object"},
+        "fuzzy_threshold": {"type": "number"},
+        "single_token_penalty": {"type": "number"}
+      }
+    },
+    "feature_weights": {
+      "type": "object",
+      "properties": {
+        "token_jaccard": {"type": "number"},
+        "token_containment": {"type": "number"},
+        "token_precision": {"type": "number"},
+        "year_shape": {"type": "number"},
+        "year_trend": {"type": "number"},
+        "year_tail": {"type": "number"},
+        "financial": {"type": "object"}
+      }
+    },
+    "risk_adjustments": {
+      "type": "object",
+      "properties": {
+        "credit": {"type": "object"},
+        "admin_history": {"type": "object"},
+        "debt_ratio": {"type": "object"},
+        "liquidity": {"type": "object"},
+        "surplus_monotonic_guard": {"type": "object"},
+        "reorg_modes": {"type": "object"}
+      }
+    },
+    "confidence": {
+      "type": "object",
+      "properties": {
+        "base": {"type": "number"},
+        "penalties": {"type": "object"},
+        "bonuses": {"type": "object"}
+      }
+    }
+  }
+}

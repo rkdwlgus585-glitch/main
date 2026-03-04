@@ -11,6 +11,8 @@ if not defined NOW_TO_SHEET_MAX_RETRIES set "NOW_TO_SHEET_MAX_RETRIES=6"
 if not defined NOW_TO_SHEET_RETRY_BASE_SEC set "NOW_TO_SHEET_RETRY_BASE_SEC=120"
 if not defined NOW_TO_SHEET_RETRY_MAX_SEC set "NOW_TO_SHEET_RETRY_MAX_SEC=1800"
 if not defined NOW_TO_SHEET_LOCK_STALE_MIN set "NOW_TO_SHEET_LOCK_STALE_MIN=120"
+if not defined NOW_TO_SHEET_SKIP_UPLOAD set "NOW_TO_SHEET_SKIP_UPLOAD=0"
+if not defined NOW_TO_SHEET_EXTRA_ARGS set "NOW_TO_SHEET_EXTRA_ARGS="
 
 echo. >>"%LOG_FILE%"
 set "LOCK_AGE_MIN=0"
@@ -54,11 +56,16 @@ if errorlevel 1 (
 set "ATTEMPT=0"
 set "RC=1"
 set "WAIT_SEC=%NOW_TO_SHEET_RETRY_BASE_SEC%"
+set "SYNC_ARGS="
+if /i "%NOW_TO_SHEET_SKIP_UPLOAD%"=="1" set "SYNC_ARGS=--no-upload"
+if not "%NOW_TO_SHEET_EXTRA_ARGS%"=="" (
+    set "SYNC_ARGS=!SYNC_ARGS! %NOW_TO_SHEET_EXTRA_ARGS%"
+)
 
 :retry_loop
 set /a ATTEMPT+=1
-echo [%date% %time%] START now-to-sheet sync attempt=!ATTEMPT! >>"%LOG_FILE%"
-%PY_CMD% all.py --no-upload >>"%LOG_FILE%" 2>&1
+echo [%date% %time%] START now-to-sheet sync attempt=!ATTEMPT! args=!SYNC_ARGS! >>"%LOG_FILE%"
+%PY_CMD% all.py !SYNC_ARGS! >>"%LOG_FILE%" 2>&1
 set "RC=!errorlevel!"
 if "!RC!"=="0" goto done
 if !ATTEMPT! GEQ %NOW_TO_SHEET_MAX_RETRIES% goto done

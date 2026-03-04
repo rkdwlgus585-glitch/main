@@ -1,0 +1,48 @@
+{
+  "log_dir_soft_limit_mb": 2048,
+  "log_file_retention_days": 45,
+  "max_old_log_files": 2000,
+  "critical_files": [
+    {
+      "path": "logs/site_cx_probe_latest.json",
+      "max_age_minutes": 240,
+      "severity": "high",
+      "required": true
+    },
+    {
+      "path": "logs/site_cx_health_rollup_latest.json",
+      "max_age_minutes": 240,
+      "severity": "medium",
+      "required": true
+    },
+    {
+      "path": "logs/wp_site_guard_latest.json",
+      "max_age_minutes": 360,
+      "severity": "medium",
+      "required": true
+    },
+    {
+      "path": "logs/rankmath_detail_opt_latest.json",
+      "max_age_minutes": 480,
+      "severity": "medium",
+      "required": true
+    },
+    {
+      "path": "config/kr_permit_industries_localdata.json",
+      "max_age_minutes": 10080,
+      "severity": "medium",
+      "required": true
+    }
+  ],
+  "confirm_live_required_scripts": [
+    "scripts/apply_co_global_banner_admin.py",
+    "scripts/deploy_co_content_pages.py",
+    "scripts/deploy_yangdo_kr_banner_bridge.py",
+    "scripts/deploy_yangdo_site_release.py",
+    "scripts/recover_co_after_transfer_cap.py"
+  ],
+  "blocked_tracked_files": [
+    ".env",
+    "service_account.json"
+  ]
+}

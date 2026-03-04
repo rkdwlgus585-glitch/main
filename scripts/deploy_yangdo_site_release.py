@@ -1,4 +1,4 @@
-import argparse
+﻿import argparse
 import json
 import locale
 import os
@@ -214,14 +214,30 @@ def main() -> int:
 
     parser.add_argument("--acquisition-board", default="yangdo_ai_ops")
     parser.add_argument("--acquisition-wr-id", type=int, default=0)
-    parser.add_argument("--acquisition-subject", default="AI 건설업 신규등록 비용 산정 계산기 | 서울건설정보")
+    parser.add_argument("--acquisition-subject", default="AI 인허가 사전검토 진단기(신규등록) | 서울건설정보")
 
     parser.add_argument("--publish", action="store_true")
+    parser.add_argument("--confirm-live", default="", help="실서비스 반영 승인 토큰 (`--confirm-live YES`)")
     parser.add_argument("--skip-customer-publish", action="store_true")
     parser.add_argument("--output-dir", default="output")
     parser.add_argument("--report", default="logs/yangdo_site_release_latest.json")
     parser.add_argument("--state", default="logs/yangdo_site_release_state.json")
     args = parser.parse_args()
+    confirm_live = str(args.confirm_live or "").strip().upper()
+    if bool(args.publish) and confirm_live != "YES":
+        blocked = {
+            "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "ok": False,
+            "steps": [],
+            "blocking_issues": ["confirm_live_missing"],
+            "error": "publish blocked: add --confirm-live YES",
+        }
+        report_path = (ROOT / args.report).resolve()
+        _write_report(blocked, report_path)
+        print(f"[saved] {report_path}")
+        print("[overall_ok] False")
+        print("- confirm_live_missing")
+        return 2
 
     ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     out_dir = (ROOT / args.output_dir).resolve()
@@ -274,22 +290,31 @@ def main() -> int:
 
     steps.append(
         _run_step(
+            "collect_permit_industries",
+            _py_cmd(
+                [
+                    "scripts/collect_kr_permit_industries.py",
+                    "--output",
+                    str((ROOT / "config" / "kr_permit_industries_localdata.json").resolve()),
+                    "--strict",
+                ]
+            ),
+            timeout_sec=240,
+        )
+    )
+
+    steps.append(
+        _run_step(
             "build_acquisition_html",
             _py_cmd(
                 [
-                    "acquisition_calculator.py",
+                    "permit_diagnosis_calculator.py",
+                    "--catalog",
+                    str((ROOT / "config" / "kr_permit_industries_localdata.json").resolve()),
                     "--output",
                     str(acquisition_html),
                     "--title",
-                    "AI 건설업 신규등록 비용 산정 계산기",
-                    "--contact-phone",
-                    str(env.get("CALCULATOR_CONTACT_PHONE", "") or env.get("PHONE", "") or env.get("MY_PHONE", "") or "010-9926-8661"),
-                    "--openchat-url",
-                    str(env.get("KAKAO_OPENCHAT_URL", "")),
-                    "--consult-endpoint",
-                    str(env.get("YANGDO_CONSULT_ENDPOINT", "")),
-                    "--usage-endpoint",
-                    str(env.get("YANGDO_USAGE_ENDPOINT", "")),
+                    "AI 인허가 사전검토 진단기(신규등록)",
                 ]
             ),
             timeout_sec=300,
@@ -402,3 +427,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

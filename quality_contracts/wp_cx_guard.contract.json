@@ -1,0 +1,54 @@
+{
+  "$schema": "./contract.schema.json",
+  "automation": "wp_cx_guard",
+  "description": "WordPress + RankMath + customer-journey guard automation checks.",
+  "checks": [
+    {
+      "id": "guard_scripts_exist",
+      "type": "file_exists",
+      "paths": [
+        "scripts/optimize_wp_kr.py",
+        "scripts/rankmath_detail_optimizer.py",
+        "scripts/site_cx_probe.py",
+        "scripts/site_cx_autoheal.py",
+        "scripts/check_wp_cx_reports.py",
+        "scripts/site_dom_snapshot.py",
+        "scripts/site_cx_health_rollup.py",
+        "scripts/site_ops_alert.py",
+        "scripts/site_cx_force_recover.py",
+        "scripts/site_cx_health_digest.py"
+      ]
+    },
+    {
+      "id": "guard_scripts_compile",
+      "type": "python_compile",
+      "paths": [
+        "scripts/optimize_wp_kr.py",
+        "scripts/rankmath_detail_optimizer.py",
+        "scripts/site_cx_probe.py",
+        "scripts/site_cx_autoheal.py",
+        "scripts/check_wp_cx_reports.py",
+        "scripts/site_dom_snapshot.py",
+        "scripts/site_cx_health_rollup.py",
+        "scripts/site_ops_alert.py",
+        "scripts/site_cx_force_recover.py",
+        "scripts/site_cx_health_digest.py"
+      ]
+    },
+    {
+      "id": "guard_reports_fresh_and_ok",
+      "type": "command",
+      "required": false,
+      "command": [
+        "{python}",
+        "scripts/check_wp_cx_reports.py",
+        "--allow-autoheal-missing",
+        "--allow-dom-missing",
+        "--allow-rollup-missing",
+        "--allow-digest-missing",
+        "--allow-force-recover-missing"
+      ],
+      "timeout_sec": 30
+    }
+  ]
+}

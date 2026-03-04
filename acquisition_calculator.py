@@ -40,7 +40,7 @@ def _digits_only(text: str) -> str:
 
 
 def build_page_html(
-    title="AI 건설업 신규등록 비용 산정 계산기",
+    title="AI 인허가 사전검토 진단기(신규등록)",
     contact_phone="010-9926-8661",
     openchat_url="",
     consult_endpoint="",
@@ -1054,7 +1054,7 @@ def build_page_html(
     // Legacy hook kept for backward compatibility.
     const centerLabel = document.querySelector('#acq-out-center') ? document.querySelector('#acq-out-center').closest('.result-card') : null;
     const centerK = centerLabel ? centerLabel.querySelector('.k') : null;
-    if (centerK) centerK.textContent = '예상 기준 신규등록 필요자금';
+    if (centerK) centerK.textContent = '예상 기준 필요자금';
   }};
 
   const syncDerivedFees = () => {{
@@ -1291,7 +1291,7 @@ def build_page_html(
   }};
 
   const buildSummary = (out) => [
-    '서울건설정보 AI 신규등록 비용 상담 요청','',
+    '서울건설정보 AI 인허가 사전검토 상담 요청','',
     '[업종] ' + (out.license || '-'),
     '[등록 업종(복수)] ' + ((out.selected_licenses || []).length ? out.selected_licenses.join(', ') : '-'),
     '[업종 분류] ' + (out.class_type || '-'),
@@ -1324,7 +1324,7 @@ def build_page_html(
 
   const submitConsult = (out) => {{
     if (!consultEndpoint) return Promise.resolve(false);
-    return requestWithTimeout(consultEndpoint, {{ method: 'POST', headers: {{ 'Content-Type': 'application/json' }}, body: JSON.stringify({{ source: 'seoulmna_kr_acquisition_newreg', page_mode: 'acquisition', subject: '[고객] 서울건설정보 신규등록 비용 상담 요청', body: buildSummary(out), result_center: fmtEok(out.center), result_range: fmtEok(out.low) + '~' + fmtEok(out.high), result_confidence: String(out.confidence) + '%', payload: out }}) }}, 10000)
+    return requestWithTimeout(consultEndpoint, {{ method: 'POST', headers: {{ 'Content-Type': 'application/json' }}, body: JSON.stringify({{ source: 'seoulmna_kr_acquisition_newreg', page_mode: 'acquisition', subject: '[고객] 서울건설정보 인허가 사전검토 상담 요청', body: buildSummary(out), result_center: fmtEok(out.center), result_range: fmtEok(out.low) + '~' + fmtEok(out.high), result_confidence: String(out.confidence) + '%', payload: out }}) }}, 10000)
       .then((res) => {{ if (!res.ok) throw new Error(String(res.status || 'consult_http_error')); return true; }})
       .catch(() => false);
   }};
@@ -1421,7 +1421,7 @@ def build_page_html(
     btn.disabled = !!busy;
     btn.style.opacity = busy ? '0.72' : '';
     btn.style.cursor = busy ? 'wait' : '';
-    btn.textContent = busy ? 'AI 계산 중...' : 'AI 신규등록 비용 계산';
+    btn.textContent = busy ? 'AI 계산 중...' : 'AI 인허가 사전검토 실행';
   }};
   const draftFieldIds = ['acq-license-type','acq-license-custom','acq-corp-state','acq-region-text','acq-region-override','acq-capital','acq-guarantee-jwasu','acq-guarantee','acq-engineer-count'];
   const draftToggleIds = ['acq-auto-fill','acq-ok-capital','acq-ok-engineer','acq-ok-office'];
@@ -1458,7 +1458,7 @@ def build_page_html(
     $('acq-region').value = 'normal'; if ($('acq-corp-state')) $('acq-corp-state').value = 'new'; if ($('acq-region-text')) $('acq-region-text').value = ''; if ($('acq-region-override')) $('acq-region-override').value = 'auto'; if ($('acq-region-result')) $('acq-region-result').value = ''; if ($('acq-region-help')) $('acq-region-help').textContent = ''; $('acq-auto-fill').checked = true; $('acq-ok-capital').checked = true; $('acq-ok-engineer').checked = true; $('acq-ok-office').checked = true;
     pendingMajorFieldSelections = null;
     pendingExtraLicenseSelections = null;
-    $('acq-out-center').textContent = '-'; $('acq-out-range').textContent = '-'; $('acq-out-ready').textContent = '-'; $('acq-out-confidence').textContent = '-'; $('acq-note').textContent = '정보를 입력하고 ‘AI 신규등록 비용 계산’ 버튼을 눌러주세요.';
+    $('acq-out-center').textContent = '-'; $('acq-out-range').textContent = '-'; $('acq-out-ready').textContent = '-'; $('acq-out-confidence').textContent = '-'; $('acq-note').textContent = '정보를 입력하고 ‘AI 인허가 사전검토 실행’ 버튼을 눌러주세요.';
     renderMidSettlementPlaceholder();
     const breakdown = $('acq-breakdown'); if (breakdown) breakdown.innerHTML = '';
     syncRegionInference();
@@ -1514,7 +1514,7 @@ def build_page_html(
   $('acq-btn-reset').addEventListener('click', resetForm);
   $('acq-btn-chat-top').addEventListener('click', () => {{ const out = runCalc(); persistDraft(); copySummary(out); if (openchatUrl) return window.open(openchatUrl, '_blank', 'noopener,noreferrer'); alert('오픈채팅 URL이 아직 설정되지 않았습니다. 전화 또는 이메일로 문의해 주세요.'); }});
   $('acq-btn-chat').addEventListener('click', () => {{ const out = runCalc(); persistDraft(); copySummary(out); if (openchatUrl) return window.open(openchatUrl, '_blank', 'noopener,noreferrer'); alert('오픈채팅 URL이 아직 설정되지 않았습니다. 전화 또는 이메일로 문의해 주세요.'); }});
-  $('acq-btn-mail').addEventListener('click', () => {{ const out = runCalc(); persistDraft(); window.location.href = 'mailto:seoulmna@gmail.com?subject=' + encodeURIComponent('[고객] 서울건설정보 신규등록 비용 상담 요청') + '&body=' + encodeURIComponent(buildSummary(out)); }});
+  $('acq-btn-mail').addEventListener('click', () => {{ const out = runCalc(); persistDraft(); window.location.href = 'mailto:seoulmna@gmail.com?subject=' + encodeURIComponent('[고객] 서울건설정보 인허가 사전검토 상담 요청') + '&body=' + encodeURIComponent(buildSummary(out)); }});
   $('acq-btn-phone').setAttribute('href', 'tel:' + contactDigits); $('acq-btn-phone').textContent = contactPhone; $('acq-btn-phone-top').setAttribute('href', 'tel:' + contactDigits); $('acq-btn-phone-top').textContent = contactPhone; $('acq-contact-phone').textContent = contactPhone;
   ensureCorporateRegField();
   const restored = restoreDraft();
@@ -1644,13 +1644,13 @@ button:hover,.cta-button:hover{transform:translateY(-1px)}
 #smna-acq-calculator.smna-simple-mode .cost-breakdown{display:none}
 @media (max-width:1150px){.smna-grid{grid-template-columns:1fr}.rows{grid-template-columns:1fr}.checks{grid-template-columns:1fr}.result-grid{grid-template-columns:1fr}#smna-acq-calculator h2{font-size:33px}.impact .cta-text{font-size:17px}.cta-button{font-size:18px}.panel h3{font-size:26px}.action-buttons a,.action-buttons button{flex:1 1 calc(50% - 8px);font-size:16px;padding:10px 11px;white-space:normal}}
 </style>
-<div class="smna-header"><div class="smna-brand">서울건설정보 · SEOUL CONSTRUCTION INFO</div><div class="smna-badge">전국 최초</div><h2>__TITLE__</h2><div class="smna-subtitle">건설업 신규등록 시 필요한 비용을 업종별 기준으로 계산하고, 대표 행정사 1:1 직접 상담으로 바로 연결합니다.</div><div class="smna-ratio"><div></div><div></div><div></div></div></div>
-<div class="smna-body"><div class="impact cta-row"><span class="cta-text">신규등록 기준비용과 권장 준비자금을 1분 안에 확인하고 바로 상담까지 진행하세요.</span><span class="cta-actions"><button type="button" class="cta-button chat" id="acq-btn-chat-top">대표 행정사 1:1 직접 상담</button><a id="acq-btn-phone-top" class="cta-button call" href="tel:__PHONE_DIGITS__">__PHONE__</a></span></div><div class="smna-grid"><div class="panel"><h3>1단계: 신규등록 정보 입력</h3><div class="panel-body"><div class="guide">① 업종 선택 → ② 법인 상태 선택 → ③ 법인 주소 입력 순서로 진행하면 자동으로 기준값과 중과세 여부를 판정합니다. 주력분야·복수 업종 특례도 자동 반영됩니다.</div><div class="preset-box" id="acq-preset-box">업종을 선택하면 기준값이 표시됩니다.</div><div class="rows"><div class="field"><label for="acq-license-type">업종 선택</label><select id="acq-license-type">__OPTIONS__</select></div><div class="field"><label for="acq-license-custom">직접 입력 업종명(선택)</label><input id="acq-license-custom" type="text" maxlength="80" placeholder="예: 기타 전문공사업" /></div><div class="field"><label for="acq-corp-state">법인 상태</label><select id="acq-corp-state"><option value="new">신설법인</option><option value="existing">기존법인</option></select></div><div class="field"><label for="acq-region-text">법인 주소(시/구/동)</label><input id="acq-region-text" type="text" maxlength="80" placeholder="예: 서울 강남구 역삼동" /></div><div class="field"><label for="acq-region-result">중과세 자동판정</label><input id="acq-region-result" type="text" readonly placeholder="주소 입력 시 자동 판정" /></div><div class="field"><label for="acq-region-override">중과세 수동수정(필요시)</label><select id="acq-region-override"><option value="auto">자동판정 사용</option><option value="normal">수동: 일반지역</option><option value="surcharge">수동: 중과지역</option></select><input id="acq-region" type="hidden" value="normal" /><div class="major-field-hint" id="acq-region-help"></div></div><div class="field wide" id="acq-license-extra-wrap"><label>추가 등록 업종(복수 선택)</label><div class="major-field-list" id="acq-license-extra-list"></div><div class="major-field-hint" id="acq-license-extra-hint"></div></div><div class="field wide" id="acq-major-field-wrap" style="display:none"><label>주력분야 선택(복수 선택 가능)</label><div class="major-field-list" id="acq-major-field-list"></div><div class="major-field-hint" id="acq-major-field-hint"></div></div><div class="field wide"><label><input id="acq-auto-fill" type="checkbox" checked style="width:18px;height:18px;min-height:18px;vertical-align:middle;margin-right:6px;" /> 업종 선택 시 자동 기준 입력</label></div><div class="field"><label for="acq-capital">자본금(억)</label><input id="acq-capital" type="number" step="0.1" /></div><div class="field"><label for="acq-guarantee-jwasu">공제조합 출자좌수(좌)</label><input id="acq-guarantee-jwasu" type="number" step="1" /></div><div class="field"><label for="acq-guarantee">공제조합 출자예치금(억, 자본금 내 배정)</label><input id="acq-guarantee" type="number" step="0.01" /></div><div class="field"><label for="acq-engineer-count">기술자 수(명)</label><input id="acq-engineer-count" type="number" step="1" min="0" /></div><div class="field"><label for="acq-admin-fee">행정사 수임료(만원)</label><input id="acq-admin-fee" type="number" step="1" readonly /></div><div class="field"><label for="acq-legal-fee">세금·법무 자동합계(만원)</label><input id="acq-legal-fee" type="number" step="0.1" readonly /></div><div class="field wide"><label>필수 기준 체크</label><div class="checks"><label><input id="acq-ok-capital" type="checkbox" checked /> 자본금 기준 충족</label><label><input id="acq-ok-engineer" type="checkbox" checked /> 기술자 기준 충족</label><label><input id="acq-ok-office" type="checkbox" checked /> 사무실 기준 충족</label></div></div></div><div class="btn-row"><button type="button" class="btn-primary" id="acq-btn-calc">AI 신규등록 비용 계산</button><button type="button" class="btn-neutral" id="acq-btn-reset">입력 초기화</button></div><div class="small">제외 항목: 준비기간 비용, 사무실 초기비, 협회/교육 비용</div></div></div><div class="panel result"><h3>2단계: AI 산정 결과 확인</h3><div class="panel-body"><div class="result-grid"><div class="result-card"><span class="k">예상 기준 신규등록 필요자금</span><strong class="v" id="acq-out-center">-</strong></div><div class="result-card"><span class="k">예상 비용 범위</span><strong class="v" id="acq-out-range">-</strong></div><div class="result-card"><span class="k">권장 준비자금(+500만원)</span><strong class="v" id="acq-out-ready">-</strong></div><div class="result-card"><span class="k">계산 신뢰도</span><strong class="v" id="acq-out-confidence">-</strong></div></div><div class="cost-breakdown" id="acq-breakdown"></div><div class="note" id="acq-note">정보를 입력하고 ‘AI 신규등록 비용 계산’ 버튼을 눌러주세요.</div><div class="action-buttons"><button type="button" class="btn-chat" id="acq-btn-chat">1:1 직접 상담</button><a class="btn-neutral" href="tel:__PHONE_DIGITS__" id="acq-btn-phone">__PHONE__</a><button type="button" class="btn-neutral" id="acq-btn-mail">결과를 이메일로 전달</button></div><div class="small">문의: <strong>seoulmna@gmail.com</strong> · 연락처: <strong id="acq-contact-phone">__PHONE__</strong></div></div></div></div></div>
+<div class="smna-header"><div class="smna-brand">서울건설정보 · SEOUL CONSTRUCTION INFO</div><div class="smna-badge">전국 최초</div><h2>__TITLE__</h2><div class="smna-subtitle">업종별 등록기준(자본금·기술자·예치요건)을 사전 점검하고, 대표 행정사 1:1 직접 상담으로 바로 연결합니다.</div><div class="smna-ratio"><div></div><div></div><div></div></div></div>
+<div class="smna-body"><div class="impact cta-row"><span class="cta-text">인허가 등록기준과 권장 준비자금을 1분 안에 사전 점검하고 바로 상담까지 진행하세요.</span><span class="cta-actions"><button type="button" class="cta-button chat" id="acq-btn-chat-top">대표 행정사 1:1 직접 상담</button><a id="acq-btn-phone-top" class="cta-button call" href="tel:__PHONE_DIGITS__">__PHONE__</a></span></div><div class="smna-grid"><div class="panel"><h3>1단계: 인허가 사전검토 정보 입력</h3><div class="panel-body"><div class="guide">① 업종 선택 → ② 법인 상태 선택 → ③ 법인 주소 입력 순서로 진행하면 자동으로 기준값과 중과세 여부를 판정합니다. 주력분야·복수 업종 특례도 자동 반영됩니다.</div><div class="preset-box" id="acq-preset-box">업종을 선택하면 기준값이 표시됩니다.</div><div class="rows"><div class="field"><label for="acq-license-type">업종 선택</label><select id="acq-license-type">__OPTIONS__</select></div><div class="field"><label for="acq-license-custom">직접 입력 업종명(선택)</label><input id="acq-license-custom" type="text" maxlength="80" placeholder="예: 기타 전문공사업" /></div><div class="field"><label for="acq-corp-state">법인 상태</label><select id="acq-corp-state"><option value="new">신설법인</option><option value="existing">기존법인</option></select></div><div class="field"><label for="acq-region-text">법인 주소(시/구/동)</label><input id="acq-region-text" type="text" maxlength="80" placeholder="예: 서울 강남구 역삼동" /></div><div class="field"><label for="acq-region-result">중과세 자동판정</label><input id="acq-region-result" type="text" readonly placeholder="주소 입력 시 자동 판정" /></div><div class="field"><label for="acq-region-override">중과세 수동수정(필요시)</label><select id="acq-region-override"><option value="auto">자동판정 사용</option><option value="normal">수동: 일반지역</option><option value="surcharge">수동: 중과지역</option></select><input id="acq-region" type="hidden" value="normal" /><div class="major-field-hint" id="acq-region-help"></div></div><div class="field wide" id="acq-license-extra-wrap"><label>추가 등록 업종(복수 선택)</label><div class="major-field-list" id="acq-license-extra-list"></div><div class="major-field-hint" id="acq-license-extra-hint"></div></div><div class="field wide" id="acq-major-field-wrap" style="display:none"><label>주력분야 선택(복수 선택 가능)</label><div class="major-field-list" id="acq-major-field-list"></div><div class="major-field-hint" id="acq-major-field-hint"></div></div><div class="field wide"><label><input id="acq-auto-fill" type="checkbox" checked style="width:18px;height:18px;min-height:18px;vertical-align:middle;margin-right:6px;" /> 업종 선택 시 자동 기준 입력</label></div><div class="field"><label for="acq-capital">자본금(억)</label><input id="acq-capital" type="number" step="0.1" /></div><div class="field"><label for="acq-guarantee-jwasu">공제조합 출자좌수(좌)</label><input id="acq-guarantee-jwasu" type="number" step="1" /></div><div class="field"><label for="acq-guarantee">공제조합 출자예치금(억, 자본금 내 배정)</label><input id="acq-guarantee" type="number" step="0.01" /></div><div class="field"><label for="acq-engineer-count">기술자 수(명)</label><input id="acq-engineer-count" type="number" step="1" min="0" /></div><div class="field"><label for="acq-admin-fee">행정사 수임료(만원)</label><input id="acq-admin-fee" type="number" step="1" readonly /></div><div class="field"><label for="acq-legal-fee">세금·법무 자동합계(만원)</label><input id="acq-legal-fee" type="number" step="0.1" readonly /></div><div class="field wide"><label>필수 기준 체크</label><div class="checks"><label><input id="acq-ok-capital" type="checkbox" checked /> 자본금 기준 충족</label><label><input id="acq-ok-engineer" type="checkbox" checked /> 기술자 기준 충족</label><label><input id="acq-ok-office" type="checkbox" checked /> 사무실 기준 충족</label></div></div></div><div class="btn-row"><button type="button" class="btn-primary" id="acq-btn-calc">AI 인허가 사전검토 실행</button><button type="button" class="btn-neutral" id="acq-btn-reset">입력 초기화</button></div><div class="small">제외 항목: 준비기간 비용, 사무실 초기비, 협회/교육 비용</div></div></div><div class="panel result"><h3>2단계: AI 산정 결과 확인</h3><div class="panel-body"><div class="result-grid"><div class="result-card"><span class="k">예상 기준 필요자금</span><strong class="v" id="acq-out-center">-</strong></div><div class="result-card"><span class="k">예상 비용 범위</span><strong class="v" id="acq-out-range">-</strong></div><div class="result-card"><span class="k">권장 준비자금(+500만원)</span><strong class="v" id="acq-out-ready">-</strong></div><div class="result-card"><span class="k">계산 신뢰도</span><strong class="v" id="acq-out-confidence">-</strong></div></div><div class="cost-breakdown" id="acq-breakdown"></div><div class="note" id="acq-note">정보를 입력하고 ‘AI 인허가 사전검토 실행’ 버튼을 눌러주세요.</div><div class="action-buttons"><button type="button" class="btn-chat" id="acq-btn-chat">1:1 직접 상담</button><a class="btn-neutral" href="tel:__PHONE_DIGITS__" id="acq-btn-phone">__PHONE__</a><button type="button" class="btn-neutral" id="acq-btn-mail">결과를 이메일로 전달</button></div><div class="small">문의: <strong>seoulmna@gmail.com</strong> · 연락처: <strong id="acq-contact-phone">__PHONE__</strong></div></div></div></div></div>
 __SCRIPT__
 </section>"""
 
     return (
-        html_template.replace("__TITLE__", escape(str(title or "AI 건설업 신규등록 비용 산정 계산기")))
+        html_template.replace("__TITLE__", escape(str(title or "AI 인허가 사전검토 진단기(신규등록)")))
         .replace("__PHONE__", escape(contact))
         .replace("__PHONE_DIGITS__", escape(contact_digits))
         .replace("__OPTIONS__", options_html)
@@ -1661,7 +1661,7 @@ __SCRIPT__
 def main() -> int:
     parser = argparse.ArgumentParser(description="Build SeoulMNA new-registration calculator HTML")
     parser.add_argument("--output", default="output/ai_license_acquisition_calculator.html")
-    parser.add_argument("--title", default="AI 건설업 신규등록 비용 산정 계산기")
+    parser.add_argument("--title", default="AI 인허가 사전검토 진단기(신규등록)")
     parser.add_argument("--contact-phone", default="010-9926-8661")
     parser.add_argument("--openchat-url", default="")
     parser.add_argument("--consult-endpoint", default="")
@@ -1669,7 +1669,7 @@ def main() -> int:
     args = parser.parse_args()
 
     html = build_page_html(
-        title=str(args.title or "AI 건설업 신규등록 비용 산정 계산기"),
+        title=str(args.title or "AI 인허가 사전검토 진단기(신규등록)"),
         contact_phone=str(args.contact_phone or "010-9926-8661"),
         openchat_url=str(args.openchat_url or ""),
         consult_endpoint=str(args.consult_endpoint or ""),
@@ -1694,4 +1694,6 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+
 

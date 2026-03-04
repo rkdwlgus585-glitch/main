@@ -48,6 +48,8 @@ from internal_linker import InternalLinker, generate_faq_schema, extract_faqs_fr
 CONFIG = load_config({
     "WP_URL": "https://seoulmna.kr/wp-json/wp/v2",
     "WP_POST_STATUS": "publish",
+    "WP_COMMENT_STATUS": "closed",
+    "WP_PING_STATUS": "closed",
     "MAIN_SITE": "https://seoulmna.kr",
     "GUIDE_LINK": "https://seoulmna.kr/construction-license-guide/",
     "BRAND_NAME": "서울건설정보",
@@ -728,6 +730,8 @@ def _ensure_env_defaults():
         "RANKMATH_RETEST_FORCE": str(CONFIG.get("RANKMATH_RETEST_FORCE", False)).lower(),
         "RANKMATH_RETEST_FAIL_DELETE_AND_QUEUE": str(CONFIG.get("RANKMATH_RETEST_FAIL_DELETE_AND_QUEUE", True)).lower(),
         "WP_POST_STATUS": str(CONFIG.get("WP_POST_STATUS", "publish")),
+        "WP_COMMENT_STATUS": str(CONFIG.get("WP_COMMENT_STATUS", "closed")),
+        "WP_PING_STATUS": str(CONFIG.get("WP_PING_STATUS", "closed")),
         "OPENAI_API_KEY": str(CONFIG.get("OPENAI_API_KEY", "")),
         "OPENAI_SCAN_ENABLED": "false",
         "OPENAI_MODEL": str(CONFIG.get("OPENAI_MODEL", "gpt-5-mini")),
@@ -6277,6 +6281,12 @@ class WPEngine:
         ) or "publish"
         if effective_status not in {"publish", "draft", "pending", "private"}:
             effective_status = "publish"
+        comment_status = str(CONFIG.get("WP_COMMENT_STATUS", "closed")).strip().lower() or "closed"
+        if comment_status not in {"open", "closed"}:
+            comment_status = "closed"
+        ping_status = str(CONFIG.get("WP_PING_STATUS", "closed")).strip().lower() or "closed"
+        if ping_status not in {"open", "closed"}:
+            ping_status = "closed"
         
         seo_title = f"{content['headline']} | {brand}"
         if len(seo_title) > 60:
@@ -6355,6 +6365,8 @@ class WPEngine:
             "content": rendered_html,
             "excerpt": seo_desc,
             "status": effective_status,
+            "comment_status": comment_status,
+            "ping_status": ping_status,
             "featured_media": featured_media_id,
             "meta": meta,
             "slug": slug,

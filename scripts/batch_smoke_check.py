@@ -16,6 +16,7 @@ LOG_DIR = ROOT / "logs"
 IMPORT_ONLY = {"mnakr.py", "gabji.py", "premium_auto.py"}
 TARGET_LINE_RE = re.compile(r"(?:py(?:\s+-\d(?:\.\d+)?)?|python)\s+([^\s]+\.py)\b", re.IGNORECASE)
 DELEGATE_BATCH_TOKEN_RE = re.compile(r"([%~A-Za-z0-9_./\\-]+\.bat)\b", re.IGNORECASE)
+DELEGATE_PS1_TOKEN_RE = re.compile(r"([%~A-Za-z0-9_./\\-]+\.ps1)\b", re.IGNORECASE)
 PY_TOKEN_RE = re.compile(r"([A-Za-z0-9_./\\-]+\.py)\b", re.IGNORECASE)
 
 
@@ -41,7 +42,7 @@ def _decode(data: bytes) -> str:
 def _find_python_target(lines: list[str]) -> str:
     for line in lines:
         line = line.strip()
-        if not line or line.startswith("::") or line.lower().startswith("rem "):
+        if not line or line.startswith("::") or line.lower().startswith("rem ") or line.startswith("#"):
             continue
         m = TARGET_LINE_RE.search(line)
         if m:
@@ -52,22 +53,23 @@ def _find_python_target(lines: list[str]) -> str:
     return ""
 
 
-def _find_delegate_batches(lines: list[str]) -> list[str]:
+def _find_delegate_scripts(lines: list[str]) -> list[str]:
     delegates = []
     seen = set()
     for line in lines:
         line = line.strip()
-        if not line or line.startswith("::") or line.lower().startswith("rem "):
+        if not line or line.startswith("::") or line.lower().startswith("rem ") or line.startswith("#"):
             continue
-        for m in DELEGATE_BATCH_TOKEN_RE.finditer(line):
-            token = (m.group(1) or "").strip().strip("\"'")
-            if not token:
-                continue
-            key = token.lower()
-            if key in seen:
-                continue
-            delegates.append(token)
-            seen.add(key)
+        for patt in (DELEGATE_BATCH_TOKEN_RE, DELEGATE_PS1_TOKEN_RE):
+            for m in patt.finditer(line):
+                token = (m.group(1) or "").strip().strip("\"'")
+                if not token:
+                    continue
+                key = token.lower()
+                if key in seen:
+                    continue
+                delegates.append(token)
+                seen.add(key)
     return delegates
 
 
@@ -77,16 +79,30 @@ def _resolve_delegate_path(current_batch: pathlib.Path, token: str) -> pathlib.P
         return None
 
     normalized = raw.replace("%~dp0", "").replace("%cd%", "")
+    normalized = normalized.replace(".\\", "").replace("./", "")
     normalized = normalized.strip().strip("\"'")
     if not normalized:
         return None
 
+    candidates: list[pathlib.Path] = []
     candidate = pathlib.Path(normalized)
-    if not candidate.is_absolute():
-        candidate = (current_batch.parent / candidate).resolve()
+    if candidate.is_absolute():
+        candidates.append(candidate.resolve())
+    else:
+        candidates.append((current_batch.parent / candidate).resolve())
+        # Some launcher batches change cwd to repo root, then use .\scripts\... paths.
+        candidates.append((ROOT / candidate).resolve())
+        if current_batch.parent.parent:
+            candidates.append((current_batch.parent.parent / candidate).resolve())
 
-    if candidate.exists() and candidate.is_file():
-        return candidate
+    seen = set()
+    for cand in candidates:
+        key = str(cand).lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        if cand.exists() and cand.is_file():
+            return cand
     return None
 
 
@@ -110,7 +126,7 @@ def _resolve_python_target(batch_path: pathlib.Path, visited: set[str] | None = 
     if target:
         return target, chain
 
-    delegates = _find_delegate_batches(lines)
+    delegates = _find_delegate_scripts(lines)
     for token in delegates:
         delegate_path = _resolve_delegate_path(batch_path, token)
         if not delegate_path:

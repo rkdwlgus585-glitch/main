@@ -319,7 +319,7 @@ def main() -> int:
                 [
                     "smna-calc-bridge",
                     frame_acquisition,
-                    "AI 건설업 신규등록 비용 산정 계산기",
+                    "AI 인허가 사전검토 진단기(신규등록)",
                 ],
             ),
         ]
@@ -380,3 +380,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

@@ -1,19 +1,19 @@
 {
-  "updated_at": "2026-03-01T15:45:35.636906+00:00",
+  "updated_at": "2026-03-04T01:59:36.701223+00:00",
   "items": [
     {
-      "post_id": 740,
-      "post_url": "https://seoulmna.kr/steel-structure-construction-acquisition/",
+      "post_id": 559,
+      "post_url": "https://seoulmna.kr/landscape-facilities-license-acquisition/",
       "query": "서울건설",
       "impressions": 81,
       "ctr": 0.0,
       "similarity": 0.92,
-      "current_title": "철강구조물공사업 면허 취득을 위한 2025 필수 검토사항 가이드 | 서울건설정보",
+      "current_title": "조경시설물설치공사업 면허 취득 방법, 2025 상세 가이드 | 서울건설정보",
       "current_summary": "Editor 강지현 대표 행정사 건설업 전문 행정사 면허 등록, 양도양수, 기업진단 등 건설업 면허 제반 사항에 대해 정확하고 실질적인 정보를 […]",
       "status": "applied",
       "reason": "high_impression_low_ctr_query",
-      "applied_at": "2026-03-01T15:46:30.025454+00:00",
-      "new_title": "철강구조물공사업 면허 취득을 위한 2025 필수 검토사항 가이드 | 서울건설정보",
+      "applied_at": "2026-03-04T02:00:39.823391+00:00",
+      "new_title": "조경시설물설치공사업 면허 취득 방법, 2025 상세 가이드 | 서울건설정보",
       "new_summary": "Editor 강지현 대표 행정사 건설업 전문 행정사 면허 등록, 양도양수, 기업진단 등 건설업 면허 제반 사항에 대해 정확하고 실질적인 정보를 […] 서울건설 핵심 포인트를 실무 기준으로 빠르게 확인할 수 있도록 정리했습니다. 내용을 본문에서 확인하세요."
     }
   ],
@@ -27,6 +27,11 @@
       "post_id": 740,
       "query": "서울건설",
       "at": "2026-03-01T15:46:30.025454+00:00"
+    },
+    {
+      "post_id": 559,
+      "query": "서울건설",
+      "at": "2026-03-04T02:00:39.823391+00:00"
     }
   ]
 }

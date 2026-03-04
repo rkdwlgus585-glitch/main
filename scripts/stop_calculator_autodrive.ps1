@@ -37,6 +37,7 @@ Write-Output ("stopped_headless={0}" -f $stoppedHeadless)
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $statePath = Join-Path $repoRoot "logs\calculator_autodrive_state.json"
+$latestPath = Join-Path $repoRoot "logs\calculator_autodrive_latest.json"
 $pidPath = Join-Path $repoRoot "logs\calculator_autodrive.pid"
 $krLockPath = Join-Path (Split-Path -Parent $PSScriptRoot) "logs\kr_only_mode.lock"
 
@@ -59,6 +60,19 @@ if (Test-Path $statePath) {
         Write-Output ("state_updated={0}" -f $statePath)
     } catch {
         Write-Output ("state_update_failed={0}" -f $statePath)
+    }
+}
+
+if (Test-Path $latestPath) {
+    try {
+        $latest = Get-Content $latestPath -Raw -Encoding UTF8 | ConvertFrom-Json
+        $latest | Add-Member -NotePropertyName status -NotePropertyValue "stopped" -Force
+        $latest | Add-Member -NotePropertyName generated_at -NotePropertyValue ((Get-Date).ToString("s")) -Force
+        $latest | Add-Member -NotePropertyName message -NotePropertyValue "stopped_by_script" -Force
+        $latest | ConvertTo-Json -Depth 12 | Set-Content -Path $latestPath -Encoding UTF8
+        Write-Output ("latest_updated={0}" -f $latestPath)
+    } catch {
+        Write-Output ("latest_update_failed={0}" -f $latestPath)
     }
 }
 

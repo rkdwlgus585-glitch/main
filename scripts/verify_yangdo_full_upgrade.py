@@ -1,4 +1,4 @@
-import argparse
+﻿import argparse
 import json
 import re
 from datetime import datetime
@@ -25,6 +25,8 @@ def _check_url_contains(url: str, required: List[str], timeout: int = 25) -> Dic
         body = res.text or ""
         out["status_code"] = int(res.status_code)
         out["length"] = len(body)
+        low = body.lower()
+        out["transfer_cap_page"] = ("gethompy" in low) or ("전송량" in body)
         for key in required:
             if key.startswith("re:"):
                 out["found"][key] = bool(re.search(key[3:], body, flags=re.I))
@@ -47,6 +49,7 @@ def main() -> int:
     parser.add_argument("--co-mna", default="https://seoulmna.co.kr/mna")
     parser.add_argument("--kr-customer", default="https://seoulmna.kr/yangdo-ai-customer/")
     parser.add_argument("--kr-acquisition", default="https://seoulmna.kr/ai-license-acquisition-calculator/")
+    parser.add_argument("--allow-co-transfer-cap", action="store_true")
     parser.add_argument("--report", default="logs/yangdo_full_upgrade_verify_latest.json")
     args = parser.parse_args()
 
@@ -82,16 +85,23 @@ def main() -> int:
         _check_url_contains(
             args.kr_acquisition,
             [
-                'id="smna-acq-calculator"',
-                'id="acq-btn-calc"',
-                'id="acq-btn-mail"',
-                "const consultEndpoint",
-                "AI 건설업 신규등록 비용 산정 계산기",
+                "AI 인허가 사전검토 진단기",
+                'id="categorySelect"',
+                'id="industrySelect"',
+                "const permitCatalog",
+                "AI 인허가 사전검토 진단기(신규등록)",
             ],
         )
     )
 
     overall_ok = all(bool(c.get("ok")) for c in checks)
+    if (not overall_ok) and bool(args.allow_co_transfer_cap):
+        co_checks = [c for c in checks if str(c.get("url", "")).startswith("https://seoulmna.co.kr")]
+        kr_checks = [c for c in checks if str(c.get("url", "")).startswith("https://seoulmna.kr")]
+        co_blocked = bool(co_checks) and all(bool(c.get("transfer_cap_page")) for c in co_checks)
+        kr_ok = bool(kr_checks) and all(bool(c.get("ok")) for c in kr_checks)
+        if co_blocked and kr_ok:
+            overall_ok = True
     report = {
         "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "ok": overall_ok,
@@ -110,3 +120,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

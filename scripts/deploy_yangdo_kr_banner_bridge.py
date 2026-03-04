@@ -220,29 +220,29 @@ def _build_html(mode: str, output_path: Path, max_train_rows: int) -> Dict[str, 
 
 
 def _build_acquisition_html(output_path: Path, env_map: Dict[str, str]) -> Dict[str, Any]:
-    contact_phone = str(
-        env_map.get("CALCULATOR_CONTACT_PHONE", "")
-        or env_map.get("PHONE", "")
-        or env_map.get("MY_PHONE", "")
-        or "010-9926-8661"
-    ).strip()
-    if "1668" in contact_phone:
-        contact_phone = "010-9926-8661"
+    catalog_path = (ROOT / "config" / "kr_permit_industries_localdata.json").resolve()
+    collect_step = _run(
+        _py_cmd(
+            [
+                "scripts/collect_kr_permit_industries.py",
+                "--output",
+                str(catalog_path),
+                "--strict",
+            ]
+        ),
+        timeout_sec=240,
+    )
+    if not bool(collect_step.get("ok")):
+        return collect_step
     cmd = _py_cmd(
         [
-            "acquisition_calculator.py",
+            "permit_diagnosis_calculator.py",
+            "--catalog",
+            str(catalog_path),
             "--output",
             str(output_path),
             "--title",
-            "AI 건설업 신규등록 비용 산정 계산기",
-            "--contact-phone",
-            contact_phone,
-            "--openchat-url",
-            str(env_map.get("KAKAO_OPENCHAT_URL", "")),
-            "--consult-endpoint",
-            str(env_map.get("YANGDO_CONSULT_ENDPOINT", "")),
-            "--usage-endpoint",
-            str(env_map.get("YANGDO_USAGE_ENDPOINT", "")),
+            "AI 인허가 사전검토 진단기(신규등록)",
         ]
     )
     return _run(cmd, timeout_sec=240)
@@ -305,7 +305,7 @@ def main() -> int:
     parser.add_argument("--customer-slug", default="yangdo-ai-customer")
     parser.add_argument("--acquisition-slug", default="ai-license-acquisition-calculator")
     parser.add_argument("--customer-title", default="AI 양도가 산정 계산기")
-    parser.add_argument("--acquisition-title", default="AI 건설업 신규등록 비용 산정 계산기")
+    parser.add_argument("--acquisition-title", default="AI 인허가 사전검토 진단기(신규등록)")
     parser.add_argument("--wp-status", default="publish")
     parser.add_argument("--customer-board", default="yangdo_ai")
     parser.add_argument("--acquisition-board", default="yangdo_ai_ops")
@@ -320,9 +320,26 @@ def main() -> int:
     parser.add_argument("--max-train-rows", type=int, default=260)
     parser.add_argument("--co-request-cap-override", type=int, default=0)
     parser.add_argument("--co-write-cap-override", type=int, default=0)
+    parser.add_argument("--confirm-live", default="", help="실서비스 반영 승인 토큰 (`--confirm-live YES`)")
     parser.add_argument("--state", default="logs/yangdo_kr_bridge_state.json")
     parser.add_argument("--report", default="logs/yangdo_kr_bridge_latest.json")
     args = parser.parse_args()
+    if str(args.confirm_live or "").strip().upper() != "YES":
+        blocked = {
+            "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "ok": False,
+            "steps": [],
+            "wp": {},
+            "co": {},
+            "blocking_issues": ["confirm_live_missing"],
+            "error": "live apply blocked: add --confirm-live YES",
+        }
+        report_path = (ROOT / args.report).resolve()
+        _save_json(report_path, blocked)
+        print(f"[saved] {report_path}")
+        print("[overall_ok] False")
+        print("- confirm_live_missing")
+        return 2
 
     report: Dict[str, Any] = {
         "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -434,7 +451,7 @@ def main() -> int:
             )
             co_acquisition = _publish_co_banner(
                 board_slug=str(args.acquisition_board),
-                subject="AI 건설업 신규등록 비용 산정 계산기",
+                subject="AI 인허가 사전검토 진단기(신규등록)",
                 html_content=_build_banner_html(acquisition_target, "건설업 신규등록 준비 고객용 계산기로 이동합니다."),
                 wr_id=acquisition_wr,
             )
@@ -472,3 +489,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

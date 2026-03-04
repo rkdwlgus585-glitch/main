@@ -1,11 +1,15 @@
 param(
     [string]$RepoRoot = "",
     [string]$EndAt = "",
-    [int]$PilotMinutes = 20,
+    [int]$PilotMinutes = 8,
     [double]$PilotSleepSec = 1.5,
-    [int]$StressYangdoIterations = 120,
-    [int]$StressAcqIterations = 120,
-    [int]$CycleCooldownSec = 20,
+    [int]$StressYangdoIterations = 40,
+    [int]$StressAcqIterations = 40,
+    [int]$CycleCooldownSec = 90,
+    [int]$BlockedBackoffSec = 1800,
+    [int]$MaxPrechecksPerDay = 120,
+    [int]$CleanupKeepCycles = 150,
+    [int]$CleanupKeepDays = 7,
     [int]$MaxTrainRows = 260,
     [switch]$ForceRestart
 )
@@ -23,7 +27,7 @@ if (-not (Test-Path $runner)) {
 }
 
 $existing = Get-CimInstance Win32_Process | Where-Object {
-    $_.Name -match "^(?:python|py)(?:\.exe)?$" -and $_.CommandLine -match "run_calculator_autodrive\.py"
+    $_.Name -match "^(?:python|py)(?:\.exe)?$" -and $_.CommandLine -match "(?:^|\\s)scripts[\\\\/]run_calculator_autodrive\\.py(?:\\s|$)"
 }
 
 if ($existing -and -not $ForceRestart) {
@@ -85,6 +89,10 @@ $argList += @(
     "--stress-yangdo-iterations", [string]([Math]::Max(20, $StressYangdoIterations)),
     "--stress-acq-iterations", [string]([Math]::Max(20, $StressAcqIterations)),
     "--cycle-cooldown-sec", [string]([Math]::Max(5, $CycleCooldownSec)),
+    "--blocked-backoff-sec", [string]([Math]::Max(60, $BlockedBackoffSec)),
+    "--max-prechecks-per-day", [string]([Math]::Max(20, $MaxPrechecksPerDay)),
+    "--cleanup-keep-cycles", [string]([Math]::Max(20, $CleanupKeepCycles)),
+    "--cleanup-keep-days", [string]([Math]::Max(1, $CleanupKeepDays)),
     "--max-train-rows", [string]([Math]::Max(100, $MaxTrainRows)),
     "--context-file", "docs/calculator_autopilot_context.json",
     "--skills-doc", "docs/skills_context_booster.md",
