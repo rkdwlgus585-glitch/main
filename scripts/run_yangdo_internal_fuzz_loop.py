@@ -295,7 +295,8 @@ def _validate_result(ctx: RunContext, payload: Dict[str, Any], result: Dict[str,
     target_tokens = est._canonical_tokens(target.get("license_tokens") or set())
     target_core = est._core_tokens(target_tokens)
     strict_single = bool(est._single_token_target_core(target_tokens))
-    enforce_single_core_guard = strict_single and bool(target_core)
+    relaxed_fallback_used = bool(result.get("relaxed_fallback_used"))
+    enforce_single_core_guard = strict_single and bool(target_core) and (not relaxed_fallback_used)
     neighbors = list(result.get("neighbors") or [])
     if not neighbors:
         anomalies.append("no_neighbors")

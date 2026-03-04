@@ -1078,7 +1078,18 @@ class YangdoBlackboxEstimator:
             return {"ok": False, "error": "입력된 정보가 없습니다. 면허/업종 또는 숫자 항목 1개 이상 입력해 주세요."}
 
         top_k = max(5, min(20, int(_to_float(payload.get("top_k")) or 12)))
+        relaxed_fallback_used = False
         display_neighbors = self._collect_neighbors(target, train_records, token_index, top_k=top_k)
+        if not display_neighbors:
+            relaxed = dict(target)
+            # 강제 완화 fallback: 계산 중단 대신 유사군을 넓혀 안정적으로 추정한다.
+            relaxed["raw_license_key"] = ""
+            relaxed["license_tokens"] = set()
+            relaxed["license_text"] = ""
+            display_neighbors = self._collect_neighbors(relaxed, train_records, token_index, top_k=max(8, top_k))
+            if display_neighbors:
+                relaxed_fallback_used = True
+                target = relaxed
         if not display_neighbors:
             return {"ok": False, "error": "유사 매물이 부족합니다."}
 
@@ -1130,7 +1141,7 @@ class YangdoBlackboxEstimator:
                 if not self._is_single_token_same_core(token_set, cand_tokens, rec.get("license_text")):
                     continue
                 yearly = _yearly_shape_similarity(target, rec)
-                if yearly["strength"] >= 0.65 and yearly["shape"] < 0.32:
+                if yearly["strength"] >= 0.65 and yearly["shape"] < 0.38:
                     continue
                 strict_neighbors.append((sim, rec))
 
@@ -1145,6 +1156,11 @@ class YangdoBlackboxEstimator:
                 for sim, rec in stat_neighbors:
                     marker = (int(rec.get("row", 0) or 0), str(rec.get("uid", "")).strip())
                     if marker in picked:
+                        continue
+                    cand_tokens = self._canonical_tokens(rec.get("license_tokens") or set())
+                    if self._is_single_token_cross_combo(token_set, cand_tokens, rec.get("license_text")):
+                        continue
+                    if not self._is_single_token_same_core(token_set, cand_tokens, rec.get("license_text")):
                         continue
                     selected.append((sim, rec))
                     if len(selected) >= max(8, top_k):
@@ -1671,6 +1687,8 @@ class YangdoBlackboxEstimator:
 
         if not notes:
             notes.append("유사 매물 기반 기본 산정 결과입니다.")
+        if relaxed_fallback_used:
+            notes.append("업종 유사군이 부족해 범위를 넓혀 대체 유사군으로 계산했습니다.")
 
         yoy = self._build_yoy_insight(target, float(center), stat_neighbors)
         previous_center = yoy.get("previous_center") if isinstance(yoy, dict) else None
@@ -1689,6 +1707,7 @@ class YangdoBlackboxEstimator:
             "display_neighbor_count": len(neighbor_rows),
             "hot_match_count": int(hot_match_count),
             "balance_excluded": bool(balance_excluded),
+            "relaxed_fallback_used": bool(relaxed_fallback_used),
             "risk_notes": notes,
             "neighbors": neighbor_rows,
             "previous_estimate_eok": previous_center,
