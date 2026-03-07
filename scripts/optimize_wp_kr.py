@@ -228,6 +228,23 @@ def _write_reports(report: Dict[str, Any], latest_rel_path: str) -> Tuple[Path, 
     return latest_path, stamped_path
 
 
+def _load_state(path: Path) -> Dict[str, Any]:
+    if not path.exists():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8-sig"))
+        if isinstance(data, dict):
+            return data
+    except Exception:
+        return {}
+    return {}
+
+
+def _save_state(path: Path, payload: Dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Optimize and guard seoulmna.kr WordPress settings.")
     parser.add_argument("--apply", action="store_true", help="Apply safe WP settings and RankMath module mode.")
@@ -239,6 +256,9 @@ def main() -> int:
     parser.add_argument("--skip-rankmath", action="store_true", help="Skip RankMath mode/module actions.")
     parser.add_argument("--skip-co-audit", action="store_true", help="Skip seoulmna.co.kr page marker audit.")
     parser.add_argument("--report", default="logs/wp_site_guard_latest.json")
+    parser.add_argument("--state-file", default="logs/wp_site_guard_state.json")
+    parser.add_argument("--skip-if-ok-today", action="store_true", help="Skip passive guard runs after one successful run today.")
+    parser.add_argument("--force", action="store_true", help="Ignore passive guard skip state.")
     parser.add_argument("--timeout-sec", type=int, default=20)
     args = parser.parse_args()
 
@@ -247,6 +267,14 @@ def main() -> int:
     wp_host = _host_of(wp_url)
     if wp_host not in ALLOWED_BLOG_HOSTS:
         raise SystemExit(f"WP_URL host must be seoulmna.kr. current={wp_host or '(empty)'}")
+
+    state_path = (ROOT / str(args.state_file)).resolve()
+    today_key = datetime.now().strftime("%Y-%m-%d")
+    if bool(args.skip_if_ok_today) and (not bool(args.apply)) and (not bool(args.force)):
+        state = _load_state(state_path)
+        if bool(state.get("ok")) and str(state.get("run_date", "")) == today_key:
+            print("[summary] skipped=true reason=ok_today")
+            return 0
 
     wp_root = _normalize_wp_root(wp_url)
     auth_mode, auth_headers = _resolve_auth_headers(config)
@@ -351,6 +379,17 @@ def main() -> int:
     report["ok"] = bool(settings_get.get("ok")) and site_ok and settings_apply_ok
 
     latest_path, stamped_path = _write_reports(report, args.report)
+    _save_state(
+        state_path,
+        {
+            "updated_at": datetime.now().isoformat(timespec="seconds"),
+            "run_date": today_key,
+            "ok": bool(report["ok"]),
+            "apply_mode": bool(args.apply),
+            "settings_drift_count": len(drift),
+            "site_check_count": len(report["site_audit"]),
+        },
+    )
     print(f"[saved] {latest_path}")
     print(f"[saved] {stamped_path}")
     print(

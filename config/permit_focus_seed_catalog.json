@@ -1,0 +1,16 @@
+{
+  "generated_at": "2026-03-08 02:13:49",
+  "source": {
+    "base_catalog": "C:\\Users\\rkdwl\\Desktop\\auto\\config\\kr_permit_industries_localdata.json",
+    "rules_catalog": "C:\\Users\\rkdwl\\Desktop\\auto\\config\\permit_registration_rules_law.json",
+    "scope_policy": "capital_and_technical_only",
+    "selection_origin": "permitCatalog.focus_entries (rule-only rows)"
+  },
+  "summary": {
+    "seed_industry_total": 0,
+    "seed_major_category_total": 0,
+    "seed_focus_rules_only_total": 0
+  },
+  "major_categories": [],
+  "industries": []
+}

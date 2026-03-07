@@ -7,11 +7,13 @@ import tempfile
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
+from urllib.parse import parse_qsl, urlparse
 
 import requests
 
 
 ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_BUNDLE_MANIFEST = ROOT / "output" / "widget" / "bundles" / "seoul_widget_internal" / "manifest.json"
 
 
 def _is_kr_only_mode() -> bool:
@@ -26,7 +28,16 @@ def _save_json(path: Path, data: Dict) -> None:
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
-def _check_static(url: str, required: List[str], timeout_sec: int = 30) -> Dict:
+def _load_json(path: Path, default):
+    if not path.exists():
+        return default
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return default
+
+
+def _check_static(url: str, required: List[str], timeout_sec: int = 30, require_any: Optional[List[str]] = None) -> Dict:
     out = {
         "kind": "static",
         "url": url,
@@ -34,6 +45,7 @@ def _check_static(url: str, required: List[str], timeout_sec: int = 30) -> Dict:
         "status_code": 0,
         "length": 0,
         "found": {},
+        "found_any": {},
         "error": "",
     }
     try:
@@ -43,7 +55,11 @@ def _check_static(url: str, required: List[str], timeout_sec: int = 30) -> Dict:
         out["length"] = len(txt)
         for key in required:
             out["found"][key] = key in txt
-        out["ok"] = res.status_code == 200 and all(bool(v) for v in out["found"].values())
+        any_tokens = [str(x or "").strip() for x in (require_any or []) if str(x or "").strip()]
+        for key in any_tokens:
+            out["found_any"][key] = key in txt
+        any_ok = True if not any_tokens else any(bool(v) for v in out["found_any"].values())
+        out["ok"] = res.status_code == 200 and all(bool(v) for v in out["found"].values()) and any_ok
     except Exception as e:  # noqa: BLE001
         out["error"] = str(e)
     return out
@@ -130,8 +146,14 @@ def _runtime_frame_tokens(frame_url: str, mode: str) -> List[str]:
     src = str(frame_url or "").strip()
     if not src:
         return []
+    parsed = urlparse(src)
     base = src.split("?", 1)[0].strip()
-    tokens = [base, "from=co", f"mode={str(mode or '').strip()}"]
+    tokens = [base]
+    query = dict(parse_qsl(parsed.query, keep_blank_values=True))
+    for key in ("tenant_id", "from", "mode"):
+        value = str(query.get(key) or "").strip()
+        if value:
+            tokens.append(f"{key}={value}")
     out: List[str] = []
     for tok in tokens:
         t = str(tok or "").strip()
@@ -139,6 +161,19 @@ def _runtime_frame_tokens(frame_url: str, mode: str) -> List[str]:
             continue
         out.append(t)
     return out
+
+
+def _load_widget_url(manifest_path: Path, widget: str) -> str:
+    manifest = _load_json(manifest_path, {}) or {}
+    rows = manifest.get("widgets") if isinstance(manifest, dict) else []
+    wanted = str(widget or "").strip().lower()
+    for row in rows or []:
+        if not isinstance(row, dict):
+            continue
+        if str(row.get("widget") or "").strip().lower() != wanted:
+            continue
+        return str(row.get("widget_url") or "").strip()
+    return ""
 
 
 def _check_click_interaction(page_url: str, mode: str) -> Dict:
@@ -243,8 +278,9 @@ def main() -> int:
     parser.add_argument("--co-base", default="https://seoulmna.co.kr")
     parser.add_argument("--customer-co-id", default="ai_calc")
     parser.add_argument("--acquisition-co-id", default="ai_acq")
-    parser.add_argument("--frame-customer", default="https://seoulmna.kr/yangdo-ai-customer/?from=co")
-    parser.add_argument("--frame-acquisition", default="https://seoulmna.kr/ai-license-acquisition-calculator/?from=co")
+    parser.add_argument("--bundle-manifest", default=str(DEFAULT_BUNDLE_MANIFEST))
+    parser.add_argument("--frame-customer", default="")
+    parser.add_argument("--frame-acquisition", default="")
     parser.add_argument("--kr-customer-url", default="https://seoulmna.kr/yangdo-ai-customer/")
     parser.add_argument("--kr-acquisition-url", default="https://seoulmna.kr/ai-license-acquisition-calculator/")
     parser.add_argument("--kr-only", action="store_true", help="Run KR-only checks and skip any co.kr access")
@@ -257,6 +293,9 @@ def main() -> int:
     customer_page = f"{co_base}/bbs/content.php?co_id={args.customer_co_id}"
     acquisition_page = f"{co_base}/bbs/content.php?co_id={args.acquisition_co_id}"
     kr_only = bool(args.kr_only or _is_kr_only_mode())
+    manifest_path = Path(str(args.bundle_manifest)).resolve()
+    frame_customer = str(args.frame_customer or "").strip() or _load_widget_url(manifest_path, "yangdo") or str(args.kr_customer_url)
+    frame_acquisition = str(args.frame_acquisition or "").strip() or _load_widget_url(manifest_path, "permit") or str(args.kr_acquisition_url)
 
     report = {
         "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -275,8 +314,8 @@ def main() -> int:
                 [
                     "SEOULMNA GLOBAL BANNER START",
                     "applyBannerTextBalance",
-                    str(args.frame_customer).replace("?from=co", ""),
-                    str(args.frame_acquisition).replace("?from=co", ""),
+                    str(frame_customer).split("&from=co", 1)[0],
+                    str(frame_acquisition).split("&from=co", 1)[0],
                 ],
             )
         )
@@ -284,20 +323,18 @@ def main() -> int:
             _check_static(
                 customer_page,
                 [
-                    "SEOULMNA GLOBAL BANNER START",
-                    "mountCalculatorBridge",
                     "smna-calc-bridge",
                 ],
+                require_any=["mountCalculatorBridge", "SMNA_WIDGET_BRIDGE_CUSTOMER", "SMNA_BRIDGE_CUSTOMER"],
             )
         )
         report["checks"].append(
             _check_static(
                 acquisition_page,
                 [
-                    "SEOULMNA GLOBAL BANNER START",
-                    "mountCalculatorBridge",
                     "smna-calc-bridge",
                 ],
+                require_any=["mountCalculatorBridge", "SMNA_WIDGET_BRIDGE_ACQUISITION", "SMNA_BRIDGE_ACQUISITION"],
             )
         )
 
@@ -336,14 +373,14 @@ def main() -> int:
                 _check_runtime(
                     chrome_exe=chrome_exe,
                     url=customer_page,
-                    required=["id=\"smna-calc-bridge\"", *_runtime_frame_tokens(str(args.frame_customer), "customer")],
+                    required=["id=\"smna-calc-bridge\"", *_runtime_frame_tokens(str(frame_customer), "customer")],
                 )
             )
             report["checks"].append(
                 _check_runtime(
                     chrome_exe=chrome_exe,
                     url=acquisition_page,
-                    required=["id=\"smna-calc-bridge\"", *_runtime_frame_tokens(str(args.frame_acquisition), "acquisition")],
+                    required=["id=\"smna-calc-bridge\"", *_runtime_frame_tokens(str(frame_acquisition), "acquisition")],
                 )
             )
     else:

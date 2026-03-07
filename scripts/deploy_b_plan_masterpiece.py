@@ -319,7 +319,7 @@ def main() -> int:
                 [
                     "smna-calc-bridge",
                     frame_acquisition,
-                    "AI 인허가 사전검토 진단기(신규등록)",
+                    "AI 인허가 사전검토 진단기(신규등록 전용)",
                 ],
             ),
         ]
@@ -380,4 +380,5 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
 

@@ -1,0 +1,81 @@
+{
+  "generated_at": "2026-03-05 16:37:51",
+  "bundle_dir": "C:\\Users\\rkdwl\\Desktop\\auto\\snapshots\\patent_handoff\\patent_handoff_20260305_163750",
+  "copied_count": 12,
+  "missing_count": 0,
+  "copied": [
+    {
+      "category": "patent_doc",
+      "path": "docs/patent_package_yangdo_draft_20260305.md",
+      "size_bytes": 3870,
+      "sha256": "782415c59e23fff2ba2992d32029e843017d74bf075ef6a420b8ece3dad7dad1"
+    },
+    {
+      "category": "patent_doc",
+      "path": "docs/patent_package_permit_draft_20260305.md",
+      "size_bytes": 3540,
+      "sha256": "c0319d4b1cc32fcd8f3ab33eabda1ac75ad1fcd847d062de3e05f1fee40f908e"
+    },
+    {
+      "category": "patent_doc",
+      "path": "docs/patent_handoff_checklist_20260305.md",
+      "size_bytes": 1747,
+      "sha256": "fe46c5641200fffb6954bf4fff3d88740a2a589ce46b67ef6af7623237588e5b"
+    },
+    {
+      "category": "ops_doc",
+      "path": "docs/tenant_policy_recovery_runbook_20260305.md",
+      "size_bytes": 2078,
+      "sha256": "1230fe1b951ebe71b270818de368d1fe8bfdeb1b48ad40f6d60ac23f76dd9de5"
+    },
+    {
+      "category": "ops_doc",
+      "path": "docs/security_foundation_runbook_20260305.md",
+      "size_bytes": 4095,
+      "sha256": "4f32640a07a94d76621bf429c5a54cc78abc625136b7786137bf212c9ca64867"
+    },
+    {
+      "category": "status_doc",
+      "path": "docs/progress_to_100_20260305.md",
+      "size_bytes": 5565,
+      "sha256": "0fc63547d0db46e4579844e1528438299f50e59959ff97fd5926fd60cc798ffb"
+    },
+    {
+      "category": "code_ref",
+      "path": "yangdo_blackbox_api.py",
+      "size_bytes": 99714,
+      "sha256": "d0e2adbd476fe4190eab6ac79e107e4600f77ba273824d3820167520acb7237f"
+    },
+    {
+      "category": "code_ref",
+      "path": "yangdo_consult_api.py",
+      "size_bytes": 37246,
+      "sha256": "6fca19caaca29432d272ed946292e570652b8f79de8811173ed42431d7faae50"
+    },
+    {
+      "category": "code_ref",
+      "path": "permit_diagnosis_calculator.py",
+      "size_bytes": 36799,
+      "sha256": "6b9f7276e64fdb624e866f2b5f0b94f86d2d4b81b861e1f304c1b37e66687203"
+    },
+    {
+      "category": "code_ref",
+      "path": "core_engine/tenant_gateway.py",
+      "size_bytes": 7313,
+      "sha256": "e57bda22513d89acb1205c829e24807ca698c091fc87089c4d301ce91cc9179e"
+    },
+    {
+      "category": "data_ref",
+      "path": "config/permit_registration_rules_law.json",
+      "size_bytes": 12026,
+      "sha256": "614a0b193ea9b94aa9e4095929765c544c69ce55b279df9d1d741d6cd0aecc8c"
+    },
+    {
+      "category": "data_ref",
+      "path": "config/permit_registration_criteria_expanded.json",
+      "size_bytes": 925407,
+      "sha256": "1edf5512e104afbf0504a26798c221a283b1f76c44f1e7b0cac45fe6b1de31b5"
+    }
+  ],
+  "missing": []
+}

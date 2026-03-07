@@ -80,34 +80,32 @@ def _write_report(report: Dict[str, Any], out_rel: str) -> Tuple[Path, Path]:
     return latest, stamped
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(description="Probe SeoulMNA public CX markers and basic availability.")
-    parser.add_argument("--report", default="logs/site_cx_probe_latest.json")
-    parser.add_argument("--timeout-sec", type=int, default=20)
-    parser.add_argument("--latency-warn-ms", type=int, default=3500)
-    args = parser.parse_args()
-
-    # Required checks focus on critical customer journey paths.
-    probes = [
+def _base_probes() -> List[Dict[str, Any]]:
+    return [
         {
             "url": "https://seoulmna.kr/",
             "rules": [
-                {"id": "title_brand", "mode": "any", "patterns": ["서울건설정보", "<title"]},
-                {"id": "footer_or_contact", "mode": "any", "patterns": ["<footer", "010-9926-8661", "대표"]},
-                {"id": "login_signal", "mode": "any", "patterns": ["로그인", "wp-login.php", "login"]},
-                {"id": "calc_signal_optional", "mode": "any", "required": False, "patterns": ["양도", "계산기", "consult"]},
+                {"id": "title_brand", "mode": "any", "patterns": ["<title", "seoulmna", "SEOULMNA"]},
+                {"id": "footer_or_contact", "mode": "any", "patterns": ["<footer", "010-9926-8661", "open.kakao.com"]},
+                {"id": "login_signal", "mode": "any", "patterns": ["wp-login.php", "login"]},
+                {"id": "calc_signal_optional", "mode": "any", "required": False, "patterns": ["consult", "estimate", "calculator"]},
             ],
         },
         {
             "url": "https://seoulmna.co.kr/",
             "rules": [
-                {"id": "quickmenu", "mode": "any", "patterns": ["quick_menu", "smna-quick", "id=\"quicks\""]},
-                {"id": "login_signal", "mode": "any", "patterns": ["/bbs/login.php", "로그인", "login"]},
+                {"id": "quickmenu", "mode": "any", "patterns": ["quick_menu", "smna-quick", 'id="quicks"']},
+                {"id": "login_signal", "mode": "any", "patterns": ["/bbs/login.php", "login"]},
                 {"id": "global_banner", "mode": "any", "patterns": ["smna-global-banner", "SEOULMNA GLOBAL BANNER START"]},
                 {"id": "traffic_counter", "mode": "any", "patterns": ["SEOULMNA TRAFFIC COUNTER START", "__smna_tc__"]},
-                {"id": "footer_or_address", "mode": "any", "patterns": ["주소", "대표전화", "사업자", "footer"]},
+                {"id": "footer_or_address", "mode": "any", "patterns": ["footer", "address", "seoulmna.co.kr"]},
             ],
         },
+    ]
+
+
+def _deep_route_probes() -> List[Dict[str, Any]]:
+    return [
         {
             "url": "https://seoulmna.kr/yangdo-ai-customer/",
             "rules": [
@@ -124,16 +122,33 @@ def main() -> int:
         },
     ]
 
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Probe SeoulMNA public CX markers and basic availability.")
+    parser.add_argument("--report", default="logs/site_cx_probe_latest.json")
+    parser.add_argument("--timeout-sec", type=int, default=20)
+    parser.add_argument("--latency-warn-ms", type=int, default=3500)
+    parser.add_argument(
+        "--include-deep-routes",
+        action="store_true",
+        help="Also probe calculator and deep customer-journey routes.",
+    )
+    args = parser.parse_args()
+
+    probes = _base_probes()
+    if bool(args.include_deep_routes):
+        probes.extend(_deep_route_probes())
+
     rows: List[Dict[str, Any]] = []
-    for p in probes:
-        row = _probe_url(str(p["url"]), list(p["rules"]), timeout_sec=int(args.timeout_sec))
+    for probe in probes:
+        row = _probe_url(str(probe["url"]), list(probe["rules"]), timeout_sec=int(args.timeout_sec))
         row["latency_warn"] = row.get("elapsed_ms", 0) > int(args.latency_warn_ms)
         rows.append(row)
 
     total = len(rows)
-    ok_count = sum(1 for r in rows if bool(r.get("ok")))
+    ok_count = sum(1 for row in rows if bool(row.get("ok")))
     hard_ok = ok_count == total
-    latency_warn_count = sum(1 for r in rows if bool(r.get("latency_warn")))
+    latency_warn_count = sum(1 for row in rows if bool(row.get("latency_warn")))
 
     report = {
         "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),

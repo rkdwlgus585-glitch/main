@@ -4,7 +4,7 @@ import os
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List
 
 import requests
 from bs4 import BeautifulSoup
@@ -105,13 +105,42 @@ def _strip_legacy_test_chunks(text: str) -> str:
     patterns = [
         r"<!--\s*DUMMY_START\s*-->.*?<!--\s*DUMMY_END\s*-->",
         r"<!--\s*TC START\s*-->.*?<!--\s*TC END\s*-->",
-        r"<script>\s*.*?smna-fav-guide-style.*?</script>",
+        r"<script[^>]*>\s*.*?smna-fav-guide-style.*?</script>",
+        r"<script[^>]*>\s*.*?smna-fav-guide.*?</script>",
+        r"<section[^>]*id=['\"]smna-fav-guide['\"][^>]*>.*?</section>",
+        r"<style[^>]*id=['\"]smna-fav-guide-style['\"][^>]*>.*?</style>",
     ]
     out = src
     for patt in patterns:
         out = re.sub(patt, "", out, flags=re.I | re.S)
     out = re.sub(r"\n{3,}", "\n\n", out).strip()
     return out
+
+
+_COPY_REVIEW_RULES = [
+    ("internal_problem_statement", re.compile(r"빈\s*게시판처럼\s*보이던", flags=re.I)),
+    ("before_after_ui_explanation", re.compile(r"첫\s*화면\s*대신", flags=re.I)),
+    ("implementation_explanation", re.compile(r"상세\s*매물\s*확인(?:으로)?\s*바로\s*이어지도록", flags=re.I)),
+    ("internal_doc_phrase", re.compile(r"운영\s*문서|내부\s*검토|시안|snapshot|dummy", flags=re.I)),
+]
+
+
+def _snippet_visible_text(snippet: str) -> str:
+    text = str(snippet or "")
+    text = re.sub(r"<script[^>]*>.*?</script>", " ", text, flags=re.I | re.S)
+    text = re.sub(r"<style[^>]*>.*?</style>", " ", text, flags=re.I | re.S)
+    text = re.sub(r"<!--.*?-->", " ", text, flags=re.S)
+    text = re.sub(r"<[^>]+>", " ", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def _review_snippet_copy(snippet: str) -> List[str]:
+    visible = _snippet_visible_text(snippet)
+    issues: List[str] = []
+    for issue_id, pattern in _COPY_REVIEW_RULES:
+        if pattern.search(visible):
+            issues.append(issue_id)
+    return issues
 
 
 def main() -> int:
@@ -122,13 +151,13 @@ def main() -> int:
     parser.add_argument(
         "--max-snippet-chars",
         type=int,
-        default=120000,
+        default=50000,
         help="Block apply when snippet length exceeds this threshold (prevents cf_add_script truncation).",
     )
     parser.add_argument(
         "--max-total-chars",
         type=int,
-        default=130000,
+        default=60000,
         help="Block apply when computed cf_add_script total length exceeds this threshold.",
     )
     parser.add_argument(
@@ -189,6 +218,7 @@ def main() -> int:
     if not snippet_path.exists():
         raise SystemExit(f"snippet file not found: {snippet_path}")
     snippet = snippet_path.read_text(encoding="utf-8", errors="replace")
+    snippet = str(snippet or "").replace("\ufeff", "").replace("\u200b", "").strip()
 
     report = {
         "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -201,6 +231,8 @@ def main() -> int:
         "cf_add_script_before_len": 0,
         "cf_add_script_after_len": 0,
         "snippet_len": len(snippet),
+        "copy_review_ok": True,
+        "copy_review_issues": [],
         "max_snippet_chars": int(args.max_snippet_chars),
         "max_total_chars": int(args.max_total_chars),
         "marker_found_after": False,
@@ -217,6 +249,18 @@ def main() -> int:
         print(f"[ok] {report.get('ok')}")
         print(f"[error] {report.get('error')}")
         return 2
+    if not args.remove:
+        review_issues = _review_snippet_copy(snippet)
+        report["copy_review_ok"] = not review_issues
+        report["copy_review_issues"] = review_issues
+        if review_issues:
+            report["ok"] = False
+            report["error"] = "copy review failed: internal or implementation-facing text detected"
+            _save_json((ROOT / args.report).resolve(), report)
+            print(f"[saved] {(ROOT / args.report).resolve()}")
+            print(f"[ok] {report.get('ok')}")
+            print(f"[error] {report.get('error')}")
+            return 2
 
     sess = requests.Session()
     ua = {"User-Agent": "Mozilla/5.0"}

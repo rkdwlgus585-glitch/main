@@ -1,5 +1,6 @@
 ﻿import argparse
 import base64
+import gzip
 import json
 import os
 import re
@@ -73,22 +74,56 @@ def _wp_headers(env: Dict[str, str]) -> Tuple[str, Dict[str, str]]:
     return wp_url, {"Authorization": f"Basic {token}"}
 
 
-def _wp_upsert_page(
+def _wp_find_entries_by_slug(
     wp_url: str,
     headers: Dict[str, str],
+    collection: str,
+    slug: str,
+) -> List[Dict[str, Any]]:
+    find = requests.get(
+        f"{wp_url}/{collection}",
+        headers={"Authorization": headers["Authorization"]},
+        params={"slug": slug, "context": "edit", "per_page": 100},
+        timeout=30,
+    )
+    find.raise_for_status()
+    return list(find.json() or [])
+
+
+def _wp_post_with_fallback(
+    headers: Dict[str, str],
+    payload: Dict[str, Any],
+    url: str,
+) -> requests.Response:
+    headers_json = dict(headers or {})
+    headers_json["Content-Type"] = "application/json"
+    # WordPress installs behind WAF/CDN can intermittently 502 on JSON payloads.
+    # Fallback to form-encoded updates, which have been more stable for this site.
+    first = requests.post(url, headers=headers_json, json=payload, timeout=90)
+    if int(first.status_code) < 500:
+        first.raise_for_status()
+        return first
+    second = requests.post(url, headers=headers, data=payload, timeout=120)
+    second.raise_for_status()
+    return second
+
+
+def _wp_upsert_rest_entry(
+    wp_url: str,
+    headers: Dict[str, str],
+    collection: str,
     slug: str,
     title: str,
     content_html: str,
     status: str = "publish",
+    extra_payload: Dict[str, Any] | None = None,
 ) -> Dict[str, Any]:
-    find = requests.get(
-        f"{wp_url}/pages",
-        headers={"Authorization": headers["Authorization"]},
-        params={"slug": slug, "context": "edit"},
-        timeout=30,
+    rows = _wp_find_entries_by_slug(
+        wp_url=wp_url,
+        headers=headers,
+        collection=collection,
+        slug=slug,
     )
-    find.raise_for_status()
-    rows = list(find.json() or [])
     wrapped_html = content_html
     if "<!-- wp:html -->" not in wrapped_html:
         wrapped_html = f"<!-- wp:html -->\n{wrapped_html}\n<!-- /wp:html -->"
@@ -98,28 +133,145 @@ def _wp_upsert_page(
         "status": status,
         "content": wrapped_html,
     }
-    headers_json = dict(headers or {})
-    headers_json["Content-Type"] = "application/json"
-
-    def _post_with_fallback(url: str) -> requests.Response:
-        # WordPress installs behind WAF/CDN can intermittently 502 on JSON payloads.
-        # Fallback to form-encoded updates, which have been more stable for this site.
-        first = requests.post(url, headers=headers_json, json=payload, timeout=90)
-        if int(first.status_code) < 500:
-            first.raise_for_status()
-            return first
-        second = requests.post(url, headers=headers, data=payload, timeout=120)
-        second.raise_for_status()
-        return second
-
+    payload.update(dict(extra_payload or {}))
     if rows:
         page_id = int(rows[0].get("id", 0) or 0)
-        res = _post_with_fallback(f"{wp_url}/pages/{page_id}")
+        res = _wp_post_with_fallback(headers=headers, payload=payload, url=f"{wp_url}/{collection}/{page_id}")
         data = res.json()
         return {"mode": "update", "id": int(data.get("id", page_id)), "url": str(data.get("link", "")).strip()}
-    res = _post_with_fallback(f"{wp_url}/pages")
+    res = _wp_post_with_fallback(headers=headers, payload=payload, url=f"{wp_url}/{collection}")
     data = res.json()
     return {"mode": "create", "id": int(data.get("id", 0) or 0), "url": str(data.get("link", "")).strip()}
+
+
+def _wp_upsert_page(
+    wp_url: str,
+    headers: Dict[str, str],
+    slug: str,
+    title: str,
+    content_html: str,
+    status: str = "publish",
+) -> Dict[str, Any]:
+    return _wp_upsert_rest_entry(
+        wp_url=wp_url,
+        headers=headers,
+        collection="pages",
+        slug=slug,
+        title=title,
+        content_html=content_html,
+        status=status,
+    )
+
+
+def _wp_upsert_post(
+    wp_url: str,
+    headers: Dict[str, str],
+    slug: str,
+    title: str,
+    content_html: str,
+    status: str = "publish",
+) -> Dict[str, Any]:
+    return _wp_upsert_rest_entry(
+        wp_url=wp_url,
+        headers=headers,
+        collection="posts",
+        slug=slug,
+        title=title,
+        content_html=content_html,
+        status=status,
+        extra_payload={
+            "date": "2000-01-01T00:00:00",
+            "date_gmt": "2000-01-01T00:00:00",
+            "sticky": False,
+            "comment_status": "closed",
+            "ping_status": "closed",
+        },
+    )
+
+
+def _wp_set_entry_status(
+    wp_url: str,
+    headers: Dict[str, str],
+    collection: str,
+    entry_id: int,
+    status: str,
+) -> Dict[str, Any]:
+    payload = {"status": str(status or "").strip()}
+    res = _wp_post_with_fallback(
+        headers=headers,
+        payload=payload,
+        url=f"{wp_url}/{collection}/{int(entry_id)}",
+    )
+    data = res.json()
+    return {
+        "id": int(data.get("id", entry_id) or 0),
+        "status": str(data.get("status", "")).strip(),
+        "url": str(data.get("link", "")).strip(),
+    }
+
+
+def _wp_set_entries_status_by_slug(
+    wp_url: str,
+    headers: Dict[str, str],
+    collection: str,
+    slug: str,
+    status: str,
+) -> List[Dict[str, Any]]:
+    rows = _wp_find_entries_by_slug(
+        wp_url=wp_url,
+        headers=headers,
+        collection=collection,
+        slug=slug,
+    )
+    changed: List[Dict[str, Any]] = []
+    for row in rows:
+        row_id = int(row.get("id", 0) or 0)
+        row_status = str(row.get("status", "")).strip()
+        if not row_id or row_status == status:
+            continue
+        next_row = _wp_set_entry_status(
+            wp_url=wp_url,
+            headers=headers,
+            collection=collection,
+            entry_id=row_id,
+            status=status,
+        )
+        next_row["previous_status"] = row_status
+        changed.append(next_row)
+    return changed
+
+
+def _wp_upload_media(
+    wp_url: str,
+    headers: Dict[str, str],
+    file_path: Path,
+    filename: str,
+    content_type: str,
+) -> Dict[str, Any]:
+    media_url = f"{wp_url}/media"
+    multipart_res = None
+    with file_path.open("rb") as handle:
+        multipart_res = requests.post(
+            media_url,
+            headers=dict(headers or {}),
+            files={"file": (filename, handle, str(content_type or "application/octet-stream"))},
+            timeout=300,
+        )
+    if int(multipart_res.status_code) >= 400:
+        payload = file_path.read_bytes()
+        upload_headers = dict(headers or {})
+        upload_headers["Content-Type"] = str(content_type or "application/octet-stream")
+        upload_headers["Content-Disposition"] = f'attachment; filename="{filename}"'
+        raw_res = requests.post(media_url, headers=upload_headers, data=payload, timeout=180)
+        raw_res.raise_for_status()
+        data = raw_res.json()
+    else:
+        data = multipart_res.json()
+    return {
+        "id": int(data.get("id", 0) or 0),
+        "url": str(data.get("source_url", "")).strip(),
+        "filename": str(data.get("media_details", {}).get("file", "")).strip() or filename,
+    }
 
 
 def _parse_wr_id_from_url(url: str) -> int:
@@ -219,7 +371,14 @@ def _build_html(mode: str, output_path: Path, max_train_rows: int) -> Dict[str, 
     return _run(cmd, timeout_sec=420)
 
 
-def _build_acquisition_html(output_path: Path, env_map: Dict[str, str]) -> Dict[str, Any]:
+def _build_acquisition_html(
+    output_path: Path,
+    env_map: Dict[str, str],
+    data_output: Path | None = None,
+    data_url: str = "",
+    data_encoding: str = "",
+    fragment: bool = False,
+) -> Dict[str, Any]:
     catalog_path = (ROOT / "config" / "kr_permit_industries_localdata.json").resolve()
     collect_step = _run(
         _py_cmd(
@@ -242,9 +401,17 @@ def _build_acquisition_html(output_path: Path, env_map: Dict[str, str]) -> Dict[
             "--output",
             str(output_path),
             "--title",
-            "AI 인허가 사전검토 진단기(신규등록)",
+            "AI 인허가 사전검토 진단기(신규등록 전용)",
         ]
     )
+    if data_output:
+        cmd.extend(["--data-output", str(data_output)])
+    if str(data_url or "").strip():
+        cmd.extend(["--data-url", str(data_url).strip()])
+    if str(data_encoding or "").strip():
+        cmd.extend(["--data-encoding", str(data_encoding).strip()])
+    if fragment:
+        cmd.append("--fragment")
     return _run(cmd, timeout_sec=240)
 
 
@@ -253,6 +420,61 @@ def _size_bytes(path: Path) -> int:
         return int(path.stat().st_size)
     except Exception:
         return 0
+
+
+def _write_gzip_copy(source_path: Path, target_path: Path) -> Path:
+    target_path.parent.mkdir(parents=True, exist_ok=True)
+    target_path.write_bytes(gzip.compress(source_path.read_bytes(), compresslevel=9, mtime=0))
+    return target_path
+
+
+def _gzip_file_to_base64(path: Path) -> str:
+    return base64.b64encode(path.read_bytes()).decode("ascii")
+
+
+def _build_payload_page_html(gzip_base64_text: str, canonical_url: str = "") -> str:
+    payload = str(gzip_base64_text or "").strip()
+    canonical = str(canonical_url or "").strip()
+    return (
+        "<style>"
+        ".entry-title,.page-title,.ast-breadcrumbs,.site-below-footer-wrap{display:none!important;}"
+        "#smna-permit-payload-page{display:none!important;}"
+        "</style>"
+        "<script>"
+        "(function(){"
+        "var applyMeta=function(){"
+        "try{"
+        "var head=document.head||document.getElementsByTagName('head')[0];"
+        "if(!head){return;}"
+        "var robotsList=Array.prototype.slice.call(document.querySelectorAll('meta[name=\"robots\"]'));"
+        "if(!robotsList.length){var robots=document.createElement('meta');robots.name='robots';head.appendChild(robots);robotsList=[robots];}"
+        "robotsList.forEach(function(node){node.setAttribute('content','noindex,nofollow,noarchive,max-snippet:0,max-image-preview:none');});"
+        f"var canonicalHref={json.dumps(canonical, ensure_ascii=False)};"
+        "if(canonicalHref){"
+        "var canonicalList=Array.prototype.slice.call(document.querySelectorAll('link[rel=\"canonical\"]'));"
+        "if(!canonicalList.length){var link=document.createElement('link');link.rel='canonical';head.appendChild(link);canonicalList=[link];}"
+        "canonicalList.forEach(function(node){node.setAttribute('href', canonicalHref);});"
+        "}"
+        "}catch(_e){}};"
+        "applyMeta();"
+        "document.addEventListener('DOMContentLoaded', applyMeta);"
+        "window.addEventListener('load', applyMeta);"
+        "setTimeout(applyMeta, 0);"
+        "setTimeout(applyMeta, 500);"
+        "})();"
+        "</script>"
+        '<section id="smna-permit-payload-page" aria-hidden="true" style="display:none!important;">'
+        '<script id="smna-permit-payload" type="application/octet-stream">'
+        f"{payload}"
+        "</script>"
+        "</section>"
+    )
+
+
+def _build_payload_rest_data_url(wp_url: str, page_id: int, collection: str = "pages") -> str:
+    base = str(wp_url or "").rstrip("/")
+    resource = str(collection or "pages").strip().strip("/") or "pages"
+    return f"{base}/{resource}/{int(page_id)}?_fields=content.rendered,modified&context=view"
 
 
 def _candidate_caps(preferred: int) -> List[int]:
@@ -304,8 +526,9 @@ def main() -> int:
     )
     parser.add_argument("--customer-slug", default="yangdo-ai-customer")
     parser.add_argument("--acquisition-slug", default="ai-license-acquisition-calculator")
+    parser.add_argument("--acquisition-payload-slug", default="")
     parser.add_argument("--customer-title", default="AI 양도가 산정 계산기")
-    parser.add_argument("--acquisition-title", default="AI 인허가 사전검토 진단기(신규등록)")
+    parser.add_argument("--acquisition-title", default="AI 인허가 사전검토 진단기(신규등록 전용)")
     parser.add_argument("--wp-status", default="publish")
     parser.add_argument("--customer-board", default="yangdo_ai")
     parser.add_argument("--acquisition-board", default="yangdo_ai_ops")
@@ -356,6 +579,8 @@ def main() -> int:
 
     out_customer = ROOT / "output" / "yangdo_price_calculator_customer_standalone.html"
     out_acquisition = ROOT / "output" / "ai_license_acquisition_calculator_standalone.html"
+    out_acquisition_data = ROOT / "output" / "ai_license_acquisition_calculator_payload.json"
+    out_acquisition_data_gzip = ROOT / "output" / "ai_license_acquisition_calculator_payload.json.gz"
 
     env = _env_map(ROOT / ".env")
     try:
@@ -368,12 +593,18 @@ def main() -> int:
 
     wp_customer = None
     wp_acquisition = None
+    wp_acquisition_payload = None
     selected_cap = 0
     last_wp_error = None
 
     for cap in _candidate_caps(args.max_train_rows):
         s1 = _build_html("customer", out_customer, cap)
-        s2 = _build_acquisition_html(out_acquisition, env)
+        s2 = _build_acquisition_html(
+            out_acquisition,
+            env,
+            data_output=out_acquisition_data,
+            fragment=True,
+        )
         report["steps"].append({"name": f"build_customer_html_cap_{cap}", **s1})
         report["steps"].append({"name": f"build_acquisition_html_cap_{cap}", **s2})
         if not s1["ok"] or not s2["ok"] or not out_customer.exists() or not out_acquisition.exists():
@@ -384,17 +615,163 @@ def main() -> int:
 
         c_size = _size_bytes(out_customer)
         o_size = _size_bytes(out_acquisition)
+        acquisition_data_size = _size_bytes(out_acquisition_data)
+        acquisition_data_gzip_size = 0
+        if out_acquisition_data.exists():
+            _write_gzip_copy(out_acquisition_data, out_acquisition_data_gzip)
+            acquisition_data_gzip_size = _size_bytes(out_acquisition_data_gzip)
         report["steps"].append(
             {
                 "name": f"payload_size_cap_{cap}",
                 "customer_bytes": c_size,
                 "acquisition_bytes": o_size,
+                "acquisition_data_bytes": acquisition_data_size,
+                "acquisition_data_gzip_bytes": acquisition_data_gzip_size,
             }
         )
 
         try:
             customer_html = out_customer.read_text(encoding="utf-8", errors="replace")
             acquisition_html = out_acquisition.read_text(encoding="utf-8", errors="replace")
+            if out_acquisition_data.exists():
+                payload_slug = str(args.acquisition_payload_slug or f"{args.acquisition_slug}-payload").strip()
+                public_site_root = str(wp_url).replace("/wp-json/wp/v2", "").rstrip("/")
+                acquisition_public_url = f"{public_site_root}/{str(args.acquisition_slug).strip().strip('/')}/"
+                payload_page_html = _build_payload_page_html(
+                    _gzip_file_to_base64(out_acquisition_data_gzip),
+                    canonical_url=acquisition_public_url,
+                )
+                upload_candidates = [
+                    {
+                        "name": "post",
+                        "kind": "post",
+                        "slug": payload_slug,
+                        "title": "Platform Resource",
+                        "html": payload_page_html,
+                        "data_encoding": "gzip-base64-rest-rendered",
+                    },
+                    {
+                        "name": "page",
+                        "kind": "page",
+                        "slug": payload_slug,
+                        "title": "Platform Resource",
+                        "html": payload_page_html,
+                        "data_encoding": "gzip-base64-html",
+                    },
+                    {
+                        "name": "gzip",
+                        "kind": "media",
+                        "path": out_acquisition_data_gzip,
+                        "filename": "ai-license-acquisition-payload.json.gz",
+                        "content_type": "application/gzip",
+                        "data_encoding": "gzip",
+                    },
+                    {
+                        "name": "text",
+                        "kind": "media",
+                        "path": out_acquisition_data,
+                        "filename": "ai-license-acquisition-payload.txt",
+                        "content_type": "text/plain; charset=utf-8",
+                        "data_encoding": "",
+                    },
+                    {
+                        "name": "json",
+                        "kind": "media",
+                        "path": out_acquisition_data,
+                        "filename": "ai-license-acquisition-payload.json",
+                        "content_type": "application/json",
+                        "data_encoding": "",
+                    },
+                ]
+                for upload_candidate in upload_candidates:
+                    try:
+                        upload_kind = str(upload_candidate.get("kind") or "").strip()
+                        if upload_kind == "post":
+                            media = _wp_upsert_post(
+                                wp_url=wp_url,
+                                headers=wp_headers,
+                                slug=str(upload_candidate["slug"]),
+                                title=str(upload_candidate["title"]),
+                                content_html=str(upload_candidate["html"]),
+                                status=str(args.wp_status),
+                            )
+                            wp_acquisition_payload = media
+                        elif upload_kind == "page":
+                            media = _wp_upsert_page(
+                                wp_url=wp_url,
+                                headers=wp_headers,
+                                slug=str(upload_candidate["slug"]),
+                                title=str(upload_candidate["title"]),
+                                content_html=str(upload_candidate["html"]),
+                                status=str(args.wp_status),
+                            )
+                            wp_acquisition_payload = media
+                        else:
+                            media = _wp_upload_media(
+                                wp_url=wp_url,
+                                headers=wp_headers,
+                                file_path=Path(upload_candidate["path"]),
+                                filename=str(upload_candidate["filename"]),
+                                content_type=str(upload_candidate["content_type"]),
+                            )
+                        report["steps"].append(
+                            {
+                                "name": f"upload_acquisition_payload_{upload_candidate['name']}_cap_{cap}",
+                                "payload_bytes": _size_bytes(Path(upload_candidate["path"])) if upload_candidate.get("path") else len(payload_page_html.encode("utf-8")),
+                                "data_encoding": str(upload_candidate["data_encoding"]),
+                                **media,
+                            }
+                        )
+                        shell_data_url = str(media.get("url", "")).strip()
+                        shell_data_encoding = str(upload_candidate["data_encoding"])
+                        if upload_kind in {"post", "page"}:
+                            collection = "posts" if upload_kind == "post" else "pages"
+                            shell_data_url = _build_payload_rest_data_url(
+                                wp_url=wp_url,
+                                page_id=int(media.get("id", 0) or 0),
+                                collection=collection,
+                            )
+                            shell_data_encoding = "gzip-base64-rest-rendered"
+                        s3 = _build_acquisition_html(
+                            out_acquisition,
+                            env,
+                            data_output=out_acquisition_data,
+                            data_url=shell_data_url,
+                            data_encoding=shell_data_encoding,
+                            fragment=True,
+                        )
+                        report["steps"].append(
+                            {
+                                "name": f"build_acquisition_shell_{upload_candidate['name']}_cap_{cap}",
+                                **s3,
+                            }
+                        )
+                        if upload_kind == "post" and bool(s3.get("ok")):
+                            deactivated_pages = _wp_set_entries_status_by_slug(
+                                wp_url=wp_url,
+                                headers=wp_headers,
+                                collection="pages",
+                                slug=payload_slug,
+                                status="draft",
+                            )
+                            report["steps"].append(
+                                {
+                                    "name": f"deactivate_payload_pages_cap_{cap}",
+                                    "slug": payload_slug,
+                                    "count": len(deactivated_pages),
+                                    "rows": deactivated_pages,
+                                }
+                            )
+                        if bool(s3.get("ok")) and out_acquisition.exists():
+                            acquisition_html = out_acquisition.read_text(encoding="utf-8", errors="replace")
+                            break
+                    except Exception as acquisition_payload_error:
+                        report["steps"].append(
+                            {
+                                "name": f"upload_acquisition_payload_failed_{upload_candidate['name']}_cap_{cap}",
+                                "error": str(acquisition_payload_error),
+                            }
+                        )
             wp_customer = _wp_upsert_page(
                 wp_url=wp_url,
                 headers=wp_headers,
@@ -430,6 +807,8 @@ def main() -> int:
         "customer": wp_customer,
         "acquisition": wp_acquisition,
     }
+    if wp_acquisition_payload:
+        report["wp"]["acquisition_payload"] = wp_acquisition_payload
 
     if int(args.co_request_cap_override or 0) > 0:
         os.environ["SEOUL_DAILY_REQUEST_CAP"] = str(int(args.co_request_cap_override))
@@ -451,7 +830,7 @@ def main() -> int:
             )
             co_acquisition = _publish_co_banner(
                 board_slug=str(args.acquisition_board),
-                subject="AI 인허가 사전검토 진단기(신규등록)",
+                subject="AI 인허가 사전검토 진단기(신규등록 전용)",
                 html_content=_build_banner_html(acquisition_target, "건설업 신규등록 준비 고객용 계산기로 이동합니다."),
                 wr_id=acquisition_wr,
             )
@@ -489,4 +868,5 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
 

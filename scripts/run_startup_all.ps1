@@ -48,10 +48,11 @@ function Ensure-Watchdog([string]$scriptName, [string]$scriptPath, [string]$argL
 Write-Log "START unified startup"
 
 $opsWatchdog = Join-Path $RepoRoot "scripts\seoulmna_ops_watchdog.ps1"
+$secureApiStack = Join-Path $RepoRoot "scripts\run_secure_api_stack.ps1"
 Write-Log "SPLIT mode enabled: skip all-in-one startup(blog/tistory/wp scheduler)"
 Write-Log "Use separate launchers: launchers\\launch_blog.bat, launchers\\launch_tistory_publish.bat"
-
-Ensure-Watchdog -scriptName "seoulmna_ops_watchdog.ps1" -scriptPath $opsWatchdog -argLine "-RepoRoot `"$RepoRoot`"" -jobName "ops_watchdog"
+Write-Log "SKIP ops_watchdog: dedicated startup task owns watchdog lifecycle"
+Ensure-Watchdog -scriptName "run_secure_api_stack.ps1" -scriptPath $secureApiStack -argLine "-RepoRoot `"$RepoRoot`"" -jobName "secure_api_stack"
 
 Write-Log "END unified startup"
 exit 0

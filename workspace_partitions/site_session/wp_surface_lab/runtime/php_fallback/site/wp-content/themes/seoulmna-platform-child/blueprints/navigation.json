@@ -1,0 +1,34 @@
+{
+  "primary": [
+    {
+      "label": "플랫폼 소개",
+      "href": "/"
+    },
+    {
+      "label": "양도가",
+      "href": "/yangdo"
+    },
+    {
+      "label": "인허가",
+      "href": "/permit"
+    },
+    {
+      "label": "지식베이스",
+      "href": "/knowledge"
+    },
+    {
+      "label": "상담",
+      "href": "/consult"
+    }
+  ],
+  "utility": [
+    {
+      "label": "매물 사이트",
+      "href": "https://seoulmna.co.kr"
+    },
+    {
+      "label": "플랫폼 상태",
+      "href": "https://seoulmna.kr/_calc/health"
+    }
+  ]
+}

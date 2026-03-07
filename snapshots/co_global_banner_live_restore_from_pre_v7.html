@@ -1,0 +1,591 @@
+﻿<!-- SEOULMNA GLOBAL BANNER START -->
+<script>
+(function () {
+  if (window.__smna_quick_v2_booted__) return;
+  window.__smna_quick_v2_booted__ = true;
+
+  var QUICK_CONFIG = Object.freeze({
+    CONTACT_PHONE: "010-9926-8661",
+    REPRESENTATIVE_PHONE: "1668-3548",
+    KAKAO_OPENCHAT_URL: "https://open.kakao.com/o/syWr1hIe",
+    RELATED_ORG_LINKS: [
+      { label: "대한건설협회", href: "https://www.cak.or.kr/" },
+      { label: "대한전문건설협회", href: "https://www.kosca.or.kr/" },
+      { label: "대한기계설비건설협회", href: "https://www.kmcca.or.kr/main.do" },
+      { label: "시설물유지관리협회", href: "https://search.naver.com/search.naver?query=시설물유지관리협회" },
+      { label: "대한주택건설협회", href: "https://www.khba.or.kr/khbaGo.do" },
+      { label: "한국전기공사협회", href: "https://www.keca.or.kr/" },
+      { label: "한국정보통신공사협회", href: "https://www.kica.or.kr/" },
+      { label: "한국부동산개발협회", href: "https://www.koda.or.kr/" },
+      { label: "한국소방시설협회", href: "https://www.ekffa.or.kr/" },
+      { label: "한국건설기술인협회", href: "https://www.kocea.or.kr/" },
+      { label: "한국엔지니어링협회", href: "https://www.keea.or.kr/" },
+      { label: "건설공제조합", href: "https://www.cgbest.co.kr/" },
+      { label: "전문건설공제조합", href: "https://www.kfinco.co.kr/" },
+      { label: "기계설비건설공제조합", href: "https://www.seolbi.com/" },
+      { label: "전기공사공제조합", href: "https://www.ecfc.co.kr/" },
+      { label: "정보통신공제조합", href: "https://www.icfc.or.kr/" },
+      { label: "소방산업공제조합", href: "https://www.figu.or.kr/" },
+      { label: "나라장터", href: "https://www.g2b.go.kr/" }
+    ]
+  });
+
+  try {
+    Object.defineProperty(window, "__smna_quick_locked__", { value: true, writable: false, configurable: false });
+    Object.defineProperty(window, "__smna_quick_runtime_config__", { value: QUICK_CONFIG, writable: false, configurable: false });
+  } catch (_e) {}
+
+  function compactText(v) {
+    return String(v || "").replace(/\s+/g, " ").trim();
+  }
+
+  function digitsOnly(v) {
+    return String(v || "").replace(/\D+/g, "");
+  }
+
+  function escapeHtml(text) {
+    return String(text || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function normalizeUrl(rawUrl) {
+    var src = String(rawUrl || "").trim();
+    if (!src) return "";
+    if (/^javascript:/i.test(src)) return "";
+    if (src.indexOf("//") === 0) return "https:" + src;
+    if (/^[a-z][a-z0-9+.-]*:/i.test(src)) return src;
+    if (/^[\w.-]+\.[a-z]{2,}(?:[/?#].*)?$/i.test(src)) return "https://" + src;
+    return src;
+  }
+
+  function ensureStyle() {
+    var style = document.getElementById("smna-quick-menu-style");
+    if (style) return;
+    style = document.createElement("style");
+    style.id = "smna-quick-menu-style";
+    style.textContent = ""
+      + "#smna-generated-right-side{position:fixed;right:12px;top:170px;width:264px;z-index:99998;}"
+      + "#smna-generated-right-side .smna-qwrap{padding:10px;border-radius:14px;background:linear-gradient(156deg,#003764 0%,#0d4f84 80%);border:1px solid rgba(255,255,255,.2);box-shadow:0 14px 28px rgba(0,31,58,.32);}"
+      + "#smna-generated-right-side .smna-qttl{display:block;margin:0 0 8px;color:#d7e9fb;font-size:11px;font-weight:900;letter-spacing:.08em;}"
+      + "#smna-generated-right-side .smna-qmeta{margin:0 0 8px;padding:7px 8px;border-radius:9px;border:1px solid rgba(203,228,250,.35);background:rgba(10,49,82,.55);color:#dff1ff;font-size:12px;line-height:1.25;font-weight:800;text-align:center;letter-spacing:-.01em;}"
+      + "#smna-generated-right-side .smna-qbtn{display:block;margin:0 0 8px;padding:11px 9px;border-radius:11px;border:1px solid #d7e3ef;background:#fff;color:#063a62;text-decoration:none;font-size:18px;line-height:1.22;font-weight:900;text-align:center;word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}"
+      + "#smna-generated-right-side .smna-qbtn .sub{display:block;margin-top:2px;font-size:13px;line-height:1.3;color:#4e6b85;font-weight:800;}"
+      + "#smna-generated-right-side .smna-qbtn.kakao{background:linear-gradient(135deg,#fee500,#ffd43f);border-color:#e0c118;color:#2d2500;}"
+      + "#smna-generated-right-side .smna-qbtn:last-child{margin-bottom:0;}"
+      + "#smna-generated-right-side #smna-related-orgs{width:232px;margin:10px auto 0;padding:8px 7px;border-radius:10px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);max-height:none;overflow:visible;}"
+      + "#smna-generated-right-side .smna-rel-title{display:block;margin:0 0 6px;color:#d7e9fb;font-size:12px;font-weight:900;line-height:1.2;}"
+      + "#smna-generated-right-side .smna-rel-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:5px;}"
+      + "#smna-generated-right-side .smna-rel-link{display:flex;align-items:center;justify-content:center;min-height:33px;padding:6px 6px;border-radius:8px;border:1px solid rgba(255,255,255,.18);background:rgba(5,31,55,.54);color:#f6fbff;text-decoration:none;font-size:11px;line-height:1.15;font-weight:800;text-align:center;letter-spacing:-.01em;word-break:keep-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}"
+      + "#smna-generated-right-side .smna-rel-link:hover,#smna-generated-right-side .smna-rel-link:focus-visible{background:rgba(31,93,144,.72);outline:0;}"
+      + "#ft a[href*='mnahompy.com'],#footers a[href*='mnahompy.com'],footer a[href*='mnahompy.com'],#ft img[src*='home.png'],#footers img[src*='home.png'],footer img[src*='home.png']{display:none !important;visibility:hidden !important;opacity:0 !important;pointer-events:none !important;}"
+      + "@media(max-height:820px){#smna-generated-right-side{top:118px;}}"
+      + "@media(min-width:981px){#quick,#quicks,#right-side,#right-side .quick_menu,#right-side #quicks,#right-side #bookmark,#right-side .book_mark,#right-side .favorite,.quick_menu,.book_mark,.favorite{display:none !important;visibility:hidden !important;opacity:0 !important;pointer-events:none !important;}}"
+      + "@media(max-width:980px){#smna-generated-right-side{display:none !important;}}";
+    document.head.appendChild(style);
+  }
+
+  function _stripLegacyCopyrightText(raw) {
+    var out = String(raw || "");
+    out = out.replace(/copyright\s*(?:\u00a9|c)?\s*2018/ig, "");
+    out = out.replace(/0404\s*association\s*co\.,?\s*ltd\.?/ig, "");
+    out = out.replace(/all\s*rights\s*reserved\.?/ig, "");
+    out = out.replace(/\s{2,}/g, " ").replace(/^[\s\-\|\.,:;]+|[\s\-\|\.,:;]+$/g, "");
+    return out;
+  }
+
+  function maskLegacyCopyrightSafely() {
+    try {
+      var linePatt = /copyright[\s\S]{0,140}0404\s*association[\s\S]{0,140}all\s*rights\s*reserved/i;
+      var nodes = document.querySelectorAll("#ft .copyright,#footers .copyright,footer .copyright,#ft .copy,#footers .copy,footer .copy,#ft p,#footers p,footer p,#ft span,#footers span,footer span");
+      for (var i = 0; i < nodes.length; i += 1) {
+        var n = nodes[i];
+        if (!n) continue;
+        var t = compactText(n.textContent || "");
+        if (!t || t.length > 420) continue;
+        if (!linePatt.test(t)) continue;
+
+        var walker = document.createTreeWalker(n, NodeFilter.SHOW_TEXT, null);
+        var texts = [];
+        while (walker.nextNode()) texts.push(walker.currentNode);
+        for (var j = 0; j < texts.length; j += 1) {
+          var src = String(texts[j].nodeValue || "");
+          var dst = _stripLegacyCopyrightText(src);
+          if (dst !== src) texts[j].nodeValue = dst;
+        }
+
+        var remain = compactText(n.textContent || "");
+        if (linePatt.test(remain)) {
+          n.setAttribute("data-smna-copyright-masked", "1");
+          n.style.color = "transparent";
+          n.style.fontSize = "0";
+          n.style.lineHeight = "0";
+          n.style.height = "0";
+          n.style.margin = "0";
+          n.style.padding = "0";
+          n.style.border = "0";
+          n.style.overflow = "hidden";
+          n.style.userSelect = "none";
+        }
+      }
+    } catch (_e) {}
+  }
+
+  function removeLegacyHomepageMakerButton() {
+    try {
+      var selectors = [
+        "a[href*='mnahompy.com']",
+        "a[href*='mnahompy']",
+        "img[src*='home.png']",
+        ".copyright a[target='_blank'] img[src*='home.png']"
+      ];
+      for (var s = 0; s < selectors.length; s += 1) {
+        var nodes = document.querySelectorAll(selectors[s]);
+        for (var i = 0; i < nodes.length; i += 1) {
+          var n = nodes[i];
+          if (!n) continue;
+          var holder = n.closest ? (n.closest("a,span,p,div") || n) : n;
+          if (holder && holder.parentNode) holder.parentNode.removeChild(holder);
+        }
+      }
+
+      var candidates = document.querySelectorAll("#ft .copyright,#footers .copyright,footer .copyright,#ft .copy,#footers .copy,footer .copy");
+      for (var j = 0; j < candidates.length; j += 1) {
+        var c = candidates[j];
+        if (!c) continue;
+        var t = compactText(c.textContent || "");
+        if (!/0404\\s*association/i.test(t)) continue;
+        c.innerHTML = c.innerHTML
+          .replace(/<a[^>]*mnahompy[^>]*>[\s\S]*?<\/a>/ig, "")
+          .replace(/<img[^>]*home\.png[^>]*>/ig, "");
+      }
+    } catch (_e) {}
+  }
+
+  function buildRelatedOrgHtml() {
+    var links = "";
+    for (var i = 0; i < QUICK_CONFIG.RELATED_ORG_LINKS.length; i += 1) {
+      var item = QUICK_CONFIG.RELATED_ORG_LINKS[i] || {};
+      var label = compactText(item.label || "");
+      var href = normalizeUrl(item.href || "");
+      if (!label || !href) continue;
+      links += '<a class="smna-rel-link" href="' + escapeHtml(href) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(label) + "</a>";
+    }
+    if (!links) return "";
+    return '<section id="smna-related-orgs"><strong class="smna-rel-title">유관기관</strong><div class="smna-rel-grid">' + links + "</div></section>";
+  }
+
+  function mountQuickMenu() {
+    ensureStyle();
+    var host = document.getElementById("smna-generated-right-side");
+    if (!host) {
+      host = document.createElement("aside");
+      host.id = "smna-generated-right-side";
+      document.body.appendChild(host);
+    }
+
+    var rep = digitsOnly(QUICK_CONFIG.REPRESENTATIVE_PHONE) || "16683548";
+    var mobile = digitsOnly(QUICK_CONFIG.CONTACT_PHONE) || "01099268661";
+    var chatHref = normalizeUrl(QUICK_CONFIG.KAKAO_OPENCHAT_URL || "") || ("tel:" + mobile);
+
+    var fixedHtml = ""
+      + '<div class="smna-qwrap">'
+      + '  <strong class="smna-qttl">SEOULMNA QUICK</strong>'
+      + '  <div id="smna-quick-visitor" class="smna-qmeta">방문자 오늘 0 · 누적 0</div>'
+      + '  <a class="smna-qbtn" href="https://seoulmna.co.kr/mna" target="_blank" rel="noopener noreferrer">양도양수 매물 즉시 확인</a>'
+      + '  <a class="smna-qbtn" href="tel:' + rep + '">대표전화<span class="sub">1668-3548(유료)</span></a>'
+      + '  <a class="smna-qbtn" href="tel:' + mobile + '">행정사 1:1 상담<span class="sub">' + escapeHtml(QUICK_CONFIG.CONTACT_PHONE) + '</span></a>'
+      + '  <a class="smna-qbtn kakao" href="' + escapeHtml(chatHref) + '" target="_blank" rel="noopener noreferrer">카카오 오픈채팅</a>'
+      + buildRelatedOrgHtml()
+      + "</div>";
+
+    if (host.innerHTML !== fixedHtml) host.innerHTML = fixedHtml;
+  }
+
+  function run() {
+    try { mountQuickMenu(); } catch (_e) {}
+    try { maskLegacyCopyrightSafely(); } catch (_e2) {}
+    try { removeLegacyHomepageMakerButton(); } catch (_e3) {}
+  }
+
+  run();
+  setTimeout(run, 180);
+  setTimeout(run, 1200);
+  setTimeout(run, 2600);
+  setInterval(maskLegacyCopyrightSafely, 3500);
+  setInterval(removeLegacyHomepageMakerButton, 3500);
+
+  if (!window.__smna_quick_guard_observer__) {
+    window.__smna_quick_guard_observer__ = new MutationObserver(function () {
+      var host = document.getElementById("smna-generated-right-side");
+      if (!host || !host.querySelector(".smna-qbtn") || !host.querySelector("#smna-quick-visitor")) {
+        run();
+        return;
+      }
+      var title = host.querySelector(".smna-qttl");
+      if (!title || compactText(title.textContent) !== "SEOULMNA QUICK") {
+        run();
+      }
+      maskLegacyCopyrightSafely();
+      removeLegacyHomepageMakerButton();
+    });
+    try {
+      window.__smna_quick_guard_observer__.observe(document.body, { childList: true, subtree: true });
+    } catch (_e3) {}
+  }
+})();
+</script>
+<!-- SEOULMNA GLOBAL BANNER END -->
+
+<!-- SEOULMNA TRAFFIC COUNTER START -->
+<script>
+(function () {
+  if (window.__smna_tc__) return;
+  window.__smna_tc__ = 1;
+  var NS = "seoulmna.co.kr";
+  var API = "https://abacus.jasoncameron.dev";
+  var D = new Date();
+  var DAY = D.getFullYear() + ("0" + (D.getMonth() + 1)).slice(-2) + ("0" + D.getDate()).slice(-2);
+  var BOT = /bot|crawl|spider|headless/i.test((navigator.userAgent || "").toLowerCase()) || !!navigator.webdriver;
+  var SHOULD_HIT = /(^|\.)seoulmna\.co\.kr$/i.test(String(location.hostname || ""));
+  var K = { ad: "v_all_d_" + DAY, at: "v_all_t", hd: "v_human_d_" + DAY, ht: "v_human_t" };
+  var LAST_NONZERO_KEY = "smna_tc_last_nonzero";
+  var CACHE_KEY = "smna_tc_cache_" + DAY;
+  var DAY_FLAG_KEY = "smna_tc_day";
+
+  function N(v) { v = Number(v || 0); return isFinite(v) && v > 0 ? Math.floor(v) : 0; }
+  function compactText(v) { return String(v || "").replace(/\s+/g, " ").trim(); }
+
+  function W(id, txt, css, parent) {
+    var el = document.getElementById(id);
+    if (!el) {
+      el = document.createElement("div");
+      el.id = id;
+      var p = parent || document.body || document.documentElement;
+      if (!p) return;
+      p.appendChild(el);
+    }
+    if (css) el.style.cssText = css;
+    el.textContent = txt;
+  }
+
+  function removeTopWhiteGap() {
+    try {
+      document.documentElement.style.marginTop = "0";
+      document.documentElement.style.paddingTop = "0";
+      if (document.body) {
+        document.body.style.marginTop = "0";
+        document.body.style.marginBottom = "0";
+        document.body.style.paddingTop = "0";
+      }
+      var wrap = document.getElementById("wrap");
+      if (wrap) {
+        wrap.style.marginTop = "0";
+        wrap.style.paddingTop = "0";
+      }
+      var header = document.getElementById("header");
+      if (header && header.style) {
+        header.style.top = "0";
+      }
+      if (header && header.getBoundingClientRect && header.getBoundingClientRect().top > 10) {
+        header.style.marginTop = "0";
+      }
+
+      var hdPop = document.getElementById("hd_pop");
+      if (hdPop) {
+        var hasPopupItem = !!hdPop.querySelector(".hd_pops, .hd_pops_area, .hd_pops_con");
+        if (!hasPopupItem) {
+          hdPop.style.display = "none";
+          hdPop.style.visibility = "hidden";
+          hdPop.style.height = "0";
+          hdPop.style.minHeight = "0";
+          hdPop.style.margin = "0";
+          hdPop.style.padding = "0";
+          hdPop.style.border = "0";
+          hdPop.style.overflow = "hidden";
+        }
+      }
+
+      var hdPopTitle = document.querySelector("#hd_pop h2");
+      if (hdPopTitle) {
+        hdPopTitle.style.display = "none";
+        hdPopTitle.style.margin = "0";
+        hdPopTitle.style.padding = "0";
+        hdPopTitle.style.height = "0";
+      }
+    } catch (_e) {}
+  }
+
+  function parseVisitorText(text) {
+    var t = compactText(text || "");
+    if (!t) return null;
+    var todayMatch = t.match(/오늘\s*방문\s*([0-9,]+)/);
+    var totalMatch = t.match(/(?:누적|총)\s*방문\s*([0-9,]+)/);
+    var ad = N(todayMatch ? todayMatch[1].replace(/,/g, "") : 0);
+    var at = N(totalMatch ? totalMatch[1].replace(/,/g, "") : 0);
+    if (!ad && !at) return null;
+    return { ad: ad, at: at };
+  }
+
+  function readCurrentQuickCounts() {
+    try {
+      var node = document.getElementById("smna-quick-visitor");
+      if (!node) return null;
+      return parseVisitorText(node.textContent || "");
+    } catch (_e) {
+      return null;
+    }
+  }
+
+  function readStoredCounts() {
+    try {
+      var raw = localStorage.getItem(LAST_NONZERO_KEY);
+      if (!raw) return null;
+      var parsed = JSON.parse(raw);
+      var ad = N(parsed && parsed.ad);
+      var at = N(parsed && parsed.at);
+      if (!ad && !at) return null;
+      return { ad: ad, at: at };
+    } catch (_e) {
+      return null;
+    }
+  }
+
+  function storeCounts(c) {
+    var ad = N(c && c.ad);
+    var at = N(c && c.at);
+    if (!ad && !at) return;
+    try {
+      localStorage.setItem(LAST_NONZERO_KEY, JSON.stringify({ ad: ad, at: at, ts: Date.now() }));
+    } catch (_e) {}
+  }
+
+  function readCacheCounts() {
+    try {
+      var raw = sessionStorage.getItem(CACHE_KEY);
+      if (!raw) return null;
+      var parsed = JSON.parse(raw);
+      var ad = N(parsed && parsed.ad);
+      var at = N(parsed && parsed.at);
+      if (!ad && !at) return null;
+      return { ad: ad, at: at };
+    } catch (_e) {
+      return null;
+    }
+  }
+
+  function writeCacheCounts(c) {
+    var ad = N(c && c.ad);
+    var at = N(c && c.at);
+    if (!ad && !at) return;
+    try {
+      sessionStorage.setItem(CACHE_KEY, JSON.stringify({ ad: ad, at: at, ts: Date.now() }));
+    } catch (_e) {}
+  }
+
+  function hideLegacyTopBarAndExtract() {
+    function shouldHide(text) {
+      var t = compactText(text || "");
+      if (!t || t.length > 120) return false;
+      if (/방문자\s*오늘/.test(t)) return false;
+      return /오늘\s*방문/.test(t) && /(누적|총)\s*방문/.test(t);
+    }
+
+    function hideNode(node) {
+      if (!node) return;
+      if (node.getAttribute("data-smna-traffic-legacy") === "1") return;
+      node.setAttribute("data-smna-traffic-legacy", "1");
+      node.style.display = "none";
+      node.style.visibility = "hidden";
+      node.style.height = "0";
+      node.style.minHeight = "0";
+      node.style.margin = "0";
+      node.style.padding = "0";
+      node.style.border = "0";
+      node.style.overflow = "hidden";
+
+      var p = node.parentElement;
+      for (var d = 0; d < 2 && p && p !== document.body && p !== document.documentElement; d += 1) {
+        var rect = p.getBoundingClientRect ? p.getBoundingClientRect() : null;
+        var txt = compactText(p.textContent || "");
+        if (rect && rect.top <= 220 && rect.height <= 90 && txt.length <= 180 && /오늘\s*방문/.test(txt)) {
+          p.style.display = "none";
+          p.style.visibility = "hidden";
+          p.style.height = "0";
+          p.style.minHeight = "0";
+          p.style.margin = "0";
+          p.style.padding = "0";
+          p.style.border = "0";
+          p.style.overflow = "hidden";
+          p.setAttribute("data-smna-traffic-legacy", "1");
+        }
+        p = p.parentElement;
+      }
+    }
+
+    var found = null;
+
+    var oldIds = ["smna-traffic-customer", "traffic-customer", "today-visitor-bar", "visitor-top-counter"];
+    for (var x = 0; x < oldIds.length; x += 1) {
+      var old = document.getElementById(oldIds[x]);
+      if (!old) continue;
+      var parsedOld = parseVisitorText(old.textContent || "");
+      if (parsedOld && !found) found = parsedOld;
+      hideNode(old);
+    }
+
+    var nodes = document.querySelectorAll("body > div,#wrap > div,#wrapper > div,#hd > div,#header > div,[id*='visit'],[class*='visit'],[id*='counter'],[class*='counter']");
+    var limit = Math.min(nodes.length, 160);
+    for (var i = 0; i < limit; i += 1) {
+      var n = nodes[i];
+      if (!n || n.closest("#smna-generated-right-side")) continue;
+      var source = n;
+      var rawText = compactText(source.textContent || "");
+      if (!shouldHide(rawText)) {
+        var leaf = n.querySelector("p,span,strong,em");
+        if (leaf) {
+          source = leaf;
+          rawText = compactText(leaf.textContent || "");
+        }
+      }
+      if (!shouldHide(rawText)) continue;
+
+      var parsed = parseVisitorText(rawText);
+      if (parsed && !found) found = parsed;
+
+      var target = source.parentElement && source.parentElement.childElementCount <= 3 ? source.parentElement : source;
+      var rect = target.getBoundingClientRect ? target.getBoundingClientRect() : null;
+      if (rect && rect.top > 180) continue;
+
+      hideNode(target);
+    }
+
+    if (found) storeCounts(found);
+    return found;
+  }
+
+  function jsonpCounter(endpoint, key) {
+    return new Promise(function (resolve) {
+      var cb = "__smna_tc_cb_" + Math.random().toString(36).slice(2);
+      var done = false;
+      var script = document.createElement("script");
+
+      function clean(value) {
+        if (done) return;
+        done = true;
+        try { delete window[cb]; } catch (_e) { window[cb] = void 0; }
+        if (script && script.parentNode) script.parentNode.removeChild(script);
+        resolve(N(value));
+      }
+
+      window[cb] = function (payload) { clean(payload && payload.value); };
+      script.async = true;
+      script.src = API + "/" + endpoint + "/" + encodeURIComponent(NS) + "/" + encodeURIComponent(key) + "?callback=" + cb + "&_=" + Date.now();
+      script.onerror = function () { clean(0); };
+      (document.head || document.documentElement).appendChild(script);
+      window.setTimeout(function () { clean(0); }, 15000);
+    });
+  }
+
+  function getApiCounts() {
+    return Promise.all([jsonpCounter("get", K.ad), jsonpCounter("get", K.at)]).then(function (v) {
+      return { ad: N(v[0]), at: N(v[1]) };
+    }).catch(function () {
+      return { ad: 0, at: 0 };
+    });
+  }
+
+  function hitDayCountersIfNeeded() {
+    try {
+      if (!SHOULD_HIT) return;
+      if (sessionStorage.getItem(DAY_FLAG_KEY) === DAY) return;
+      sessionStorage.setItem(DAY_FLAG_KEY, DAY);
+      jsonpCounter("hit", K.ad);
+      jsonpCounter("hit", K.at);
+      if (!BOT) {
+        jsonpCounter("hit", K.hd);
+        jsonpCounter("hit", K.ht);
+      }
+    } catch (_e) {}
+  }
+
+  function updateQuickVisitor(ad, at) {
+    try {
+      var node = document.getElementById("smna-quick-visitor");
+      if (!node) return false;
+      node.textContent = "방문자 오늘 " + N(ad) + " · 누적 " + N(at);
+      return true;
+    } catch (_e) {
+      return false;
+    }
+  }
+
+  function resolveCounts() {
+    removeTopWhiteGap();
+    var legacy = hideLegacyTopBarAndExtract();
+    var cached = readCacheCounts();
+    var stored = readStoredCounts();
+    var ad = N(legacy && legacy.ad) || N(cached && cached.ad) || N(stored && stored.ad);
+    var at = N(legacy && legacy.at) || N(cached && cached.at) || N(stored && stored.at);
+    return { ad: ad, at: at };
+  }
+
+  function render(c) {
+    var ad = N(c && c.ad);
+    var at = N(c && c.at);
+    if (!ad && !at) {
+      var curr = readCurrentQuickCounts();
+      if (curr) {
+        ad = N(curr.ad);
+        at = N(curr.at);
+      }
+    }
+    if (!ad && !at) {
+      var storedNow = readStoredCounts();
+      if (storedNow) {
+        ad = N(storedNow.ad);
+        at = N(storedNow.at);
+      }
+    }
+    var inQuick = updateQuickVisitor(ad, at);
+    if (!inQuick) {
+      W("smna-traffic-customer-mini", String(at), "position:fixed;right:10px;bottom:10px;z-index:9998;color:#7a8592;font:600 10px/1.2 sans-serif;letter-spacing:.02em;opacity:.85;pointer-events:none;background:transparent;padding:0;margin:0");
+    } else {
+      var mini = document.getElementById("smna-traffic-customer-mini");
+      if (mini && mini.parentNode) mini.parentNode.removeChild(mini);
+    }
+    if (ad || at) storeCounts({ ad: ad, at: at });
+  }
+
+  var base = resolveCounts();
+  render(base);
+  hitDayCountersIfNeeded();
+
+  function syncFromApi() {
+    getApiCounts().then(function (api) {
+      var latest = resolveCounts();
+      var merged = {
+        ad: N(api && api.ad) || N(latest && latest.ad) || N(base && base.ad),
+        at: N(api && api.at) || N(latest && latest.at) || N(base && base.at)
+      };
+      render(merged);
+      writeCacheCounts(merged);
+    });
+  }
+
+  setTimeout(syncFromApi, 1800);
+  setTimeout(syncFromApi, 6000);
+  setInterval(syncFromApi, 30000);
+
+  setTimeout(function () { render(resolveCounts()); }, 900);
+  setTimeout(function () { render(resolveCounts()); }, 2500);
+  setInterval(function () { render(resolveCounts()); }, 12000);
+  setTimeout(removeTopWhiteGap, 1200);
+  setTimeout(removeTopWhiteGap, 3000);
+  setInterval(removeTopWhiteGap, 12000);
+})();
+</script>
+<!-- SEOULMNA TRAFFIC COUNTER END -->

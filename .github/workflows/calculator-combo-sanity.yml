@@ -1,0 +1,51 @@
+name: calculator-combo-sanity
+
+on:
+  workflow_dispatch:
+    inputs:
+      acq_cases:
+        description: "Acquisition combo case count"
+        required: false
+        default: "180"
+      yangdo_cases:
+        description: "Yangdo combo case count"
+        required: false
+        default: "180"
+  push:
+    branches:
+      - main
+      - work
+    paths:
+      - "acquisition_calculator.py"
+      - "yangdo_calculator.py"
+      - "scripts/run_calculator_combo_sanity.py"
+      - ".github/workflows/calculator-combo-sanity.yml"
+  pull_request:
+    paths:
+      - "acquisition_calculator.py"
+      - "yangdo_calculator.py"
+      - "scripts/run_calculator_combo_sanity.py"
+      - ".github/workflows/calculator-combo-sanity.yml"
+
+jobs:
+  combo-sanity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Syntax check
+        run: |
+          python -m py_compile acquisition_calculator.py yangdo_calculator.py scripts/run_calculator_combo_sanity.py
+
+      - name: Run combo sanity
+        run: |
+          python scripts/run_calculator_combo_sanity.py \
+            --acq-cases "${{ github.event.inputs.acq_cases || '180' }}" \
+            --yangdo-cases "${{ github.event.inputs.yangdo_cases || '180' }}"

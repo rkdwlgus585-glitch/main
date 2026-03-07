@@ -1,0 +1,224 @@
+﻿# MASTERPLAN
+
+## Operating Rule
+- 모든 배치는 `병목 식별 -> 코드 수정 -> 테스트/산출물 재생성 -> 이 문서 갱신` 순서로 진행한다.
+- 사용자 확인을 기다리지 않는다. 단, 실운영 반영처럼 되돌리기 어려운 단계만 명시적 입력(`confirm_live_yes`)을 요구한다.
+- `양도양수(양도가 산정)`와 `인허가(사전검토)`는 특허도 분리, 시스템도 분리한다.
+- 공유하는 것은 플랫폼 레이어뿐이다: `tenant/channel/gating/usage/billing/activation/request-response contract`.
+
+## Fixed Top Priorities
+1. `seoulmna.kr`에 `AI 인허가 사전검토`와 `AI 양도양수 계산기`를 `413 없는 플랫폼 구조`로 안정 탑재
+2. `AI 양도가 산정 + 유사매물 추천` 정밀도 고도화와 추천 설명력 강화
+3. `특허를 위한 고도화/정교화`와 구현 근거 자동 축적
+4. `AI 양도양수 계산기 + AI 인허가 사전검토`의 `seoulmna.kr` 플랫폼 이식
+5. `seoulmna.kr` WordPress/Astra 기반 플랫폼 전면 개편
+6. `타 사이트 위젯/API 임대 구조` 완성
+7. `전기/소방/정보통신` 로직 정밀화와 운영 자동화, QA, UX, 트래픽 누수 차단의 지속 개선
+
+## Session Lock
+- 이번 세션의 최우선 과제는 `AI 양도가 산정 시스템`을 `가격 산정 + 유사매물 추천` 중심축으로 끌어올리고, `seoulmna.kr` 플랫폼 개편, `AI 인허가 사전검토` 병행 탑재, 임대형 위젯/API 상품화, 특허 근거 축적까지 한 흐름으로 밀어붙이는 것이다.
+- `permit`와 `yangdo`는 반드시 독립 시스템으로 유지한다. 다만 공개 플랫폼, 공개 계산 경로, tenant/channel, widget/API rental, billing은 공유 플랫폼 레이어로 수렴시킨다.
+- `seoulmna.kr`는 메인 플랫폼, `seoulmna.co.kr`는 매물 사이트로 유지한다.
+- 계산기 공개 계약은 `.kr/_calc/*`만 사용하고, `.co.kr`에는 계산기를 임베드하지 않는다.
+- 홈(`/`)에서는 계산기를 직접 열지 않고, 서비스 페이지(`/yangdo`, `/permit`)에서만 lazy gate를 사용한다.
+- `coverage 숫자`보다 `정확도`, `시장 관행 일치`, `설명 가능성`, `운영 비용`, `실제 배포 가능성`, `실제 화면 가독성`을 우선한다.
+
+## Continuous Improvement Rule
+1. 매 배치는 최소 2개 축 이상을 동시에 전진시킨다: `특허`, `플랫폼`, `임대`, `운영 안정성`, `QA/UX`.
+2. 긍정적 영향이 예상되면 사용자 지시가 없어도 반영한다.
+3. 문서로 끝내지 않고 가능하면 `script -> JSON/MD 산출물 -> operations packet`으로 자동화한다.
+4. 매 배치마다 다시 묻는다.
+   - 지금 가장 큰 병목은 코드인가, 실데이터인가, 배포인가, 특허 문구인가.
+   - `.kr` 플랫폼 / `.co.kr` 매물 / hidden engine 역할이 섞이고 있지 않은가.
+   - 초기 렌더에서 트래픽 누수가 없는가.
+
+## Current Architecture
+### Independent Systems
+- `yangdo`
+  - 목적: 건설업 면허 양도가 산정, 양도양수 상담 유입
+  - 특허 트랙: A
+  - 핵심 진입점: `yangdo_blackbox_api.py`
+- `permit`
+  - 목적: 등록기준 기반 인허가 사전검토
+  - 특허 트랙: B
+  - 핵심 진입점: `permit_precheck_api.py`
+
+### Shared Platform
+- `tenant_gateway`
+- `channel_router`
+- `response_envelope`
+- `usage_billing`
+- `partner_activation_gate`
+- `common request/response contract`
+
+### Public Topology
+- `seoulmna.kr` = 메인 플랫폼, 현재 live `WordPress + Astra`
+- `seoulmna.co.kr` = 양도양수 매물 사이트
+- public calculator contract = `https://seoulmna.kr/_calc/*`
+- hidden engine = `.kr/_calc/*` 뒤의 비공개 upstream
+
+## Status
+| Axis | Status | Direction |
+|---|---:|---|
+| AI 양도가 산정/추천 | 99% | 코어/위젯/QA/게이트 구조 완료, 추천 정밀도·집중도 감사·공개계약·서비스-매물 브리지·서비스 카피·UX 정렬·임대 lane ladder까지 canonical화 |
+| AI 인허가 사전검토 | 94% | 독립 시스템 유지, 플랫폼/임대 공통축 병행 |
+| `.kr` 플랫폼화 | 99% | WordPress/Astra-first 경로로 IA/blueprint/apply/verify/operator checklist까지 완료 |
+| `.co.kr` 브리지 | 95% | 정책/CTA/UTM 계약 확정, 삽입용 bridge snippets 생성 |
+| 임대형 위젯/API | 99% | template -> scaffold -> validate -> activate 구조 완료 |
+| 특허 | 96% | canonical attorney handoff와 claim sentence draft까지 완료 |
+| 품질 기준 | 100% | `system_risk_map_latest`: discover green |
+
+## What Is Actually Done
+1. `.kr` WordPress/Astra 플랫폼 자산
+- IA 6페이지 고정: `/`, `/yangdo`, `/permit`, `/knowledge`, `/consult`, `/mna-market`
+- Gutenberg blueprint 생성 완료
+- child theme / lazy gate bridge plugin 생성 완료
+- `php fallback runtime -> apply -> verify` canonical cycle 녹색
+- live apply packet / operator checklist까지 생성 완료
+
+2. 계산기 탑재 정책
+- 홈과 지식 페이지는 CTA-only
+- `yangdo`, `permit`만 lazy gate shortcode 사용
+- 공개 계산 경로는 `.kr/_calc/*`
+- `.co.kr`에는 계산기 임베드 금지
+
+2-1. 양도가 추천 정책
+- 가격 산정과 함께 `유사매물 추천`을 제공
+- 추천은 `입력 프로필 적합도`, `가격대`, `실적 흐름`, `면허 정합도`를 함께 본다
+- public summary tier에는 안전한 추천 요약만 노출하고, 상세 점수/축 분해는 detail-owner tier에 남긴다
+- canonical QA는 `logs/yangdo_recommendation_qa_matrix_latest.*`, `logs/yangdo_recommendation_precision_matrix_latest.*`, `logs/yangdo_recommendation_contract_audit_latest.*` 3축으로 유지한다
+- 추천 다양성/편향 제어는 `logs/yangdo_recommendation_diversity_audit_latest.*`를 기준으로 감시한다
+- 추천 다양성/편향 감사는 `동일 cluster 과대표`, `가격대 편중`까지 포함한 6시나리오 기준으로 유지한다
+- 서비스/매물 브리지 정책은 `logs/yangdo_recommendation_bridge_packet_latest.*`를 기준으로 유지한다
+- 공개 요약/상담형 상세/임대형 노출 차등 UX는 `logs/yangdo_recommendation_ux_packet_latest.*`를 기준으로 유지한다
+- 브리지/UX/임대/특허 문구 정렬은 `logs/yangdo_recommendation_alignment_audit_latest.*`를 기준으로 감시한다
+- `/yangdo` 서비스 카피와 CTA 계층은 `logs/yangdo_service_copy_packet_latest.*`를 기준으로 유지한다
+- 추천 상품 ladder는 `summary_market_bridge -> detail_explainable -> consult_assist -> internal_full`을 기준으로 유지한다
+
+3. `.co.kr` 브리지
+- `.co.kr -> .kr` CTA/UTM 정책 확정
+- placement별 HTML/CSS snippet 패키지 생성
+- live 삽입용 operator checklist 생성
+- selector-verified live injection plan 생성
+- client-side CTA-only injection bundle 생성
+- single apply packet 생성
+- 매물 상세/전역 네비/빈 상태에서 `.kr` 서비스 페이지로만 보냄
+
+4. 임대 구조
+- `yangdo_only / permit_only / combo`
+- `standard / pro / internal`
+- 양도 추천 임대 lane은 `summary_market_bridge / detail_explainable / consult_assist / internal_full` 기준으로 분리한다.
+- partner onboarding, preview, resolution, simulation matrix까지 자동화
+
+5. 특허 근거
+- canonical: `logs/attorney_handoff_latest.json`, `logs/attorney_handoff_latest.md`
+- A/B 분리 유지
+- 운영/배포 세부는 청구항 본체에서 분리
+
+## Current Risks
+1. 서울건설정보 live 반영은 아직 수행 전
+- blocker: `confirm_live_missing`
+2. 파트너 활성화는 실제 입력 3개가 아직 없음
+- `partner_proof_url`
+- `partner_api_key`
+- `partner_data_source_approval`
+3. 병행 타깃인 Next/Vercel lane은 여전히 `vercel_auth_missing`
+- 현재 주경로 병목은 아님
+4. hidden engine upstream는 공개 브랜드가 아니므로, `.kr/_calc/*` reverse proxy 계약을 유지해야 한다
+
+## Current Decisions
+- `seoul_live_decision = awaiting_live_confirmation`
+- `partner_activation_decision = awaiting_partner_inputs`
+- `wp_runtime_decision = runtime_running`
+- `wp_surface_apply_decision = verified`
+- `wordpress_encoding_decision = clean`
+- `wordpress_ux_decision = service_flow_ready`
+- `reverse_proxy_cutover_decision = cutover_ready`
+
+## Current Best Deployment Pattern
+1. `seoulmna.kr`
+- 메인 플랫폼
+- 브랜드/SEO/유입/서비스 페이지 담당
+2. `seoulmna.co.kr`
+- 매물 사이트
+- 계산기 임베드 금지
+- `.kr` 서비스 페이지로만 브리지
+3. `/_calc/*`
+- 공개 계약 경로
+- 실제 엔진 원점은 숨김
+
+## Completion Criteria
+- `wp_surface_lab_apply_verify_cycle_latest`가 녹색 유지
+- `wordpress_platform_encoding_audit_latest` issue 0 유지
+- `wordpress_platform_ux_audit_latest` issue 0 유지
+- `kr_live_apply_packet_latest` = ready
+- `kr_live_operator_checklist_latest` = ready
+- `listing_platform_bridge_policy_latest`와 `co_listing_bridge_snippets_latest`가 일치
+- `co_listing_bridge_operator_checklist_latest`가 snippet 산출물과 일치
+- `partner_activation_simulation_matrix_latest`에서 3개 partner가 입력 3개 주입 후 모두 ready
+- `attorney_handoff_latest`가 특허 단일 기준 문서로 유지
+
+## Current Sprint
+### Batch target
+- `.kr` live 적용 직전 운영 실행면 품질을 계속 올린다.
+- `.co.kr -> .kr` 브리지 자산을 실제 삽입 가능한 수준으로 계속 좁힌다.
+- 양도가 시스템은 실사용 UX/설명력/정산 로직과 `유사매물 추천 정밀도` 기준으로 계속 정밀화한다.
+- permit는 플랫폼/임대/특허 공통축을 유지하되 양도양수 우선순위를 침범하지 않게 병행한다.
+
+### Next Technical Bottlenecks
+1. `.kr` live 반영 전 서버 절차와 rollback을 더 구체화
+2. `.co.kr` 배너/상세/네비에 브리지 snippet을 실제 꽂는 적용 경로 자동화
+   - `co_listing_bridge_apply_packet_latest` 기준으로 실제 삽입 절차 고정
+3. partner 입력값 주입 패킷 자동화
+4. 양도가 추천 코어와 특허 hardening 병행 강화
+5. 추천 결과를 `.kr` 서비스 해석 -> `.co.kr` 매물 확인 또는 상담형 상세로 분기하는 브리지 UX를 계속 유지
+6. `detail_explainable` lane을 실제 파트너 업셀 lane으로 더 선명하게 만든다
+7. `/yangdo` 서비스 페이지에서 추천 설명력을 `가격 계산`보다 `시장 적합도 해석`으로 더 이동시킨다
+
+## Canonical Artifacts
+- operations packet: `logs/operations_packet_latest.json`, `logs/operations_packet_latest.md`
+- attorney handoff: `logs/attorney_handoff_latest.json`, `logs/attorney_handoff_latest.md`
+- wp runtime/apply: `logs/wp_surface_lab_apply_verify_cycle_latest.json`
+- wp encoding audit: `logs/wordpress_platform_encoding_audit_latest.json`
+- wp ux audit: `logs/wordpress_platform_ux_audit_latest.json`
+- bridge policy: `logs/listing_platform_bridge_policy_latest.json`
+- bridge snippets: `logs/co_listing_bridge_snippets_latest.json`
+- bridge operator checklist: `logs/co_listing_bridge_operator_checklist_latest.json`
+- bridge live injection plan: `logs/co_listing_live_injection_plan_latest.json`
+- bridge injection bundle: `logs/co_listing_injection_bundle_latest.json`
+- bridge apply packet: `logs/co_listing_bridge_apply_packet_latest.json`
+- kr proxy bundle: `logs/kr_proxy_server_bundle_latest.json`
+- operator checklist: `logs/kr_live_operator_checklist_latest.json`
+- partner matrix: `logs/partner_activation_simulation_matrix_latest.json`
+- recommendation QA: `logs/yangdo_recommendation_qa_matrix_latest.json`
+- recommendation precision: `logs/yangdo_recommendation_precision_matrix_latest.json`
+- recommendation diversity: `logs/yangdo_recommendation_diversity_audit_latest.json`
+- recommendation contract: `logs/yangdo_recommendation_contract_audit_latest.json`
+- recommendation bridge packet: `logs/yangdo_recommendation_bridge_packet_latest.json`, `logs/yangdo_recommendation_bridge_packet_latest.md`
+- recommendation UX packet: `logs/yangdo_recommendation_ux_packet_latest.json`, `logs/yangdo_recommendation_ux_packet_latest.md`
+- recommendation alignment audit: `logs/yangdo_recommendation_alignment_audit_latest.json`, `logs/yangdo_recommendation_alignment_audit_latest.md`
+- service copy packet: `logs/yangdo_service_copy_packet_latest.json`, `logs/yangdo_service_copy_packet_latest.md`
+
+## Concrete Output Path
+- planner: `scripts/plan_channel_embed.py`
+- operations packet: `scripts/generate_operations_packet.py`
+- wordpress refresh: `scripts/refresh_wordpress_platform_artifacts.py`
+- wp apply/verify cycle: `scripts/run_wp_surface_lab_apply_verify_cycle.py`
+- wp IA: `scripts/generate_wordpress_platform_ia.py`
+- wp blueprints: `scripts/scaffold_wp_platform_blueprints.py`
+- wp apply bundle: `scripts/apply_wp_surface_lab_blueprints.py`
+- wp live apply packet: `scripts/generate_kr_live_apply_packet.py`
+- wp live operator checklist: `scripts/generate_kr_live_operator_checklist.py`
+- bridge policy: `scripts/generate_listing_platform_bridge_policy.py`
+- bridge snippets: `scripts/generate_co_listing_bridge_snippets.py`
+- bridge operator checklist: `scripts/generate_co_listing_bridge_operator_checklist.py`
+- bridge live injection plan: `scripts/generate_co_listing_live_injection_plan.py`
+- bridge injection bundle: `scripts/generate_co_listing_injection_bundle.py`
+- bridge apply packet: `scripts/generate_co_listing_bridge_apply_packet.py`
+- kr proxy bundle: `scripts/generate_kr_proxy_server_bundle.py`
+- rental catalog: `scripts/generate_widget_rental_catalog.py`
+- recommendation bridge packet: `scripts/generate_yangdo_recommendation_bridge_packet.py`
+- partner flow: `scripts/run_partner_onboarding_flow.py`
+- partner simulation: `scripts/generate_partner_activation_simulation_matrix.py`
+- partner snapshot: `scripts/generate_partner_input_snapshot.py`
+- patent handoff: `scripts/generate_attorney_handoff.py`

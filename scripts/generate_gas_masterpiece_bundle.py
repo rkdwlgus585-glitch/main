@@ -168,12 +168,15 @@ const SHEET_CONSULT_TAB = 'ai_calc_consult';
 
 function doGet(e) {{
   const p = (e && e.parameter) ? e.parameter : {{}};
-  const mode = String(p.mode || 'customer').toLowerCase();
+  const modeRaw = String(p.mode || 'customer').toLowerCase();
+  const mode = (modeRaw === 'acquisition' || modeRaw === 'newreg' || modeRaw === 'permit_precheck')
+    ? 'permit_precheck'
+    : 'customer';
   const execUrl = getExecUrl_(e);
   if (String(p.api || '') === '1') {{
     return jsonOut_({{ ok: true, mode, generated_at: new Date().toISOString(), train_count: SMNA_DATASET.length, meta: SMNA_META }});
   }}
-  const fileName = (mode === 'acquisition') ? 'acquisition' : 'customer';
+  const fileName = (mode === 'permit_precheck') ? 'acquisition' : 'customer';
   return renderPage_(fileName, execUrl, mode);
 }}
 
@@ -200,8 +203,8 @@ function doPost(e) {{
 function renderPage_(fileName, execUrl, mode) {{
   let html = HtmlService.createHtmlOutputFromFile(fileName).getContent();
   html = html.replace(/__GAS_EXEC_URL__/g, String(execUrl || ''));
-  const pageTitle = (String(mode || '').toLowerCase() === 'acquisition')
-    ? 'AI 인허가 사전검토 진단기(신규등록)'
+  const pageTitle = (String(mode || '').toLowerCase() === 'permit_precheck')
+    ? 'AI 인허가 사전검토 진단기(신규등록 전용)'
     : 'AI 양도가 산정 계산기';
   return HtmlService
     .createHtmlOutput(html)
@@ -908,7 +911,7 @@ def main() -> int:
                     "--output",
                     str(acquisition_src),
                     "--title",
-                    "AI 인허가 사전검토 진단기(신규등록)",
+                    "AI 인허가 사전검토 진단기(신규등록 전용)",
                 ]
             ),
             timeout_sec=240,
@@ -997,4 +1000,5 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
 

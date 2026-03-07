@@ -95,18 +95,28 @@ def _infer_intent(text):
     t = _normalize_token(text)
     rules = [
         ("양도양수", ["양도양수", "양도", "양수", "매물", "mna"]),
-        ("신규등록", ["신규등록", "신규", "등록", "면허등록"]),
+        ("인허가(신규등록)", ["인허가", "사전검토", "신규등록", "신규", "등록", "면허등록", "등록기준"]),
         ("기업진단", ["기업진단", "진단보고서", "재무진단"]),
         ("실질자본금", ["실질자본금", "자본금", "예치", "출자"]),
         ("분할합병", ["분할합병", "분할", "합병", "법인분할", "법인합병"]),
         ("행정처분", ["행정처분", "영업정지", "과징금", "처분"]),
         ("법인설립", ["법인설립", "법인", "정관", "등기"]),
-        ("입찰/시평", ["입찰", "시공능력", "시평", "나라장터"]),
+        ("시평/기업진단", ["시공능력", "시평", "기업진단"]),
     ]
     for name, keys in rules:
         if any(k in t for k in keys):
             return name
     return "기타"
+
+
+def _normalize_intent_label(value):
+    text = _compact_text(value)
+    token = _normalize_token(text)
+    if any(k in token for k in ["인허가", "사전검토", "신규등록", "면허등록", "등록기준"]):
+        return "인허가(신규등록)"
+    if token == "신규":
+        return "인허가(신규등록)"
+    return text or "기타"
 
 
 def _infer_urgency(text):
@@ -123,13 +133,14 @@ def _infer_urgency(text):
 def _default_next_action(intent, urgency):
     base = {
         "양도양수": "고객 조건(업종/예산/지역) 확인 후 추천 매물 3건 송부",
-        "신규등록": "업종별 등록기준 체크리스트와 필요서류 안내 송부",
+        "인허가(신규등록)": "업종별 인허가 등록기준 체크리스트와 필요서류 안내 송부",
+        "신규등록": "업종별 인허가 등록기준 체크리스트와 필요서류 안내 송부",
         "기업진단": "재무자료 요청 후 기업진단 가능여부 사전 검토",
         "실질자본금": "예치/인정항목 점검표 전달 및 리스크 안내",
         "분할합병": "현재 법인 구조 확인 후 절차/비용 러프 견적 회신",
         "행정처분": "처분 이력/통지서 확인 후 대응 일정 제안",
         "법인설립": "설립 목적/업종 기준 확인 후 설립+등록 일정 안내",
-        "입찰/시평": "시평/입찰 목적 확인 후 기업진단/실적 전략 제안",
+        "시평/기업진단": "시평 목적 확인 후 기업진단/실적 전략 제안",
     }
     action = base.get(intent, "핵심 요구사항 재확인 후 맞춤 안내 회신")
     if urgency == "긴급":
@@ -258,7 +269,8 @@ class LeadIntakeHub:
         source = _compact_text(payload.get("source", ""))
 
         merged_text = f"{title} {content}"
-        intent = _compact_text(payload.get("intent", "")) or _infer_intent(merged_text)
+        intent_raw = _compact_text(payload.get("intent", "")) or _infer_intent(merged_text)
+        intent = _normalize_intent_label(intent_raw)
         urgency = _compact_text(payload.get("urgency", "")) or _infer_urgency(merged_text)
         next_action = _compact_text(payload.get("next_action", "")) or _default_next_action(intent, urgency)
 
@@ -397,7 +409,7 @@ def _write_sample_csv(path):
             "원문출처": "https://open.kakao.com/o/example",
         },
         {
-            "상담제목": "신규등록 절차 및 필요서류",
+            "상담제목": "인허가(신규등록) 절차 및 필요서류",
             "상담내용": "기계설비 업종 신규 등록 상담 원합니다.",
             "유입채널": "phone",
             "고객명": "김대표",
@@ -490,3 +502,4 @@ if __name__ == "__main__":
     except ValueError as e:
         print(str(e))
         raise SystemExit(1)
+

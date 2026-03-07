@@ -44,6 +44,30 @@ def _round4(value: Any) -> Optional[float]:
     return round(float(num), 4)
 
 
+def _normalize_profile(raw: Any) -> str:
+    key = str(raw or "").strip().lower().replace("_", "-")
+    if key in {"normal", "market", "market-normal", "normal-market"}:
+        return "normal-market"
+    return "full-spectrum"
+
+
+def _jitter_triangular(
+    base: Optional[float],
+    rng: random.Random,
+    lo: float,
+    hi: float,
+    *,
+    mode: float = 1.0,
+    floor: float = 0.0,
+) -> Optional[float]:
+    if base is None:
+        return None
+    out = float(base) * rng.triangular(lo, hi, mode)
+    if floor > 0:
+        out = max(floor, out)
+    return round(out, 4)
+
+
 def _ensure_parent(path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -160,21 +184,39 @@ def _shape_shift_years_same_sum(
     return out23, out24, out25, round(float(total), 4)
 
 
-def _build_payload_from_record(rec: Dict[str, Any], rng: random.Random) -> Tuple[Dict[str, Any], str]:
-    scenario = rng.choices(
-        population=[
-            "near",
-            "sparse",
-            "extreme",
-            "unit_typo",
-            "year_shift",
-            "shape_shift_same_sum",
-            "axis_wide_stress",
-            "split_merge_stress",
-        ],
-        weights=[0.38, 0.12, 0.12, 0.06, 0.06, 0.10, 0.10, 0.06],
-        k=1,
-    )[0]
+def _build_payload_from_record(
+    rec: Dict[str, Any],
+    rng: random.Random,
+    *,
+    profile: str = "full-spectrum",
+) -> Tuple[Dict[str, Any], str]:
+    profile_key = _normalize_profile(profile)
+    if profile_key == "normal-market":
+        scenario = rng.choices(
+            population=[
+                "near",
+                "shape_shift_same_sum",
+                "year_shift",
+                "split_merge_stress",
+            ],
+            weights=[0.74, 0.16, 0.06, 0.04],
+            k=1,
+        )[0]
+    else:
+        scenario = rng.choices(
+            population=[
+                "near",
+                "sparse",
+                "extreme",
+                "unit_typo",
+                "year_shift",
+                "shape_shift_same_sum",
+                "axis_wide_stress",
+                "split_merge_stress",
+            ],
+            weights=[0.38, 0.12, 0.12, 0.06, 0.06, 0.10, 0.10, 0.06],
+            k=1,
+        )[0]
 
     lic = _sample_license_text(str(rec.get("license_text") or ""), rng)
     specialty = _to_float(rec.get("specialty"))
@@ -190,26 +232,54 @@ def _build_payload_from_record(rec: Dict[str, Any], rng: random.Random) -> Tuple
     liq_ratio = _to_float(rec.get("liq_ratio"))
     license_year = int(_to_float(rec.get("license_year")) or rng.randint(1995, 2025))
 
-    payload: Dict[str, Any] = {
-        "license_text": lic,
-        "specialty": _jitter(specialty, rng, 0.55, 1.65, floor=0.2),
-        "y23": _jitter(y23, rng, 0.50, 1.85, floor=0.0),
-        "y24": _jitter(y24, rng, 0.50, 1.85, floor=0.0),
-        "y25": _jitter(y25, rng, 0.50, 1.85, floor=0.0),
-        "sales3_eok": _jitter(sales3, rng, 0.45, 1.95, floor=0.1),
-        "sales5_eok": _jitter(sales5 if sales5 is not None else sales3, rng, 0.60, 1.95, floor=0.1),
-        "balance_eok": _jitter(balance, rng, 0.50, 1.90, floor=0.0),
-        "capital_eok": _jitter(capital, rng, 0.50, 1.80, floor=0.05),
-        "surplus_eok": _jitter(surplus, rng, 0.25, 2.10, floor=0.0),
-        "debt_ratio": _jitter(debt_ratio, rng, 0.45, 2.20, floor=0.0),
-        "liq_ratio": _jitter(liq_ratio, rng, 0.35, 3.20, floor=0.0),
-        "license_year": int(license_year + rng.randint(-4, 4)),
-        "company_type": rng.choice(["주식회사", "유한회사", "개인"]),
-        "credit_level": rng.choice(["우수", "보통", "주의"]),
-        "admin_history": rng.choice(["없음", "있음"]),
-        "reorg_mode": rng.choice(["", "포괄", "분할", "분할포괄"]),
-        "top_k": rng.choice([10, 12, 14, 16]),
-    }
+    if profile_key == "normal-market":
+        payload = {
+            "license_text": lic,
+            "specialty": _jitter_triangular(specialty, rng, 0.82, 1.18, mode=1.0, floor=0.2),
+            "y23": _jitter_triangular(y23, rng, 0.80, 1.22, mode=1.0, floor=0.0),
+            "y24": _jitter_triangular(y24, rng, 0.80, 1.22, mode=1.0, floor=0.0),
+            "y25": _jitter_triangular(y25, rng, 0.80, 1.22, mode=1.0, floor=0.0),
+            "sales3_eok": _jitter_triangular(sales3, rng, 0.78, 1.26, mode=1.0, floor=0.1),
+            "sales5_eok": _jitter_triangular(sales5 if sales5 is not None else sales3, rng, 0.82, 1.30, mode=1.03, floor=0.1),
+            "balance_eok": _jitter_triangular(balance, rng, 0.78, 1.30, mode=1.0, floor=0.0),
+            "capital_eok": _jitter_triangular(capital, rng, 0.82, 1.20, mode=1.0, floor=0.05),
+            "surplus_eok": _jitter_triangular(surplus, rng, 0.65, 1.45, mode=0.95, floor=0.0),
+            "debt_ratio": _jitter_triangular(debt_ratio, rng, 0.72, 1.35, mode=1.0, floor=0.0),
+            "liq_ratio": _jitter_triangular(liq_ratio, rng, 0.70, 1.55, mode=1.0, floor=0.0),
+            "license_year": int(license_year + rng.randint(-2, 2)),
+            "company_type": rng.choices(["주식회사", "유한회사", "개인"], weights=[0.68, 0.10, 0.22], k=1)[0],
+            "credit_level": rng.choices(["우수", "보통", "주의"], weights=[0.23, 0.63, 0.14], k=1)[0],
+            "admin_history": rng.choices(["없음", "있음"], weights=[0.90, 0.10], k=1)[0],
+            "reorg_mode": rng.choices(["", "포괄", "분할/합병"], weights=[0.82, 0.10, 0.08], k=1)[0],
+            "top_k": rng.choice([12, 14, 16]),
+        }
+        sales3_now = _to_float(payload.get("sales3_eok"))
+        sales5_now = _to_float(payload.get("sales5_eok"))
+        if sales3_now is not None and sales5_now is not None and sales5_now < sales3_now:
+            payload["sales5_eok"] = round(float(sales3_now) * rng.uniform(1.03, 1.18), 4)
+        if yangdo_blackbox_api._requires_reorg_selection_by_license(payload.get("license_text")):
+            payload["reorg_mode"] = rng.choice(["포괄", "분할/합병"])
+    else:
+        payload = {
+            "license_text": lic,
+            "specialty": _jitter(specialty, rng, 0.55, 1.65, floor=0.2),
+            "y23": _jitter(y23, rng, 0.50, 1.85, floor=0.0),
+            "y24": _jitter(y24, rng, 0.50, 1.85, floor=0.0),
+            "y25": _jitter(y25, rng, 0.50, 1.85, floor=0.0),
+            "sales3_eok": _jitter(sales3, rng, 0.45, 1.95, floor=0.1),
+            "sales5_eok": _jitter(sales5 if sales5 is not None else sales3, rng, 0.60, 1.95, floor=0.1),
+            "balance_eok": _jitter(balance, rng, 0.50, 1.90, floor=0.0),
+            "capital_eok": _jitter(capital, rng, 0.50, 1.80, floor=0.05),
+            "surplus_eok": _jitter(surplus, rng, 0.25, 2.10, floor=0.0),
+            "debt_ratio": _jitter(debt_ratio, rng, 0.45, 2.20, floor=0.0),
+            "liq_ratio": _jitter(liq_ratio, rng, 0.35, 3.20, floor=0.0),
+            "license_year": int(license_year + rng.randint(-4, 4)),
+            "company_type": rng.choice(["주식회사", "유한회사", "개인"]),
+            "credit_level": rng.choice(["우수", "보통", "주의"]),
+            "admin_history": rng.choice(["없음", "있음"]),
+            "reorg_mode": rng.choice(["", "포괄", "분할", "분할포괄"]),
+            "top_k": rng.choice([10, 12, 14, 16]),
+        }
 
     if scenario == "sparse":
         # Sparse signal to verify graceful fallback.
@@ -234,7 +304,10 @@ def _build_payload_from_record(rec: Dict[str, Any], rng: random.Random) -> Tuple
         if s is not None and s > 0 and rng.random() < 0.35:
             payload["sales3_eok"] = round(s * rng.choice([0.1, 10]), 4)
     elif scenario == "year_shift":
-        payload["license_year"] = int(payload["license_year"]) - rng.randint(5, 15)
+        if profile_key == "normal-market":
+            payload["license_year"] = int(payload["license_year"]) - rng.randint(1, 4)
+        else:
+            payload["license_year"] = int(payload["license_year"]) - rng.randint(5, 15)
     elif scenario == "shape_shift_same_sum":
         ny23, ny24, ny25, sales3_fix = _shape_shift_years_same_sum(rng, y23, y24, y25, sales3)
         payload["y23"] = ny23
@@ -244,7 +317,10 @@ def _build_payload_from_record(rec: Dict[str, Any], rng: random.Random) -> Tuple
         s5 = _to_float(payload.get("sales5_eok"))
         if sales3_fix is not None:
             if s5 is None or s5 < sales3_fix:
-                payload["sales5_eok"] = round(float(sales3_fix) * rng.uniform(1.05, 1.85), 4)
+                if profile_key == "normal-market":
+                    payload["sales5_eok"] = round(float(sales3_fix) * rng.uniform(1.04, 1.28), 4)
+                else:
+                    payload["sales5_eok"] = round(float(sales3_fix) * rng.uniform(1.05, 1.85), 4)
     elif scenario == "axis_wide_stress":
         payload["specialty"] = round(rng.uniform(0.0, 1000.0), 4)
         payload["y23"] = round(rng.uniform(0.0, 1000.0), 4)
@@ -260,14 +336,29 @@ def _build_payload_from_record(rec: Dict[str, Any], rng: random.Random) -> Tuple
         payload["credit_level"] = rng.choice(["우수", "보통", "주의"])
     elif scenario == "split_merge_stress":
         payload["license_text"] = rng.choice(["전기", "정보통신", "소방"])
-        payload["reorg_mode"] = rng.choice(["포괄", "분할", "분할포괄"])
-        payload["specialty"] = round(rng.uniform(1.0, 120.0), 4)
-        payload["sales3_eok"] = round(rng.uniform(0.0, 150.0), 4)
-        payload["sales5_eok"] = round(rng.uniform(float(payload["sales3_eok"]), 260.0), 4)
-        payload["surplus_eok"] = round(rng.uniform(0.0, 60.0), 4)
-        payload["debt_ratio"] = round(rng.uniform(0.0, 700.0), 4)
-        payload["liq_ratio"] = round(rng.uniform(0.0, 300000.0), 4)
-        payload["balance_eok"] = round(rng.uniform(0.0, 3000.0), 4)
+        payload["reorg_mode"] = rng.choice(["포괄", "분할/합병"])
+        if profile_key == "normal-market":
+            payload["specialty"] = round(rng.uniform(2.0, 70.0), 4)
+            payload["sales3_eok"] = round(rng.uniform(1.0, 90.0), 4)
+            payload["sales5_eok"] = round(rng.uniform(float(payload["sales3_eok"]) * 1.03, 150.0), 4)
+            payload["surplus_eok"] = round(rng.uniform(0.0, 35.0), 4)
+            payload["debt_ratio"] = round(rng.uniform(0.0, 360.0), 4)
+            payload["liq_ratio"] = round(rng.uniform(80.0, 60000.0), 4)
+            payload["balance_eok"] = round(rng.uniform(0.0, 900.0), 4)
+        else:
+            payload["specialty"] = round(rng.uniform(1.0, 120.0), 4)
+            payload["sales3_eok"] = round(rng.uniform(0.0, 150.0), 4)
+            payload["sales5_eok"] = round(rng.uniform(float(payload["sales3_eok"]), 260.0), 4)
+            payload["surplus_eok"] = round(rng.uniform(0.0, 60.0), 4)
+            payload["debt_ratio"] = round(rng.uniform(0.0, 700.0), 4)
+            payload["liq_ratio"] = round(rng.uniform(0.0, 300000.0), 4)
+            payload["balance_eok"] = round(rng.uniform(0.0, 3000.0), 4)
+
+    normalized_reorg = yangdo_blackbox_api._normalize_reorg_mode(payload.get("reorg_mode"))
+    if yangdo_blackbox_api._requires_reorg_selection_by_license(payload.get("license_text")):
+        payload["reorg_mode"] = normalized_reorg if normalized_reorg in {"포괄", "분할/합병"} else rng.choice(["포괄", "분할/합병"])
+    else:
+        payload["reorg_mode"] = normalized_reorg
 
     return payload, scenario
 
@@ -283,13 +374,41 @@ def _validate_result(ctx: RunContext, payload: Dict[str, Any], result: Dict[str,
     center = _to_float(result.get("estimate_center_eok"))
     low = _to_float(result.get("estimate_low_eok"))
     high = _to_float(result.get("estimate_high_eok"))
-    if center is None or low is None or high is None:
-        anomalies.append("missing_core_numbers")
-        return anomalies
-    if center < 0.0 or center > 10000.0 or low < 0.0 or high > 20000.0:
-        anomalies.append("out_of_numeric_guard")
-    if not (low <= center <= high):
-        anomalies.append("range_invariant_violation")
+    public_center = _to_float(result.get("public_center_eok"))
+    if public_center is None:
+        public_center = _to_float(result.get("public_total_transfer_value_eok"))
+    public_low = _to_float(result.get("public_low_eok"))
+    if public_low is None:
+        public_low = _to_float(result.get("public_total_transfer_low_eok"))
+    public_high = _to_float(result.get("public_high_eok"))
+    if public_high is None:
+        public_high = _to_float(result.get("public_total_transfer_high_eok"))
+    publication_mode = str(result.get("publication_mode") or "").strip().lower()
+
+    if publication_mode == "consult_only":
+        # Consultation-only mode intentionally hides all user-visible price numbers.
+        if public_center is not None or public_low is not None or public_high is not None:
+            anomalies.append("consult_only_numbers_exposed")
+    elif publication_mode == "range_only":
+        # Range-only mode should hide the user-visible center while exposing low/high.
+        if public_center is not None:
+            anomalies.append("range_only_center_exposed")
+        if public_low is None or public_high is None:
+            anomalies.append("range_only_missing_range")
+        elif public_low > public_high:
+            anomalies.append("range_only_invalid_range")
+    else:
+        # Default/full mode must provide a complete numeric range.
+        visible_center = public_center if public_center is not None else center
+        visible_low = public_low if public_low is not None else low
+        visible_high = public_high if public_high is not None else high
+        if visible_center is None or visible_low is None or visible_high is None:
+            anomalies.append("missing_core_numbers")
+            return anomalies
+        if visible_center < 0.0 or visible_center > 10000.0 or visible_low < 0.0 or visible_high > 20000.0:
+            anomalies.append("out_of_numeric_guard")
+        if not (visible_low <= visible_center <= visible_high):
+            anomalies.append("range_invariant_violation")
 
     target = est._target_from_payload(payload)
     target_tokens = est._canonical_tokens(target.get("license_tokens") or set())
@@ -347,6 +466,7 @@ def _run_cycle(
     rng: random.Random,
     iterations: int,
     sample_limit: int,
+    profile: str,
 ) -> Dict[str, Any]:
     est = ctx.estimator
     train = ctx.train_records
@@ -369,7 +489,7 @@ def _run_cycle(
 
     for _ in range(max(1, int(iterations))):
         rec = rng.choice(train)
-        payload, scenario = _build_payload_from_record(rec, rng)
+        payload, scenario = _build_payload_from_record(rec, rng, profile=profile)
         scenario_counter[scenario] += 1
         try:
             result = est.estimate(payload)
@@ -596,7 +716,7 @@ def _run_cycle(
 
         # 전기/정보통신/소방의 분할/포괄 특수성 검증
         if est._is_balance_separate_paid_group(target) and rng.random() < 0.02:
-            reorg_modes = ["", "포괄", "분할", "분할포괄"]
+            reorg_modes = ["포괄", "분할/합병"]
             centers: Dict[str, float] = {}
             valid = True
             for mode in reorg_modes:
@@ -612,14 +732,12 @@ def _run_cycle(
                     break
                 centers[mode] = float(cv)
             if valid and len(centers) == len(reorg_modes):
-                base_c = centers.get("", 0.0)
-                comp_c = centers.get("포괄", base_c)
-                split_c = centers.get("분할", base_c)
-                split_pack_c = centers.get("분할포괄", base_c)
+                comp_c = centers.get("포괄", 0.0)
+                split_c = centers.get("분할/합병", 0.0)
                 violated = (
-                    (comp_c > (base_c * 1.08))
-                    or (split_c > (comp_c * 1.10))
-                    or (split_pack_c > (split_c * 1.08))
+                    comp_c > 0.0
+                    and split_c > 0.0
+                    and ((split_c / comp_c) > 5.0 or (comp_c / split_c) > 5.0)
                 )
                 if violated:
                     anomaly_counter["split_merge_specialty_violation"] += 1
@@ -685,6 +803,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--seed", type=int, default=int(time.time()))
     parser.add_argument("--sample-limit", type=int, default=18)
     parser.add_argument("--sleep-sec", type=float, default=0.0)
+    parser.add_argument("--profile", default="full-spectrum")
     parser.add_argument("--report", default="logs/yangdo_internal_fuzz_latest.json")
     parser.add_argument("--jsonl", default="logs/yangdo_internal_fuzz_cycles.jsonl")
     return parser.parse_args()
@@ -693,6 +812,7 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     rng = random.Random(int(args.seed))
+    profile = _normalize_profile(args.profile)
     report_path = (ROOT / str(args.report)).resolve()
     jsonl_path = (ROOT / str(args.jsonl)).resolve()
 
@@ -724,6 +844,7 @@ def main() -> int:
             rng=rng,
             iterations=max(1, int(args.iterations_per_cycle)),
             sample_limit=max(1, int(args.sample_limit)),
+            profile=profile,
         )
         cycle_report["cycle"] = cycle_no
         all_cycle_reports.append(cycle_report)
@@ -763,6 +884,7 @@ def main() -> int:
             "elapsed_sec": round(time.time() - started, 3),
             "mode": "forever" if forever else "bounded",
             "seed": int(args.seed),
+            "profile": profile,
             "cycles_done": cycle_no,
             "iterations_per_cycle": int(args.iterations_per_cycle),
             "totals": {

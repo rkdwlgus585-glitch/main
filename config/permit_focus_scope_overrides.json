@@ -1,0 +1,92 @@
+{
+  "manual_rule_groups": [
+    {
+      "rule_id": "wood-sawmill",
+      "industry_name": "제재업",
+      "service_codes": [
+        "09_27_03_P"
+      ],
+      "requirements": {
+        "capital_eok": 0.3,
+        "technicians": 1,
+        "equipment_count": 0,
+        "deposit_days": 0
+      },
+      "legal_basis": [
+        {
+          "law_title": "목재의 지속가능한 이용에 관한 법률 시행령",
+          "article": "목재생산업의 종류별 등록기준(제24조제1항 관련)",
+          "url": "https://www.law.go.kr/법령/목재의지속가능한이용에관한법률시행령"
+        }
+      ],
+      "pending_criteria_lines": [
+        {
+          "category": "personnel_misc",
+          "text": "제1종 제재목 또는 단판의 생산은 임산가공기능사 이상 자격 소지자 1명 이상 또는 전문인력 양성기관에서 35시간 이상 임산가공 관련 교육을 이수한 사람 1명 이상이 필요하다."
+        },
+        {
+          "category": "office",
+          "text": "제1종 제재목 또는 단판의 생산은 자본금 3천만원 이상과 사무실이 필요하다."
+        }
+      ],
+      "mapping_meta": {
+        "coverage_status": "partial",
+        "manual_review_required": true
+      }
+    }
+  ],
+  "profile_overrides": [
+    {
+      "service_code": "08_26_04_P",
+      "action": "exclude_false_positive_candidate",
+      "reason": "통신판매업 자동 후보가 불법감청설비탐지업 등록요건으로 잘못 연결돼 핵심 업종군에서 제외한다.",
+      "profile_patch": {
+        "capital_required": false,
+        "capital_eok": 0.0,
+        "technical_personnel_required": false,
+        "technicians_required": 0,
+        "other_required": false,
+        "other_components": [],
+        "equipment_count_required": 0,
+        "deposit_days_required": 0,
+        "profile_source": "manual_scope_override",
+        "inferred_focus_candidate": false,
+        "focus_target": false,
+        "focus_target_with_other": false,
+        "focus_bucket": "manual_excluded",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [],
+        "other_evidence": []
+      }
+    },
+    {
+      "service_code": "09_27_01_P",
+      "action": "exclude_cross_row_inference",
+      "reason": "목재수입유통업은 목재생산업 표 전체에서 기술인력과 자본금이 섞여 추론돼 핵심 업종군에서 제외한다.",
+      "profile_patch": {
+        "capital_required": false,
+        "capital_eok": 0.0,
+        "technical_personnel_required": false,
+        "technicians_required": 0,
+        "other_required": true,
+        "other_components": [
+          "office",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 0,
+        "deposit_days_required": 0,
+        "profile_source": "manual_scope_override",
+        "inferred_focus_candidate": false,
+        "focus_target": false,
+        "focus_target_with_other": false,
+        "focus_bucket": "other_only",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [],
+        "other_evidence": [
+          "목재 또는 목재제품의 수입·유통",
+          "사무실 및 보관시설"
+        ]
+      }
+    }
+  ]
+}

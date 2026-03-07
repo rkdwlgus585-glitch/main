@@ -3,6 +3,7 @@ import json
 from datetime import datetime
 from html import escape
 from pathlib import Path
+from core_engine.channel_branding import resolve_channel_branding
 
 
 def _safe_json(data):
@@ -40,17 +41,31 @@ def _digits_only(text: str) -> str:
 
 
 def build_page_html(
-    title="AI 인허가 사전검토 진단기(신규등록)",
-    contact_phone="010-9926-8661",
+    title="AI 인허가 사전검토 진단기(신규등록 전용)",
+    channel_id="",
+    contact_phone="",
     openchat_url="",
     consult_endpoint="",
     usage_endpoint="",
+    api_key="",
 ):
-    contact = str(contact_phone or "").strip() or "010-9926-8661"
-    contact_digits = _digits_only(contact) or "01099268661"
-    openchat = _sanitize_endpoint(openchat_url)
+    branding = resolve_channel_branding(
+        channel_id=str(channel_id or "").strip(),
+        overrides={
+            "contact_phone": contact_phone,
+            "openchat_url": openchat_url,
+        },
+    )
+    contact = str(branding.get("contact_phone") or contact_phone or "1668-3548").strip()
+    contact_digits = _digits_only(contact) or "16683548"
+    openchat = _sanitize_endpoint(str(branding.get("openchat_url") or openchat_url or ""))
     consult = _sanitize_endpoint(consult_endpoint)
     usage = _sanitize_endpoint(usage_endpoint)
+    api_key_text = str(api_key or "").strip()
+    brand_name = str(branding.get("brand_name") or "파트너").strip()
+    brand_label = str(branding.get("brand_label") or brand_name).strip()
+    contact_email = str(branding.get("contact_email") or "").strip()
+    source_tag_prefix = str(branding.get("source_tag_prefix") or "channel").strip()
 
     profiles = {
         "토목건축공사업(종합)": {"category": "general", "capital_eok": 8.5, "guarantee_jwasu": 225, "guarantee_deposit_eok": 2.25, "engineers": 11, "monthly_manwon": 210},
@@ -121,9 +136,25 @@ def build_page_html(
   const majorFieldMap = {_safe_json(major_field_options)};
   const contactPhone = {_safe_json(contact)};
   const contactDigits = {_safe_json(contact_digits)};
+  const brandName = {_safe_json(brand_name)};
+  const brandLabel = {_safe_json(brand_label)};
+  const contactEmail = {_safe_json(contact_email)};
   const openchatUrl = {_safe_json(openchat)};
   const consultEndpoint = {_safe_json(consult)};
   const usageEndpoint = {_safe_json(usage)};
+  const apiKey = {_safe_json(api_key_text)};
+  const buildApiHeaders = (baseHeaders) => {{
+    const out = Object.assign({{}}, baseHeaders || {{}});
+    if (apiKey) out['X-API-Key'] = apiKey;
+    return out;
+  }};
+  const PERMIT_SERVICE_TRACK = 'permit_precheck_new_registration';
+  const PERMIT_BUSINESS_DOMAIN = 'permit_precheck';
+  const PERMIT_PAGE_MODE = 'permit_precheck';
+  const LEGACY_PAGE_MODE = 'acquisition';
+  const PERMIT_SOURCE_TAG = { _safe_json(f"{source_tag_prefix}_permit_precheck_newreg") };
+  const LEGACY_SOURCE_TAG = { _safe_json(f"{source_tag_prefix}_acquisition_newreg") };
+  const consultSubject = '[고객] ' + brandName + ' 인허가 사전검토 상담 요청';
   const draftStorageKey = 'smna_acq_newreg_draft_v1';
   const viewModeStorageKey = 'smna_acq_view_mode_v1';
   const urlParams = new URLSearchParams(String(location.search || ''));
@@ -1286,12 +1317,18 @@ def build_page_html(
       tax_surcharge_delta_manwon: detail.tax_surcharge_delta_manwon,
       direct_cost_eok: directCostEok,
       center, low, high, ready, confidence,
+      service_track: PERMIT_SERVICE_TRACK,
+      business_domain: PERMIT_BUSINESS_DOMAIN,
+      page_mode: PERMIT_PAGE_MODE,
+      legacy_page_mode: LEGACY_PAGE_MODE,
+      source_tag: PERMIT_SOURCE_TAG,
+      legacy_source_tag: LEGACY_SOURCE_TAG,
       note_lines: noteLines,
     }};
   }};
 
   const buildSummary = (out) => [
-    '서울건설정보 AI 인허가 사전검토 상담 요청','',
+    brandName + ' AI 인허가 사전검토 상담 요청','',
     '[업종] ' + (out.license || '-'),
     '[등록 업종(복수)] ' + ((out.selected_licenses || []).length ? out.selected_licenses.join(', ') : '-'),
     '[업종 분류] ' + (out.class_type || '-'),
@@ -1303,6 +1340,7 @@ def build_page_html(
     '[예상 범위] ' + fmtEok(out.low) + ' ~ ' + fmtEok(out.high),
     '[권장 준비자금(+500만원)] ' + fmtEok(out.ready),
     '[신뢰도] ' + String(out.confidence || '-') + '%',
+    '[서비스 트랙] 인허가 사전검토(신규등록) 전용 · 양도양수 산정 계산기와 별도 운영',
     '[업종 간 자본금 특례] 합산 ' + fmtEok(out.capital_without_special_eok) + ' / 특례차감 ' + fmtEok(out.capital_special_credit_eok) + ' / 기준 ' + fmtEok(out.capital_required_by_rule_eok),
     '[주력분야 선택] ' + ((out.major_fields_selected || []).length ? out.major_fields_selected.join(', ') : '해당 없음'),
     '[기술자 기준(특례 반영)] ' + Number(out.engineer_required_by_rule || out.engineer_count || 0).toLocaleString('ko-KR') + '명 (주력분야 특례 경감 ' + Number(out.engineer_exception_reduced || 0).toLocaleString('ko-KR') + '명, 업종 간 특례 경감 ' + Number(out.engineer_inter_special_credit || 0).toLocaleString('ko-KR') + '명)',
@@ -1319,12 +1357,12 @@ def build_page_html(
 
   const sendUsage = (out) => {{
     if (!usageEndpoint) return;
-    requestWithTimeout(usageEndpoint, {{ method: 'POST', headers: {{ 'Content-Type': 'application/json' }}, body: JSON.stringify({{ source: 'seoulmna_kr_acquisition_newreg', page_mode: 'acquisition', status: 'ok', result_center: fmtEok(out.center), result_range: fmtEok(out.low) + '~' + fmtEok(out.high), result_confidence: String(out.confidence) + '%', detail: out }}) }}, 5000).catch(() => {{}});
+    requestWithTimeout(usageEndpoint, {{ method: 'POST', headers: buildApiHeaders({{ 'Content-Type': 'application/json' }}), body: JSON.stringify({{ source: PERMIT_SOURCE_TAG, legacy_source: LEGACY_SOURCE_TAG, business_domain: PERMIT_BUSINESS_DOMAIN, service_track: PERMIT_SERVICE_TRACK, page_mode: PERMIT_PAGE_MODE, legacy_page_mode: LEGACY_PAGE_MODE, status: 'ok', result_center: fmtEok(out.center), result_range: fmtEok(out.low) + '~' + fmtEok(out.high), result_confidence: String(out.confidence) + '%', detail: out }}) }}, 5000).catch(() => {{}});
   }};
 
   const submitConsult = (out) => {{
     if (!consultEndpoint) return Promise.resolve(false);
-    return requestWithTimeout(consultEndpoint, {{ method: 'POST', headers: {{ 'Content-Type': 'application/json' }}, body: JSON.stringify({{ source: 'seoulmna_kr_acquisition_newreg', page_mode: 'acquisition', subject: '[고객] 서울건설정보 인허가 사전검토 상담 요청', body: buildSummary(out), result_center: fmtEok(out.center), result_range: fmtEok(out.low) + '~' + fmtEok(out.high), result_confidence: String(out.confidence) + '%', payload: out }}) }}, 10000)
+    return requestWithTimeout(consultEndpoint, {{ method: 'POST', headers: buildApiHeaders({{ 'Content-Type': 'application/json' }}), body: JSON.stringify({{ source: PERMIT_SOURCE_TAG, legacy_source: LEGACY_SOURCE_TAG, business_domain: PERMIT_BUSINESS_DOMAIN, service_track: PERMIT_SERVICE_TRACK, page_mode: PERMIT_PAGE_MODE, legacy_page_mode: LEGACY_PAGE_MODE, subject: consultSubject, body: buildSummary(out), result_center: fmtEok(out.center), result_range: fmtEok(out.low) + '~' + fmtEok(out.high), result_confidence: String(out.confidence) + '%', payload: out }}) }}, 10000)
       .then((res) => {{ if (!res.ok) throw new Error(String(res.status || 'consult_http_error')); return true; }})
       .catch(() => false);
   }};
@@ -1413,7 +1451,33 @@ def build_page_html(
   }};
   const render = (out) => {{ $('acq-out-center').textContent = fmtEok(out.center); $('acq-out-range').textContent = fmtEok(out.low) + '~' + fmtEok(out.high); $('acq-out-ready').textContent = fmtEok(out.ready); $('acq-out-confidence').textContent = String(out.confidence) + '%'; $('acq-note').innerHTML = out.note_lines.map((line) => '• ' + line).join('<br>'); renderMidSettlement(out); renderBreakdown(out); }};
   const runCalc = () => {{ syncDerivedFees(); const out = calc(); render(out); sendUsage(out); return out; }};
-  const copySummary = (out) => {{ const s = buildSummary(out); if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(s).catch(() => {{}}); }};
+  const copyText = async (text) => {{
+    const value = String(text || '').trim();
+    if (!value) return false;
+    if (navigator.clipboard && navigator.clipboard.writeText) {{
+      try {{
+        await navigator.clipboard.writeText(value);
+        return true;
+      }} catch (_e) {{}}
+    }}
+    try {{
+      const area = document.createElement('textarea');
+      area.value = value;
+      area.setAttribute('readonly', 'readonly');
+      area.style.position = 'fixed';
+      area.style.top = '-9999px';
+      area.style.opacity = '0';
+      document.body.appendChild(area);
+      area.focus();
+      area.select();
+      const copied = document.execCommand('copy');
+      document.body.removeChild(area);
+      return !!copied;
+    }} catch (_e) {{
+      return false;
+    }}
+  }};
+  const copySummary = async (out) => copyText(buildSummary(out));
   const setCalcBusy = (busy) => {{
     const btn = $('acq-btn-calc');
     if (!btn) return;
@@ -1512,9 +1576,13 @@ def build_page_html(
     }}
   }});
   $('acq-btn-reset').addEventListener('click', resetForm);
-  $('acq-btn-chat-top').addEventListener('click', () => {{ const out = runCalc(); persistDraft(); copySummary(out); if (openchatUrl) return window.open(openchatUrl, '_blank', 'noopener,noreferrer'); alert('오픈채팅 URL이 아직 설정되지 않았습니다. 전화 또는 이메일로 문의해 주세요.'); }});
-  $('acq-btn-chat').addEventListener('click', () => {{ const out = runCalc(); persistDraft(); copySummary(out); if (openchatUrl) return window.open(openchatUrl, '_blank', 'noopener,noreferrer'); alert('오픈채팅 URL이 아직 설정되지 않았습니다. 전화 또는 이메일로 문의해 주세요.'); }});
-  $('acq-btn-mail').addEventListener('click', () => {{ const out = runCalc(); persistDraft(); window.location.href = 'mailto:seoulmna@gmail.com?subject=' + encodeURIComponent('[고객] 서울건설정보 인허가 사전검토 상담 요청') + '&body=' + encodeURIComponent(buildSummary(out)); }});
+  $('acq-btn-chat-top').addEventListener('click', async () => {{ const out = runCalc(); persistDraft(); await copySummary(out); if (openchatUrl) return window.open(openchatUrl, '_blank', 'noopener,noreferrer'); alert('오픈채팅 URL이 아직 설정되지 않았습니다. 전화 또는 이메일로 문의해 주세요.'); }});
+  $('acq-btn-chat').addEventListener('click', async () => {{ const out = runCalc(); persistDraft(); await copySummary(out); if (openchatUrl) return window.open(openchatUrl, '_blank', 'noopener,noreferrer'); alert('오픈채팅 URL이 아직 설정되지 않았습니다. 전화 또는 이메일로 문의해 주세요.'); }});
+  const copyBtn = $('acq-btn-copy');
+  if (copyBtn) {{
+    copyBtn.addEventListener('click', async () => {{ const out = runCalc(); persistDraft(); const ok = await copySummary(out); alert(ok ? '결과 요약이 복사되었습니다.' : '요약 복사에 실패했습니다. 이메일 전달 버튼을 이용해 주세요.'); }});
+  }}
+  $('acq-btn-mail').addEventListener('click', () => {{ const out = runCalc(); persistDraft(); const targetEmail = contactEmail || ''; window.location.href = 'mailto:' + encodeURIComponent(targetEmail) + '?subject=' + encodeURIComponent(consultSubject) + '&body=' + encodeURIComponent(buildSummary(out)); }});
   $('acq-btn-phone').setAttribute('href', 'tel:' + contactDigits); $('acq-btn-phone').textContent = contactPhone; $('acq-btn-phone-top').setAttribute('href', 'tel:' + contactDigits); $('acq-btn-phone-top').textContent = contactPhone; $('acq-contact-phone').textContent = contactPhone;
   ensureCorporateRegField();
   const restored = restoreDraft();
@@ -1644,13 +1712,15 @@ button:hover,.cta-button:hover{transform:translateY(-1px)}
 #smna-acq-calculator.smna-simple-mode .cost-breakdown{display:none}
 @media (max-width:1150px){.smna-grid{grid-template-columns:1fr}.rows{grid-template-columns:1fr}.checks{grid-template-columns:1fr}.result-grid{grid-template-columns:1fr}#smna-acq-calculator h2{font-size:33px}.impact .cta-text{font-size:17px}.cta-button{font-size:18px}.panel h3{font-size:26px}.action-buttons a,.action-buttons button{flex:1 1 calc(50% - 8px);font-size:16px;padding:10px 11px;white-space:normal}}
 </style>
-<div class="smna-header"><div class="smna-brand">서울건설정보 · SEOUL CONSTRUCTION INFO</div><div class="smna-badge">전국 최초</div><h2>__TITLE__</h2><div class="smna-subtitle">업종별 등록기준(자본금·기술자·예치요건)을 사전 점검하고, 대표 행정사 1:1 직접 상담으로 바로 연결합니다.</div><div class="smna-ratio"><div></div><div></div><div></div></div></div>
-<div class="smna-body"><div class="impact cta-row"><span class="cta-text">인허가 등록기준과 권장 준비자금을 1분 안에 사전 점검하고 바로 상담까지 진행하세요.</span><span class="cta-actions"><button type="button" class="cta-button chat" id="acq-btn-chat-top">대표 행정사 1:1 직접 상담</button><a id="acq-btn-phone-top" class="cta-button call" href="tel:__PHONE_DIGITS__">__PHONE__</a></span></div><div class="smna-grid"><div class="panel"><h3>1단계: 인허가 사전검토 정보 입력</h3><div class="panel-body"><div class="guide">① 업종 선택 → ② 법인 상태 선택 → ③ 법인 주소 입력 순서로 진행하면 자동으로 기준값과 중과세 여부를 판정합니다. 주력분야·복수 업종 특례도 자동 반영됩니다.</div><div class="preset-box" id="acq-preset-box">업종을 선택하면 기준값이 표시됩니다.</div><div class="rows"><div class="field"><label for="acq-license-type">업종 선택</label><select id="acq-license-type">__OPTIONS__</select></div><div class="field"><label for="acq-license-custom">직접 입력 업종명(선택)</label><input id="acq-license-custom" type="text" maxlength="80" placeholder="예: 기타 전문공사업" /></div><div class="field"><label for="acq-corp-state">법인 상태</label><select id="acq-corp-state"><option value="new">신설법인</option><option value="existing">기존법인</option></select></div><div class="field"><label for="acq-region-text">법인 주소(시/구/동)</label><input id="acq-region-text" type="text" maxlength="80" placeholder="예: 서울 강남구 역삼동" /></div><div class="field"><label for="acq-region-result">중과세 자동판정</label><input id="acq-region-result" type="text" readonly placeholder="주소 입력 시 자동 판정" /></div><div class="field"><label for="acq-region-override">중과세 수동수정(필요시)</label><select id="acq-region-override"><option value="auto">자동판정 사용</option><option value="normal">수동: 일반지역</option><option value="surcharge">수동: 중과지역</option></select><input id="acq-region" type="hidden" value="normal" /><div class="major-field-hint" id="acq-region-help"></div></div><div class="field wide" id="acq-license-extra-wrap"><label>추가 등록 업종(복수 선택)</label><div class="major-field-list" id="acq-license-extra-list"></div><div class="major-field-hint" id="acq-license-extra-hint"></div></div><div class="field wide" id="acq-major-field-wrap" style="display:none"><label>주력분야 선택(복수 선택 가능)</label><div class="major-field-list" id="acq-major-field-list"></div><div class="major-field-hint" id="acq-major-field-hint"></div></div><div class="field wide"><label><input id="acq-auto-fill" type="checkbox" checked style="width:18px;height:18px;min-height:18px;vertical-align:middle;margin-right:6px;" /> 업종 선택 시 자동 기준 입력</label></div><div class="field"><label for="acq-capital">자본금(억)</label><input id="acq-capital" type="number" step="0.1" /></div><div class="field"><label for="acq-guarantee-jwasu">공제조합 출자좌수(좌)</label><input id="acq-guarantee-jwasu" type="number" step="1" /></div><div class="field"><label for="acq-guarantee">공제조합 출자예치금(억, 자본금 내 배정)</label><input id="acq-guarantee" type="number" step="0.01" /></div><div class="field"><label for="acq-engineer-count">기술자 수(명)</label><input id="acq-engineer-count" type="number" step="1" min="0" /></div><div class="field"><label for="acq-admin-fee">행정사 수임료(만원)</label><input id="acq-admin-fee" type="number" step="1" readonly /></div><div class="field"><label for="acq-legal-fee">세금·법무 자동합계(만원)</label><input id="acq-legal-fee" type="number" step="0.1" readonly /></div><div class="field wide"><label>필수 기준 체크</label><div class="checks"><label><input id="acq-ok-capital" type="checkbox" checked /> 자본금 기준 충족</label><label><input id="acq-ok-engineer" type="checkbox" checked /> 기술자 기준 충족</label><label><input id="acq-ok-office" type="checkbox" checked /> 사무실 기준 충족</label></div></div></div><div class="btn-row"><button type="button" class="btn-primary" id="acq-btn-calc">AI 인허가 사전검토 실행</button><button type="button" class="btn-neutral" id="acq-btn-reset">입력 초기화</button></div><div class="small">제외 항목: 준비기간 비용, 사무실 초기비, 협회/교육 비용</div></div></div><div class="panel result"><h3>2단계: AI 산정 결과 확인</h3><div class="panel-body"><div class="result-grid"><div class="result-card"><span class="k">예상 기준 필요자금</span><strong class="v" id="acq-out-center">-</strong></div><div class="result-card"><span class="k">예상 비용 범위</span><strong class="v" id="acq-out-range">-</strong></div><div class="result-card"><span class="k">권장 준비자금(+500만원)</span><strong class="v" id="acq-out-ready">-</strong></div><div class="result-card"><span class="k">계산 신뢰도</span><strong class="v" id="acq-out-confidence">-</strong></div></div><div class="cost-breakdown" id="acq-breakdown"></div><div class="note" id="acq-note">정보를 입력하고 ‘AI 인허가 사전검토 실행’ 버튼을 눌러주세요.</div><div class="action-buttons"><button type="button" class="btn-chat" id="acq-btn-chat">1:1 직접 상담</button><a class="btn-neutral" href="tel:__PHONE_DIGITS__" id="acq-btn-phone">__PHONE__</a><button type="button" class="btn-neutral" id="acq-btn-mail">결과를 이메일로 전달</button></div><div class="small">문의: <strong>seoulmna@gmail.com</strong> · 연락처: <strong id="acq-contact-phone">__PHONE__</strong></div></div></div></div></div>
+<div class="smna-header"><div class="smna-brand">__BRAND_LABEL__</div><div class="smna-badge">전국 최초</div><h2>__TITLE__</h2><div class="smna-subtitle">법령 연동 완료 업종 중심으로 등록기준(자본금·기술자·예치요건)을 사전 점검합니다. 미연동 업종은 전문가 확인 후 안내합니다. 양도양수 산정은 별도 계산기에서 진행합니다.</div><div class="smna-ratio"><div></div><div></div><div></div></div></div>
+<div class="smna-body"><div class="impact cta-row"><span class="cta-text">법령 연동 업종 기준으로 1분 사전점검 후 상담을 진행하세요.</span><span class="cta-actions"><button type="button" class="cta-button chat" id="acq-btn-chat-top">대표 행정사 1:1 직접 상담</button><a id="acq-btn-phone-top" class="cta-button call" href="tel:__PHONE_DIGITS__">__PHONE__</a></span></div><div class="smna-grid"><div class="panel"><h3>1단계: 인허가 사전검토 정보 입력</h3><div class="panel-body"><div class="guide">① 업종 선택 → ② 법인 상태 선택 → ③ 법인 주소 입력 순서로 진행하면 자동으로 기준값과 중과세 여부를 판정합니다. 주력분야·복수 업종 특례도 자동 반영됩니다. 이 화면은 신규등록(인허가) 전용이며 양도양수는 별도 계산기에서 진행합니다.</div><div class="preset-box" id="acq-preset-box">업종을 선택하면 기준값이 표시됩니다.</div><div class="rows"><div class="field"><label for="acq-license-type">업종 선택</label><select id="acq-license-type">__OPTIONS__</select></div><div class="field"><label for="acq-license-custom">직접 입력 업종명(선택)</label><input id="acq-license-custom" type="text" maxlength="80" placeholder="예: 기타 전문공사업" /></div><div class="field"><label for="acq-corp-state">법인 상태</label><select id="acq-corp-state"><option value="new">신설법인</option><option value="existing">기존법인</option></select></div><div class="field"><label for="acq-region-text">법인 주소(시/구/동)</label><input id="acq-region-text" type="text" maxlength="80" placeholder="예: 서울 강남구 역삼동" /></div><div class="field"><label for="acq-region-result">중과세 자동판정</label><input id="acq-region-result" type="text" readonly placeholder="주소 입력 시 자동 판정" /></div><div class="field"><label for="acq-region-override">중과세 수동수정(필요시)</label><select id="acq-region-override"><option value="auto">자동판정 사용</option><option value="normal">수동: 일반지역</option><option value="surcharge">수동: 중과지역</option></select><input id="acq-region" type="hidden" value="normal" /><div class="major-field-hint" id="acq-region-help"></div></div><div class="field wide" id="acq-license-extra-wrap"><label>추가 등록 업종(복수 선택)</label><div class="major-field-list" id="acq-license-extra-list"></div><div class="major-field-hint" id="acq-license-extra-hint"></div></div><div class="field wide" id="acq-major-field-wrap" style="display:none"><label>주력분야 선택(복수 선택 가능)</label><div class="major-field-list" id="acq-major-field-list"></div><div class="major-field-hint" id="acq-major-field-hint"></div></div><div class="field wide"><label><input id="acq-auto-fill" type="checkbox" checked style="width:18px;height:18px;min-height:18px;vertical-align:middle;margin-right:6px;" /> 업종 선택 시 자동 기준 입력</label></div><div class="field"><label for="acq-capital">자본금(억)</label><input id="acq-capital" type="number" step="0.1" /></div><div class="field"><label for="acq-guarantee-jwasu">공제조합 출자좌수(좌)</label><input id="acq-guarantee-jwasu" type="number" step="1" /></div><div class="field"><label for="acq-guarantee">공제조합 출자예치금(억, 자본금 내 배정)</label><input id="acq-guarantee" type="number" step="0.01" /></div><div class="field"><label for="acq-engineer-count">기술자 수(명)</label><input id="acq-engineer-count" type="number" step="1" min="0" /></div><div class="field"><label for="acq-admin-fee">행정사 수임료(만원)</label><input id="acq-admin-fee" type="number" step="1" readonly /></div><div class="field"><label for="acq-legal-fee">세금·법무 자동합계(만원)</label><input id="acq-legal-fee" type="number" step="0.1" readonly /></div><div class="field wide"><label>필수 기준 체크</label><div class="checks"><label><input id="acq-ok-capital" type="checkbox" checked /> 자본금 기준 충족</label><label><input id="acq-ok-engineer" type="checkbox" checked /> 기술자 기준 충족</label><label><input id="acq-ok-office" type="checkbox" checked /> 사무실 기준 충족</label></div></div></div><div class="btn-row"><button type="button" class="btn-primary" id="acq-btn-calc">AI 인허가 사전검토 실행</button><button type="button" class="btn-neutral" id="acq-btn-reset">입력 초기화</button></div><div class="small">제외 항목: 준비기간 비용, 사무실 초기비, 협회/교육 비용 · 양도양수 가격 산정은 별도 계산기에서 제공합니다.</div></div></div><div class="panel result"><h3>2단계: AI 산정 결과 확인</h3><div class="panel-body"><div class="result-grid"><div class="result-card"><span class="k">예상 기준 필요자금</span><strong class="v" id="acq-out-center">-</strong></div><div class="result-card"><span class="k">예상 비용 범위</span><strong class="v" id="acq-out-range">-</strong></div><div class="result-card"><span class="k">권장 준비자금(+500만원)</span><strong class="v" id="acq-out-ready">-</strong></div><div class="result-card"><span class="k">계산 신뢰도</span><strong class="v" id="acq-out-confidence">-</strong></div></div><div class="cost-breakdown" id="acq-breakdown"></div><div class="note" id="acq-note">정보를 입력하고 ‘AI 인허가 사전검토 실행’ 버튼을 눌러주세요.</div><div class="action-buttons"><button type="button" class="btn-chat" id="acq-btn-chat">1:1 직접 상담</button><a class="btn-neutral" href="tel:__PHONE_DIGITS__" id="acq-btn-phone">__PHONE__</a><button type="button" class="btn-neutral" id="acq-btn-copy">결과 요약 복사</button><button type="button" class="btn-neutral" id="acq-btn-mail">결과를 이메일로 전달</button></div><div class="small">문의: <strong>__CONTACT_EMAIL__</strong> · 연락처: <strong id="acq-contact-phone">__PHONE__</strong></div></div></div></div></div>
 __SCRIPT__
 </section>"""
 
     return (
-        html_template.replace("__TITLE__", escape(str(title or "AI 인허가 사전검토 진단기(신규등록)")))
+        html_template.replace("__TITLE__", escape(str(title or "AI 인허가 사전검토 진단기(신규등록 전용)")))
+        .replace("__BRAND_LABEL__", escape(brand_label))
+        .replace("__CONTACT_EMAIL__", escape(contact_email or "-"))
         .replace("__PHONE__", escape(contact))
         .replace("__PHONE_DIGITS__", escape(contact_digits))
         .replace("__OPTIONS__", options_html)
@@ -1659,21 +1729,34 @@ __SCRIPT__
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Build SeoulMNA new-registration calculator HTML")
+    parser = argparse.ArgumentParser(description="Build permit precheck (new-registration) calculator HTML")
     parser.add_argument("--output", default="output/ai_license_acquisition_calculator.html")
-    parser.add_argument("--title", default="AI 인허가 사전검토 진단기(신규등록)")
-    parser.add_argument("--contact-phone", default="010-9926-8661")
+    parser.add_argument("--title", default="")
+    parser.add_argument("--channel-id", default="")
+    parser.add_argument("--contact-phone", default="")
     parser.add_argument("--openchat-url", default="")
     parser.add_argument("--consult-endpoint", default="")
     parser.add_argument("--usage-endpoint", default="")
+    parser.add_argument("--api-key", default="")
     args = parser.parse_args()
 
+    branding = resolve_channel_branding(
+        channel_id=str(args.channel_id or "").strip(),
+        overrides={
+            "contact_phone": str(args.contact_phone or "").strip(),
+            "openchat_url": str(args.openchat_url or "").strip(),
+        },
+    )
+    default_title = f"AI 인허가 사전검토 진단기(신규등록 전용) | {str(branding.get('brand_name') or '파트너').strip()}"
+
     html = build_page_html(
-        title=str(args.title or "AI 인허가 사전검토 진단기(신규등록)"),
-        contact_phone=str(args.contact_phone or "010-9926-8661"),
+        title=str(args.title or default_title),
+        channel_id=str(args.channel_id or ""),
+        contact_phone=str(args.contact_phone or ""),
         openchat_url=str(args.openchat_url or ""),
         consult_endpoint=str(args.consult_endpoint or ""),
         usage_endpoint=str(args.usage_endpoint or ""),
+        api_key=str(args.api_key or ""),
     )
     out_path = Path(str(args.output)).resolve()
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -1684,7 +1767,7 @@ def main() -> int:
                 "saved": str(out_path),
                 "bytes": len(html.encode("utf-8")),
                 "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                "title": str(args.title),
+                "title": str(args.title or default_title),
             },
             ensure_ascii=False,
         )
@@ -1694,6 +1777,7 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
 
 
 

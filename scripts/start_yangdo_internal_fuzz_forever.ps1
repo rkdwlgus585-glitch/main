@@ -1,13 +1,18 @@
 param(
     [int]$IterationsPerCycle = 4000,
     [double]$SleepSec = 0.4,
-    [int]$Seed = 20260304
+    [int]$Seed = 20260304,
+    [string]$Profile = "full-spectrum"
 )
 
 $ErrorActionPreference = "Stop"
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $logsDir = Join-Path $repoRoot "logs"
 New-Item -ItemType Directory -Path $logsDir -Force | Out-Null
+$sleepValue = [double]$SleepSec
+if ($sleepValue -lt 0) {
+    $sleepValue = 0.0
+}
 
 $procState = Join-Path $logsDir "yangdo_internal_fuzz_process.json"
 if (Test-Path $procState) {
@@ -32,8 +37,9 @@ $args = @(
     "scripts/run_yangdo_internal_fuzz_loop.py",
     "--forever",
     "--iterations-per-cycle", [string]([Math]::Max(1000, $IterationsPerCycle)),
-    "--sleep-sec", [string]([Math]::Max(0, $SleepSec)),
+    "--sleep-sec", [string]$sleepValue,
     "--seed", [string]$Seed,
+    "--profile", [string]$Profile,
     "--report", "logs/yangdo_internal_fuzz_latest.json",
     "--jsonl", "logs/yangdo_internal_fuzz_cycles.jsonl"
 )
@@ -45,7 +51,8 @@ $payload = @{
     stdout = $stdout
     stderr = $stderr
     iterations_per_cycle = [Math]::Max(1000, $IterationsPerCycle)
-    sleep_sec = [Math]::Max(0, $SleepSec)
+    sleep_sec = $sleepValue
+    profile = [string]$Profile
 }
 $payload | ConvertTo-Json -Depth 3 | Set-Content -Path $procState -Encoding UTF8
 Write-Host ("started pid={0}" -f $proc.Id)

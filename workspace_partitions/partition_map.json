@@ -1,0 +1,74 @@
+﻿{
+    "calculator":  [
+                       {
+                           "source":  "docs/program_status_20260305.md",
+                           "partition":  "workspace_partitions/calculator_session/docs/program_status_20260305.md"
+                       },
+                       {
+                           "source":  "docs/patent_cx_ops_masterplan_20260305.md",
+                           "partition":  "workspace_partitions/calculator_session/docs/patent_cx_ops_masterplan_20260305.md"
+                       },
+                       {
+                           "source":  "docs/security_foundation_runbook_20260305.md",
+                           "partition":  "workspace_partitions/calculator_session/docs/security_foundation_runbook_20260305.md"
+                       },
+                       {
+                           "source":  "docs/pdf_business_insights_20260305.json",
+                           "partition":  "workspace_partitions/calculator_session/docs/pdf_business_insights_20260305.json"
+                       },
+                       {
+                           "source":  "config/permit_registration_criteria_expanded.json",
+                           "partition":  "workspace_partitions/calculator_session/config/permit_registration_criteria_expanded.json"
+                       },
+                       {
+                           "source":  "config/permit_registration_rules_law.json",
+                           "partition":  "workspace_partitions/calculator_session/config/permit_registration_rules_law.json"
+                       },
+                       {
+                           "source":  "scripts/run_calculator_combo_sanity.py",
+                           "partition":  "workspace_partitions/calculator_session/scripts/run_calculator_combo_sanity.py"
+                       },
+                       {
+                           "source":  "scripts/run_permit_diagnosis_input_fuzz.py",
+                           "partition":  "workspace_partitions/calculator_session/scripts/run_permit_diagnosis_input_fuzz.py"
+                       },
+                       {
+                           "source":  "scripts/simulate_partner_token_pricing.py",
+                           "partition":  "workspace_partitions/calculator_session/scripts/simulate_partner_token_pricing.py"
+                       },
+                       {
+                           "source":  "scripts/collect_permit_extended_criteria.py",
+                           "partition":  "workspace_partitions/calculator_session/scripts/collect_permit_extended_criteria.py"
+                       },
+                       {
+                           "source":  "tests/test_permit_diagnosis_calculator_rules.py",
+                           "partition":  "workspace_partitions/calculator_session/tests/test_permit_diagnosis_calculator_rules.py"
+                       },
+                       {
+                           "source":  "tests/test_yangdo_calculator_input_variables.py",
+                           "partition":  "workspace_partitions/calculator_session/tests/test_yangdo_calculator_input_variables.py"
+                       },
+                       {
+                           "source":  "docs/progress_to_100_20260305.md",
+                           "partition":  "workspace_partitions/calculator_session/docs/progress_to_100_20260305.md"
+                       }
+                   ],
+    "site":  [
+                 {
+                     "source":  "scripts/build_co_banner_private_preview.py",
+                     "partition":  "workspace_partitions/site_session/scripts/build_co_banner_private_preview.py"
+                 },
+                 {
+                     "source":  "scripts/promote_co_banner_test_to_live.py",
+                     "partition":  "workspace_partitions/site_session/scripts/promote_co_banner_test_to_live.py"
+                 },
+                 {
+                     "source":  "scripts/reset_co_banner_test_working.py",
+                     "partition":  "workspace_partitions/site_session/scripts/reset_co_banner_test_working.py"
+                 },
+                 {
+                     "source":  "scripts/rollback_co_global_banner_baseline1.py",
+                     "partition":  "workspace_partitions/site_session/scripts/rollback_co_global_banner_baseline1.py"
+                 }
+             ]
+}

@@ -13,6 +13,7 @@ if not defined NOW_TO_SHEET_RETRY_MAX_SEC set "NOW_TO_SHEET_RETRY_MAX_SEC=1800"
 if not defined NOW_TO_SHEET_LOCK_STALE_MIN set "NOW_TO_SHEET_LOCK_STALE_MIN=120"
 if not defined NOW_TO_SHEET_SKIP_UPLOAD set "NOW_TO_SHEET_SKIP_UPLOAD=0"
 if not defined NOW_TO_SHEET_EXTRA_ARGS set "NOW_TO_SHEET_EXTRA_ARGS="
+if not defined SCHEDULE_TARGET_HOUR set "SCHEDULE_TARGET_HOUR=18"
 
 echo. >>"%LOG_FILE%"
 set "LOCK_AGE_MIN=0"
@@ -56,8 +57,8 @@ if errorlevel 1 (
 set "ATTEMPT=0"
 set "RC=1"
 set "WAIT_SEC=%NOW_TO_SHEET_RETRY_BASE_SEC%"
-set "SYNC_ARGS="
-if /i "%NOW_TO_SHEET_SKIP_UPLOAD%"=="1" set "SYNC_ARGS=--no-upload"
+set "SYNC_ARGS=--scheduled-catchup --catchup-full-reconcile"
+if /i "%NOW_TO_SHEET_SKIP_UPLOAD%"=="1" set "SYNC_ARGS=!SYNC_ARGS! --catchup-no-upload"
 if not "%NOW_TO_SHEET_EXTRA_ARGS%"=="" (
     set "SYNC_ARGS=!SYNC_ARGS! %NOW_TO_SHEET_EXTRA_ARGS%"
 )

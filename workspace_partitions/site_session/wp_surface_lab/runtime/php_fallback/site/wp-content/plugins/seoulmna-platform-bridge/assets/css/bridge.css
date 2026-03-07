@@ -1,0 +1,12 @@
+.smna-calc-gate__summary p {
+  margin: 0;
+}
+
+.smna-calc-gate__frame-wrap {
+  transition: opacity 180ms ease;
+}
+
+.smna-calc-gate__frame-wrap[data-loaded="true"] {
+  display: block;
+  opacity: 1;
+}

@@ -1,0 +1,93 @@
+{
+  "generated_at": "2026-03-08 02:16:23",
+  "theme_slug": "seoulmna-platform-child",
+  "plugin_slug": "seoulmna-platform-bridge",
+  "front_page_slug": "home",
+  "front_page_public_slug": "/",
+  "menu": {
+    "name": "서울건설정보 플랫폼",
+    "location_candidates": [
+      "primary",
+      "menu-1",
+      "main-menu"
+    ],
+    "items": [
+      {
+        "label": "플랫폼 소개",
+        "href": "/"
+      },
+      {
+        "label": "양도가",
+        "href": "/yangdo"
+      },
+      {
+        "label": "인허가",
+        "href": "/permit"
+      },
+      {
+        "label": "지식베이스",
+        "href": "/knowledge"
+      },
+      {
+        "label": "상담",
+        "href": "/consult"
+      }
+    ]
+  },
+  "pages": [
+    {
+      "page_id": "home",
+      "public_slug": "/",
+      "wordpress_page_slug": "home",
+      "title": "서울건설정보 메인 플랫폼",
+      "calculator_policy": "cta_only_no_iframe",
+      "blueprint_relative_path": "blueprints/home.html",
+      "is_front_page": true
+    },
+    {
+      "page_id": "yangdo",
+      "public_slug": "/yangdo",
+      "wordpress_page_slug": "yangdo",
+      "title": "AI 양도가 산정 · 유사매물 추천",
+      "calculator_policy": "lazy_gate_shortcode",
+      "blueprint_relative_path": "blueprints/yangdo.html",
+      "is_front_page": false
+    },
+    {
+      "page_id": "permit",
+      "public_slug": "/permit",
+      "wordpress_page_slug": "permit",
+      "title": "AI 인허가 사전검토",
+      "calculator_policy": "lazy_gate_shortcode",
+      "blueprint_relative_path": "blueprints/permit.html",
+      "is_front_page": false
+    },
+    {
+      "page_id": "knowledge",
+      "public_slug": "/knowledge",
+      "wordpress_page_slug": "knowledge",
+      "title": "등록기준 · 양도양수 지식베이스",
+      "calculator_policy": "cta_only_no_iframe",
+      "blueprint_relative_path": "blueprints/knowledge.html",
+      "is_front_page": false
+    },
+    {
+      "page_id": "consult",
+      "public_slug": "/consult",
+      "wordpress_page_slug": "consult",
+      "title": "상담 접수",
+      "calculator_policy": "no_calculator_inline",
+      "blueprint_relative_path": "blueprints/consult.html",
+      "is_front_page": false
+    },
+    {
+      "page_id": "market_bridge",
+      "public_slug": "/mna-market",
+      "wordpress_page_slug": "mna-market",
+      "title": "양도양수 매물 보기",
+      "calculator_policy": "cta_only_no_iframe",
+      "blueprint_relative_path": "blueprints/mna-market.html",
+      "is_front_page": false
+    }
+  ]
+}

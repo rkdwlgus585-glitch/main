@@ -51,6 +51,8 @@ Canonical launchers in this folder:
 - `launch_listing_matcher.bat`
 - `launch_premium_auto.bat`
 - `launch_calculator_autodrive.bat` (start/status/stop autodrive)
+- `launch_security_do_all.bat` (API 보안키/보안 API 스택/워치독/클라우드플레어 baseline 자동 설정)
+- `open_ops_snapshot.bat` (문서 없이 운영 핵심요약 텍스트 열기)
 
 `launch_tistory_publish.bat` modes:
 - argument `7540` like numeric registration: publish that registration.
@@ -77,3 +79,51 @@ Use root `매물수집기.bat`:
 - `reconcile`: reconcile (sheet + seoul)
 - `reconcile-sheet`: reconcile sheet-only (no seoul login)
 - `reconcile-menu`: reconcile menu (apply/dry-run variants)
+
+## Workspace partition maintenance
+
+Use `launchers/partition_maintenance.bat`:
+- Runs `scripts/partition_maintenance.py --sync --restore-missing --relocate-site-temp --status`
+- Keeps calculator/site session artifacts mirrored under `workspace_partitions/`
+- Moves root `tmp_*` artifacts into `workspace_partitions/site_session/tmp/`
+
+Root wrapper:
+- `작업물구획정리.bat`
+
+
+## Partner onboarding validation
+
+Use launchers/tenant_onboarding_check.bat:
+- Runs strict validation for tenant registry/host-origin/api-key rules
+- Writes report to logs/tenant_onboarding_validation_latest.json
+
+Root wrapper:
+- 파트너온보딩검증.bat
+
+## Archived BAT cleanup
+
+The following helper BAT wrappers were moved to `archive/bat_unused_20260305/` to reduce clutter:
+- tenant usage/policy helper wrappers
+- monthly rehearsal helper wrappers
+- patent handoff helper wrapper
+
+Use python commands directly when needed:
+- `py -3 scripts/tenant_usage_billing_report.py --strict`
+- `py -3 scripts/enforce_tenant_threshold_policy.py --strict --apply-registry`
+- `py -3 scripts/tenant_policy_notify.py`
+- `py -3 scripts/tenant_policy_recovery.py --all-disabled --with-blocked-keys`
+- `py -3 scripts/monthly_security_rehearsal.py`
+- `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/register_monthly_security_rehearsal_task.ps1`
+- `py -3 scripts/prepare_patent_handoff_bundle.py`
+
+## Ops snapshot
+
+Use `launchers/open_ops_snapshot.bat`:
+- Builds plain-text operational snapshot
+- Opens `logs/ops_snapshot_latest.txt` in Notepad
+- Also writes `logs/ops_snapshot_latest.json`
+
+Root wrapper:
+- `open_ops_snapshot.bat`
+- `운영요약열기.bat`
+

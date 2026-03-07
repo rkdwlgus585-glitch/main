@@ -12,6 +12,7 @@ OPS_RUNNERS = sorted((ROOT / "scripts").glob("*.cmd"))
 IGNORE_PARTS = {
     ".git",
     ".venv",
+    "archive",
     "venv",
     "node_modules",
     "__pycache__",

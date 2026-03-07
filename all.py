@@ -40,6 +40,10 @@ CONFIG = load_config(
         "YANGDO_CONSULT_ENDPOINT": "",
         "YANGDO_USAGE_ENDPOINT": "",
         "YANGDO_ESTIMATE_ENDPOINT": "",
+        "YANGDO_WIDGET_API_KEY": "",
+        "YANGDO_ENABLE_CONSULT_WIDGET": "false",
+        "YANGDO_ENABLE_USAGE_LOG": "false",
+        "YANGDO_ENABLE_HOT_MATCH": "false",
         "KAKAO_OPENCHAT_URL": "",
         "CALCULATOR_CONTACT_PHONE": "",
         "SCAN_PAGES": "3",
@@ -73,6 +77,14 @@ CONFIG = load_config(
         "SEOUL_DAILY_LIMIT_STATE_FILE": "logs/seoul_daily_limit_state.json",
         "SEOUL_DAILY_REQUEST_CAP": "500",
         "SEOUL_DAILY_WRITE_CAP": "80",
+        "SEOUL_TRAFFIC_GUARD_ENABLED": "true",
+        "SEOUL_TRAFFIC_GUARD_REQUEST_BUFFER": "24",
+        "SEOUL_TRAFFIC_GUARD_WRITE_BUFFER": "6",
+        "SEOUL_TRAFFIC_GUARD_MIN_INTERVAL_SEC": "0.35",
+        "SEOUL_TRAFFIC_GUARD_REPORT_FILE": "logs/seoul_co_traffic_guard_latest.json",
+        "SEOUL_TRAFFIC_GUARD_SESSION_DIR": "logs/seoul_co_traffic_guard",
+        "SEOUL_TRAFFIC_GUARD_LOCK_FILE": "logs/seoul_co_traffic_guard.lock",
+        "SEOUL_TRAFFIC_GUARD_LOCK_STALE_SEC": "10800",
         "STRICT_DOMAIN_GUARD": "true",
         "ADMIN_MEMO_REQUIRE_BR": "true",
         "SHEET_ROW_JUMP_WATCHDOG_FILE": "logs/sheet_row_jump_watchdog_latest.json",
@@ -112,6 +124,7 @@ YANGDO_CALCULATOR_BOARD_SLUG = str(CONFIG.get("YANGDO_CALCULATOR_BOARD_SLUG", ""
 YANGDO_CONSULT_ENDPOINT_RAW = str(CONFIG.get("YANGDO_CONSULT_ENDPOINT", "")).strip()
 YANGDO_USAGE_ENDPOINT_RAW = str(CONFIG.get("YANGDO_USAGE_ENDPOINT", "")).strip()
 YANGDO_ESTIMATE_ENDPOINT_RAW = str(CONFIG.get("YANGDO_ESTIMATE_ENDPOINT", "")).strip()
+YANGDO_WIDGET_API_KEY = str(CONFIG.get("YANGDO_WIDGET_API_KEY", "")).strip()
 KAKAO_OPENCHAT_URL = str(CONFIG.get("KAKAO_OPENCHAT_URL", "")).strip()
 CALCULATOR_CONTACT_PHONE = (
     str(CONFIG.get("CALCULATOR_CONTACT_PHONE", "")).strip()
@@ -177,6 +190,9 @@ def _sanitize_public_endpoint(url):
 YANGDO_CONSULT_ENDPOINT = _sanitize_public_endpoint(YANGDO_CONSULT_ENDPOINT_RAW)
 YANGDO_USAGE_ENDPOINT = _sanitize_public_endpoint(YANGDO_USAGE_ENDPOINT_RAW)
 YANGDO_ESTIMATE_ENDPOINT = _sanitize_public_endpoint(YANGDO_ESTIMATE_ENDPOINT_RAW)
+YANGDO_ENABLE_CONSULT_WIDGET = _cfg_bool("YANGDO_ENABLE_CONSULT_WIDGET", False)
+YANGDO_ENABLE_USAGE_LOG = _cfg_bool("YANGDO_ENABLE_USAGE_LOG", False)
+YANGDO_ENABLE_HOT_MATCH = _cfg_bool("YANGDO_ENABLE_HOT_MATCH", False)
 
 
 STRICT_DOMAIN_GUARD = _cfg_bool("STRICT_DOMAIN_GUARD", True)
@@ -225,6 +241,23 @@ SEOUL_DAILY_LIMIT_STATE_FILE = (
 )
 SEOUL_DAILY_REQUEST_CAP = max(0, _cfg_int("SEOUL_DAILY_REQUEST_CAP", 500))
 SEOUL_DAILY_WRITE_CAP = max(0, _cfg_int("SEOUL_DAILY_WRITE_CAP", 80))
+SEOUL_TRAFFIC_GUARD_ENABLED = _cfg_bool("SEOUL_TRAFFIC_GUARD_ENABLED", True)
+SEOUL_TRAFFIC_GUARD_REQUEST_BUFFER = max(0, _cfg_int("SEOUL_TRAFFIC_GUARD_REQUEST_BUFFER", 24))
+SEOUL_TRAFFIC_GUARD_WRITE_BUFFER = max(0, _cfg_int("SEOUL_TRAFFIC_GUARD_WRITE_BUFFER", 6))
+SEOUL_TRAFFIC_GUARD_MIN_INTERVAL_SEC = max(0.0, _cfg_float("SEOUL_TRAFFIC_GUARD_MIN_INTERVAL_SEC", 0.35))
+SEOUL_TRAFFIC_GUARD_REPORT_FILE = (
+    str(CONFIG.get("SEOUL_TRAFFIC_GUARD_REPORT_FILE", "logs/seoul_co_traffic_guard_latest.json")).strip()
+    or "logs/seoul_co_traffic_guard_latest.json"
+)
+SEOUL_TRAFFIC_GUARD_SESSION_DIR = (
+    str(CONFIG.get("SEOUL_TRAFFIC_GUARD_SESSION_DIR", "logs/seoul_co_traffic_guard")).strip()
+    or "logs/seoul_co_traffic_guard"
+)
+SEOUL_TRAFFIC_GUARD_LOCK_FILE = (
+    str(CONFIG.get("SEOUL_TRAFFIC_GUARD_LOCK_FILE", "logs/seoul_co_traffic_guard.lock")).strip()
+    or "logs/seoul_co_traffic_guard.lock"
+)
+SEOUL_TRAFFIC_GUARD_LOCK_STALE_SEC = max(300, _cfg_int("SEOUL_TRAFFIC_GUARD_LOCK_STALE_SEC", 10800))
 ADMIN_MEMO_REQUIRE_BR = _cfg_bool("ADMIN_MEMO_REQUIRE_BR", True)
 SHEET_ROW_JUMP_WATCHDOG_FILE = (
     str(CONFIG.get("SHEET_ROW_JUMP_WATCHDOG_FILE", "logs/sheet_row_jump_watchdog_latest.json")).strip()
@@ -420,34 +453,41 @@ def _extract_nowmna_sales_rows_from_body_text(body_text):
         if "업종" in line and "2020" in line:
             continue
         tokens = re.split(r"\s+", line)
-        if len(tokens) < 3:
+        if len(tokens) < 2:
             continue
-        year_idx = -1
+        split_idx = -1
         for i, tok in enumerate(tokens):
-            if re.fullmatch(r"(19|20)\d{2}", tok):
-                year_idx = i
+            if re.fullmatch(r"(19|20)\d{2}", tok) or re.search(r"\d", tok):
+                split_idx = i
                 break
-        if year_idx <= 0:
+        if split_idx <= 0:
             continue
-        license_name = _compact_text(" ".join(tokens[:year_idx]))
-        metrics = tokens[year_idx + 1 :]
-        if not license_name or len(metrics) < 6:
+        license_name = _canonical_license_name("".join(tokens[:split_idx]))
+        if not license_name:
             continue
-        y20 = metrics[0] if len(metrics) > 0 else ""
-        y21 = metrics[1] if len(metrics) > 1 else ""
-        y22 = metrics[2] if len(metrics) > 2 else ""
-        y23 = metrics[3] if len(metrics) > 3 else ""
-        y24 = metrics[4] if len(metrics) > 4 else ""
-        if len(metrics) >= 8:
-            y25 = metrics[-2]
+        row_year = ""
+        metrics = list(tokens[split_idx:])
+        if metrics and re.fullmatch(r"(19|20)\d{2}", metrics[0]):
+            row_year = metrics.pop(0)
+        metrics = [_compact_text(tok) for tok in metrics if _compact_text(tok)]
+
+        y20 = y21 = y22 = y23 = y24 = y25 = specialty = ""
+        if len(metrics) >= 7:
+            y20 = metrics[0] if len(metrics) > 0 else ""
+            y21 = metrics[1] if len(metrics) > 1 else ""
+            y22 = metrics[2] if len(metrics) > 2 else ""
+            y23 = metrics[3] if len(metrics) > 3 else ""
+            y24 = metrics[4] if len(metrics) > 4 else ""
+            y25 = metrics[-2] if len(metrics) >= 8 else (metrics[5] if len(metrics) > 5 else "")
             specialty = metrics[-1]
-        else:
-            y25 = metrics[5] if len(metrics) > 5 else ""
-            specialty = metrics[6] if len(metrics) > 6 else ""
+        elif metrics:
+            # Sparse rows still carry a valid license row even when many year cells are omitted.
+            if re.search(r"\d", metrics[-1]):
+                specialty = metrics[-1]
         rows.append(
             {
-                "license": normalize_license(license_name),
-                "year": tokens[year_idx],
+                "license": license_name,
+                "year": row_year,
                 "specialty": specialty,
                 "y20": y20,
                 "y21": y21,
@@ -514,13 +554,29 @@ def _is_consult_text(value):
     return "협의" in src and not re.search(r"\d", src)
 
 
+def _price_evidence_summary(source="", evidence=""):
+    src = str(source or "").strip() or "unknown"
+    txt = str(evidence or "").strip()
+    if not txt:
+        return "source=empty|kind=empty|present=N"
+    if _is_numeric_price(txt):
+        kind = "numeric"
+    elif _is_consult_text(txt):
+        kind = "consult"
+    elif re.search(r"\d", txt):
+        kind = "mixed"
+    else:
+        kind = "text"
+    return _truncate(f"source={src}|kind={kind}|present=Y", 160)
+
+
 def _trace_payload(price, source, confidence, fallback_used, evidence):
     return {
         "price": str(price or "").strip() or "협의",
         "source": str(source or "").strip() or "unknown",
         "confidence": str(confidence or "").strip() or "low",
         "fallback_used": "Y" if str(fallback_used).upper() in {"Y", "TRUE", "1"} else "N",
-        "evidence": _truncate(str(evidence or ""), 160),
+        "evidence": _price_evidence_summary(source, evidence),
     }
 
 
@@ -598,10 +654,25 @@ def resolve_yangdo_price(primary_price="", claim_price="", memo_text=""):
     return resolve_yangdo_price_trace(primary_price, claim_price, memo_text)["price"]
 
 
+def _build_price_trace_summary(price_trace, primary_price="", claim_price=""):
+    trace = dict(price_trace or {})
+    normalized = str(trace.get("price") or "").strip() or "협의"
+    source = str(trace.get("source") or "unknown").strip() or "unknown"
+    confidence = str(trace.get("confidence") or "low").strip() or "low"
+    fallback = "Y" if str(trace.get("fallback_used") or "").strip().upper() in {"Y", "TRUE", "1"} else "N"
+    primary_present = "Y" if _compact_text(primary_price) else "N"
+    claim_present = "Y" if _compact_text(claim_price) else "N"
+    summary = (
+        f"정규가={normalized} | source={source} | confidence={confidence} "
+        f"| fallback={fallback} | primary={primary_present} | claim={claim_present}"
+    )
+    return _truncate(summary, 160)
+
+
 PRICE_TRACE_HEADERS = [
-    "가격원문",
+    "가격비식별요약",
     "가격추출소스",
-    "가격추출근거",
+    "가격추출근거요약",
     "가격신뢰도",
     "가격fallback",
 ]
@@ -653,6 +724,40 @@ def _sheet_no_to_int(value):
     return 0
 
 
+def _normalize_sheet_row_no_override(value):
+    if value is None:
+        return None
+    if str(value or "").strip().upper() == "__CLEAR__":
+        return "__CLEAR__"
+    num = _sheet_no_to_int(value)
+    if num > 0:
+        return num
+    return ""
+
+
+def _resolve_sheet_row_no(old_no="", row_no_override=None, fallback_no=0, allocate_if_missing=False):
+    override = _normalize_sheet_row_no_override(row_no_override)
+    old_num = _sheet_no_to_int(old_no)
+    old_txt = str(old_no or "").strip()
+    if override == "__CLEAR__":
+        return ""
+    if override is None:
+        if old_num > 0:
+            return old_num
+        if old_txt:
+            return old_txt
+        if allocate_if_missing and int(fallback_no or 0) > 0:
+            return int(fallback_no)
+        return ""
+    if override != "":
+        return override
+    if old_num > 0:
+        return old_num
+    if old_txt:
+        return old_txt
+    return ""
+
+
 def _extract_sheet_uid_from_row(row):
     for idx in (34, 33, 32):
         cand = extract_id_strict(_row_text(row, idx))
@@ -674,8 +779,9 @@ def _is_listing_anchor_row(row):
 
 
 def _has_listing_core_cells(row):
-    # Price trace columns start at AL(index 37); core listing columns are A~AK.
-    max_idx = min(len(row), TRACE_START_COL_IDX)
+    # Legacy trace-only rows may still populate AK(index 36)=신용주체.
+    # Treat core listing columns as A~AJ and exclude AK/AL~AP trace metadata.
+    max_idx = min(len(row), CREDIT_SUBJECT_COL_IDX)
     for idx in range(max_idx):
         if _row_text(row, idx):
             return True
@@ -798,6 +904,23 @@ def _build_price_trace_updates(all_values):
             return legacy_vals
         return new_vals
 
+    def _trace_first_col_is_summary(text):
+        src = str(text or "").strip()
+        return src.startswith("정규가=") and "source=" in src and "confidence=" in src
+
+    def _trace_semantically_matches(old_trace, new_price, new_trace):
+        vals = list(old_trace or [])
+        while len(vals) < TRACE_COL_COUNT:
+            vals.append("")
+        if vals[1] != new_trace[1] or vals[3] != new_trace[3] or vals[4] != new_trace[4]:
+            return False
+        if _compact_text(extract_final_yangdo_price(vals[0])) != _compact_text(extract_final_yangdo_price(new_price)):
+            return False
+        if _trace_first_col_is_summary(vals[0]):
+            return vals == new_trace
+        # Legacy raw trace layout is acceptable if semantic fields already match.
+        return True
+
     for row_idx, row in enumerate(all_values[1:], start=2):
         if not _has_listing_core_cells(row):
             primary = _row_text(row, 18)
@@ -813,7 +936,7 @@ def _build_price_trace_updates(all_values):
         trace = resolve_yangdo_price_trace(primary, claim, memo)
         new_price = trace["price"]
         new_trace = [
-            primary,
+            _build_price_trace_summary(trace, primary, claim),
             trace["source"],
             trace["evidence"],
             trace["confidence"],
@@ -821,8 +944,9 @@ def _build_price_trace_updates(all_values):
         ]
 
         old_trace = _read_existing_trace_cols(row)
+        effective_trace = old_trace if _trace_semantically_matches(old_trace, new_price, new_trace) else new_trace
 
-        if primary != new_price or old_trace != new_trace:
+        if primary != new_price or old_trace != effective_trace:
             changed_rows += 1
             if len(changed_examples) < 20:
                 changed_examples.append(
@@ -840,7 +964,7 @@ def _build_price_trace_updates(all_values):
             recovered_rows += 1
 
         price_values.append([new_price])
-        trace_values.append(new_trace)
+        trace_values.append(effective_trace)
 
     return {
         "price_values": price_values,
@@ -1220,9 +1344,13 @@ def _collect_low_confidence_rows(all_values, limit=0, recent_rows=0, recent_numb
                 "리스크사유": risk_reason,
                 "번호": seq,
                 "양도가": primary,
-                "가격원문": raw,
+                "가격비식별요약": _build_price_trace_summary(
+                    resolve_yangdo_price_trace(raw or primary, claim, memo),
+                    raw or primary,
+                    claim,
+                ),
                 "가격추출소스": source,
-                "가격추출근거": evidence,
+                "가격추출근거요약": evidence,
                 "가격신뢰도": confidence,
                 "가격fallback": fallback,
                 "청구양도가": claim,
@@ -1242,9 +1370,9 @@ LOW_CONF_SHEET_HEADERS = [
     "row",
     "번호",
     "양도가",
-    "가격원문",
+    "가격비식별요약",
     "가격추출소스",
-    "가격추출근거",
+    "가격추출근거요약",
     "가격신뢰도",
     "가격fallback",
     "청구양도가",
@@ -1266,9 +1394,9 @@ def _build_low_confidence_sheet_values(rows, generated_at=None):
                 row.get("row", ""),
                 row.get("번호", ""),
                 row.get("양도가", ""),
-                row.get("가격원문", ""),
+                row.get("가격비식별요약", ""),
                 row.get("가격추출소스", ""),
-                row.get("가격추출근거", ""),
+                row.get("가격추출근거요약", ""),
                 row.get("가격신뢰도", ""),
                 row.get("가격fallback", ""),
                 row.get("청구양도가", ""),
@@ -2024,8 +2152,12 @@ def _build_yangdo_calculator_page_html(train_dataset, meta, view_mode="customer"
         consult_endpoint=YANGDO_CONSULT_ENDPOINT,
         usage_endpoint=YANGDO_USAGE_ENDPOINT,
         estimate_endpoint=YANGDO_ESTIMATE_ENDPOINT,
+        api_key=YANGDO_WIDGET_API_KEY,
         contact_phone=CALCULATOR_CONTACT_PHONE,
         openchat_url=KAKAO_OPENCHAT_URL,
+        enable_consult_widget=YANGDO_ENABLE_CONSULT_WIDGET,
+        enable_usage_log=YANGDO_ENABLE_USAGE_LOG,
+        enable_hot_match=YANGDO_ENABLE_HOT_MATCH,
     )
 
 
@@ -2745,8 +2877,21 @@ def _to_plain_number(raw):
     return _trim_decimal(token) if token else ""
 
 
+def _repair_price_unit_markers(raw):
+    src = str(raw or "")
+    if not src:
+        return ""
+    src = (
+        src.replace("ì–µ", "억")
+        .replace("Ã¬â€“Âµ", "억")
+        .replace("ï¿½", "억")
+    )
+    src = re.sub(r"(?<=\d)\s*[?？]{1,4}(?=\s*(?:[~∼〜-]\s*\d|\s*/|\s*$))", "억", src)
+    return src
+
+
 def _price_for_subject(raw):
-    src = _compact_text(raw)
+    src = _compact_text(_repair_price_unit_markers(raw))
     if not src:
         return "협의"
     if "협의" in src and not re.search(r"\d", src):
@@ -2919,6 +3064,33 @@ EXTRA_LICENSE_TERMS = (
 _GENERIC_LICENSE_KEYS = {"", "기타", "일반", "전문", "사업", "공사", "건설", "면허", "업종"}
 
 
+def _item_has_claim_price(item):
+    return bool(_compact_text((item or {}).get("claim_price", "")))
+
+
+def _validate_item_for_sheet(item, existing_claim_price=""):
+    issues = []
+    if not _item_has_claim_price(item) and not _compact_text(existing_claim_price):
+        issues.append("claim_price_missing")
+    return len(issues) == 0, issues
+
+
+def _derive_sheet_status_for_new_item(item, issues=None):
+    issue_list = [str(x).strip() for x in (issues or []) if str(x).strip()]
+    if issue_list:
+        return "완료"
+    claim_status = _claim_to_status_label((item or {}).get("claim_price", ""))
+    if claim_status in {"가능", "보류", "완료"}:
+        return claim_status
+    return _normalize_sync_status_label((item or {}).get("price", ""))
+
+
+def _should_skip_site_publish_for_item(item, status_label, issues=None):
+    if list(issues or []):
+        return True
+    return _normalize_sync_status_label(status_label) == "완료"
+
+
 def _canonical_license_name(raw):
     src = _compact_text(raw)
     if not src:
@@ -2927,6 +3099,32 @@ def _canonical_license_name(raw):
     alias = MNA_LICENSE_ALIASES.get(key, src)
     out = normalize_license(alias)
     return _compact_text(out)
+
+
+def _is_generic_license_name(raw):
+    key = _normalize_license_key(_canonical_license_name(raw))
+    return (not key) or (key in _GENERIC_LICENSE_KEYS)
+
+
+def _display_license_lines(raw_lines, include_generic=True):
+    out = []
+    seen = set()
+    for raw in _as_lines(raw_lines):
+        canonical = _canonical_license_name(raw)
+        key = _normalize_license_key(canonical)
+        if not key:
+            continue
+        if (not include_generic) and key in _GENERIC_LICENSE_KEYS:
+            continue
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(canonical)
+    return out
+
+
+def _filtered_display_licenses(raw_lines):
+    return _display_license_lines(raw_lines, include_generic=False)
 
 
 def _build_license_term_index():
@@ -2962,10 +3160,15 @@ def _build_license_term_index():
 LICENSE_CANONICAL_BY_KEY, LICENSE_SEARCH_KEYS = _build_license_term_index()
 
 
+_MEMO_LICENSE_EXCLUDE_TOKENS = ("전환", "제외", "반납", "말소", "포기", "선택")
+
+
 def _extract_license_lines_from_text(text):
     out = []
     seen = set()
     for raw_line in _split_text_lines(text):
+        if any(token in str(raw_line or "") for token in _MEMO_LICENSE_EXCLUDE_TOKENS):
+            continue
         line_key = _normalize_license_key(raw_line)
         if not line_key:
             continue
@@ -3096,9 +3299,8 @@ def _build_sales_rows(item, cate2_lookup):
             if normalized:
                 out.append(normalized)
             elif last_non_empty >= 0 and i <= last_non_empty:
-                # Some hosting forms collapse leading/interior empty array values.
-                # Keep explicit placeholder so row alignment (e.g. 토건/토목/건축) is preserved.
-                out.append("-")
+                # Preserve explicit interior blanks for row alignment.
+                out.append("")
             else:
                 out.append("")
         return out
@@ -3116,6 +3318,8 @@ def _build_sales_rows(item, cate2_lookup):
     rows = []
     for idx in range(row_count):
         lic = lines["license"][idx] if idx < len(lines["license"]) else ""
+        if _is_generic_license_name(lic):
+            continue
         source_values = (
             lic,
             lines["license_year"][idx] if idx < len(lines["license_year"]) else "",
@@ -3148,6 +3352,18 @@ def _build_sales_rows(item, cate2_lookup):
 
 
 def _build_mna_subject(item):
+    claim_raw = item.get("claim_price", "")
+    claim_line = ""
+    for line in reversed(_split_text_lines(claim_raw)):
+        clean = _compact_text(_repair_price_unit_markers(line))
+        if clean and re.search(r"\d", clean):
+            claim_line = clean
+            break
+    if claim_line and ("~" in claim_line or "∼" in claim_line):
+        return claim_line if len(claim_line) <= 30 else claim_line[:30]
+    claim_first = _price_for_subject(claim_line or claim_raw)
+    if claim_first and claim_first != "협의":
+        return claim_first
     return _price_for_subject(item.get("price", ""))
 
 
@@ -3167,7 +3383,7 @@ def _build_mna_content(item):
 
 def _build_mna_admin_memo(item):
     uid = _compact_text(item.get("uid", ""))
-    licenses = ", ".join(_as_lines(item.get("license", ""))[:4])
+    licenses = ", ".join(_display_license_lines(item.get("license", ""))[:4])
     sheet_price = _compact_text(item.get("sheet_price", "")) or _compact_text(item.get("price", ""))
     sheet_claim_price_raw = item.get("sheet_claim_price", "")
     if not _compact_text(sheet_claim_price_raw):
@@ -3374,7 +3590,7 @@ def _normalize_multiline_text(text):
 
 
 def _format_admin_price_for_memo(raw_value):
-    src = _compact_text(raw_value)
+    src = _compact_text(_repair_price_unit_markers(raw_value))
     if not src:
         return ""
     src = (
@@ -3402,7 +3618,9 @@ def _looks_like_claim_price_line(text):
         return False
     if any(token in src for token in ("협의", "보류", "완료", "삭제", "가능")):
         return True
-    if re.search(r"\d", src) and any(mark in src for mark in ("억", "만", "~", "-", "∼", "〜", "–", "—", "/")):
+    if re.search(r"\d", src) and any(mark in src for mark in ("억", "만", "~", "-", "∼", "〜", "–", "—")):
+        return True
+    if re.search(r"\d", src) and ("/" in src) and any(mark in src for mark in ("억", "만")):
         return True
     return False
 
@@ -3511,6 +3729,25 @@ def _format_claim_price_for_admin_memo(raw_value, uid="", licenses=""):
     return "\n".join(out).strip()
 
 
+def _normalize_claim_price_for_sheet(raw_value, uid="", licenses=""):
+    formatted = _format_claim_price_for_admin_memo(raw_value, uid=uid, licenses=licenses)
+    if not formatted:
+        return ""
+    lines = [x for x in _split_multiline_rows_keep_blank(formatted) if _compact_text(x)]
+    if not lines:
+        return ""
+    header = " ".join(x for x in (_compact_text(uid), _compact_text(licenses)) if x).strip()
+    price_lines = [x for x in lines if _looks_like_claim_price_line(x)]
+    out = []
+    if header:
+        out.append(header)
+    if price_lines:
+        out.extend(price_lines)
+    elif not header:
+        out.extend(lines)
+    return "\n".join(out).strip()
+
+
 def _build_mna_payload_updates(item, form, form_html, defaults, status_label="가능"):
     updates = {}
 
@@ -3573,6 +3810,8 @@ def _build_mna_payload_updates(item, form, form_html, defaults, status_label="�
     _, cate2_map = _extract_mna_cate_maps(form_html)
     cate2_lookup = _build_cate2_lookup(cate2_map)
     sales_rows = _build_sales_rows(item, cate2_lookup)
+    raw_license_lines = [x for x in _split_text_lines(item.get("license", "")) if _compact_text(x)]
+    generic_only_license = bool(raw_license_lines) and not bool(_filtered_display_licenses(item.get("license", "")))
     if sales_rows:
         for key in (
             "mp_cate1[]",
@@ -3587,6 +3826,20 @@ def _build_mna_payload_updates(item, form, form_html, defaults, status_label="�
             "mp_2025[]",
         ):
             updates[key] = [row.get(key, "") for row in sales_rows]
+    elif generic_only_license:
+        for key in (
+            "mp_cate1[]",
+            "mp_cate2[]",
+            "mp_year[]",
+            "mp_money[]",
+            "mp_2020[]",
+            "mp_2021[]",
+            "mp_2022[]",
+            "mp_2023[]",
+            "mp_2024[]",
+            "mp_2025[]",
+        ):
+            updates[key] = []
 
     # html 모드 + 링크
     updates["html"] = "html1"
@@ -3599,6 +3852,10 @@ def _build_mna_payload_updates(item, form, form_html, defaults, status_label="�
 
 class MnaBoardPublisher:
     """seoulmna.co.kr mna 게시판 업로드 클라이언트 (G5 기반)."""
+
+    _process_guard_depth = 0
+    _process_guard_lock_file = ""
+    _process_guard_session_id = ""
 
     def __init__(self, site_url, board_slug, admin_id, admin_pw):
         self.site_url = str(site_url).rstrip("/")
@@ -3621,6 +3878,32 @@ class MnaBoardPublisher:
         self.daily_request_cap = int(SEOUL_DAILY_REQUEST_CAP)
         self.daily_write_cap = int(SEOUL_DAILY_WRITE_CAP)
         self._daily_limit_state = self._load_daily_limit_state()
+        self._traffic_guard_enabled = bool(
+            SEOUL_TRAFFIC_GUARD_ENABLED
+            and (self.site_host in LISTING_ALLOWED_HOSTS)
+            and bool(self.admin_id)
+            and bool(self.admin_pw)
+        )
+        self._guard_request_buffer = int(SEOUL_TRAFFIC_GUARD_REQUEST_BUFFER)
+        self._guard_write_buffer = int(SEOUL_TRAFFIC_GUARD_WRITE_BUFFER)
+        self._guard_min_interval_sec = float(SEOUL_TRAFFIC_GUARD_MIN_INTERVAL_SEC)
+        self._guard_report_file = str(SEOUL_TRAFFIC_GUARD_REPORT_FILE or "").strip()
+        self._guard_session_dir = str(SEOUL_TRAFFIC_GUARD_SESSION_DIR or "").strip()
+        self._guard_lock_file = str(SEOUL_TRAFFIC_GUARD_LOCK_FILE or "").strip()
+        self._guard_lock_stale_sec = int(SEOUL_TRAFFIC_GUARD_LOCK_STALE_SEC)
+        self._guard_started_at = datetime.now()
+        self._guard_closed = False
+        self._guard_lock_acquired = False
+        self._guard_session_id = ""
+        self._guard_request_count = 0
+        self._guard_write_count = 0
+        self._guard_error_count = 0
+        self._guard_last_error = ""
+        self._guard_last_request_tick = 0.0
+        self._guard_preflight = {}
+        if self._traffic_guard_enabled:
+            self._start_traffic_guard()
+        atexit.register(self.close)
 
     def _validate_site_domain(self):
         if not self.site_host:
@@ -3677,6 +3960,231 @@ class MnaBoardPublisher:
         self._daily_limit_state = {"date": slot, "requests": 0, "writes": 0}
         self._save_daily_limit_state()
 
+    def _is_write_mutation(self, method, url):
+        method_u = str(method or "").upper()
+        url_txt = str(url or "")
+        return method_u == "POST" and "write_update.php" in url_txt
+
+    def _guard_payload_base(self):
+        return {
+            "session_id": str(self._guard_session_id or ""),
+            "site_url": str(self.site_url),
+            "board_slug": str(self.board_slug),
+            "pid": int(os.getpid()),
+            "started_at": self._guard_started_at.isoformat(timespec="seconds"),
+            "request_buffer": int(self._guard_request_buffer),
+            "write_buffer": int(self._guard_write_buffer),
+            "min_interval_sec": float(self._guard_min_interval_sec),
+            "session_requests": int(self._guard_request_count),
+            "session_writes": int(self._guard_write_count),
+            "session_errors": int(self._guard_error_count),
+            "last_error": str(self._guard_last_error or ""),
+        }
+
+    def _save_guard_report(self, phase, extra=None):
+        if not self._traffic_guard_enabled:
+            return
+        payload = self._guard_payload_base()
+        payload["phase"] = str(phase or "")
+        payload["updated_at"] = datetime.now().isoformat(timespec="seconds")
+        if isinstance(extra, dict):
+            payload.update(extra)
+        latest_path = str(self._guard_report_file or "").strip()
+        if latest_path:
+            try:
+                _ensure_parent_dir(latest_path)
+                with open(latest_path, "w", encoding="utf-8") as f:
+                    json.dump(payload, f, ensure_ascii=False, indent=2)
+            except Exception:
+                pass
+        session_dir = str(self._guard_session_dir or "").strip()
+        if session_dir and self._guard_session_id:
+            try:
+                os.makedirs(session_dir, exist_ok=True)
+                session_path = os.path.join(session_dir, f"{self._guard_session_id}.json")
+                with open(session_path, "w", encoding="utf-8") as f:
+                    json.dump(payload, f, ensure_ascii=False, indent=2)
+            except Exception:
+                pass
+
+    def _load_lock_payload(self, path):
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            if isinstance(data, dict):
+                return data
+        except Exception:
+            pass
+        return {}
+
+    def _save_lock_payload(self, path, payload):
+        _ensure_parent_dir(path)
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(payload, f, ensure_ascii=False, indent=2)
+
+    def _acquire_traffic_guard_lock(self):
+        lock_path = str(self._guard_lock_file or "").strip()
+        if not lock_path:
+            return
+
+        if (
+            int(MnaBoardPublisher._process_guard_depth) > 0
+            and str(MnaBoardPublisher._process_guard_lock_file) == lock_path
+        ):
+            MnaBoardPublisher._process_guard_depth += 1
+            self._guard_lock_acquired = True
+            self._guard_session_id = str(MnaBoardPublisher._process_guard_session_id or "")
+            return
+
+        if os.path.exists(lock_path):
+            now_ts = time.time()
+            age_sec = max(0.0, now_ts - float(os.path.getmtime(lock_path)))
+            lock_payload = self._load_lock_payload(lock_path)
+            lock_pid = int(lock_payload.get("pid", 0) or 0)
+            lock_sid = str(lock_payload.get("session_id", "")).strip()
+            if lock_pid == int(os.getpid()):
+                self._guard_lock_acquired = True
+                self._guard_session_id = lock_sid or datetime.now().strftime("%Y%m%d_%H%M%S")
+                MnaBoardPublisher._process_guard_depth = 1
+                MnaBoardPublisher._process_guard_lock_file = lock_path
+                MnaBoardPublisher._process_guard_session_id = self._guard_session_id
+                return
+            if age_sec <= float(self._guard_lock_stale_sec):
+                raise RuntimeError(
+                    "co.kr traffic-guard lock active: another task appears to be running "
+                    f"(age={int(age_sec)}s, lock={lock_path})"
+                )
+            try:
+                os.remove(lock_path)
+            except Exception as exc:
+                raise RuntimeError(
+                    "co.kr traffic-guard stale lock cleanup failed "
+                    f"(lock={lock_path}, age={int(age_sec)}s): {exc}"
+                ) from exc
+
+        sid = datetime.now().strftime("%Y%m%d_%H%M%S")
+        sid = f"{sid}_{os.getpid()}_{int(time.time() * 1000) % 1000:03d}"
+        payload = {
+            "session_id": sid,
+            "pid": int(os.getpid()),
+            "site_url": str(self.site_url),
+            "board_slug": str(self.board_slug),
+            "started_at": datetime.now().isoformat(timespec="seconds"),
+        }
+        self._save_lock_payload(lock_path, payload)
+        self._guard_lock_acquired = True
+        self._guard_session_id = sid
+        MnaBoardPublisher._process_guard_depth = 1
+        MnaBoardPublisher._process_guard_lock_file = lock_path
+        MnaBoardPublisher._process_guard_session_id = sid
+
+    def _release_traffic_guard_lock(self):
+        if not self._guard_lock_acquired:
+            return
+        lock_path = str(self._guard_lock_file or "").strip()
+        if not lock_path:
+            self._guard_lock_acquired = False
+            return
+
+        if (
+            int(MnaBoardPublisher._process_guard_depth) > 0
+            and str(MnaBoardPublisher._process_guard_lock_file) == lock_path
+        ):
+            MnaBoardPublisher._process_guard_depth -= 1
+            if MnaBoardPublisher._process_guard_depth <= 0:
+                try:
+                    if os.path.exists(lock_path):
+                        payload = self._load_lock_payload(lock_path)
+                        sid = str(payload.get("session_id", "")).strip()
+                        expected = str(MnaBoardPublisher._process_guard_session_id or "").strip()
+                        if (not sid) or (sid == expected):
+                            os.remove(lock_path)
+                except Exception:
+                    pass
+                MnaBoardPublisher._process_guard_depth = 0
+                MnaBoardPublisher._process_guard_lock_file = ""
+                MnaBoardPublisher._process_guard_session_id = ""
+        self._guard_lock_acquired = False
+
+    def _start_traffic_guard(self):
+        self._acquire_traffic_guard_lock()
+        self._guard_preflight = self.daily_limit_summary()
+        self._save_guard_report(
+            "preflight",
+            {
+                "preflight": dict(self._guard_preflight or {}),
+                "message": "co.kr task guard armed",
+            },
+        )
+
+    def _enforce_traffic_guard_before_request(self, method, url):
+        if not self._traffic_guard_enabled:
+            return
+        min_gap = max(0.0, float(self._guard_min_interval_sec))
+        if min_gap > 0 and self._guard_last_request_tick > 0:
+            elapsed = max(0.0, float(time.monotonic() - self._guard_last_request_tick))
+            if elapsed < min_gap:
+                time.sleep(min_gap - elapsed)
+
+        self._ensure_daily_limit_slot()
+        state = dict(self._daily_limit_state or {})
+        req_used = int(state.get("requests", 0) or 0)
+        write_used = int(state.get("writes", 0) or 0)
+        req_cap = int(self.daily_request_cap or 0)
+        write_cap = int(self.daily_write_cap or 0)
+        req_stop = max(0, req_cap - int(self._guard_request_buffer))
+        write_stop = max(0, write_cap - int(self._guard_write_buffer))
+
+        if req_cap > 0 and req_used >= req_stop:
+            self._save_guard_report(
+                "blocked",
+                {
+                    "reason": "request_headroom",
+                    "daily": self.daily_limit_summary(),
+                    "requested_method": str(method or "").upper(),
+                    "requested_url": str(url or "")[:300],
+                },
+            )
+            raise RuntimeError(
+                "co.kr traffic guard stop: request headroom exhausted "
+                f"({req_used}/{req_cap}, buffer={self._guard_request_buffer})"
+            )
+
+        if self._is_write_mutation(method, url) and write_cap > 0 and write_used >= write_stop:
+            self._save_guard_report(
+                "blocked",
+                {
+                    "reason": "write_headroom",
+                    "daily": self.daily_limit_summary(),
+                    "requested_method": str(method or "").upper(),
+                    "requested_url": str(url or "")[:300],
+                },
+            )
+            raise RuntimeError(
+                "co.kr traffic guard stop: write headroom exhausted "
+                f"({write_used}/{write_cap}, buffer={self._guard_write_buffer})"
+            )
+
+    def _record_guard_request(self, method, url, error_msg=""):
+        if not self._traffic_guard_enabled:
+            return
+        self._guard_request_count += 1
+        if self._is_write_mutation(method, url):
+            self._guard_write_count += 1
+        if error_msg:
+            self._guard_error_count += 1
+            self._guard_last_error = str(error_msg or "")[:500]
+        self._guard_last_request_tick = time.monotonic()
+        if error_msg or self._is_write_mutation(method, url) or (self._guard_request_count % 25 == 0):
+            self._save_guard_report(
+                "in_progress",
+                {
+                    "daily": self.daily_limit_summary(),
+                    "last_method": str(method or "").upper(),
+                    "last_url": str(url or "")[:300],
+                },
+            )
+
     def _track_daily_limit(self, method, url):
         self._ensure_daily_limit_slot()
         state = self._daily_limit_state
@@ -3685,7 +4193,7 @@ class MnaBoardPublisher:
         req_next = req_used + 1
         method_u = str(method or "").upper()
         url_txt = str(url or "")
-        is_write_mutation = method_u == "POST" and "write_update.php" in url_txt
+        is_write_mutation = self._is_write_mutation(method_u, url_txt)
         write_next = write_used + (1 if is_write_mutation else 0)
 
         if self.daily_request_cap > 0 and req_next > self.daily_request_cap:
@@ -3705,13 +4213,26 @@ class MnaBoardPublisher:
         state["last_url"] = url_txt[:300]
         self._save_daily_limit_state()
 
+    def _request(self, method, url, **kwargs):
+        method_u = str(method or "").upper()
+        self._enforce_traffic_guard_before_request(method_u, url)
+        try:
+            self._track_daily_limit(method_u, url)
+            if method_u == "GET":
+                res = self.session.get(url, **kwargs)
+            else:
+                res = self.session.post(url, **kwargs)
+            self._record_guard_request(method_u, url, error_msg="")
+            return res
+        except Exception as exc:
+            self._record_guard_request(method_u, url, error_msg=str(exc))
+            raise
+
     def get(self, url, **kwargs):
-        self._track_daily_limit("GET", url)
-        return self.session.get(url, **kwargs)
+        return self._request("GET", url, **kwargs)
 
     def post(self, url, **kwargs):
-        self._track_daily_limit("POST", url)
-        return self.session.post(url, **kwargs)
+        return self._request("POST", url, **kwargs)
 
     def daily_limit_summary(self):
         self._ensure_daily_limit_slot()
@@ -3724,6 +4245,45 @@ class MnaBoardPublisher:
             "write_cap": int(self.daily_write_cap),
             "state_file": str(self.daily_limit_state_file or ""),
         }
+
+    def close(self):
+        if self._guard_closed:
+            return
+        self._guard_closed = True
+        try:
+            if self._traffic_guard_enabled:
+                ended_at = datetime.now()
+                elapsed = max(0.0, (ended_at - self._guard_started_at).total_seconds())
+                self._save_guard_report(
+                    "postflight",
+                    {
+                        "preflight": dict(self._guard_preflight or {}),
+                        "postflight": self.daily_limit_summary(),
+                        "finished_at": ended_at.isoformat(timespec="seconds"),
+                        "duration_sec": round(elapsed, 3),
+                        "cleanup": {"session_closed": True, "lock_release_attempted": True},
+                    },
+                )
+        finally:
+            try:
+                self.session.close()
+            except Exception:
+                pass
+            if self._traffic_guard_enabled:
+                self._release_traffic_guard_lock()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc, tb):
+        self.close()
+        return False
+
+    def __del__(self):
+        try:
+            self.close()
+        except Exception:
+            pass
 
     def _write_url(self):
         return f"{self.site_url}/bbs/write.php?bo_table={self.board_slug}"
@@ -4131,7 +4691,7 @@ def _sheet_rows_equal(old_row, new_row):
     return True
 
 
-def _reconcile_sheet_sync(worksheet, runtime, uid, status_label, item=None, dry_run=False):
+def _reconcile_sheet_sync(worksheet, runtime, uid, status_label, item=None, dry_run=False, row_no_override=None):
     uid = str(uid or "").strip()
     if not uid:
         return {"action": "skip_no_uid", "uid": uid}
@@ -4146,36 +4706,56 @@ def _reconcile_sheet_sync(worksheet, runtime, uid, status_label, item=None, dry_
             return {"action": "skip_no_row", "uid": uid}
         old_row = all_values[row_idx - 1] if (row_idx - 1) < len(all_values) else []
         before_row = list(old_row or [])
+        old_no = _row_text(old_row, 0)
         old_status = _normalize_sync_status_label(_row_text(old_row, 1))
-        if old_status == status_label:
+        row_no = _resolve_sheet_row_no(
+            old_no=old_no,
+            row_no_override=row_no_override,
+            fallback_no=int(runtime.get("last_no", 0)) + 1,
+            allocate_if_missing=False,
+        )
+        after_row = list(before_row)
+        while len(after_row) < 2:
+            after_row.append("")
+        after_row[0] = row_no
+        after_row[1] = status_label
+        row_no_changed = _normalize_compare_text(old_no) != _normalize_compare_text(row_no)
+        status_changed = old_status != status_label
+        if not status_changed and not row_no_changed:
             return {
                 "action": "same",
                 "uid": uid,
                 "row_idx": row_idx,
+                "row_no": row_no,
                 "before_status": old_status,
                 "after_status": status_label,
                 "before_row": before_row,
                 "after_row": list(before_row),
             }
         if not dry_run:
-            cell = f"B{row_idx}"
+            cell = f"A{row_idx}:B{row_idx}"
             try:
-                worksheet.update(values=[[status_label]], range_name=cell)
+                worksheet.update(values=[[row_no, status_label]], range_name=cell)
             except TypeError:
-                worksheet.update(cell, [[status_label]])
-        after_row = list(before_row)
-        while len(after_row) < 2:
-            after_row.append("")
-        after_row[1] = status_label
+                worksheet.update(cell, [[row_no, status_label]])
         if (row_idx - 1) < len(all_values):
             all_values[row_idx - 1] = list(after_row)
+        alignment_change = "status_only"
+        if row_no_changed and status_changed:
+            alignment_change = "row_no_and_status"
+        elif row_no_changed:
+            alignment_change = "row_no_only"
         return {
             "action": "status_only",
+            "alignment_change": alignment_change,
             "uid": uid,
             "row_idx": row_idx,
+            "row_no": row_no,
             "status": status_label,
             "before_status": old_status,
             "after_status": status_label,
+            "row_no_changed": row_no_changed,
+            "status_changed": status_changed,
             "before_row": before_row,
             "after_row": after_row,
             "before_exists": True,
@@ -4185,7 +4765,12 @@ def _reconcile_sheet_sync(worksheet, runtime, uid, status_label, item=None, dry_
         old_row = all_values[row_idx - 1] if (row_idx - 1) < len(all_values) else []
         before_row = list(old_row or [])
         old_no = _row_text(old_row, 0)
-        row_no = _sheet_no_to_int(old_no) or max(1, int(runtime.get("last_no", 0)) + 1)
+        row_no = _resolve_sheet_row_no(
+            old_no=old_no,
+            row_no_override=row_no_override,
+            fallback_no=int(runtime.get("last_no", 0)) + 1,
+            allocate_if_missing=False,
+        )
         new_row = _build_sheet_row(
             item,
             row_no=row_no,
@@ -4222,7 +4807,12 @@ def _reconcile_sheet_sync(worksheet, runtime, uid, status_label, item=None, dry_
             "before_exists": True,
         }
 
-    row_no = max(1, int(runtime.get("last_no", 0)) + 1)
+    row_no = _resolve_sheet_row_no(
+        old_no="",
+        row_no_override=row_no_override,
+        fallback_no=int(runtime.get("last_no", 0)) + 1,
+        allocate_if_missing=False,
+    )
     row_idx = max(2, int(runtime.get("last_row", 1)) + 1)
     new_row = _build_sheet_row(item, row_no=row_no, status_label=status_label, keep_display_col="", keep_subject_col="")
     if not dry_run:
@@ -4236,7 +4826,9 @@ def _reconcile_sheet_sync(worksheet, runtime, uid, status_label, item=None, dry_
         all_values.append([])
     all_values[row_idx - 1] = list(new_row)
     uid_to_row[uid] = row_idx
-    runtime["last_no"] = row_no
+    row_no_num = _sheet_no_to_int(row_no)
+    if row_no_num > int(runtime.get("last_no", 0) or 0):
+        runtime["last_no"] = row_no_num
     runtime["last_row"] = row_idx
     return {
         "action": "appended",
@@ -4293,6 +4885,7 @@ def _extract_credit_subject_candidates(item, reviewed_memo):
     for raw in (
         (item or {}).get("license", ""),
         (item or {}).get("claim_price", ""),
+        (item or {}).get("price_trace_summary", ""),
         (item or {}).get("price_raw", ""),
         reviewed_memo,
         (item or {}).get("memo", ""),
@@ -4446,26 +5039,53 @@ def _build_sheet_row(item, row_no, status_label="가능", old_memo="", keep_disp
         reviewed_memo = _merge_sheet_memo_preserve_credit(old_memo, reviewed_memo)
     credit_display_col = _build_credit_display_col(item, reviewed_memo, keep_display_col)
     credit_subject_col = _build_credit_subject_col(item, reviewed_memo, keep_subject_col, keep_display_col)
+    raw_license_lines = [x for x in _split_text_lines((item or {}).get("license", "")) if _compact_text(x)]
+    generic_only_license = bool(raw_license_lines) and not bool(_filtered_display_licenses((item or {}).get("license", "")))
+    display_license_lines = _display_license_lines((item or {}).get("license", ""))
+    claim_price_text = _normalize_claim_price_for_sheet(
+        (item or {}).get("claim_price", ""),
+        uid=uid,
+        licenses=", ".join(display_license_lines[:4]),
+    )
+    license_text = item.get("license", "")
+    license_year_text = item.get("license_year", "")
+    specialty_text = item.get("specialty", "")
+    y20_text = item.get("y20", "")
+    y21_text = item.get("y21", "")
+    y22_text = item.get("y22", "")
+    y23_text = item.get("y23", "")
+    y24_text = item.get("y24", "")
+    y25_text = item.get("y25", "")
+    if generic_only_license:
+        license_year_text = ""
+        specialty_text = ""
+        y20_text = ""
+        y21_text = ""
+        y22_text = ""
+        y23_text = ""
+        y24_text = ""
+        y25_text = ""
+    public_price_text = "협의"
     return [
         row_no,
         status_label,
-        item.get("license", ""),
-        item.get("license_year", ""),
-        item.get("specialty", ""),
-        item.get("y20", ""),
-        item.get("y21", ""),
-        item.get("y22", ""),
-        item.get("y23", ""),
-        item.get("y24", ""),
+        license_text,
+        license_year_text,
+        specialty_text,
+        y20_text,
+        y21_text,
+        y22_text,
+        y23_text,
+        y24_text,
         "",
         "",
-        item.get("y25", ""),
+        y25_text,
         item.get("founded_year", ""),
         str(item.get("shares", "")).replace("좌", ""),
         item.get("company_type", ""),
         item.get("location", ""),
         str(item.get("balance", "")).replace("만", ""),
-        item.get("price", ""),
+        public_price_text,
         item.get("capital", ""),
         item.get("association", ""),
         item.get("debt_ratio", ""),
@@ -4480,11 +5100,11 @@ def _build_sheet_row(item, row_no, status_label="가능", old_memo="", keep_disp
         item.get("surplus", ""),
         reviewed_memo,
         MY_COMPANY_NAME,
-        item.get("claim_price", ""),
+        claim_price_text,
         str(item.get("uid", "")),
         credit_display_col,
         credit_subject_col,
-        item.get("price_raw", ""),
+        item.get("price_trace_summary", "") or item.get("price_raw", ""),
         item.get("price_source", ""),
         item.get("price_evidence", ""),
         item.get("price_confidence", ""),
@@ -4721,22 +5341,31 @@ def _extract_item_from_detail_link(driver, link):
     except Exception:
         pass
 
-    if not l_lic:
-        try:
-            body_text = driver.find_element(By.TAG_NAME, "body").text
-            fallback_rows = _extract_nowmna_sales_rows_from_body_text(body_text)
-            for row in fallback_rows:
-                l_lic.append(_compact_text(row.get("license", "")))
-                l_yr.append(_compact_text(row.get("year", "")))
-                l_sp.append(_compact_text(row.get("specialty", "")))
-                l_20.append(_compact_text(row.get("y20", "")))
-                l_21.append(_compact_text(row.get("y21", "")))
-                l_22.append(_compact_text(row.get("y22", "")))
-                l_23.append(_compact_text(row.get("y23", "")))
-                l_24.append(_compact_text(row.get("y24", "")))
-                l_25.append(_compact_text(row.get("y25", "")))
-        except Exception:
-            pass
+    try:
+        body_text = driver.find_element(By.TAG_NAME, "body").text
+        fallback_rows = _extract_nowmna_sales_rows_from_body_text(body_text)
+        existing_license_keys = {
+            _normalize_license_key(raw)
+            for raw in l_lic
+            if _normalize_license_key(raw)
+        }
+        for row in fallback_rows:
+            row_license = _compact_text(row.get("license", ""))
+            row_key = _normalize_license_key(row_license)
+            if not row_key or row_key in existing_license_keys:
+                continue
+            existing_license_keys.add(row_key)
+            l_lic.append(row_license)
+            l_yr.append(_compact_text(row.get("year", "")))
+            l_sp.append(_compact_text(row.get("specialty", "")))
+            l_20.append(_compact_text(row.get("y20", "")))
+            l_21.append(_compact_text(row.get("y21", "")))
+            l_22.append(_compact_text(row.get("y22", "")))
+            l_23.append(_compact_text(row.get("y23", "")))
+            l_24.append(_compact_text(row.get("y24", "")))
+            l_25.append(_compact_text(row.get("y25", "")))
+    except Exception:
+        pass
 
     loc = get_value_by_label(driver, ["소재지"])
     price_raw = get_value_by_label(driver, ["양도가", "매매가", "최종 양도가", "최종가"])
@@ -4759,7 +5388,8 @@ def _extract_item_from_detail_link(driver, link):
         except Exception:
             pass
     memo_license_lines = _extract_license_lines_from_text(memo)
-    if memo_license_lines:
+    primary_has_only_generic = bool([x for x in l_lic if _compact_text(x)]) and not bool(_filtered_display_licenses(l_lic))
+    if memo_license_lines and (not primary_has_only_generic):
         l_lic = _merge_license_lines(l_lic, memo_license_lines) or list(l_lic)
 
     f_lic = _join_lines_preserve_alignment(l_lic)
@@ -4778,8 +5408,9 @@ def _extract_item_from_detail_link(driver, link):
     if price != (price_raw or "").strip():
         print(
             "      [가격보정] "
-            f"UID {origin_uid}: '{price_raw}' -> '{price}' "
-            f"(source={price_trace['source']}, confidence={price_trace['confidence']}, claim='{claim_price}')"
+            f"UID {origin_uid}: normalized='{price}' "
+            f"(source={price_trace['source']}, confidence={price_trace['confidence']}, "
+            f"claim_present={'Y' if _compact_text(claim_price) else 'N'})"
         )
 
     item = {
@@ -4796,7 +5427,7 @@ def _extract_item_from_detail_link(driver, link):
         "y25": y25,
         "location": loc,
         "price": price,
-        "price_raw": price_raw,
+        "price_trace_summary": _build_price_trace_summary(price_trace, price_raw, claim_price),
         "claim_price": claim_price,
         "price_source": price_trace["source"],
         "price_evidence": price_trace["evidence"],
@@ -4816,20 +5447,29 @@ def _extract_item_from_detail_link(driver, link):
     return item
 
 
-def _upsert_item_to_sheet(worksheet, all_values, item):
+def _upsert_item_to_sheet(worksheet, all_values, item, status_label="가능", row_no_override=None):
     context = _analyze_sheet_rows(all_values)
     existing_web_ids = context["existing_web_ids"]
     uid = str(item.get("uid", "")).strip()
     if not uid:
         raise ValueError("uid 누락: 시트 반영 불가")
+    status_label = _normalize_sync_status_label(status_label)
 
     update_row_idx = existing_web_ids.get(uid)
     if isinstance(update_row_idx, int) and update_row_idx > 1:
         old_row = all_values[update_row_idx - 1] if (update_row_idx - 1) < len(all_values) else []
         old_no = _row_text(old_row, 0) if old_row else ""
-        row_no = _sheet_no_to_int(old_no) or max(1, context["last_my_number"] + 1)
+        row_no = _resolve_sheet_row_no(
+            old_no=old_no,
+            row_no_override=row_no_override,
+            fallback_no=context["last_my_number"] + 1,
+            allocate_if_missing=False,
+        )
         old_memo = _row_text(old_row, 31)
         old_claim_price = _row_text(old_row, 33)
+        ok_item, item_issues = _validate_item_for_sheet(item, old_claim_price)
+        if not ok_item and (status_label != "완료"):
+            return {"action": "skipped_invalid", "row_idx": 0, "row_no": 0, "issues": list(item_issues)}
         item_for_update = dict(item or {})
         # --uid 재수집 시 원본 페이지에 청구양도가가 비어 있더라도
         # 기존 시트 AH(청구양도가)를 지우지 않도록 보존한다.
@@ -4838,6 +5478,7 @@ def _upsert_item_to_sheet(worksheet, all_values, item):
         row_values = _build_sheet_row(
             item_for_update,
             row_no,
+            status_label=status_label,
             old_memo=old_memo,
             keep_display_col=_row_text(old_row, 35),
             keep_subject_col=_row_text(old_row, 36),
@@ -4849,9 +5490,18 @@ def _upsert_item_to_sheet(worksheet, all_values, item):
             worksheet.update(cell, [row_values])
         return {"action": "updated", "row_idx": update_row_idx, "row_no": row_no}
 
+    ok_item, item_issues = _validate_item_for_sheet(item)
+    if not ok_item and (status_label != "완료"):
+        return {"action": "skipped_invalid", "row_idx": 0, "row_no": 0, "issues": list(item_issues)}
+
     insert_row_idx = context["real_last_row"] + 1
-    row_no = max(1, context["last_my_number"] + 1)
-    row_values = _build_sheet_row(item, row_no, keep_display_col="", keep_subject_col="")
+    row_no = _resolve_sheet_row_no(
+        old_no="",
+        row_no_override=row_no_override,
+        fallback_no=context["last_my_number"] + 1,
+        allocate_if_missing=False,
+    )
+    row_values = _build_sheet_row(item, row_no, status_label=status_label, keep_display_col="", keep_subject_col="")
     cell = f"A{insert_row_idx}"
     try:
         worksheet.update(values=[row_values], range_name=cell)
@@ -5732,12 +6382,27 @@ def _coerce_payload_list(value):
 def _merge_blank_sales_with_existing(updates, defaults):
     out = dict(updates or {})
     base = dict(defaults or {})
+    row_structure_changed = False
+    if ("mp_cate1[]" in out) and ("mp_cate2[]" in out):
+        row_structure_changed = (
+            _normalize_sales_compare_list(out.get("mp_cate1[]", []), key="mp_cate1[]")
+            != _normalize_sales_compare_list(base.get("mp_cate1[]", []), key="mp_cate1[]")
+        ) or (
+            _normalize_sales_compare_list(out.get("mp_cate2[]", []), key="mp_cate2[]")
+            != _normalize_sales_compare_list(base.get("mp_cate2[]", []), key="mp_cate2[]")
+        )
     for key in SALES_ARRAY_KEYS:
         if key not in out:
             continue
         new_vals = _coerce_payload_list(out.get(key, []))
         old_vals = _coerce_payload_list(base.get(key, []))
         if not new_vals and not old_vals:
+            continue
+        if row_structure_changed:
+            if key == "mp_year[]":
+                out[key] = [_to_year_text(v) for v in new_vals]
+            else:
+                out[key] = list(new_vals)
             continue
         max_len = max(len(new_vals), len(old_vals))
         last_non_empty = -1
@@ -5984,7 +6649,7 @@ def _save_reconcile_audit(audit_obj):
             f"sheet={row.get('sheet_action', '')} / "
             f"키={','.join(row.get('site_changed_keys', []) or [])}"
         )
-    with open(md_path, "w", encoding="utf-8") as f:
+    with open(md_path, "w", encoding="utf-8-sig") as f:
         f.write("\n".join(lines).rstrip() + "\n")
 
     return {"json": json_path, "md": md_path, "csv": csv_path, "latest": latest_path}
@@ -6206,7 +6871,12 @@ def _publish_to_site(items, allow_low_quality=False):
                         f"   ℹ️ UID {uid} 품질점수={quality.get('score',0)} "
                         f"/ 권장이미지={quality.get('recommended_images', 0)}장"
                     )
-                out = publisher.publish_listing(item)
+                out = _resolve_publish_listing_result(
+                    publisher,
+                    item,
+                    publisher.publish_listing(item),
+                    max_pages=RECONCILE_SEOUL_MAX_PAGES,
+                )
                 uploaded_uids[uid] = {
                     "published_at": datetime.now().isoformat(timespec="seconds"),
                     "url": out.get("url", ""),
@@ -6372,18 +7042,40 @@ def run_scraper(upload_enabled=None, allow_sheet_jump=False, allow_low_quality_u
     print(f"\n🔎 최종 신규 매물: {len(new_items_urls)}개 -> 상세 수집 시작")
 
     collected_items = []
-    final_data_list = []
-    current_no = last_my_number + 1
+    collected_status = {}
+    sheet_runtime = {
+        "uid_to_row": dict(existing_web_ids),
+        "all_values": all_values,
+        "last_row": int(real_last_row),
+        "last_no": int(last_my_number),
+    }
 
     for link in new_items_urls:
         origin_uid = link.split("uid=")[1].split("&")[0]
         try:
             item = _extract_item_from_detail_link(driver, link)
             f_lic = str(item.get("license", "")).strip()
+            ok_item, item_issues = _validate_item_for_sheet(item)
+            status_label = _derive_sheet_status_for_new_item(item, item_issues)
+            skip_site_publish = _should_skip_site_publish_for_item(item, status_label, item_issues)
+            if skip_site_publish:
+                sheet_out = _reconcile_sheet_sync(
+                    worksheet=worksheet,
+                    runtime=sheet_runtime,
+                    uid=origin_uid,
+                    status_label="완료",
+                    item=item,
+                    dry_run=False,
+                    row_no_override="",
+                )
+                print(
+                    f"   -> {origin_uid} 수집완료 ({f_lic or '-'}) / "
+                    f"시트 완료처리 ({','.join(item_issues) if item_issues else 'status=완료'})"
+                )
+                continue
 
             collected_items.append(item)
-            final_data_list.append(_build_sheet_row(item, current_no, keep_display_col=""))
-            current_no += 1
+            collected_status[origin_uid] = status_label
             print(f"   -> {origin_uid} 수집완료 ({f_lic})")
 
         except Exception as e:
@@ -6391,26 +7083,48 @@ def run_scraper(upload_enabled=None, allow_sheet_jump=False, allow_low_quality_u
 
     _safe_quit(driver)
 
-    if final_data_list:
-        print(f"\n💾 [저장] {start_row_index}행부터 입력합니다...")
-        range_start = f"A{start_row_index}"
-        try:
-            worksheet.update(values=final_data_list, range_name=range_start)
-        except TypeError:
-            worksheet.update(range_start, final_data_list)
-        print(f"✅ 총 {len(final_data_list)}건 저장 완료!")
-    else:
-        print("✅ 저장할 데이터가 없습니다.")
-        return
-
     if upload_enabled:
-        print("\n📤 [4] seoulmna.co.kr 업로드 시작...")
-        _publish_to_site(
-            collected_items,
-            allow_low_quality=bool(allow_low_quality_upload),
-        )
+        if collected_items:
+            print("\n📤 [4] seoulmna.co.kr 업로드 시작...")
+            _publish_to_site(
+                collected_items,
+                allow_low_quality=bool(allow_low_quality_upload),
+            )
+        else:
+            print("\nℹ️ 업로드 대상 신규 매물 없음(시트 완료처리만 반영).")
     else:
         print("\nℹ️ 업로드 생략(--no-upload).")
+
+    upload_state_after = _load_upload_state(UPLOAD_STATE_FILE) if upload_enabled else {}
+    uploaded_uids_after = dict(upload_state_after.get("uploaded_uids", {}) or {}) if isinstance(upload_state_after, dict) else {}
+    synced_count = 0
+    for item in collected_items:
+        uid = str(item.get("uid", "")).strip()
+        if not uid:
+            continue
+        row_no_override = ""
+        if upload_enabled:
+            site_url = str((uploaded_uids_after.get(uid, {}) or {}).get("url", "")).strip()
+            row_no_override = _extract_site_wr_id(site_url) or ""
+        sheet_out = _reconcile_sheet_sync(
+            worksheet=worksheet,
+            runtime=sheet_runtime,
+            uid=uid,
+            status_label=collected_status.get(uid, "가능"),
+            item=item,
+            dry_run=False,
+            row_no_override=row_no_override,
+        )
+        synced_count += 1
+        print(
+            f"   ✅ 시트 동기화: uid={uid} "
+            f"row={sheet_out.get('row_idx', 0)} / 번호={sheet_out.get('row_no', '') or '-'}"
+        )
+
+    if (not collected_items) and (not new_items_urls):
+        return
+    if synced_count > 0:
+        print(f"✅ 시트 동기화 완료: {synced_count}건")
 
 
 def run_single_uid(uid, upload_enabled=None, allow_sheet_jump=False, allow_low_quality_upload=False):
@@ -6467,23 +7181,50 @@ def run_single_uid(uid, upload_enabled=None, allow_sheet_jump=False, allow_low_q
         f"소재지={_compact_text(item.get('location', '')) or '-'}"
     )
 
+    ok_item, item_issues = _validate_item_for_sheet(item)
+    status_label = _derive_sheet_status_for_new_item(item, item_issues)
+    skip_site_publish = _should_skip_site_publish_for_item(item, status_label, item_issues)
+    row_no_override = ""
+
+    if skip_site_publish:
+        print(
+            "ℹ️ 사이트 업로드 생략: "
+            f"uid={uid} / reason={','.join(item_issues) if item_issues else 'status=완료'}"
+        )
+    elif upload_enabled:
+        print("📤 [4] 사이트 업로드 진행...")
+        _publish_to_site([item], allow_low_quality=bool(allow_low_quality_upload))
+        upload_state_after = _load_upload_state(UPLOAD_STATE_FILE)
+        uploaded_uids_after = (
+            dict(upload_state_after.get("uploaded_uids", {}) or {})
+            if isinstance(upload_state_after, dict)
+            else {}
+        )
+        site_url = str((uploaded_uids_after.get(uid, {}) or {}).get("url", "")).strip()
+        row_no_override = _extract_site_wr_id(site_url) or ""
+    else:
+        print("ℹ️ 사이트 업로드 생략(--no-upload).")
+
     print("🧾 [3] 26양도매물 시트 반영 중...")
     try:
-        upsert = _upsert_item_to_sheet(worksheet, all_values, item)
+        upsert = _upsert_item_to_sheet(
+            worksheet,
+            all_values,
+            item,
+            status_label=("완료" if skip_site_publish else status_label),
+            row_no_override=row_no_override,
+        )
+        if upsert.get("action") == "skipped_invalid":
+            print(f"❌ 시트 반영 중단(uid={uid}): {','.join(upsert.get('issues', []))}")
+            return
         action_txt = "갱신" if upsert["action"] == "updated" else "추가"
         print(
             f"   ✅ 시트 {action_txt} 완료: "
-            f"row={upsert['row_idx']} / 번호={upsert['row_no']} / uid={uid}"
+            f"row={upsert['row_idx']} / 번호={upsert['row_no'] or '-'} / uid={uid}"
         )
     except Exception as e:
         print(f"❌ 시트 반영 실패: {e}")
         return
-
-    if upload_enabled:
-        print("📤 [4] 사이트 업로드 진행...")
-        _publish_to_site([item], allow_low_quality=bool(allow_low_quality_upload))
-    else:
-        print("ℹ️ 사이트 업로드 생략(--no-upload).")
 
 
 def run_reconcile_published(
@@ -6539,6 +7280,7 @@ def run_reconcile_published(
     sheet_no_uid = {}
     sheet_runtime = None
     sheet_header = []
+    site_wr_authoritative = {}
     try:
         scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
         creds = ServiceAccountCredentials.from_json_keyfile_name(JSON_FILE, scope)
@@ -6565,6 +7307,7 @@ def run_reconcile_published(
             "last_row": int(sheet_ctx.get("real_last_row", 1)),
             "last_no": int(sheet_ctx.get("last_my_number", 0)),
         }
+        site_wr_authoritative = dict(_seed_site_wr_map_from_upload_state() or {})
     except Exception as e:
         print(f"   ⚠️ 시트 UID 매핑 로드 실패: {e}")
 
@@ -6579,6 +7322,39 @@ def run_reconcile_published(
         print("✅ 시트에 UID 매핑이 없어 반영할 대상이 없습니다.")
         _leave_reconcile_guard(guard_ctx)
         return
+
+    auth_admin_id = str(CONFIG.get("ADMIN_ID", "")).strip()
+    auth_admin_pw = str(CONFIG.get("ADMIN_PW", "")).strip()
+    if auth_admin_id and auth_admin_pw:
+        unresolved_uids = sorted(
+            [uid for uid in uid_to_row.keys() if str(uid or "").strip() and int(site_wr_authoritative.get(uid, 0) or 0) <= 0],
+            key=lambda x: int(x) if str(x).isdigit() else 0,
+        )
+        if unresolved_uids:
+            auth_publisher = MnaBoardPublisher(SITE_URL, MNA_BOARD_SLUG, auth_admin_id, auth_admin_pw)
+            try:
+                auth_publisher.login()
+                discovered, diag = _discover_site_wr_map_from_board(
+                    auth_publisher,
+                    unresolved_uids,
+                    max_pages=seoul_max_pages,
+                )
+                for map_uid, wr_id in dict(discovered or {}).items():
+                    wr_id_num = int(wr_id or 0)
+                    if wr_id_num > 0:
+                        site_wr_authoritative[str(map_uid)] = wr_id_num
+                mapped = len([uid for uid in unresolved_uids if int(site_wr_authoritative.get(uid, 0) or 0) > 0])
+                print(
+                    f"   co.kr UID→WR 기준맵: 대상 {len(unresolved_uids)}건 / 매핑 {mapped}건 "
+                    f"(pages={diag.get('scanned_pages', 0)}, wr_scan={diag.get('scanned_wr_ids', 0)})"
+                )
+            except Exception as e:
+                print(f"   ⚠️ co.kr UID→WR 기준맵 로드 실패: {e}")
+            finally:
+                try:
+                    auth_publisher.close()
+                except Exception:
+                    pass
 
     candidate_jobs = []
     prefetched_items = {}
@@ -6598,13 +7374,20 @@ def run_reconcile_published(
                 continue
             row = _sheet_row_from_runtime(sheet_runtime, uid)
             wr_id_text = _row_text(row, 0)
-            if not wr_id_text.isdigit():
-                continue
-            wr_id = int(wr_id_text)
+            current_sheet_wr_id = _sheet_no_to_int(wr_id_text)
             deleted_on_source = uid not in nowmna_uids
             source_status = "완료" if deleted_on_source else str(nowmna_status_map.get(uid, "가능")).strip() or "가능"
             if source_status not in {"가능", "보류", "완료"}:
                 source_status = "가능"
+            site_wr_id = int(site_wr_authoritative.get(uid, 0) or 0)
+            effective_wr_id = current_sheet_wr_id
+            row_no_override = None
+            if site_wr_id > 0:
+                effective_wr_id = site_wr_id
+                row_no_override = site_wr_id
+            elif source_status == "완료":
+                effective_wr_id = 0
+                row_no_override = "__CLEAR__"
 
             item = None
             if not status_only and source_status != "완료":
@@ -6644,6 +7427,7 @@ def run_reconcile_published(
                 status_label=source_status,
                 item=probe_item,
                 dry_run=True,
+                row_no_override=row_no_override,
             )
             probe_action = str((probe_out or {}).get("action", "")).strip()
             if probe_action not in {"updated", "appended", "status_only"}:
@@ -6651,13 +7435,16 @@ def run_reconcile_published(
 
             candidate_jobs.append(
                 {
-                    "wr_id": wr_id,
+                    "wr_id": effective_wr_id,
                     "uid": uid,
                     "source_status": source_status,
                     "deleted_on_source": bool(deleted_on_source),
                     "defer_reason": defer_reason,
                     "item": item,
                     "probe_action": probe_action,
+                    "row_no_override": row_no_override,
+                    "sheet_wr_id": current_sheet_wr_id,
+                    "site_wr_id": site_wr_id,
                 }
             )
     finally:
@@ -6684,6 +7471,8 @@ def run_reconcile_published(
             "sheet_updated": 0,
             "sheet_appended": 0,
             "sheet_status_only": 0,
+            "sheet_rowno_only": 0,
+            "sheet_rowno_and_status": 0,
             "sheet_same": 0,
             "sheet_skipped": 0,
             "sheet_failed": 0,
@@ -6693,7 +7482,13 @@ def run_reconcile_published(
         def _consume_sheet_out_sheet_only(sheet_out):
             action = str((sheet_out or {}).get("action", "")).strip()
             if action == "status_only":
-                stats["sheet_status_only"] += 1
+                alignment_change = str((sheet_out or {}).get("alignment_change", "status_only")).strip() or "status_only"
+                if alignment_change == "row_no_only":
+                    stats["sheet_rowno_only"] += 1
+                elif alignment_change == "row_no_and_status":
+                    stats["sheet_rowno_and_status"] += 1
+                else:
+                    stats["sheet_status_only"] += 1
             elif action == "updated":
                 stats["sheet_updated"] += 1
             elif action == "appended":
@@ -6749,6 +7544,7 @@ def run_reconcile_published(
                     status_label=source_status,
                     item=item,
                     dry_run=dry_run,
+                    row_no_override=job.get("row_no_override"),
                 )
                 sheet_action = _consume_sheet_out_sheet_only(sheet_out)
                 entry["sheet_action"] = sheet_action
@@ -6801,6 +7597,8 @@ def run_reconcile_published(
             f"시트갱신 {stats['sheet_updated']} / "
             f"시트추가 {stats['sheet_appended']} / "
             f"시트상태 {stats['sheet_status_only']} / "
+            f"시트번호 {stats['sheet_rowno_only']} / "
+            f"시트번호+상태 {stats['sheet_rowno_and_status']} / "
             f"시트동일 {stats['sheet_same']} / "
             f"시트스킵 {stats['sheet_skipped']} / "
             f"시트실패 {stats['sheet_failed']}"
@@ -6837,8 +7635,10 @@ def run_reconcile_published(
     options = webdriver.ChromeOptions()
     driver = None
     item_cache = dict(prefetched_items)
-    seoul_wr_ids = [int(x.get("wr_id", 0)) for x in candidate_jobs if str(x.get("wr_id", "")).isdigit() and int(x.get("wr_id", 0)) > 0]
-    job_by_wr_id = {int(x["wr_id"]): x for x in candidate_jobs if str(x.get("wr_id", "")).isdigit() and int(x.get("wr_id", 0)) > 0}
+    no_site_jobs = [x for x in candidate_jobs if int(x.get("wr_id", 0) or 0) <= 0]
+    site_jobs = [x for x in candidate_jobs if int(x.get("wr_id", 0) or 0) > 0]
+    seoul_wr_ids = [int(x.get("wr_id", 0)) for x in site_jobs if str(x.get("wr_id", "")).isdigit() and int(x.get("wr_id", 0)) > 0]
+    job_by_wr_id = {int(x["wr_id"]): x for x in site_jobs if str(x.get("wr_id", "")).isdigit() and int(x.get("wr_id", 0)) > 0}
 
     stats = {
         "same": 0,
@@ -6850,6 +7650,8 @@ def run_reconcile_published(
         "sheet_updated": 0,
         "sheet_appended": 0,
         "sheet_status_only": 0,
+        "sheet_rowno_only": 0,
+        "sheet_rowno_and_status": 0,
         "sheet_same": 0,
         "sheet_skipped": 0,
         "sheet_failed": 0,
@@ -6859,7 +7661,13 @@ def run_reconcile_published(
     def _consume_sheet_out(sheet_out):
         action = str((sheet_out or {}).get("action", "")).strip()
         if action == "status_only":
-            stats["sheet_status_only"] += 1
+            alignment_change = str((sheet_out or {}).get("alignment_change", "status_only")).strip() or "status_only"
+            if alignment_change == "row_no_only":
+                stats["sheet_rowno_only"] += 1
+            elif alignment_change == "row_no_and_status":
+                stats["sheet_rowno_and_status"] += 1
+            else:
+                stats["sheet_status_only"] += 1
         elif action == "updated":
             stats["sheet_updated"] += 1
         elif action == "appended":
@@ -6871,6 +7679,153 @@ def run_reconcile_published(
         return action
 
     try:
+        for idx, job in enumerate(no_site_jobs, start=1):
+            if max_updates > 0 and applied_changes >= max_updates:
+                print(f"⚠️ 변경 상한 도달: {max_updates}건")
+                break
+
+            uid = str(job.get("uid", "")).strip()
+            source_status = str(job.get("source_status", "가능")).strip() or "가능"
+            if source_status not in {"가능", "보류", "완료"}:
+                source_status = "가능"
+            entry = {
+                "wr_id": 0,
+                "uid": uid,
+                "source_status": source_status,
+                "result": "",
+                "site_action": "skipped_no_site_wr",
+                "sheet_action": "",
+                "site_changed_keys": [],
+                "site_changes": {},
+                "sheet_changes": {},
+                "message": "co.kr authoritative wr_id 없음",
+                "error": "",
+                "rollback": {},
+            }
+            audit["entries"].append(entry)
+
+            item = None if (status_only or source_status == "완료") else job.get("item")
+            if not isinstance(item, dict):
+                item = None
+            try:
+                if dry_run and item is not None:
+                    stats["updated"] += 1
+                    applied_changes += 1
+                    entry["result"] = "planned_publish_missing_site"
+                    entry["site_action"] = "planned_insert"
+                    entry["message"] = "co.kr 신규 게시 예정 (site wr_id 없음)"
+                    print(
+                        f"   🧪 [no-site {idx}/{len(no_site_jobs)}] UID {uid}: "
+                        "co.kr 신규 등록 예정"
+                    )
+                    continue
+
+                if (not dry_run) and item is not None:
+                    publish_out = _resolve_publish_listing_result(
+                        publisher,
+                        item,
+                        publisher.publish_listing(item),
+                        max_pages=seoul_max_pages,
+                    )
+                    new_wr_id = int(publish_out.get("wr_id", 0) or 0)
+                    entry["wr_id"] = new_wr_id
+                    entry["site_action"] = "inserted"
+                    entry["site_changes"] = {
+                        "inserted": {
+                            "before": "",
+                            "after": publish_out.get("url", ""),
+                        }
+                    }
+                    entry["site_changed_keys"] = ["inserted"]
+                    entry["message"] = (
+                        f"co.kr 신규 등록 생성 uid={uid} -> wr_id={new_wr_id}"
+                        if new_wr_id > 0
+                        else f"co.kr 신규 등록 생성 uid={uid}"
+                    )
+                    entry["rollback"]["site"] = {
+                        "wr_id": new_wr_id,
+                        "url": publish_out.get("url", ""),
+                        "subject": publish_out.get("subject", ""),
+                    }
+                    job["row_no_override"] = new_wr_id if new_wr_id > 0 else ""
+                    sheet_out = _reconcile_sheet_sync(
+                        worksheet=worksheet,
+                        runtime=sheet_runtime,
+                        uid=uid,
+                        status_label=source_status,
+                        item=item,
+                        dry_run=False,
+                        row_no_override=job.get("row_no_override"),
+                    )
+                    sheet_action = _consume_sheet_out(sheet_out)
+                    entry["sheet_action"] = sheet_action
+                    entry["sheet_changes"] = _sheet_row_change_map(
+                        sheet_out.get("before_row", []),
+                        sheet_out.get("after_row", []),
+                        header_row=sheet_header,
+                    )
+                    if sheet_action in {"updated", "appended", "status_only"}:
+                        stats["updated"] += 1
+                        applied_changes += 1
+                        entry["result"] = "published_missing_site"
+                        entry["rollback"]["sheet"] = {
+                            "action": sheet_action,
+                            "row_idx": sheet_out.get("row_idx", 0),
+                            "before_exists": bool(sheet_out.get("before_exists", True)),
+                            "before_row": list(sheet_out.get("before_row", []) or []),
+                        }
+                    print(
+                        f"   ✅ [no-site {idx}/{len(no_site_jobs)}] UID {uid}: "
+                        f"co.kr 신규 등록 후 시트 동기화 ({sheet_action})"
+                    )
+                    continue
+
+                sheet_out = _reconcile_sheet_sync(
+                    worksheet=worksheet,
+                    runtime=sheet_runtime,
+                    uid=uid,
+                    status_label=source_status,
+                    item=item,
+                    dry_run=dry_run,
+                    row_no_override=job.get("row_no_override"),
+                )
+                sheet_action = _consume_sheet_out(sheet_out)
+                entry["sheet_action"] = sheet_action
+                entry["sheet_changes"] = _sheet_row_change_map(
+                    sheet_out.get("before_row", []),
+                    sheet_out.get("after_row", []),
+                    header_row=sheet_header,
+                )
+                if sheet_action in {"updated", "appended", "status_only"}:
+                    stats["updated"] += 1
+                    applied_changes += 1
+                    entry["result"] = "planned_sheet_only_no_site" if dry_run else "sheet_only_no_site"
+                    entry["rollback"]["sheet"] = {
+                        "action": sheet_action,
+                        "row_idx": sheet_out.get("row_idx", 0),
+                        "before_exists": bool(sheet_out.get("before_exists", True)),
+                        "before_row": list(sheet_out.get("before_row", []) or []),
+                    }
+                    print(
+                        f"   {'🧪' if dry_run else '✅'} [no-site {idx}/{len(no_site_jobs)}] UID {uid}: "
+                        f"시트만 동기화 ({sheet_action})"
+                    )
+                elif sheet_action == "same":
+                    stats["same"] += 1
+                    entry["result"] = "same"
+                    print(f"   - [no-site {idx}/{len(no_site_jobs)}] UID {uid}: 동일 -> 스킵")
+                else:
+                    stats["same"] += 1
+                    entry["result"] = "sheet_skipped"
+                    print(f"   - [no-site {idx}/{len(no_site_jobs)}] UID {uid}: 시트 스킵 ({sheet_action})")
+            except Exception as se:
+                stats["failed"] += 1
+                stats["sheet_failed"] += 1
+                entry["result"] = "failed"
+                entry["sheet_action"] = "failed"
+                entry["error"] = str(se)
+                print(f"   ❌ [no-site {idx}/{len(no_site_jobs)}] UID {uid}: 시트 반영 실패 ({se})")
+
         for idx, wr_id in enumerate(seoul_wr_ids, start=1):
             if max_updates > 0 and applied_changes >= max_updates:
                 print(f"⚠️ 변경 상한 도달: {max_updates}건")
@@ -6946,6 +7901,7 @@ def run_reconcile_published(
                                 status_label="완료",
                                 item=None,
                                 dry_run=dry_run,
+                                row_no_override=job.get("row_no_override"),
                             )
                             sheet_action = _consume_sheet_out(sheet_out)
                             entry["sheet_action"] = sheet_action
@@ -7025,6 +7981,7 @@ def run_reconcile_published(
                                 status_label=source_status,
                                 item=None,
                                 dry_run=dry_run,
+                                row_no_override=job.get("row_no_override"),
                             )
                             sheet_action = _consume_sheet_out(sheet_out)
                             entry["sheet_action"] = sheet_action
@@ -7119,6 +8076,7 @@ def run_reconcile_published(
                                 status_label=source_status,
                                 item=None,
                                 dry_run=dry_run,
+                                row_no_override=job.get("row_no_override"),
                             )
                             sheet_action = _consume_sheet_out(sheet_out)
                             entry["sheet_action"] = sheet_action
@@ -7217,6 +8175,7 @@ def run_reconcile_published(
                             status_label=source_status,
                             item=item,
                             dry_run=dry_run,
+                            row_no_override=job.get("row_no_override"),
                         )
                         sheet_action = _consume_sheet_out(sheet_out)
                         entry["sheet_action"] = sheet_action
@@ -7315,6 +8274,8 @@ def run_reconcile_published(
         f"시트갱신 {stats['sheet_updated']} / "
         f"시트추가 {stats['sheet_appended']} / "
         f"시트상태 {stats['sheet_status_only']} / "
+        f"시트번호 {stats['sheet_rowno_only']} / "
+        f"시트번호+상태 {stats['sheet_rowno_and_status']} / "
         f"시트동일 {stats['sheet_same']} / "
         f"시트스킵 {stats['sheet_skipped']} / "
         f"시트실패 {stats['sheet_failed']}"
@@ -7790,6 +8751,46 @@ def _extract_site_wr_id(text):
     except Exception:
         return 0
     return wr_id if wr_id > 0 else 0
+
+
+def _build_site_public_listing_url(site_url, board_slug, wr_id):
+    wr_id_num = int(wr_id or 0)
+    if wr_id_num <= 0:
+        return ""
+    base = str(site_url or "").rstrip("/")
+    slug = str(board_slug or "").strip().strip("/")
+    if not base or not slug:
+        return ""
+    return f"{base}/{slug}/{wr_id_num}"
+
+
+def _resolve_publish_listing_result(publisher, item, publish_result, max_pages=0):
+    out = dict(publish_result or {})
+    uid = str((item or {}).get("uid", "")).strip()
+    wr_id = _extract_site_wr_id(out.get("url", ""))
+    if wr_id <= 0 and uid:
+        discovered, diag = _discover_site_wr_map_from_board(
+            publisher,
+            [uid],
+            max_pages=max_pages,
+        )
+        wr_id = int(discovered.get(uid, 0) or 0)
+        out["wr_resolution"] = {
+            "uid": uid,
+            "wr_id": wr_id,
+            "scanned_pages": int(diag.get("scanned_pages", 0)),
+            "scanned_wr_ids": int(diag.get("scanned_wr_ids", 0)),
+        }
+    if wr_id > 0:
+        out["wr_id"] = wr_id
+        out["url"] = _build_site_public_listing_url(
+            getattr(publisher, "site_url", SITE_URL),
+            getattr(publisher, "board_slug", MNA_BOARD_SLUG),
+            wr_id,
+        )
+    else:
+        out["wr_id"] = 0
+    return out
 
 
 def _seed_site_wr_map_from_upload_state():
@@ -8411,9 +9412,9 @@ def run_low_confidence_report(limit=0, recent_rows=0, recent_numbers=0, skip_rev
         "리스크사유",
         "번호",
         "양도가",
-        "가격원문",
+        "가격비식별요약",
         "가격추출소스",
-        "가격추출근거",
+        "가격추출근거요약",
         "가격신뢰도",
         "가격fallback",
         "청구양도가",

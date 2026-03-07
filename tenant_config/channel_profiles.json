@@ -1,0 +1,168 @@
+{
+  "default_channel_id": "seoul_web",
+  "channels": [
+    {
+      "channel_id": "seoul_web",
+      "display_name": "SeoulMNA KR Platform",
+      "enabled": true,
+      "channel_role": "platform_front",
+      "channel_hosts": [
+        "seoulmna.kr",
+        "www.seoulmna.kr"
+      ],
+      "engine_origin": "https://calc.seoulmna.co.kr",
+      "embed_base_url": "https://calc.seoulmna.co.kr/widgets",
+      "branding": {
+        "brand_name": "서울건설정보",
+        "brand_label": "서울건설정보 메인 플랫폼",
+        "site_url": "https://seoulmna.kr",
+        "notice_url": "https://seoulmna.co.kr/notice",
+        "contact_phone": "1668-3548",
+        "contact_email": "seoulmna@gmail.com",
+        "openchat_url": "",
+        "source_tag_prefix": "seoulmna_kr"
+      },
+      "default_tenant_id": "seoul_main",
+      "rollout_stage": "platform_front",
+      "exposed_systems": [
+        "yangdo",
+        "permit"
+      ],
+      "canonical_public_host": "seoulmna.kr",
+      "public_host_policy": "kr_main_platform",
+      "platform_front_host": "seoulmna.kr",
+      "legacy_content_host": "seoulmna.co.kr",
+      "internal_widget_channel_id": "seoul_widget_internal",
+      "private_engine_visibility": "reverse_proxy_hidden_origin",
+      "public_calculator_mount_base": "https://seoulmna.kr/_calc"
+    },
+    {
+      "channel_id": "seoul_widget_internal",
+      "display_name": "SeoulMNA CO Internal Widget",
+      "enabled": true,
+      "channel_role": "widget_consumer",
+      "channel_hosts": [
+        "seoulmna.co.kr",
+        "www.seoulmna.co.kr"
+      ],
+      "engine_origin": "https://calc.seoulmna.co.kr",
+      "embed_base_url": "https://calc.seoulmna.co.kr/widgets",
+      "branding": {
+        "brand_name": "서울건설정보",
+        "brand_label": "서울건설정보 매물 사이트",
+        "site_url": "https://seoulmna.co.kr",
+        "notice_url": "https://seoulmna.co.kr/notice",
+        "contact_phone": "1668-3548",
+        "contact_email": "seoulmna@gmail.com",
+        "openchat_url": "",
+        "source_tag_prefix": "seoulmna_cokr"
+      },
+      "default_tenant_id": "seoul_widget_unlimited",
+      "rollout_stage": "internal_widget_consumer",
+      "exposed_systems": [
+        "yangdo",
+        "permit"
+      ],
+      "canonical_public_host": "seoulmna.co.kr",
+      "public_host_policy": "internal_widget_consumer",
+      "platform_front_host": "seoulmna.kr",
+      "legacy_content_host": "seoulmna.co.kr",
+      "private_engine_visibility": "reverse_proxy_hidden_origin",
+      "public_calculator_mount_base": "https://seoulmna.kr/_calc"
+    },
+    {
+      "channel_id": "partner_template",
+      "display_name": "Partner Template Channel",
+      "enabled": false,
+      "channel_role": "widget_consumer",
+      "channel_hosts": [
+        "partner-template.example.com"
+      ],
+      "engine_origin": "https://calc.seoulmna.co.kr",
+      "embed_base_url": "https://calc.seoulmna.co.kr/widgets",
+      "branding": {
+        "brand_name": "파트너 계산기",
+        "brand_label": "PARTNER CALCULATOR",
+        "site_url": "https://partner-template.example.com",
+        "notice_url": "https://partner-template.example.com",
+        "contact_phone": "010-0000-0000",
+        "contact_email": "partner@example.com",
+        "openchat_url": "",
+        "source_tag_prefix": "partner_template"
+      },
+      "default_tenant_id": "partner_template_standard",
+      "rollout_stage": "phased",
+      "exposed_systems": [
+        "yangdo",
+        "permit"
+      ],
+      "canonical_public_host": "partner-template.example.com",
+      "public_host_policy": "single_host",
+      "platform_front_host": "partner-template.example.com",
+      "legacy_content_host": "partner-template.example.com",
+      "private_engine_visibility": "hidden_origin"
+    },
+    {
+      "channel_id": "partner_yangdo_template",
+      "display_name": "Partner Yangdo Channel",
+      "enabled": false,
+      "channel_role": "widget_consumer",
+      "channel_hosts": [
+        "partner-yangdo.example.com"
+      ],
+      "engine_origin": "https://calc.seoulmna.co.kr",
+      "embed_base_url": "https://calc.seoulmna.co.kr/widgets",
+      "branding": {
+        "brand_name": "파트너 양도가 계산기",
+        "brand_label": "PARTNER YANGDO CALCULATOR",
+        "site_url": "https://partner-yangdo.example.com",
+        "notice_url": "https://partner-yangdo.example.com",
+        "contact_phone": "010-0000-0000",
+        "contact_email": "partner-yangdo@example.com",
+        "openchat_url": "",
+        "source_tag_prefix": "partner_yangdo"
+      },
+      "default_tenant_id": "partner_yangdo_standard",
+      "rollout_stage": "phased",
+      "exposed_systems": [
+        "yangdo"
+      ],
+      "canonical_public_host": "partner-yangdo.example.com",
+      "public_host_policy": "single_host",
+      "platform_front_host": "partner-yangdo.example.com",
+      "legacy_content_host": "partner-yangdo.example.com",
+      "private_engine_visibility": "hidden_origin"
+    },
+    {
+      "channel_id": "partner_permit_template",
+      "display_name": "Partner Permit Channel",
+      "enabled": false,
+      "channel_role": "widget_consumer",
+      "channel_hosts": [
+        "partner-permit.example.com"
+      ],
+      "engine_origin": "https://calc.seoulmna.co.kr",
+      "embed_base_url": "https://calc.seoulmna.co.kr/widgets",
+      "branding": {
+        "brand_name": "파트너 인허가 계산기",
+        "brand_label": "PARTNER PERMIT CALCULATOR",
+        "site_url": "https://partner-permit.example.com",
+        "notice_url": "https://partner-permit.example.com",
+        "contact_phone": "010-0000-0000",
+        "contact_email": "partner-permit@example.com",
+        "openchat_url": "",
+        "source_tag_prefix": "partner_permit"
+      },
+      "default_tenant_id": "partner_permit_standard",
+      "rollout_stage": "phased",
+      "exposed_systems": [
+        "permit"
+      ],
+      "canonical_public_host": "partner-permit.example.com",
+      "public_host_policy": "single_host",
+      "platform_front_host": "partner-permit.example.com",
+      "legacy_content_host": "partner-permit.example.com",
+      "private_engine_visibility": "hidden_origin"
+    }
+  ]
+}

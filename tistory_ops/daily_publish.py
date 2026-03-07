@@ -220,6 +220,20 @@ def _is_transient_publish_failure(stdout: str, stderr: str) -> bool:
 
 
 def _build_publish_command(args: argparse.Namespace, registration: str) -> list[str]:
+    draft_policy = getattr(args, "draft_policy", "discard")
+    audit_tag = getattr(args, "audit_tag", "daily_once")
+    debugger_arg = getattr(args, "debugger", "")
+    chrome_user_data_dir_arg = getattr(args, "chrome_user_data_dir", "")
+    auto_login = bool(getattr(args, "auto_login", True))
+    interactive_login = bool(getattr(args, "interactive_login", True))
+    login_wait_sec = getattr(args, "login_wait_sec", 120)
+    timeout_sec = getattr(args, "timeout_sec", 240)
+    publish_delay_sec = getattr(args, "publish_delay_sec", 2)
+    seo_min_score = getattr(args, "seo_min_score", 90)
+    seo_gate = bool(getattr(args, "seo_gate", True))
+    auto_images = bool(getattr(args, "auto_images", True))
+    image_count = getattr(args, "image_count", 2)
+    dry_run = bool(getattr(args, "dry_run", False))
     cmd = [
         sys.executable,
         str(ROOT / "tistory_ops" / "publish_browser.py"),
@@ -227,38 +241,38 @@ def _build_publish_command(args: argparse.Namespace, registration: str) -> list[
         str(registration),
         "--open-browser",
         "--draft-policy",
-        str(args.draft_policy),
+        str(draft_policy),
         "--audit-tag",
-        str(args.audit_tag or "daily_once"),
+        str(audit_tag or "daily_once"),
     ]
-    debugger = str(args.debugger or CONFIG.get("TISTORY_CHROME_DEBUGGER", "")).strip()
+    debugger = str(debugger_arg or CONFIG.get("TISTORY_CHROME_DEBUGGER", "")).strip()
     if debugger:
         cmd.extend(["--debugger", debugger])
-    user_data_dir = str(args.chrome_user_data_dir or CONFIG.get("TISTORY_CHROME_USER_DATA_DIR", "")).strip()
+    user_data_dir = str(chrome_user_data_dir_arg or CONFIG.get("TISTORY_CHROME_USER_DATA_DIR", "")).strip()
     if user_data_dir:
         cmd.extend(["--user-data-dir", user_data_dir])
 
-    if bool(args.auto_login):
+    if auto_login:
         cmd.append("--auto-login")
     else:
         cmd.append("--no-auto-login")
-    if bool(args.interactive_login):
+    if interactive_login:
         cmd.append("--interactive-login")
-    cmd.extend(["--login-wait-sec", str(args.login_wait_sec)])
-    cmd.extend(["--timeout-sec", str(args.timeout_sec)])
-    cmd.extend(["--publish-delay-sec", str(args.publish_delay_sec)])
-    cmd.extend(["--seo-min-score", str(args.seo_min_score)])
-    if bool(args.seo_gate):
+    cmd.extend(["--login-wait-sec", str(login_wait_sec)])
+    cmd.extend(["--timeout-sec", str(timeout_sec)])
+    cmd.extend(["--publish-delay-sec", str(publish_delay_sec)])
+    cmd.extend(["--seo-min-score", str(seo_min_score)])
+    if seo_gate:
         cmd.append("--seo-gate")
     else:
         cmd.append("--no-seo-gate")
-    if bool(args.auto_images):
+    if auto_images:
         cmd.append("--auto-images")
     else:
         cmd.append("--no-auto-images")
-    cmd.extend(["--image-count", str(args.image_count)])
+    cmd.extend(["--image-count", str(image_count)])
 
-    if bool(args.dry_run):
+    if dry_run:
         cmd.append("--dry-run")
     return cmd
 
@@ -338,8 +352,11 @@ def run(args: argparse.Namespace) -> int:
         print(json.dumps({"ok": True, "skipped": "all_candidates_published"}, ensure_ascii=False, indent=2))
         return 0
 
-    max_retries = max(0, int(args.publish_retries))
-    retry_backoff_sec = max(1, int(args.publish_retry_backoff_sec))
+    max_retries = max(0, int(getattr(args, "publish_retries", CONFIG.get("TISTORY_DAILY_PUBLISH_RETRIES", "2"))))
+    retry_backoff_sec = max(
+        1,
+        int(getattr(args, "publish_retry_backoff_sec", CONFIG.get("TISTORY_DAILY_PUBLISH_RETRY_BACKOFF_SEC", "20"))),
+    )
 
     debugger = str(args.debugger or CONFIG.get("TISTORY_CHROME_DEBUGGER", "")).strip()
     if bool(args.ensure_chrome) and debugger:

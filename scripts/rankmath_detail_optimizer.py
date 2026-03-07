@@ -159,10 +159,30 @@ def _write_report(report: Dict[str, Any], out_rel: str) -> Tuple[Path, Path]:
     return latest, stamped
 
 
+def _load_state(path: Path) -> Dict[str, Any]:
+    if not path.exists():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8-sig"))
+        if isinstance(data, dict):
+            return data
+    except Exception:
+        return {}
+    return {}
+
+
+def _save_state(path: Path, payload: Dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Apply detailed RankMath settings safely via updateSettings API.")
     parser.add_argument("--dry-run", action="store_true", help="Only calculate diffs without applying changes.")
     parser.add_argument("--report", default="logs/rankmath_detail_opt_latest.json")
+    parser.add_argument("--state-file", default="logs/rankmath_detail_state.json")
+    parser.add_argument("--skip-if-ok-today", action="store_true", help="Skip passive runs after one successful run today.")
+    parser.add_argument("--force", action="store_true", help="Ignore passive-run skip state.")
     parser.add_argument("--timeout-sec", type=int, default=25)
     args = parser.parse_args()
 
@@ -170,6 +190,13 @@ def main() -> int:
     wp_api_root = str(cfg.get("WP_URL", "")).strip().rstrip("/")
     if "/wp/v2" not in wp_api_root:
         raise SystemExit("WP_URL must include '/wp/v2'.")
+    state_path = (ROOT / str(args.state_file)).resolve()
+    today_key = datetime.now().strftime("%Y-%m-%d")
+    if bool(args.skip_if_ok_today) and (not bool(args.force)):
+        state = _load_state(state_path)
+        if bool(state.get("ok")) and str(state.get("run_date", "")) == today_key:
+            print("[summary] skipped=true reason=ok_today")
+            return 0
     wp_root = wp_api_root.split("/wp/v2")[0].rstrip("/")
     site_root = _normalize_root_url(wp_root)
     headers = _auth_headers(cfg)
@@ -214,6 +241,17 @@ def main() -> int:
     if args.dry_run:
         report["ok"] = True
         latest, stamped = _write_report(report, args.report)
+        _save_state(
+            state_path,
+            {
+                "updated_at": datetime.now().isoformat(timespec="seconds"),
+                "run_date": today_key,
+                "ok": True,
+                "dry_run": True,
+                "general_change_count": len(general_patch),
+                "titles_change_count": len(titles_patch),
+            },
+        )
         print(f"[saved] {latest}")
         print(f"[saved] {stamped}")
         print(f"[summary] dry_run=true general_changes={len(general_patch)} titles_changes={len(titles_patch)}")
@@ -273,6 +311,17 @@ def main() -> int:
 
     report["ok"] = all(bool(ch.get("ok")) for ch in report["changes"]) if report["changes"] else True
     latest, stamped = _write_report(report, args.report)
+    _save_state(
+        state_path,
+        {
+            "updated_at": datetime.now().isoformat(timespec="seconds"),
+            "run_date": today_key,
+            "ok": bool(report["ok"]),
+            "dry_run": False,
+            "general_change_count": len(general_patch),
+            "titles_change_count": len(titles_patch),
+        },
+    )
     print(f"[saved] {latest}")
     print(f"[saved] {stamped}")
     print(

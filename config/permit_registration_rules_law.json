@@ -1,0 +1,391 @@
+{
+  "version": "2026-03-05",
+  "effective_date": "2026-03-05",
+  "source": {
+    "name": "국가법령정보센터 + LOCALDATA",
+    "url": "https://www.law.go.kr/",
+    "fetched_at": "2026-03-05T12:00:00+09:00"
+  },
+  "rule_groups": [
+    {
+      "rule_id": "travel-domestic",
+      "industry_name": "국내여행업",
+      "service_codes": ["03_12_01_P"],
+      "requirements": {
+        "capital_eok": 0.3,
+        "technicians": 0,
+        "equipment_count": 0,
+        "deposit_days": 15
+      },
+      "legal_basis": [
+        {
+          "law_title": "관광진흥법 시행령",
+          "article": "별표 1 여행업 등록기준",
+          "url": "https://www.law.go.kr/법령/관광진흥법시행령/별표1"
+        }
+      ]
+    },
+    {
+      "rule_id": "travel-domestic-foreign",
+      "industry_name": "국내외여행업",
+      "aliases": ["국외여행업"],
+      "service_codes": ["03_12_02_P"],
+      "requirements": {
+        "capital_eok": 0.45,
+        "technicians": 0,
+        "equipment_count": 0,
+        "deposit_days": 15
+      },
+      "legal_basis": [
+        {
+          "law_title": "관광진흥법 시행령",
+          "article": "별표 1 여행업 등록기준",
+          "url": "https://www.law.go.kr/법령/관광진흥법시행령/별표1"
+        }
+      ]
+    },
+    {
+      "rule_id": "travel-general",
+      "industry_name": "종합여행업",
+      "service_codes": ["03_12_03_P"],
+      "requirements": {
+        "capital_eok": 0.5,
+        "technicians": 0,
+        "equipment_count": 0,
+        "deposit_days": 20
+      },
+      "legal_basis": [
+        {
+          "law_title": "관광진흥법 시행령",
+          "article": "별표 1 여행업 등록기준",
+          "url": "https://www.law.go.kr/법령/관광진흥법시행령/별표1"
+        }
+      ]
+    },
+    {
+      "rule_id": "security-facility",
+      "industry_name": "시설경비업",
+      "requirements": {
+        "capital_eok": 1.0,
+        "technicians": 1,
+        "equipment_count": 1,
+        "deposit_days": 30
+      },
+      "legal_basis": [
+        {
+          "law_title": "경비업법 시행령",
+          "article": "별표 1 경비업의 허가기준",
+          "url": "https://www.law.go.kr/법령/경비업법시행령/별표1"
+        }
+      ]
+    },
+    {
+      "rule_id": "security-escort",
+      "industry_name": "호송경비업",
+      "requirements": {
+        "capital_eok": 2.0,
+        "technicians": 1,
+        "equipment_count": 1,
+        "deposit_days": 30
+      },
+      "legal_basis": [
+        {
+          "law_title": "경비업법 시행령",
+          "article": "별표 1 경비업의 허가기준",
+          "url": "https://www.law.go.kr/법령/경비업법시행령/별표1"
+        }
+      ]
+    },
+    {
+      "rule_id": "security-bodyguard",
+      "industry_name": "신변보호업",
+      "requirements": {
+        "capital_eok": 1.0,
+        "technicians": 1,
+        "equipment_count": 1,
+        "deposit_days": 30
+      },
+      "legal_basis": [
+        {
+          "law_title": "경비업법 시행령",
+          "article": "별표 1 경비업의 허가기준",
+          "url": "https://www.law.go.kr/법령/경비업법시행령/별표1"
+        }
+      ]
+    },
+    {
+      "rule_id": "security-machine",
+      "industry_name": "기계경비업",
+      "requirements": {
+        "capital_eok": 1.0,
+        "technicians": 1,
+        "equipment_count": 1,
+        "deposit_days": 30
+      },
+      "legal_basis": [
+        {
+          "law_title": "경비업법 시행령",
+          "article": "별표 1 경비업의 허가기준",
+          "url": "https://www.law.go.kr/법령/경비업법시행령/별표1"
+        }
+      ]
+    },
+    {
+      "rule_id": "construction-general-tocmok-geonchuk",
+      "industry_name": "토목건축공사업(종합)",
+      "requirements": {
+        "capital_eok": 8.5,
+        "technicians": 11,
+        "equipment_count": 1,
+        "deposit_days": 30
+      },
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ]
+    },
+    {
+      "rule_id": "construction-general-tocmok",
+      "industry_name": "토목공사업(종합)",
+      "requirements": {
+        "capital_eok": 5.0,
+        "technicians": 6,
+        "equipment_count": 1,
+        "deposit_days": 30
+      },
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ]
+    },
+    {
+      "rule_id": "construction-general-geonchuk",
+      "industry_name": "건축공사업(종합)",
+      "requirements": {
+        "capital_eok": 5.0,
+        "technicians": 5,
+        "equipment_count": 1,
+        "deposit_days": 30
+      },
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ]
+    },
+    {
+      "rule_id": "construction-general-industrial",
+      "industry_name": "산업·환경설비공사업(종합)",
+      "requirements": {
+        "capital_eok": 8.5,
+        "technicians": 12,
+        "equipment_count": 1,
+        "deposit_days": 30
+      },
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ]
+    },
+    {
+      "rule_id": "construction-general-landscape",
+      "industry_name": "조경공사업(종합)",
+      "requirements": {
+        "capital_eok": 5.0,
+        "technicians": 6,
+        "equipment_count": 1,
+        "deposit_days": 30
+      },
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ]
+    },
+    {
+      "rule_id": "construction-special-common",
+      "industry_names": [
+        "실내건축공사업(전문)",
+        "토공사업(전문)",
+        "철근콘크리트공사업(전문)",
+        "상하수도설비공사업(전문)",
+        "기계설비·가스공사업(전문)",
+        "기계설비공사업(전문)",
+        "가스시설시공업1종(전문)",
+        "지반조성·포장공사업(전문)",
+        "보링·그라우팅공사업(전문)",
+        "금속창호·지붕건축물조립공사업(전문)",
+        "도장·습식·방수·석공사업(전문)",
+        "구조물해체·비계공사업(전문)",
+        "조경식재·시설물공사업(전문)",
+        "철도·궤도공사업(전문)",
+        "철강구조물공사업(전문)",
+        "수중·준설공사업(전문)",
+        "승강기·삭도공사업(전문)",
+        "도장공사업(전문)",
+        "습식·방수공사업(전문)",
+        "석공사업(전문)",
+        "조적공사업(전문)",
+        "금속구조물공사업(전문)",
+        "지붕판금·건축물조립공사업(전문)",
+        "시설물유지관리업(전문)",
+        "비계공사업(전문)",
+        "구조물해체공사업(전문)",
+        "조경식재공사업(전문)",
+        "조경시설물설치공사업(전문)",
+        "포장공사업(전문)",
+        "지반조성공사업(전문)",
+        "철도궤도공사업(전문)",
+        "수중공사업(전문)",
+        "준설공사업(전문)",
+        "승강기설치공사업(전문)",
+        "삭도설치공사업(전문)"
+      ],
+      "requirements": {
+        "capital_eok": 1.5,
+        "technicians": 2,
+        "equipment_count": 1,
+        "deposit_days": 30
+      },
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ]
+    },
+    {
+      "rule_id": "electrical-construction",
+      "industry_name": "전기공사업",
+      "requirements": {
+        "capital_eok": 1.5,
+        "technicians": 3,
+        "equipment_count": 1,
+        "deposit_days": 30
+      },
+      "legal_basis": [
+        {
+          "law_title": "전기공사업법 시행령",
+          "article": "별표 1 전기공사업 등록기준",
+          "url": "https://www.law.go.kr/법령/전기공사업법시행령/별표1"
+        }
+      ]
+    },
+    {
+      "rule_id": "ict-construction",
+      "industry_name": "정보통신공사업",
+      "requirements": {
+        "capital_eok": 1.5,
+        "technicians": 3,
+        "equipment_count": 1,
+        "deposit_days": 30
+      },
+      "legal_basis": [
+        {
+          "law_title": "정보통신공사업법 시행령",
+          "article": "별표 1 정보통신공사업 등록기준",
+          "url": "https://www.law.go.kr/법령/정보통신공사업법시행령/별표1"
+        }
+      ]
+    },
+    {
+      "rule_id": "fire-specialized",
+      "industry_name": "전문소방시설공사업",
+      "requirements": {
+        "capital_eok": 1.0,
+        "technicians": 3,
+        "equipment_count": 1,
+        "deposit_days": 30
+      },
+      "legal_basis": [
+        {
+          "law_title": "소방시설공사업법 시행령",
+          "article": "별표 1 소방시설공사업 등록기준",
+          "url": "https://www.law.go.kr/법령/소방시설공사업법시행령/별표1"
+        }
+      ]
+    },
+    {
+      "rule_id": "fire-general-mech",
+      "industry_name": "일반소방시설공사업(기계)",
+      "requirements": {
+        "capital_eok": 1.0,
+        "technicians": 2,
+        "equipment_count": 1,
+        "deposit_days": 30
+      },
+      "legal_basis": [
+        {
+          "law_title": "소방시설공사업법 시행령",
+          "article": "별표 1 소방시설공사업 등록기준",
+          "url": "https://www.law.go.kr/법령/소방시설공사업법시행령/별표1"
+        }
+      ]
+    },
+    {
+      "rule_id": "fire-general-electric",
+      "industry_name": "일반소방시설공사업(전기)",
+      "requirements": {
+        "capital_eok": 1.0,
+        "technicians": 2,
+        "equipment_count": 1,
+        "deposit_days": 30
+      },
+      "legal_basis": [
+        {
+          "law_title": "소방시설공사업법 시행령",
+          "article": "별표 1 소방시설공사업 등록기준",
+          "url": "https://www.law.go.kr/법령/소방시설공사업법시행령/별표1"
+        }
+      ]
+    },
+    {
+      "rule_id": "gas-facility-2",
+      "industry_name": "가스시설시공업2종",
+      "requirements": {
+        "capital_eok": 1.0,
+        "technicians": 1,
+        "equipment_count": 1,
+        "deposit_days": 30
+      },
+      "legal_basis": [
+        {
+          "law_title": "액화석유가스의 안전관리 및 사업법 시행령",
+          "article": "별표 5 가스시설시공업 등록기준",
+          "url": "https://www.law.go.kr/법령/액화석유가스의안전관리및사업법시행령/별표5"
+        }
+      ]
+    },
+    {
+      "rule_id": "gas-facility-3",
+      "industry_name": "가스시설시공업3종",
+      "requirements": {
+        "capital_eok": 1.0,
+        "technicians": 1,
+        "equipment_count": 1,
+        "deposit_days": 30
+      },
+      "legal_basis": [
+        {
+          "law_title": "액화석유가스의 안전관리 및 사업법 시행령",
+          "article": "별표 5 가스시설시공업 등록기준",
+          "url": "https://www.law.go.kr/법령/액화석유가스의안전관리및사업법시행령/별표5"
+        }
+      ]
+    }
+  ]
+}

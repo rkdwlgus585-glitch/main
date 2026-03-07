@@ -1,0 +1,362 @@
+{
+  "default_tenant_id": "seoul_main",
+  "plan_feature_defaults": {
+    "standard": [
+      "estimate",
+      "permit_precheck",
+      "consult",
+      "usage"
+    ],
+    "pro": [
+      "estimate",
+      "estimate_detail",
+      "permit_precheck",
+      "permit_precheck_detail",
+      "consult",
+      "usage",
+      "meta"
+    ],
+    "pro_internal": [
+      "estimate",
+      "estimate_detail",
+      "estimate_internal",
+      "permit_precheck",
+      "permit_precheck_detail",
+      "permit_precheck_internal",
+      "consult",
+      "usage",
+      "meta",
+      "reload"
+    ]
+  },
+  "tenants": [
+    {
+      "tenant_id": "seoul_main",
+      "display_name": "SeoulMNA",
+      "enabled": true,
+      "plan": "pro_internal",
+      "hosts": [
+        "seoulmna.kr",
+        "www.seoulmna.kr"
+      ],
+      "origins": [
+        "https://seoulmna.kr",
+        "https://www.seoulmna.kr"
+      ],
+      "api_key_envs": [
+        "YANGDO_BLACKBOX_API_KEY",
+        "YANGDO_CONSULT_API_KEY"
+      ],
+      "blocked_api_tokens": [],
+      "data_sources": [
+        {
+          "source_id": "seoul_first_party_listing",
+          "source_name": "SeoulMNA first-party listings",
+          "access_mode": "first_party_internal",
+          "status": "approved",
+          "allows_commercial_use": true,
+          "contains_personal_data": false,
+          "transforms": [
+            "aggregation",
+            "encryption_at_rest"
+          ],
+          "proof_url": ""
+        },
+        {
+          "source_id": "localdata_permit_registry",
+          "source_name": "LocalData permit registry",
+          "access_mode": "public_open_data",
+          "status": "approved",
+          "allows_commercial_use": true,
+          "contains_personal_data": false,
+          "transforms": [
+            "aggregation"
+          ],
+          "proof_url": "https://www.localdata.go.kr/data/allDataView.do?menuNo=10002"
+        }
+      ],
+      "allowed_systems": [
+        "yangdo",
+        "permit"
+      ]
+    },
+    {
+      "tenant_id": "seoul_widget_unlimited",
+      "display_name": "SeoulMNA Widget Unlimited",
+      "enabled": true,
+      "plan": "pro_internal",
+      "hosts": [
+        "seoulmna.co.kr",
+        "www.seoulmna.co.kr"
+      ],
+      "origins": [
+        "https://seoulmna.co.kr",
+        "https://www.seoulmna.co.kr"
+      ],
+      "api_key_envs": [
+        "SEOUL_WIDGET_INTERNAL_API_KEY"
+      ],
+      "blocked_api_tokens": [],
+      "data_sources": [
+        {
+          "source_id": "seoul_first_party_listing",
+          "source_name": "SeoulMNA first-party listings",
+          "access_mode": "first_party_internal",
+          "status": "approved",
+          "allows_commercial_use": true,
+          "contains_personal_data": false,
+          "transforms": [
+            "aggregation",
+            "encryption_at_rest"
+          ],
+          "proof_url": ""
+        },
+        {
+          "source_id": "localdata_permit_registry",
+          "source_name": "LocalData permit registry",
+          "access_mode": "public_open_data",
+          "status": "approved",
+          "allows_commercial_use": true,
+          "contains_personal_data": false,
+          "transforms": [
+            "aggregation"
+          ],
+          "proof_url": "https://www.localdata.go.kr/data/allDataView.do?menuNo=10002"
+        }
+      ],
+      "allowed_systems": [
+        "yangdo",
+        "permit"
+      ]
+    },
+    {
+      "tenant_id": "partner_template_standard",
+      "display_name": "PartnerTemplate",
+      "enabled": false,
+      "plan": "standard",
+      "hosts": [
+        "partner-template.example.com"
+      ],
+      "origins": [
+        "https://partner-template.example.com"
+      ],
+      "api_key_envs": [
+        "TENANT_API_KEY_PARTNER_TEMPLATE_STANDARD"
+      ],
+      "blocked_api_tokens": [],
+      "data_sources": [
+        {
+          "source_id": "partner_source_placeholder",
+          "source_name": "Partner onboarding placeholder",
+          "access_mode": "partner_contract",
+          "status": "pending",
+          "allows_commercial_use": false,
+          "contains_personal_data": false,
+          "transforms": [
+            "aggregation"
+          ],
+          "proof_url": ""
+        }
+      ],
+      "allowed_systems": [
+        "yangdo",
+        "permit"
+      ]
+    },
+    {
+      "tenant_id": "partner_yangdo_standard",
+      "display_name": "PartnerYangdo",
+      "enabled": false,
+      "plan": "standard",
+      "hosts": [
+        "partner-yangdo.example.com"
+      ],
+      "origins": [
+        "https://partner-yangdo.example.com"
+      ],
+      "api_key_envs": [
+        "TENANT_API_KEY_PARTNER_YANGDO_STANDARD"
+      ],
+      "blocked_api_tokens": [],
+      "allowed_systems": [
+        "yangdo"
+      ],
+      "allowed_features": [
+        "estimate",
+        "consult",
+        "usage"
+      ],
+      "data_sources": [
+        {
+          "source_id": "partner_yangdo_source_placeholder",
+          "source_name": "Partner yangdo onboarding placeholder",
+          "access_mode": "partner_contract",
+          "status": "pending",
+          "allows_commercial_use": false,
+          "contains_personal_data": false,
+          "transforms": [
+            "aggregation"
+          ],
+          "proof_url": ""
+        }
+      ]
+    },
+    {
+      "tenant_id": "partner_permit_standard",
+      "display_name": "PartnerPermit",
+      "enabled": false,
+      "plan": "standard",
+      "hosts": [
+        "partner-permit.example.com"
+      ],
+      "origins": [
+        "https://partner-permit.example.com"
+      ],
+      "api_key_envs": [
+        "TENANT_API_KEY_PARTNER_PERMIT_STANDARD"
+      ],
+      "blocked_api_tokens": [],
+      "allowed_systems": [
+        "permit"
+      ],
+      "allowed_features": [
+        "permit_precheck",
+        "usage"
+      ],
+      "data_sources": [
+        {
+          "source_id": "partner_permit_source_placeholder",
+          "source_name": "Partner permit onboarding placeholder",
+          "access_mode": "partner_contract",
+          "status": "pending",
+          "allows_commercial_use": false,
+          "contains_personal_data": false,
+          "transforms": [
+            "aggregation"
+          ],
+          "proof_url": ""
+        }
+      ]
+    }
+  ],
+  "offering_templates": [
+    {
+      "offering_id": "yangdo_standard",
+      "display_name": "Yangdo Standard",
+      "plan": "standard",
+      "allowed_systems": [
+        "yangdo"
+      ],
+      "allowed_features": [
+        "estimate",
+        "consult",
+        "usage"
+      ]
+    },
+    {
+      "offering_id": "permit_standard",
+      "display_name": "Permit Standard",
+      "plan": "standard",
+      "allowed_systems": [
+        "permit"
+      ],
+      "allowed_features": [
+        "permit_precheck",
+        "usage"
+      ]
+    },
+    {
+      "offering_id": "combo_standard",
+      "display_name": "Combo Standard",
+      "plan": "standard",
+      "allowed_systems": [
+        "yangdo",
+        "permit"
+      ],
+      "allowed_features": [
+        "estimate",
+        "permit_precheck",
+        "consult",
+        "usage"
+      ]
+    },
+    {
+      "offering_id": "yangdo_pro_detail",
+      "display_name": "Yangdo Pro Detail",
+      "plan": "pro",
+      "allowed_systems": [
+        "yangdo"
+      ],
+      "allowed_features": [
+        "estimate",
+        "estimate_detail",
+        "usage",
+        "meta"
+      ]
+    },
+    {
+      "offering_id": "combo_pro_detail",
+      "display_name": "Combo Pro Detail",
+      "plan": "pro",
+      "allowed_systems": [
+        "yangdo",
+        "permit"
+      ],
+      "allowed_features": [
+        "estimate",
+        "estimate_detail",
+        "permit_precheck",
+        "permit_precheck_detail",
+        "usage",
+        "meta"
+      ]
+    },
+    {
+      "offering_id": "yangdo_pro",
+      "display_name": "Yangdo Pro",
+      "plan": "pro",
+      "allowed_systems": [
+        "yangdo"
+      ],
+      "allowed_features": [
+        "estimate",
+        "estimate_detail",
+        "consult",
+        "usage",
+        "meta"
+      ]
+    },
+    {
+      "offering_id": "permit_pro",
+      "display_name": "Permit Pro",
+      "plan": "pro",
+      "allowed_systems": [
+        "permit"
+      ],
+      "allowed_features": [
+        "permit_precheck",
+        "permit_precheck_detail",
+        "usage",
+        "meta"
+      ]
+    },
+    {
+      "offering_id": "combo_pro",
+      "display_name": "Combo Pro",
+      "plan": "pro",
+      "allowed_systems": [
+        "yangdo",
+        "permit"
+      ],
+      "allowed_features": [
+        "estimate",
+        "estimate_detail",
+        "permit_precheck",
+        "permit_precheck_detail",
+        "consult",
+        "usage",
+        "meta"
+      ]
+    }
+  ]
+}

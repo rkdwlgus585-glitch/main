@@ -52,6 +52,8 @@ class CalculatorHardeningTest(unittest.TestCase):
         self.assertIn("id=\"in-sales-input-mode\"", html)
         self.assertIn("const isSeparateBalanceGroupToken = (raw)", html)
         self.assertIn("const isSeparateBalanceGroupTarget = (target)", html)
+        self.assertIn("const requiresReorgSelectionByLicense = (licenseRaw)", html)
+        self.assertIn("const syncReorgModeRequirement = ()", html)
 
     def test_blackbox_balance_exclusion_groups(self):
         est = yangdo_blackbox_api.YangdoBlackboxEstimator()

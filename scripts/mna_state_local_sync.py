@@ -80,6 +80,38 @@ def _save_db(path: Path, data):
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+def _load_state(path: Path):
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8-sig"))
+    except Exception:
+        return {}
+
+
+def _save_state(path: Path, data):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def _build_data_marker(path: Path, account: str, mode: str) -> dict:
+    exists = path.exists()
+    stat = path.stat() if exists else None
+    return {
+        "account": str(account),
+        "mode": str(mode),
+        "data_file": str(path),
+        "data_exists": bool(exists),
+        "data_mtime_ns": int(stat.st_mtime_ns) if stat else 0,
+        "data_size": int(stat.st_size) if stat else 0,
+    }
+
+
+def _same_marker(a: dict, b: dict) -> bool:
+    keys = ("account", "mode", "data_file", "data_exists", "data_mtime_ns", "data_size")
+    return all(a.get(key) == b.get(key) for key in keys)
+
+
 def _login(driver, base_url: str, login_id: str, login_pw: str):
     driver.get(base_url.rstrip("/") + "/bbs/login.php?url=%2Fmna")
     id_box = driver.find_element(By.NAME, "mb_id")
@@ -127,6 +159,9 @@ def main():
     ap.add_argument("--login-id", default="")
     ap.add_argument("--login-pw", default="")
     ap.add_argument("--headless", action="store_true")
+    ap.add_argument("--state-file", default="logs/mna_state_local_sync_state.json")
+    ap.add_argument("--skip-if-unchanged-today", action="store_true")
+    ap.add_argument("--force", action="store_true")
     args = ap.parse_args()
 
     env = _env_map(ROOT / ".env")
@@ -136,6 +171,14 @@ def main():
         raise SystemExit("login credentials missing (ADMIN_ID/ADMIN_PW)")
     account = _safe_account(args.account or login_id)
     data_file = (ROOT / args.data_file).resolve()
+    state_file = (ROOT / args.state_file).resolve()
+    marker = _build_data_marker(data_file, account=account, mode=args.mode)
+    today_key = datetime.now().strftime("%Y-%m-%d")
+    state = _load_state(state_file)
+    if bool(args.skip_if_unchanged_today) and (not bool(args.force)):
+        if str(state.get("run_date", "")) == today_key and _same_marker(state, marker):
+            print(json.dumps({"ok": True, "skipped": True, "reason": "unchanged_today", "account": account}, ensure_ascii=False))
+            return
 
     db = _load_db(data_file)
     account_row = (db.get("accounts") or {}).get(account) or {}
@@ -169,14 +212,31 @@ def main():
             final_recent = browser_recent
 
     now = _now_iso()
-    db["updated_at"] = now
-
-    db.setdefault("accounts", {})[account] = {
-        "favorites": final_favorites,
-        "recent": final_recent,
-        "updated_at": now,
-    }
-    _save_db(data_file, db)
+    accounts = db.setdefault("accounts", {})
+    existing_account = accounts.get(account) or {}
+    prior_favorites = _safe_rows(existing_account.get("favorites", []), 20)
+    prior_recent = _safe_rows(existing_account.get("recent", []), 10)
+    local_changed = (prior_favorites != final_favorites) or (prior_recent != final_recent) or (not data_file.exists())
+    if local_changed:
+        db["updated_at"] = now
+        accounts[account] = {
+            "favorites": final_favorites,
+            "recent": final_recent,
+            "updated_at": now,
+        }
+        _save_db(data_file, db)
+    final_marker = _build_data_marker(data_file, account=account, mode=args.mode)
+    _save_state(
+        state_file,
+        {
+            **final_marker,
+            "run_date": today_key,
+            "updated_at": now,
+            "favorites": len(final_favorites),
+            "recent": len(final_recent),
+            "local_changed": bool(local_changed),
+        },
+    )
     print(json.dumps({
         "ok": True,
         "mode": args.mode,
@@ -184,6 +244,7 @@ def main():
         "favorites": len(final_favorites),
         "recent": len(final_recent),
         "data_file": str(data_file),
+        "local_changed": bool(local_changed),
     }, ensure_ascii=False))
 
 

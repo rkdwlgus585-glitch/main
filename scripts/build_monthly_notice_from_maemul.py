@@ -69,6 +69,7 @@ class ListingRow:
     sheet_price: str = ""
     sheet_claim: str = ""
     transfer_display: str = ""
+    transfer_disclosed: bool = False
 
 
 def _clean_text(value: str) -> str:
@@ -124,6 +125,10 @@ def _extract_transfer_amount(corp_and_transfer: str) -> str:
     if not re.search(r"\d", text):
         return ""
     return text
+
+
+def _has_numeric_transfer_value(raw: str) -> bool:
+    return bool(re.search(r"\d", _clean_text(raw)))
 
 
 def _extract_uid(cell_text: str) -> int | None:
@@ -287,7 +292,7 @@ def _resolve_transfer_display(
     item: ListingRow,
     sheet_row: dict[str, str] | None,
     kakao_updates: dict[str, dict] | None,
-) -> str:
+) -> tuple[str, bool]:
     sheet_row = sheet_row or {}
     now_uid = _clean_text(sheet_row.get("now_uid", ""))
     sheet_price = _clean_text(sheet_row.get("sheet_price", ""))
@@ -296,23 +301,23 @@ def _resolve_transfer_display(
     # 1) 카카오 원문이 있으면 최우선
     if now_uid and kakao_updates and now_uid in kakao_updates:
         claim_txt = _claim_to_public_price(str((kakao_updates[now_uid] or {}).get("claim", "")))
-        if claim_txt and re.search(r"\d", claim_txt):
-            return claim_txt
+        if claim_txt and _has_numeric_transfer_value(claim_txt):
+            return claim_txt, True
         if any(k in claim_txt for k in ("협의", "보류", "완료", "삭제")):
-            return "협의"
+            return "협의", False
 
     # 2) 시트 청구 양도가(AH) 범위
     if sheet_claim and re.search(r"\d", sheet_claim):
         public_claim = _claim_to_public_price(sheet_claim)
-        if public_claim:
-            return public_claim
+        if public_claim and _has_numeric_transfer_value(public_claim):
+            return public_claim, True
 
     # 3) 시트 양도가(S)
-    if sheet_price:
-        return sheet_price
+    if sheet_price and _has_numeric_transfer_value(sheet_price):
+        return sheet_price, True
 
     # 4) 마지막 폴백(목록 원문)
-    return _extract_transfer_amount(item.corp_and_transfer)
+    return _extract_transfer_amount(item.corp_and_transfer), False
 
 
 def _enrich_listings_with_transfer_source(
@@ -328,11 +333,21 @@ def _enrich_listings_with_transfer_source(
         item.now_uid = _clean_text(row.get("now_uid", ""))
         item.sheet_price = _clean_text(row.get("sheet_price", ""))
         item.sheet_claim = _clean_claim_value(row.get("sheet_claim", ""))
-        resolved = _resolve_transfer_display(item, row, kakao_updates)
+        resolved, disclosed = _resolve_transfer_display(item, row, kakao_updates)
         if resolved and resolved != _extract_transfer_amount(item.corp_and_transfer):
             overridden += 1
         item.transfer_display = resolved
+        item.transfer_disclosed = bool(disclosed)
     return listings, overridden
+
+
+def _is_notice_eligible(item: ListingRow) -> bool:
+    return bool(item.businesses) and bool(item.transfer_disclosed) and _has_numeric_transfer_value(item.transfer_display)
+
+
+def _filter_notice_eligible_listings(listings: list[ListingRow]) -> tuple[list[ListingRow], int]:
+    kept = [item for item in listings if _is_notice_eligible(item)]
+    return kept, max(0, len(listings) - len(kept))
 
 
 def _metric_float(raw: str) -> float:
@@ -493,6 +508,8 @@ def build_item_title(item: ListingRow) -> str:
     business_text = _join_businesses(item.businesses)
     if business_text:
         parts.append(f"{business_text} 양도")
+    else:
+        parts.append("건설업 양도")
 
     if item.five_year:
         parts.append(f"5년 실적 {item.five_year}억")
@@ -545,6 +562,13 @@ def build_notice_html(
     li_block = "\n".join(build_li_html(item) for item in listings)
     top_pick_block = _build_top_picks_html(listings)
     phone_digits = re.sub(r"[^\d]", "", phone)
+    compliance_notice_block = (
+        '<div style="margin-top: 14px; padding: 14px 16px; border-radius: 10px; '
+        'background: #fff7ed; border: 1px solid #fed7aa; color: #7c2d12; font-size: 15px; line-height: 1.7;">'
+        '<strong style="font-weight: 800;">안내</strong> 본 공지는 검색·비교 편의를 위한 월간 요약 자료입니다. '
+        '최종 거래 조건과 양도가, 법무·세무 판단은 계약 및 실사 이후 확정됩니다.'
+        "</div>"
+    )
     hero_block = (
         f'<p style="margin: 0 0 18px 0; text-align: center;">'
         f'<img src="{hero_image_url}" alt="{month}월 건설업 양도양수 매물 추천" '
@@ -584,6 +608,7 @@ def build_notice_html(
       <strong>핵심 요약(메타)</strong> {meta_summary}
     </p>
     {top_pick_block}
+    {compliance_notice_block}
   </div>
 
   <div style="padding: 24px 20px; border: 1px solid #e5e7eb; border-top: none; background: #fff;">
@@ -773,6 +798,12 @@ def parse_args() -> argparse.Namespace:
 
 
 def run_single_month(args: argparse.Namespace, listings: list[ListingRow]) -> int:
+    listings, skipped = _filter_notice_eligible_listings(listings)
+    if skipped:
+        print(f"notice_ineligible_filtered: {skipped}")
+    if not listings:
+        print("No eligible listings found for notice bundle. Require disclosed transfer price and business rows.")
+        return 1
     subject, body = build_notice_html(
         listings=listings,
         year=args.year,
@@ -796,6 +827,12 @@ def run_single_month(args: argparse.Namespace, listings: list[ListingRow]) -> in
 
 
 def run_monthly_archive(args: argparse.Namespace, listings: list[ListingRow]) -> int:
+    listings, skipped = _filter_notice_eligible_listings(listings)
+    if skipped:
+        print(f"notice_ineligible_filtered: {skipped}")
+    if not listings:
+        print("No eligible listings found for monthly archive. Require disclosed transfer price and business rows.")
+        return 1
     run_dt = _parse_run_date(args.run_date)
     current_month_key = _month_key(run_dt.year, run_dt.month)
     state_file = Path(args.state_file)

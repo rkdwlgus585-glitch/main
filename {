@@ -1,0 +1,2 @@
+### Error
+Error: Ref () = const root=document.querySelector('#fm_search2,form#fm_search2,form[name=\'fm_search2\']'); const final=root?root.getAttribute('data-smna-font-size-final'):null; const tuned=root?root.getAttribute('data-smna-font-tuned'):null; const seed=root?(root.querySelector('label,th,td,span,a') not found in the current page snapshot. Try capturing new snapshot.

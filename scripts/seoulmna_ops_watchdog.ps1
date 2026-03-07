@@ -1,4 +1,4 @@
-# Keeps SeoulMNA listing-side automation alive for the current user session.
+﻿# Keeps SeoulMNA listing-side automation alive for the current user session.
 param(
     [string]$RepoRoot = "",
     [int]$StartupDelaySec = 0
@@ -13,6 +13,23 @@ if (-not $RepoRoot) {
 $RepoRoot = [System.IO.Path]::GetFullPath([string]$RepoRoot)
 $scriptName = "seoulmna_ops_watchdog.ps1"
 $krOnlyLockPath = Join-Path $RepoRoot "logs\kr_only_mode.lock"
+
+function New-SingleInstanceMutex([string]$name) {
+    $createdNew = $false
+    try {
+        $mutex = New-Object System.Threading.Mutex($true, $name, [ref]$createdNew)
+        if (-not $createdNew) {
+            try {
+                $mutex.Dispose()
+            } catch {
+            }
+            return $null
+        }
+        return $mutex
+    } catch {
+        return $null
+    }
+}
 
 function Test-CalculatorAutodriveRunning {
     $rows = Get-CimInstance Win32_Process | Where-Object {
@@ -92,10 +109,23 @@ function Get-PythonPrefix {
 $pythonPrefix = Get-PythonPrefix
 
 # Prevent duplicate watchdog loops.
+$mutexSuffix = [Math]::Abs($RepoRoot.ToLowerInvariant().GetHashCode())
+$watchdogMutex = New-SingleInstanceMutex ("Local\SeoulMNA_Ops_Watchdog_{0}" -f $mutexSuffix)
+if (-not $watchdogMutex) {
+    exit 0
+}
 $dupeRows = Get-CimInstance Win32_Process | Where-Object {
     $_.Name -match "^powershell(?:\.exe)?$" -and $_.CommandLine -match [regex]::Escape($scriptName)
 }
 if (($dupeRows | Measure-Object).Count -gt 1) {
+    try {
+        $watchdogMutex.ReleaseMutex() | Out-Null
+    } catch {
+    }
+    try {
+        $watchdogMutex.Dispose()
+    } catch {
+    }
     exit 0
 }
 
@@ -125,7 +155,9 @@ function Save-State(
     [datetime]$nextDomSnapshotRun,
     [datetime]$nextCxForceRecoverRun,
     [datetime]$nextCxHealthDigestRun,
-    [datetime]$nextLocalSyncRun
+    [datetime]$nextLocalSyncRun,
+    [string]$memoDailyDate,
+    [int]$memoDailyCount
 ) {
     $payload = @{
         updated_at = (Get-Date).ToString("s")
@@ -142,6 +174,8 @@ function Save-State(
         next_site_cx_force_recover = $nextCxForceRecoverRun.ToString("s")
         next_site_cx_health_digest = $nextCxHealthDigestRun.ToString("s")
         next_local_mna_sync = $nextLocalSyncRun.ToString("s")
+        admin_memo_daily_date = [string]$memoDailyDate
+        admin_memo_daily_count = [int]$memoDailyCount
     }
     try {
         $json = $payload | ConvertTo-Json -Depth 4
@@ -162,6 +196,28 @@ function Load-LastMemoFullDate {
     } catch {
     }
     return ""
+}
+
+function Load-MemoDailyCounter {
+    $today = (Get-Date).ToString("yyyy-MM-dd")
+    $out = @{
+        Date = $today
+        Count = 0
+    }
+    if (-not (Test-Path $statePath)) {
+        return $out
+    }
+    try {
+        $raw = Get-Content -Path $statePath -Raw -Encoding UTF8 | ConvertFrom-Json
+        $savedDate = [string]$raw.admin_memo_daily_date
+        $savedCount = [int]($raw.admin_memo_daily_count)
+        if ($savedDate -eq $today) {
+            $out.Date = $savedDate
+            $out.Count = [Math]::Max(0, $savedCount)
+        }
+    } catch {
+    }
+    return $out
 }
 
 function Invoke-RepoCommand([string]$jobName, [string]$repoCommand) {
@@ -237,13 +293,8 @@ function Get-TodayMemoFullTarget([datetime]$ts) {
 }
 
 function Get-MemoIncrementalIntervalMinutes([datetime]$ts) {
-    $isWeekend = ($ts.DayOfWeek -eq [System.DayOfWeek]::Saturday -or $ts.DayOfWeek -eq [System.DayOfWeek]::Sunday)
-    if ($isWeekend) {
-        # Weekend: increase admin-memo throughput
-        return 45
-    }
-    # Weekday: keep conservative baseline
-    return 90
+    # Requirement: admin memo edit pace fixed to 1 run per 30 minutes.
+    return 30
 }
 
 $publishIntervalMinutes = 90
@@ -251,13 +302,18 @@ $noticeArchiveIntervalMinutes = 180
 $loopSleepSeconds = 30
 
 function Get-NextNowToSheetRun([datetime]$ts) {
+    $targetDay = [System.DayOfWeek]::Monday
+    $targetHour = 18
     $base = $ts
-    $slotNoon = $base.Date.AddHours(12)
-    $slotEvening = $base.Date.AddHours(18)
-
-    if ($base -lt $slotNoon) { return $slotNoon }
-    if ($base -lt $slotEvening) { return $slotEvening }
-    return $base.Date.AddDays(1).AddHours(12)
+    $candidate = $base.Date.AddHours([double]$targetHour)
+    $dayOffset = ([int]$targetDay - [int]$base.DayOfWeek + 7) % 7
+    if ($dayOffset -eq 0 -and $base -lt $candidate) {
+        return $candidate
+    }
+    if ($dayOffset -eq 0) {
+        $dayOffset = 7
+    }
+    return $base.Date.AddDays([double]$dayOffset).AddHours([double]$targetHour)
 }
 
 function Get-PublishIntervalMinutes([datetime]$ts) {
@@ -331,9 +387,8 @@ function Get-PermitCollectIntervalMinutes([datetime]$ts) {
 }
 
 function Get-MemoIncrementalLimit([datetime]$ts) {
-    $isWeekend = ($ts.DayOfWeek -eq [System.DayOfWeek]::Saturday -or $ts.DayOfWeek -eq [System.DayOfWeek]::Sunday)
-    if ($isWeekend) { return 40 }
-    return 20
+    # Requirement: max 1 item per incremental run.
+    return 1
 }
 
 function Get-MemoIncrementalDelaySec([datetime]$ts) {
@@ -358,24 +413,29 @@ $nextSustainabilityGuardRun = (Get-Date).AddMinutes(35)
 $nextPermitCollectRun = (Get-Date).AddMinutes(40)
 $nowFailStreak = 0
 $lastMemoFullDate = Load-LastMemoFullDate
+$memoDaily = Load-MemoDailyCounter
+$memoDailyDate = [string]$memoDaily.Date
+$memoDailyCount = [int]$memoDaily.Count
+$memoDailyCap = 10
 
 $cmdNowToSheet = 'scripts\run_startup_now_to_sheet.cmd'
 $cmdConfirmedPublish = (
-    '{0} scripts\republish_from_audit.py --key-mode year --delay-sec 1.8 --request-buffer 120 --write-buffer 12 --yes >> logs\auto_confirmed_publish.log 2>&1' -f $pythonPrefix
+    '{0} scripts\republish_from_audit.py --key-mode year --delay-sec 1.8 --request-buffer 120 --write-buffer 12 --state-file logs\republish_from_audit_state.json --skip-if-source-unchanged --yes >> logs\auto_confirmed_publish.log 2>&1' -f $pythonPrefix
 )
 $cmdNoticeArchive = 'scripts\run_startup_notice_archive.cmd'
 $cmdMemoFull = (
     '{0} all.py --fix-admin-memo --fix-admin-memo-all --fix-admin-memo-pages 0 --fix-admin-memo-limit 0 --fix-admin-memo-delay-sec 1.2 --fix-admin-memo-request-buffer 120 --fix-admin-memo-write-buffer 12 --fix-admin-memo-state-file logs/admin_memo_sync_state.json >> logs\auto_admin_memo_sync.log 2>&1' -f $pythonPrefix
 )
+$enableMemoFull = $false
 $cmdQualityDaily = 'scripts\run_quality_daily.cmd'
 $cmdDailyDashboard = (
     '{0} all.py --daily-dashboard --dashboard-live --dashboard-days 7 >> logs\auto_daily_dashboard.log 2>&1' -f $pythonPrefix
 )
 $cmdSiteGuard = (
-    '{0} scripts\optimize_wp_kr.py --report logs/wp_site_guard_latest.json >> logs\auto_wp_site_guard.log 2>&1' -f $pythonPrefix
+    '{0} scripts\optimize_wp_kr.py --report logs/wp_site_guard_latest.json --state-file logs/wp_site_guard_state.json --skip-if-ok-today >> logs\auto_wp_site_guard.log 2>&1' -f $pythonPrefix
 )
 $cmdRankMathDetail = (
-    '{0} scripts\rankmath_detail_optimizer.py --report logs/rankmath_detail_opt_latest.json >> logs\auto_rankmath_detail.log 2>&1' -f $pythonPrefix
+    '{0} scripts\rankmath_detail_optimizer.py --report logs/rankmath_detail_opt_latest.json --state-file logs/rankmath_detail_state.json --skip-if-ok-today >> logs\auto_rankmath_detail.log 2>&1' -f $pythonPrefix
 )
 $cmdCxProbe = (
     '{0} scripts\site_cx_probe.py --report logs/site_cx_probe_latest.json >> logs\auto_site_cx_probe.log 2>&1' -f $pythonPrefix
@@ -396,6 +456,7 @@ $cmdCxHealthDigest = (
     '{0} scripts\site_cx_health_digest.py --history logs/site_cx_health_history.jsonl --rollup logs/site_cx_health_rollup_latest.json --latest-json logs/site_cx_health_digest_latest.json --latest-md logs/site_cx_health_digest_latest.md --days 7 >> logs\auto_site_cx_health_digest.log 2>&1' -f $pythonPrefix
 )
 $cmdLocalAutoBridge = 'scripts\run_local_auto_state_bridge.cmd >> logs\auto_local_state_bridge.log 2>&1'
+$enableLocalAutoBridge = $false
 $cmdLocalMnaSync = 'scripts\run_mna_state_local_sync.cmd >> logs\auto_mna_state_local_sync.log 2>&1'
 $cmdSustainabilityGuard = (
     '{0} scripts\sustainability_guard.py --contract quality_contracts/sustainability_guard.contract.json --report logs/sustainability_guard_latest.json >> logs\auto_sustainability_guard.log 2>&1' -f $pythonPrefix
@@ -415,7 +476,10 @@ $bootWindow = Get-ActiveWindowInfo (Get-Date)
 Write-Log ("active window profile={0} start={1:00}:00 end={2:00}:00 memo_full={3:00}:{4:00}" -f $bootWindow.Label, [int]$bootWindow.StartHour, [int]$bootWindow.EndHour, [int]$bootWindow.MemoFullHour, [int]$bootWindow.MemoFullMinute)
 $memoIntervalBoot = Get-MemoIncrementalIntervalMinutes (Get-Date)
 Write-Log ("admin memo incremental interval={0}m" -f [int]$memoIntervalBoot)
-Write-Log ("now-to-sheet fixed slots: 12:00, 18:00 / next={0}" -f $nextNowRun.ToString("s"))
+Write-Log ("admin memo incremental policy: per-run-limit=1, daily-cap={0}" -f [int]$memoDailyCap)
+Write-Log ("now-to-sheet weekly slot: Monday 18:00 / next={0}" -f $nextNowRun.ToString("s"))
+Write-Log "now-to-sheet policy: weekly full catchup (now scan + sheet sync + co.kr + reconcile)"
+Write-Log "admin memo full-run policy: disabled"
 Write-Log ("wp site guard interval={0}m / next={1}" -f [int](Get-SiteGuardIntervalMinutes (Get-Date)), $nextSiteGuardRun.ToString("s"))
 Write-Log ("rankmath detail interval={0}m / next={1}" -f [int](Get-RankMathDetailIntervalMinutes (Get-Date)), $nextRankMathDetailRun.ToString("s"))
 Write-Log ("site cx probe interval={0}m / next={1}" -f [int](Get-CXProbeIntervalMinutes (Get-Date)), $nextCxProbeRun.ToString("s"))
@@ -427,19 +491,32 @@ Write-Log ("sustainability guard interval={0}m / next={1}" -f [int](Get-Sustaina
 Write-Log ("permit collect interval={0}m / next={1}" -f [int](Get-PermitCollectIntervalMinutes (Get-Date)), $nextPermitCollectRun.ToString("s"))
 Write-Log "site cx auto-heal: enabled (runs right after site_cx_probe)"
 Write-Log "site cx health rollup: enabled (runs after site_cx_autoheal)"
-Ensure-LocalAutoBridge $cmdLocalAutoBridge
+if ($enableLocalAutoBridge) {
+    Ensure-LocalAutoBridge $cmdLocalAutoBridge
+} else {
+    Write-Log "local_auto_bridge policy: disabled"
+}
 
 while ($true) {
     $now = Get-Date
-    Ensure-LocalAutoBridge $cmdLocalAutoBridge
+    $todayMemoKey = $now.ToString("yyyy-MM-dd")
+    if ($memoDailyDate -ne $todayMemoKey) {
+        $memoDailyDate = $todayMemoKey
+        $memoDailyCount = 0
+        Write-Log ("admin memo daily counter reset: {0}" -f $memoDailyDate)
+    }
+    if ($enableLocalAutoBridge) {
+        Ensure-LocalAutoBridge $cmdLocalAutoBridge
+    }
     if (-not (Test-InActiveWindow $now)) {
-        Save-State $nextNowRun $nowFailStreak $nextPublishRun $nextNoticeArchiveRun $nextMemoIncrementalRun $lastMemoFullDate $nextSiteGuardRun $nextRankMathDetailRun $nextCxProbeRun $nextDomSnapshotRun $nextCxForceRecoverRun $nextCxHealthDigestRun $nextLocalSyncRun
+        Save-State $nextNowRun $nowFailStreak $nextPublishRun $nextNoticeArchiveRun $nextMemoIncrementalRun $lastMemoFullDate $nextSiteGuardRun $nextRankMathDetailRun $nextCxProbeRun $nextDomSnapshotRun $nextCxForceRecoverRun $nextCxHealthDigestRun $nextLocalSyncRun $memoDailyDate $memoDailyCount
         Start-Sleep -Seconds $loopSleepSeconds
         continue
     }
 
     if ($now -ge $nextNowRun) {
-        $rc = Invoke-RepoCommand "now_to_sheet" $cmdNowToSheet
+        Write-Log "now-to-sheet slot=weekly Monday 18:00 mode=full-catchup"
+        $rc = Invoke-RepoCommand "now_to_sheet_weekly" $cmdNowToSheet
         if ($rc -eq 0) { $nowFailStreak = 0 } else { $nowFailStreak += 1 }
         $nextNowRun = Get-NextNowToSheetRun ((Get-Date).AddMinutes(1))
         Write-Log ("now-to-sheet next slot={0} fail_streak={1}" -f $nextNowRun.ToString("s"), [int]$nowFailStreak)
@@ -461,12 +538,18 @@ while ($true) {
 
     $now = Get-Date
     if ($now -ge $nextMemoIncrementalRun) {
-        $memoLimit = Get-MemoIncrementalLimit (Get-Date)
-        $memoDelay = Get-MemoIncrementalDelaySec (Get-Date)
-        $cmdMemoIncremental = (
-            '{0} all.py --fix-admin-memo --fix-admin-memo-all --fix-admin-memo-pages 3 --fix-admin-memo-limit {1} --fix-admin-memo-delay-sec {2} --fix-admin-memo-request-buffer 120 --fix-admin-memo-write-buffer 12 --fix-admin-memo-state-file logs/admin_memo_sync_state.json >> logs\auto_admin_memo_sync.log 2>&1' -f $pythonPrefix, [int]$memoLimit, [double]$memoDelay
-        )
-        [void](Invoke-RepoCommand "admin_memo_incremental" $cmdMemoIncremental)
+        if ($memoDailyCount -ge $memoDailyCap) {
+            Write-Log ("admin_memo_incremental skip: daily cap reached ({0}/{1})" -f [int]$memoDailyCount, [int]$memoDailyCap)
+        } else {
+            $memoLimit = Get-MemoIncrementalLimit (Get-Date)
+            $memoDelay = Get-MemoIncrementalDelaySec (Get-Date)
+            $cmdMemoIncremental = (
+                '{0} all.py --fix-admin-memo --fix-admin-memo-all --fix-admin-memo-pages 3 --fix-admin-memo-limit {1} --fix-admin-memo-delay-sec {2} --fix-admin-memo-request-buffer 120 --fix-admin-memo-write-buffer 12 --fix-admin-memo-state-file logs/admin_memo_sync_state.json >> logs\auto_admin_memo_sync.log 2>&1' -f $pythonPrefix, [int]$memoLimit, [double]$memoDelay
+            )
+            [void](Invoke-RepoCommand "admin_memo_incremental" $cmdMemoIncremental)
+            $memoDailyCount += 1
+            Write-Log ("admin_memo_incremental progress: {0}/{1} for {2}" -f [int]$memoDailyCount, [int]$memoDailyCap, $memoDailyDate)
+        }
         $memoIntervalMinutes = Get-MemoIncrementalIntervalMinutes (Get-Date)
         $nextMemoIncrementalRun = (Get-Date).AddMinutes([int]$memoIntervalMinutes)
     }
@@ -548,13 +631,13 @@ while ($true) {
     $now = Get-Date
     $todayKey = $now.ToString("yyyy-MM-dd")
     $memoFullTarget = Get-TodayMemoFullTarget $now
-    if ($lastMemoFullDate -ne $todayKey -and $now -ge $memoFullTarget) {
+    if ($enableMemoFull -and $lastMemoFullDate -ne $todayKey -and $now -ge $memoFullTarget) {
         $fullRc = Invoke-RepoCommand "admin_memo_full" $cmdMemoFull
         if ($fullRc -eq 0) {
             $lastMemoFullDate = $todayKey
         }
     }
 
-    Save-State $nextNowRun $nowFailStreak $nextPublishRun $nextNoticeArchiveRun $nextMemoIncrementalRun $lastMemoFullDate $nextSiteGuardRun $nextRankMathDetailRun $nextCxProbeRun $nextDomSnapshotRun $nextCxForceRecoverRun $nextCxHealthDigestRun $nextLocalSyncRun
+    Save-State $nextNowRun $nowFailStreak $nextPublishRun $nextNoticeArchiveRun $nextMemoIncrementalRun $lastMemoFullDate $nextSiteGuardRun $nextRankMathDetailRun $nextCxProbeRun $nextDomSnapshotRun $nextCxForceRecoverRun $nextCxHealthDigestRun $nextLocalSyncRun $memoDailyDate $memoDailyCount
     Start-Sleep -Seconds $loopSleepSeconds
 }

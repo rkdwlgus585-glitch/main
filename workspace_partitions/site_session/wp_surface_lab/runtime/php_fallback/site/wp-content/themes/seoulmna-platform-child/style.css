@@ -1,0 +1,25 @@
+/*
+Theme Name: SeoulMNA Platform Child
+Theme URI: https://seoulmna.kr
+Description: Astra child theme scaffold for the SeoulMNA platform surface.
+Author: Codex
+Template: astra
+Version: 0.1.0
+Text Domain: seoulmna-platform-child
+*/
+
+:root {
+  --smna-bg: #f4f1ea;
+  --smna-surface: #fffdf8;
+  --smna-surface-strong: #f1e6d4;
+  --smna-ink: #1f2a21;
+  --smna-muted: #5b615f;
+  --smna-line: #d6c4a8;
+  --smna-accent: #c97b2a;
+  --smna-accent-strong: #8d5220;
+  --smna-forest: #254034;
+  --smna-sand: #e8d5b5;
+  --smna-radius: 28px;
+  --smna-shadow: 0 18px 55px rgba(40, 34, 24, 0.12);
+  --smna-content: min(1180px, calc(100vw - 48px));
+}

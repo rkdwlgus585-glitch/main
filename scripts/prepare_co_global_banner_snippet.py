@@ -87,7 +87,6 @@ def build_banner_snippet(
     { label: "전기공사공제조합", href: "https://www.ecfc.co.kr/" },
     { label: "정보통신공제조합", href: "https://www.icfc.or.kr/" },
     { label: "소방산업공제조합", href: "https://www.figu.or.kr/" },
-    { label: "나라장터", href: "https://www.g2b.go.kr/" },
     { label: "KISCON", href: "https://www.kiscon.net/" },
     { label: "국토교통부", href: "https://www.molit.go.kr/" }
   ];
@@ -112,30 +111,80 @@ def build_banner_snippet(
 
   function rewriteFooterCopyright() {
     try {
-      var nodes = document.querySelectorAll("#ft, #footers, footer, .footer, .copyright, .copy, address, div, p, span, li");
+      var favGuide = document.getElementById("smna-fav-guide");
+      if (favGuide && favGuide.parentNode) favGuide.parentNode.removeChild(favGuide);
+      var favGuideStyle = document.getElementById("smna-fav-guide-style");
+      if (favGuideStyle && favGuideStyle.parentNode) favGuideStyle.parentNode.removeChild(favGuideStyle);
+
+      function _isProtectedFooterLine(txt) {
+        return /(주소|대표|사업자|통신판매업|TEL|FAX|이메일|개인정보처리방침|오시는 길|LOGIN|quick|퀵)/i.test(String(txt || ""));
+      }
+      function _collectFooterRoots() {
+        var roots = document.querySelectorAll("#ft, #footers, footer, .footer");
+        if (roots && roots.length) return roots;
+        return [];
+      }
+
+      var footerRoots = _collectFooterRoots();
+      var hardTargets = [];
+      for (var fr = 0; fr < footerRoots.length; fr += 1) {
+        var root = footerRoots[fr];
+        if (!root) continue;
+        var targetsInRoot = root.querySelectorAll(".copyright a[href*='mnahompy.com'], .copyright img[src*='home.png'], .copy a[href*='mnahompy.com'], .copy img[src*='home.png'], a[href*='mnahompy.com']");
+        for (var ti = 0; ti < targetsInRoot.length; ti += 1) hardTargets.push(targetsInRoot[ti]);
+      }
+
+      for (var h = 0; h < hardTargets.length; h += 1) {
+        var target = hardTargets[h];
+        if (!target) continue;
+        var box = target.closest(".copyright, .copy, p, li, span, small") || target;
+        if (!box || !box.parentNode) continue;
+        var boxTxt = compactText(box.textContent || "");
+        if (_isProtectedFooterLine(boxTxt)) continue;
+        if (boxTxt.length > 280) continue;
+        if (!/(0404|Association|mnahompy|copyright)/i.test(boxTxt)) continue;
+        if (/^(p|li|span|small)$/i.test(box.tagName || "")) {
+          box.style.display = "none";
+          box.setAttribute("data-smna-legacy-copyright-hidden", "1");
+        } else if (/^a$/i.test(target.tagName || "")) {
+          target.style.display = "none";
+          target.setAttribute("data-smna-legacy-copyright-hidden", "1");
+        }
+      }
+
+      var nodes = [];
+      for (var r = 0; r < footerRoots.length; r += 1) {
+        var scope = footerRoots[r];
+        if (!scope) continue;
+        var scopedNodes = scope.querySelectorAll(".copyright, .copy, p, li, span, small");
+        for (var sn = 0; sn < scopedNodes.length; sn += 1) nodes.push(scopedNodes[sn]);
+      }
       var changed = false;
-      var patt = /COPYRIGHT\\s*[©c]?\\s*2018[^\\n]{0,120}?0404[^\\n]{0,200}?ALL\\s*RIGHTS\\s*RESERVED\\.?/i;
+      var patt = /COPYRIGHT\\s*[©c]?\\s*2018[^\\n]{0,220}?(?:0404|Association|mnahompy)[^\\n]{0,260}?ALL\\s*RIGHTS\\s*RESERVED\\.?/i;
       for (var i = 0; i < nodes.length; i += 1) {
         var n = nodes[i];
+        if (!n || !n.parentNode) continue;
         var txt = String(n.textContent || "").replace(/\\s+/g, " ").trim();
-        if (!txt || txt.length > 260) continue;
+        if (!txt || txt.length > 480) continue;
+        if (_isProtectedFooterLine(txt)) continue;
         var matched = patt.test(txt) || (txt.indexOf("0404 Association") >= 0 && /COPYRIGHT/i.test(txt));
         if (!matched) continue;
-        var cleaned = txt.replace(patt, "").replace(/\\s{2,}/g, " ").trim();
+        var cleaned = matched ? txt.replace(patt, "").replace(/\\s{2,}/g, " ").trim() : "";
         if (!cleaned || cleaned === txt) {
-          n.style.display = "none";
-          n.setAttribute("data-smna-legacy-copyright-hidden", "1");
+          if (/^(p|li|span|small)$/i.test(n.tagName || "")) {
+            n.style.display = "none";
+            n.setAttribute("data-smna-legacy-copyright-hidden", "1");
+          }
         } else {
           n.textContent = cleaned;
         }
         changed = true;
       }
-      return changed;
+      return changed || hardTargets.length > 0;
     } catch (_e) {
       return false;
     }
   }
-
   function ensureFooterBusinessIdentity() {
     try {
       var desired = [FOOTER_LINE_1, FOOTER_LINE_2, FOOTER_LINE_3];
@@ -404,6 +453,10 @@ def build_banner_snippet(
 
   function blockLegacyQuickMenu() {
     try {
+      var generated = document.getElementById("smna-generated-right-side");
+      var generatedReady = !!(generated && generated.querySelector(".smna-qbtn"));
+      if (!generatedReady) return;
+
       var style = document.getElementById("smna-legacy-quick-block-style");
       if (!style) {
         style = document.createElement("style");
@@ -427,7 +480,6 @@ def build_banner_snippet(
       }
     } catch (_e) {}
   }
-
   function enhanceQuickMenu() {
     try {
       blockLegacyQuickMenu();
@@ -1365,17 +1417,22 @@ def build_banner_snippet(
         + "#header #logo img{display:block !important;width:auto !important;height:auto !important;max-height:58px !important;object-fit:contain !important;position:static !important;top:auto !important;}"
         + "#header .gnb{display:flex;justify-content:flex-end;align-items:center;flex-wrap:wrap;position:static !important;right:auto !important;height:auto !important;gap:4px;list-style:none;}"
         + "#header .gnb > li{height:auto !important;line-height:1 !important;padding:0 3px !important;}"
-        + "#header .gnb > li > a{display:inline-flex;align-items:center;justify-content:center;line-height:1.2 !important;color:#fff !important;letter-spacing:-.015em;transition:all .2s ease;}"
+        + "#header .gnb > li > a{display:inline-flex;align-items:center;justify-content:center;line-height:1.2 !important;color:#fff !important;letter-spacing:-.015em;transition:all .22s ease;position:relative;}"
         + "#header a:focus-visible{outline:2px solid #7de8ff;outline-offset:2px;}"
-        + "html[data-smna-header-mode='text'] #header{background:transparent !important;border:0 !important;border-radius:0 !important;backdrop-filter:none !important;-webkit-backdrop-filter:none !important;box-shadow:none !important;}"
+        + "html[data-smna-header-mode='text'] #header{background:#0b1f34 !important;border:0 !important;border-radius:0 !important;backdrop-filter:none !important;-webkit-backdrop-filter:none !important;box-shadow:none !important;}"
         + "html[data-smna-header-mode='text'] #header::before,html[data-smna-header-mode='text'] #header::after{content:none !important;display:none !important;}"
-        + "html[data-smna-header-mode='text'] #header .header-inner{padding:8px 22px 4px;border:0 !important;background:transparent !important;box-shadow:none !important;}"
-        + "html[data-smna-header-mode='text'] #header .gnb > li > a{min-height:52px;padding:10px 10px;border-radius:0;background:transparent !important;color:#f3fbff !important;font-size:27px !important;font-weight:900 !important;text-shadow:0 2px 14px rgba(0,0,0,.44),0 0 16px rgba(54,177,255,.28);}"
-        + "html[data-smna-header-mode='text'] #header .gnb > li > a:hover,html[data-smna-header-mode='text'] #header .gnb > li > a:focus-visible{background:transparent !important;color:#9ee5ff !important;outline:none !important;box-shadow:inset 0 -3px 0 rgba(123,222,255,.92);text-shadow:0 0 18px rgba(121,220,255,.74);}"
-        + "html[data-smna-header-mode='text'] #header .gnb > li.smna-active > a{background:transparent !important;color:#a9edff !important;box-shadow:inset 0 -4px 0 #4cc9ff;text-shadow:0 0 18px rgba(77,201,255,.75);}"
+        + "html[data-smna-header-mode='text'] #header .header-inner{padding:8px 22px 4px;border:0 !important;background:#0b1f34 !important;box-shadow:none !important;}"
+        + "html[data-smna-header-mode='text'] #header .gnb > li,html[data-smna-header-mode='text'] #header .gnb > li::before,html[data-smna-header-mode='text'] #header .gnb > li::after{background:none !important;border:0 !important;box-shadow:none !important;}"
+        + "html[data-smna-header-mode='text'] #header .gnb > li > a{min-height:54px;padding:10px 11px;border:0 !important;border-radius:0 !important;background:transparent !important;color:#f3fbff !important;font-size:30px !important;font-weight:900 !important;text-shadow:0 2px 15px rgba(0,0,0,.42),0 0 16px rgba(54,177,255,.26);box-shadow:none !important;}"
+        + "html[data-smna-header-mode='text'] #header .gnb > li > a::before{content:none !important;display:none !important;}"
+        + "html[data-smna-header-mode='text'] #header .gnb > li > a::after{content:'';position:absolute;left:10px;right:10px;bottom:7px;height:2px;background:linear-gradient(90deg,rgba(126,220,255,0),rgba(126,220,255,.96),rgba(126,220,255,0));transform:scaleX(.16);transform-origin:50% 50%;opacity:.4;transition:transform .24s ease,opacity .24s ease;pointer-events:none;}"
+        + "html[data-smna-header-mode='text'] #header .gnb > li > a:hover,html[data-smna-header-mode='text'] #header .gnb > li > a:focus-visible{background:transparent !important;color:#b9eeff !important;outline:none !important;box-shadow:none !important;transform:translateY(-1px) scale(1.03);text-shadow:0 0 20px rgba(133,228,255,.88),0 1px 12px rgba(0,0,0,.44);}"
+        + "html[data-smna-header-mode='text'] #header .gnb > li > a:hover::after,html[data-smna-header-mode='text'] #header .gnb > li > a:focus-visible::after{transform:scaleX(1);opacity:1;}"
+        + "html[data-smna-header-mode='text'] #header .gnb > li.smna-active > a{background:transparent !important;color:#c7f5ff !important;box-shadow:none !important;text-shadow:0 0 20px rgba(108,216,255,.88),0 1px 12px rgba(0,0,0,.42);}"
+        + "html[data-smna-header-mode='text'] #header .gnb > li.smna-active > a::after{transform:scaleX(1);opacity:1;}"
         + "#header .gnb > li > a:active{transform:translateY(1px);}"
-        + "@media(max-width:1200px){#header .header-inner{min-height:84px;padding:8px 14px 10px;}#header #logo img{max-height:50px !important;}html[data-smna-header-mode='text'] #header .gnb > li > a{font-size:22px !important;min-height:48px;padding:9px 8px;}}"
-        + "@media(max-width:980px){#header .header-inner{min-height:74px;display:flex;padding:8px 12px;}#header #logo img{max-height:44px !important;}html[data-smna-header-mode='text'] #header .gnb > li > a{font-size:18px !important;min-height:42px;padding:8px 7px;}}";
+        + "@media(max-width:1200px){#header .header-inner{min-height:84px;padding:8px 14px 10px;}#header #logo img{max-height:50px !important;}html[data-smna-header-mode='text'] #header .gnb > li > a{font-size:24px !important;min-height:48px;padding:9px 8px;}}"
+        + "@media(max-width:980px){#header .header-inner{min-height:74px;display:flex;padding:8px 12px;}#header #logo img{max-height:44px !important;}html[data-smna-header-mode='text'] #header .gnb > li > a{font-size:20px !important;min-height:42px;padding:8px 7px;}}";
 
       var headerInner = document.querySelector("#header .header-inner");
       if (headerInner) {
@@ -1393,6 +1450,17 @@ def build_banner_snippet(
 
       var topMenus = document.querySelectorAll("#header .gnb > li");
       var pagePath = String(location.pathname || "").toLowerCase();
+      var supportMenuSeen = false;
+      var hiddenNavKeywords = [
+        "정책",
+        "자금",
+        "운전자금",
+        "시설자금",
+        "r&d",
+        "계산기",
+        "ai calc",
+        "ai acq"
+      ];
       for (var i = 0; i < topMenus.length; i += 1) {
         var li = topMenus[i];
         var topAnchor = null;
@@ -1406,10 +1474,29 @@ def build_banner_snippet(
         if (!topAnchor) continue;
         var text = compactText(topAnchor.textContent || "");
         var href = normalizeOutboundUrl(topAnchor.getAttribute("href") || "");
-        if (!text && !href) {
+        var submenuLinks = li.querySelectorAll("ul a[href], .snb a[href], .sub a[href], .submenu a[href], .sub-menu a[href]");
+        var submenuJoined = "";
+        for (var sk = 0; sk < submenuLinks.length; sk += 1) {
+          var submenuNode = submenuLinks[sk];
+          submenuJoined += " " + compactText(submenuNode.textContent || "");
+          submenuJoined += " " + compactText(submenuNode.getAttribute("href") || "");
+        }
+        submenuJoined = submenuJoined.toLowerCase();
+        var hasHiddenKeyword = /pages\\/s\\d+\\.php\\b/.test(submenuJoined)
+          || /co_id=ai_(calc|acq)\b/.test(submenuJoined);
+        if (!hasHiddenKeyword) {
+          for (var hk = 0; hk < hiddenNavKeywords.length; hk += 1) {
+            if (submenuJoined.indexOf(hiddenNavKeywords[hk]) >= 0) {
+              hasHiddenKeyword = true;
+              break;
+            }
+          }
+        }
+        if ((!text && !href) || hasHiddenKeyword || (supportMenuSeen && !text)) {
           if (li.parentNode) li.parentNode.removeChild(li);
           continue;
         }
+        if (text.indexOf("고객센터") >= 0 || text.indexOf("상담센터") >= 0) supportMenuSeen = true;
         if (href) topAnchor.setAttribute("href", href);
         var navPath = "";
         try {
@@ -1577,6 +1664,244 @@ def build_banner_snippet(
     } catch (_e) {
       return false;
     }
+  }
+
+  function detectPremiumMode() {
+    try {
+      var path = String(location.pathname || "").toLowerCase();
+      var bo = "";
+      try {
+        bo = String(new URLSearchParams(location.search || "").get("bo_table") || "").toLowerCase();
+      } catch (_e) {}
+      if (path === "/premium" || path.indexOf("/premium/") === 0) return true;
+      if (path.indexOf("/bbs/board.php") === 0 && bo === "premium") return true;
+      if (path.indexOf("/bbs/write.php") === 0 && bo === "premium") return true;
+      return false;
+    } catch (_e) {
+      return false;
+    }
+  }
+
+  function isPremiumListMode() {
+    try {
+      if (!detectPremiumMode()) return false;
+      var path = String(location.pathname || "").toLowerCase();
+      if (/^\\/premium\\/\\d+/.test(path)) return false;
+      if (document.querySelector("#bo_v_con, #bo_v")) return false;
+      return true;
+    } catch (_e) {
+      return false;
+    }
+  }
+
+  function _normalizePremiumLead(text) {
+    var clean = compactText(text || "");
+    if (!clean) return "";
+    clean = clean.replace(/\\s*N\\s*새글\\b/gi, "");
+    clean = clean.replace(/\\s*새글\\b/gi, "");
+    clean = clean.replace(/\\s{2,}/g, " ").trim();
+    return clean;
+  }
+
+  function _extractPremiumIndustry(text) {
+    var clean = _normalizePremiumLead(text);
+    if (!clean) return "프리미엄 매물";
+    var head = clean.split("|")[0] || clean;
+    head = head.replace(/\\(매물\\s*\\d+\\)/gi, "");
+    head = head.replace(/\\s+양도.*$/i, "");
+    head = compactText(head);
+    return head || "프리미엄 매물";
+  }
+
+  function _splitPremiumSummaryBits(text) {
+    var source = String(text || "");
+    var out = [];
+    var buf = "";
+    for (var i = 0; i < source.length; i += 1) {
+      var ch = source.charAt(i);
+      if (ch === ",") {
+        var prev = i > 0 ? source.charAt(i - 1) : "";
+        var next = i + 1 < source.length ? source.charAt(i + 1) : "";
+        if (/[0-9]/.test(prev) && /[0-9]/.test(next)) {
+          buf += ch;
+          continue;
+        }
+        var item = compactText(buf);
+        if (item) out.push(item);
+        buf = "";
+        continue;
+      }
+      buf += ch;
+    }
+    var tail = compactText(buf);
+    if (tail) out.push(tail);
+    return out;
+  }
+
+  function _extractPremiumTags(text) {
+    var clean = _normalizePremiumLead(text);
+    var parts = clean.split("|");
+    var rhs = compactText(parts.length > 1 ? parts.slice(1).join("|") : "");
+    var rawBits = rhs ? _splitPremiumSummaryBits(rhs) : [];
+    var out = [];
+    for (var i = 0; i < rawBits.length; i += 1) {
+      var bit = compactText(rawBits[i] || "");
+      if (!bit) continue;
+      bit = bit.replace(/\\s*N\\s*새글\\b/gi, "").replace(/\\s*새글\\b/gi, "").trim();
+      if (!bit) continue;
+      out.push(bit);
+      if (out.length >= 3) break;
+    }
+    if (!out.length && clean) {
+      var industry = _extractPremiumIndustry(clean);
+      if (industry) out.push(industry + " 핵심 매물");
+    }
+    return out;
+  }
+
+  function _collectPremiumFeatureRows(limit) {
+    try {
+      var rows = [];
+      var seen = {};
+      var links = document.querySelectorAll('a[href*="/premium/"]');
+      for (var i = 0; i < links.length; i += 1) {
+        var node = links[i];
+        if (!node || !node.getAttribute) continue;
+        var href = normalizeOutboundUrl(node.getAttribute("href") || "");
+        if (!/\\/premium\\/\\d+\\b/i.test(href)) continue;
+        if (seen[href]) continue;
+        var title = _normalizePremiumLead(node.textContent || "");
+        if (!title || title === "목록") continue;
+        seen[href] = true;
+        rows.push({
+          href: href,
+          title: title,
+          industry: _extractPremiumIndustry(title),
+          tags: _extractPremiumTags(title),
+        });
+        if (rows.length >= Math.max(1, limit || 4)) break;
+      }
+      return rows;
+    } catch (_e) {
+      return [];
+    }
+  }
+
+  function enhancePremiumLanding() {
+    try {
+      if (!detectPremiumMode()) return;
+      var style = document.getElementById("smna-premium-style");
+      if (!style) {
+        style = document.createElement("style");
+        style.id = "smna-premium-style";
+        style.textContent = ""
+          + ".sub_visual.smna-premium-hero{position:relative !important;overflow:hidden !important;display:flex !important;align-items:flex-start !important;min-height:248px !important;height:auto !important;margin-bottom:28px !important;background:linear-gradient(132deg,#081c30 0%,#0b3558 54%,#b57a2d 100%) !important;}"
+          + ".sub_visual.smna-premium-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 16% 18%,rgba(255,255,255,.16),transparent 29%),radial-gradient(circle at 88% 22%,rgba(255,214,153,.18),transparent 24%),linear-gradient(180deg,rgba(255,255,255,.05),rgba(0,0,0,.18));pointer-events:none;}"
+          + ".sub_visual.smna-premium-hero .title_warp{position:relative;z-index:2;width:100%;height:auto !important;display:block !important;padding:144px 0 38px !important;}"
+          + ".sub_visual.smna-premium-hero .table-cell{display:block !important;width:min(1180px,calc(100% - 40px));margin:0 auto;padding:0 14px;text-align:center;vertical-align:bottom;}"
+          + ".sub_visual.smna-premium-hero .sub_title{display:block !important;margin:0 0 10px !important;color:rgba(232,244,255,.86) !important;font-size:14px !important;font-weight:900 !important;letter-spacing:.18em !important;text-transform:uppercase !important;}"
+          + ".sub_visual.smna-premium-hero h3{display:block !important;max-width:780px !important;margin:0 auto !important;color:#ffffff !important;font-size:clamp(36px,3.8vw,52px) !important;line-height:1.05 !important;font-weight:900 !important;letter-spacing:-.03em !important;word-break:keep-all !important;text-shadow:0 10px 28px rgba(0,0,0,.28) !important;}"
+          + ".sub_visual.smna-premium-hero .cover,.sub_visual.smna-premium-hero .bg{display:none !important;}"
+          + ".smna-premium-inline-title{display:none !important;}"
+          + ".loca-area .smna-premium-current button{cursor:default !important;background:#fff !important;}"
+          + ".loca-area .smna-premium-current button span{display:inline-block !important;color:#444 !important;font-weight:700 !important;}"
+          + ".loca-area .smna-premium-current button::before,.loca-area .smna-premium-current button::after{display:none !important;}"
+          + "#smna-premium-strip{max-width:1180px;margin:0 auto 32px;padding:0 18px;font-family:Pretendard,'Noto Sans KR','Malgun Gothic',Arial,sans-serif;}"
+          + "#smna-premium-strip .smna-premium-intro{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;margin-bottom:16px;padding:24px;border:1px solid #d7e2ee;border-radius:22px;background:linear-gradient(180deg,#f9fbfd 0%,#eef4f9 100%);box-shadow:0 16px 34px rgba(10,31,53,.08);}"
+          + "#smna-premium-strip .eyebrow{margin:0 0 10px;color:#8c6d42;font-size:12px;line-height:1.3;font-weight:900;letter-spacing:.18em;text-transform:uppercase;}"
+          + "#smna-premium-strip h2{margin:0;color:#0b2944;font-size:32px;line-height:1.12;font-weight:900;letter-spacing:-.03em;word-break:keep-all;}"
+          + "#smna-premium-strip p{margin:0;color:#4e5968;font-size:16px;line-height:1.72;word-break:keep-all;}"
+          + "#smna-premium-strip .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px;}"
+          + "#smna-premium-strip .chips span{display:inline-flex;align-items:center;min-height:30px;padding:6px 11px;border-radius:999px;background:#ffffff;border:1px solid #d3dfea;color:#0d426d;font-size:13px;font-weight:800;line-height:1.2;}"
+          + "#smna-premium-strip .cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;}"
+          + "#smna-premium-strip .card{display:flex;flex-direction:column;min-height:240px;border-radius:22px;overflow:hidden;background:#ffffff;border:1px solid #d7e2ee;box-shadow:0 18px 36px rgba(10,31,53,.09);}"
+          + "#smna-premium-strip .card-cover{position:relative;padding:18px 18px 16px;min-height:114px;background:linear-gradient(132deg,#0b2b47 0%,#0d4a79 62%,#c58d42 100%);color:#ffffff;}"
+          + "#smna-premium-strip .card-cover::after{content:'';position:absolute;right:-26px;bottom:-28px;width:108px;height:108px;border-radius:50%;background:rgba(255,255,255,.12);}"
+          + "#smna-premium-strip .card-badge{display:inline-flex;align-items:center;justify-content:center;min-height:24px;padding:4px 9px;border-radius:999px;border:1px solid rgba(255,255,255,.32);background:rgba(255,255,255,.12);font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;}"
+          + "#smna-premium-strip .card-cover strong{display:block;position:relative;z-index:1;margin-top:16px;font-size:27px;line-height:1.08;font-weight:900;letter-spacing:-.03em;word-break:keep-all;}"
+          + "#smna-premium-strip .card-body{display:flex;flex:1 1 auto;flex-direction:column;gap:12px;padding:18px;}"
+          + "#smna-premium-strip .card-title{margin:0;color:#0d2238;font-size:18px;line-height:1.5;font-weight:900;word-break:keep-all;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}"
+          + "#smna-premium-strip .tag-list{display:flex;flex-wrap:wrap;gap:8px;min-height:32px;}"
+          + "#smna-premium-strip .tag-list span{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;background:#eef4f9;color:#24557f;font-size:12px;font-weight:800;line-height:1.2;}"
+          + "#smna-premium-strip .card-link{display:inline-flex;align-items:center;justify-content:center;min-height:44px;margin-top:auto;padding:10px 14px;border-radius:12px;background:#0b3558;color:#ffffff !important;text-decoration:none !important;font-size:14px;font-weight:900;line-height:1.2;}"
+          + "@media(max-width:980px){.sub_visual.smna-premium-hero{min-height:210px !important;height:auto !important;margin-bottom:20px !important;}.sub_visual.smna-premium-hero .title_warp{padding:98px 0 26px !important;}.sub_visual.smna-premium-hero .table-cell{width:calc(100% - 24px);padding:0 6px;}.sub_visual.smna-premium-hero h3{max-width:92% !important;font-size:34px !important;}#smna-premium-strip{padding:0 12px;}#smna-premium-strip .smna-premium-intro{padding:20px;border-radius:18px;}#smna-premium-strip h2{font-size:27px;}#smna-premium-strip .cards{grid-template-columns:1fr;}#smna-premium-strip .card{min-height:220px;}}";
+        document.head.appendChild(style);
+      }
+
+      var hero = document.querySelector(".sub_visual");
+      var mainTitleNode = document.querySelector("#bo_list h1, #bo_v h1, #bo_v_title .bo_v_tit, .content_wrap h1, h1");
+      var mainTitle = compactText(mainTitleNode ? (mainTitleNode.textContent || "") : "");
+      if (hero) {
+        var sub = hero.querySelector(".sub_title");
+        var h3 = hero.querySelector("h3");
+        if (sub && !compactText(sub.textContent || "")) sub.textContent = "고객센터";
+        if (h3 && !compactText(h3.textContent || "")) h3.textContent = mainTitle || "프리미엄 매물 정보";
+        hero.classList.add("smna-premium-hero");
+      }
+
+      var loca = document.querySelector(".loca-area");
+      if (loca) {
+        var locaList = loca.querySelector("ul");
+        var locaFirst = locaList ? locaList.querySelector("li") : null;
+        var locaSpan = locaFirst ? locaFirst.querySelector("button span") : null;
+        if (locaSpan && !compactText(locaSpan.textContent || "")) locaSpan.textContent = "고객센터";
+        var emptyRows = loca.querySelectorAll(".next-depth li");
+        for (var e = 0; e < emptyRows.length; e += 1) {
+          var anchor = emptyRows[e].querySelector("a");
+          if (!anchor) continue;
+          if (compactText(anchor.textContent || "") || compactText(anchor.getAttribute("href") || "")) continue;
+          if (emptyRows[e].parentNode) emptyRows[e].parentNode.removeChild(emptyRows[e]);
+        }
+        if (locaList && !loca.querySelector(".smna-premium-current")) {
+          var current = document.createElement("li");
+          current.className = "smna-premium-current";
+          current.innerHTML = '<button type="button" aria-current="page"><span>프리미엄 매물 정보</span></button>';
+          locaList.appendChild(current);
+        }
+      }
+
+      if (!isPremiumListMode()) return;
+      if (document.getElementById("smna-premium-strip")) return;
+
+      var rows = _collectPremiumFeatureRows(4);
+      if (!rows.length) return;
+      var table = document.querySelector("#bo_list, .bo_list, table[caption*='프리미엄 매물 정보 목록']");
+      if (!table || !table.parentNode) return;
+      if (mainTitleNode && mainTitleNode.classList) mainTitleNode.classList.add("smna-premium-inline-title");
+
+      var cards = "";
+      for (var i = 0; i < rows.length; i += 1) {
+        var row = rows[i];
+        var tags = "";
+        for (var j = 0; j < row.tags.length; j += 1) {
+          tags += "<span>" + _escapeHtml(row.tags[j]) + "</span>";
+        }
+        cards += ""
+          + '<article class="card">'
+          + '  <div class="card-cover"><span class="card-badge">PREMIUM</span><strong>' + _escapeHtml(row.industry) + "</strong></div>"
+          + '  <div class="card-body">'
+          + '    <h3 class="card-title">' + _escapeHtml(row.title) + "</h3>"
+          + '    <div class="tag-list">' + tags + "</div>"
+          + '    <a class="card-link" href="' + _escapeHtml(row.href) + '">상세 매물 보기</a>'
+          + "  </div>"
+          + "</article>";
+      }
+
+      var strip = document.createElement("section");
+      strip.id = "smna-premium-strip";
+      strip.innerHTML = ""
+        + '<div class="smna-premium-intro">'
+        + '  <div>'
+        + '    <p class="eyebrow">고객센터 PREMIUM</p>'
+        + '    <h2>최근 프리미엄 매물 한눈에 보기</h2>'
+        + '    <p>최근 등록된 프리미엄 매물을 한눈에 비교하고, 관심 매물은 상세 페이지에서 실적·실인수·신용·결산 상태까지 바로 확인할 수 있습니다.</p>'
+        + "  </div>"
+        + '  <div class="chips"><span>실적 비교</span><span>실인수 판단</span><span>신용·시평 체크</span><span>즉시 열람</span></div>'
+        + "</div>"
+        + '<div class="cards">' + cards + "</div>";
+
+      table.parentNode.insertBefore(strip, table);
+    } catch (_e) {}
   }
 
   function syncMainBannerOverrideByQuery() {
@@ -1772,7 +2097,7 @@ def build_banner_snippet(
   }
 
   function calcTitleByMode(mode) {
-    return mode === "acquisition" ? "AI 인허가 사전검토 진단기(신규등록)" : "AI 양도가 산정 계산기";
+    return mode === "acquisition" ? "AI 인허가 사전검토 진단기(신규등록 전용)" : "AI 양도가 산정 계산기";
   }
 
   function syncCalculatorBodyClass(mode) {
@@ -2069,6 +2394,7 @@ def build_banner_snippet(
     if (!mainPath && bridged) applyBridgeTopOffset();
     fixHeroVideoFraming();
     tuneHeroCopyForCta();
+    enhancePremiumLanding();
     enhanceQuickMenu();
     blockLegacyQuickMenu();
     sanitizeUtilityLinks();
@@ -2087,6 +2413,8 @@ def build_banner_snippet(
     setTimeout(_captureRecentMnaFromPage, 1200);
     setTimeout(fixHeroVideoFraming, 160);
     setTimeout(fixHeroVideoFraming, 1400);
+    setTimeout(enhancePremiumLanding, 220);
+    setTimeout(enhancePremiumLanding, 1200);
     setTimeout(mountMnaPocketPanel, 280);
     setTimeout(mountMnaPocketPanel, 1400);
     setTimeout(tuneMnaSearchSelectUx, 340);
@@ -2107,9 +2435,9 @@ def build_banner_snippet(
     setTimeout(_localAutoPullStateOnce, 1400);
     setTimeout(enhanceLoginPageGoogleCta, 180);
     setTimeout(enhanceLoginPageGoogleCta, 1200);
+    setTimeout(stabilizeHeaderAndNav, 220);
+    setTimeout(stabilizeHeaderAndNav, 1200);
     if (mode) {
-      setTimeout(stabilizeHeaderAndNav, 220);
-      setTimeout(stabilizeHeaderAndNav, 1200);
       setTimeout(applyBridgeTopOffset, 260);
       setTimeout(applyBridgeTopOffset, 1200);
       setTimeout(runCalculatorMountPass, 500);
@@ -2201,7 +2529,55 @@ def build_traffic_counter_snippet(
 ) -> str:
     ns = str(namespace or "").strip() or "seoulmna.co.kr"
     template = """<!-- SEOULMNA TRAFFIC COUNTER START -->
-<script>(function(){if(window.__smna_tc__)return;window.__smna_tc__=1;var NS=__NAMESPACE__,SC=__SHOW_CUSTOMER__,SA=__SHOW_ADMIN__,API='https://abacus.jasoncameron.dev',D=new Date(),DAY=D.getFullYear()+('0'+(D.getMonth()+1)).slice(-2)+('0'+D.getDate()).slice(-2),ADM=(/[?&]smna_admin_traffic=1/.test(location.search)||/\\/adm\\//i.test(location.pathname)),BOT=/bot|crawl|spider|headless/i.test((navigator.userAgent||'').toLowerCase())||!!navigator.webdriver,K={ad:'v_all_d_'+DAY,at:'v_all_t',hd:'v_human_d_'+DAY,ht:'v_human_t'},CK='smna_tc_cache_'+DAY,TTL=600000;function N(V){V=Number(V||0);return isFinite(V)&&V>0?Math.floor(V):0}function R(T,K){return fetch(API+'/'+T+'/'+encodeURIComponent(NS)+'/'+encodeURIComponent(K),{cache:'no-store'}).then(function(X){return X.json()}).then(function(J){return N(J&&J.value)}).catch(function(){return 0})}function G(){try{return JSON.parse(sessionStorage.getItem(CK)||'null')}catch(_e){return null}}function S(O){try{sessionStorage.setItem(CK,JSON.stringify(O||{}))}catch(_e){}}function W(ID,TXT,CSS,P){var E=document.getElementById(ID);if(!E){E=document.createElement('div');E.id=ID;E.style.cssText=CSS;var R=P||document.body||document.documentElement;if(!R)return;R.appendChild(E)}E.textContent=TXT}function P(C){if(SC)W('smna-traffic-customer','오늘 방문 '+N(C&&C.ad)+'명 · 누적 방문 '+N(C&&C.at)+'명','max-width:1120px;margin:6px auto 0;padding:7px 9px;background:#f8fbff;color:#214968;font:600 12px/1.35 sans-serif;text-align:center',document.querySelector('#ft,#footers,footer,.footer')||document.body||document.documentElement);if(SA&&ADM)W('smna-traffic-admin','관리자(봇제외) 오늘 '+N(C&&C.hd)+'명 · 누적 '+N(C&&C.ht)+'명','position:fixed;left:12px;bottom:12px;z-index:9999;padding:8px 10px;border-radius:10px;background:#0e2f4f;color:#e8f3ff;font:600 11px/1.35 sans-serif')}var C=G(),NOW=Date.now();try{if(sessionStorage.getItem('smna_tc_day')!==DAY){sessionStorage.setItem('smna_tc_day',DAY);R('hit',K.ad);R('hit',K.at);if(!BOT){R('hit',K.hd);R('hit',K.ht)}C=null}}catch(_e){R('hit',K.ad);R('hit',K.at)}if(C&&NOW-N(C.ts)<TTL&&(!ADM||(typeof C.hd!=='undefined'&&typeof C.ht!=='undefined'))){P(C);return}var T=[R('get',K.ad),R('get',K.at)];if(SA&&ADM){T.push(R('get',K.hd));T.push(R('get',K.ht))}Promise.all(T).then(function(V){var O={ad:N(V[0]),at:N(V[1]),ts:Date.now()};if(SA&&ADM){O.hd=N(V[2]);O.ht=N(V[3])}P(O);S(O)})})();</script>
+<script>(function(){
+if(window.__smna_tc__) return;
+window.__smna_tc__ = 1;
+var NS=__NAMESPACE__,SC=__SHOW_CUSTOMER__,SA=__SHOW_ADMIN__,API='https://abacus.jasoncameron.dev',
+    D=new Date(),
+    DAY=D.getFullYear()+('0'+(D.getMonth()+1)).slice(-2)+('0'+D.getDate()).slice(-2),
+    ADM=(/[?&]smna_admin_traffic=1/.test(location.search)||/\\/adm\\//i.test(location.pathname)),
+    BOT=/bot|crawl|spider|headless/i.test((navigator.userAgent||'').toLowerCase())||!!navigator.webdriver,
+    K={ad:'v_all_d_'+DAY,at:'v_all_t',hd:'v_human_d_'+DAY,ht:'v_human_t'},
+    CK='smna_tc_cache_'+DAY,
+    TTL=600000;
+function N(V){V=Number(V||0);return isFinite(V)&&V>0?Math.floor(V):0}
+function R(T,K){return fetch(API+'/'+T+'/'+encodeURIComponent(NS)+'/'+encodeURIComponent(K),{cache:'no-store'}).then(function(X){return X.json()}).then(function(J){return N(J&&J.value)}).catch(function(){return 0})}
+function G(){try{return JSON.parse(sessionStorage.getItem(CK)||'null')}catch(_e){return null}}
+function S(O){try{sessionStorage.setItem(CK,JSON.stringify(O||{}))}catch(_e){}}
+function W(ID,TXT,CSS,P){var E=document.getElementById(ID);if(!E){E=document.createElement('div');E.id=ID;var R=P||document.body||document.documentElement;if(!R)return;R.appendChild(E)}if(CSS)E.style.cssText=CSS;E.textContent=TXT}
+function H(){
+  var old = document.getElementById('smna-traffic-customer');
+  if(old && old.parentNode) old.parentNode.removeChild(old);
+  var stale = document.querySelectorAll('body > div, #wrap > div, #wrapper > div, #header div');
+  for(var i=0;i<stale.length;i+=1){
+    var n = stale[i];
+    if(!n || n.id==='smna-traffic-admin' || n.id==='smna-traffic-customer-mini') continue;
+    var t = String(n.textContent||'').replace(/\\s+/g,' ').trim();
+    if(!t || t.length>40) continue;
+    if(t.indexOf('오늘 방문')>=0 && t.indexOf('누적 방문')>=0){
+      n.style.display='none';
+      n.setAttribute('data-smna-traffic-legacy','1');
+    }
+  }
+}
+function P(C){
+  if(SC){H();W('smna-traffic-customer-mini',String(N(C&&C.at)),'position:fixed;right:10px;bottom:10px;z-index:9998;color:#7a8592;font:600 10px/1.2 sans-serif;letter-spacing:.02em;opacity:.85;pointer-events:none;background:transparent;padding:0;margin:0')}
+  if(SA&&ADM)W('smna-traffic-admin','관리자(봇제외) 오늘 '+N(C&&C.hd)+'명 · 누적 '+N(C&&C.ht)+'명','position:fixed;left:12px;bottom:12px;z-index:9999;padding:8px 10px;border-radius:10px;background:#0e2f4f;color:#e8f3ff;font:600 11px/1.35 sans-serif')
+}
+var C=G(),NOW=Date.now();
+try{
+  if(sessionStorage.getItem('smna_tc_day')!==DAY){
+    sessionStorage.setItem('smna_tc_day',DAY);
+    R('hit',K.ad);R('hit',K.at);
+    if(!BOT){R('hit',K.hd);R('hit',K.ht)}
+    C=null;
+  }
+}catch(_e){R('hit',K.ad);R('hit',K.at)}
+if(C&&NOW-N(C.ts)<TTL&&(!ADM||(typeof C.hd!=='undefined'&&typeof C.ht!=='undefined'))){P(C);return}
+var T=[R('get',K.ad),R('get',K.at)];
+if(SA&&ADM){T.push(R('get',K.hd));T.push(R('get',K.ht))}
+Promise.all(T).then(function(V){var O={ad:N(V[0]),at:N(V[1]),ts:Date.now()};if(SA&&ADM){O.hd=N(V[2]);O.ht=N(V[3])}P(O);S(O)})
+})();</script>
 <!-- SEOULMNA TRAFFIC COUNTER END -->"""
     rendered = (
         template.replace("__NAMESPACE__", repr(ns))
@@ -2317,3 +2693,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

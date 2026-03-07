@@ -1,4 +1,4 @@
-import argparse
+﻿import argparse
 import json
 import os
 import re
@@ -8,7 +8,21 @@ from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Dict, List, Tuple
 
+from core_engine.tenant_gateway import TenantGateway
+from tenant_config.loader import load_gateway
+
 from lead_intake import LeadIntakeHub
+from security_http import (
+    DEFAULT_SECURITY_HEADERS,
+    SecurityEventLogger,
+    SlidingWindowRateLimiter,
+    header_token,
+    is_authorized_any,
+    parse_key_values,
+    parse_origin_allowlist,
+    resolve_allow_origin,
+    safe_client_ip,
+)
 from utils import load_config, setup_logger
 
 try:
@@ -27,10 +41,19 @@ CONFIG = load_config(
         "YANGDO_CONSULT_ALLOW_ORIGINS": "https://seoulmna.kr,https://www.seoulmna.kr,https://seoulmna.co.kr,https://www.seoulmna.co.kr",
         "YANGDO_CONSULT_ENABLE_CRM": "true",
         "YANGDO_CONSULT_RUN_MATCH": "false",
+        "YANGDO_CONSULT_API_KEY": "",
+        "YANGDO_CONSULT_MAX_BODY_BYTES": "131072",
+        "YANGDO_CONSULT_RATE_LIMIT_PER_MIN": "120",
+        "YANGDO_CONSULT_TRUST_X_FORWARDED_FOR": "false",
+        "YANGDO_CONSULT_SECURITY_LOG_FILE": "logs/security_consult_events.jsonl",
         "YANGDO_USAGE_SHEET_ENABLED": "true",
         "YANGDO_USAGE_JSON_FILE": "service_account.json",
         "YANGDO_USAGE_SHEET_NAME": "26양도매물",
         "YANGDO_USAGE_SHEET_TAB": "양도가계산사용로그",
+        "TENANT_GATEWAY_ENABLED": "true",
+        "TENANT_GATEWAY_STRICT": "false",
+        "TENANT_GATEWAY_CONFIG": "tenant_config/tenant_registry.json",
+        "TENANT_GATEWAY_DEFAULT_TENANT": "",
     }
 )
 
@@ -127,17 +150,81 @@ def _tokenize_license(raw):
     return uniq[:6]
 
 
+CANONICAL_MODE_YANGDO = "yangdo_calculator"
+CANONICAL_MODE_PERMIT = "permit_precheck"
+CANONICAL_SOURCE_YANGDO = "seoulmna_kr_yangdo_ai"
+CANONICAL_SOURCE_HOT_MATCH = "seoulmna_kr_hot_match"
+CANONICAL_SOURCE_PERMIT = "seoulmna_kr_permit_precheck_newreg"
+
+
+def _detect_business_mode(payload) -> str:
+    blob = " ".join(
+        [
+            str(payload.get("service_track", "")),
+            str(payload.get("business_domain", "")),
+            str(payload.get("page_mode", "")),
+            str(payload.get("source_mode", "")),
+            str(payload.get("source", "")),
+            str(payload.get("subject", "")),
+            str(payload.get("summary_text", "")),
+            str(payload.get("license_text", "")),
+        ]
+    ).lower()
+    if any(k in blob for k in ["permit_precheck", "permit", "newreg", "acquisition", "인허가", "신규등록"]):
+        return CANONICAL_MODE_PERMIT
+    if any(k in blob for k in ["yangdo", "transfer_price_estimation", "양도", "mna"]):
+        return CANONICAL_MODE_YANGDO
+    mode = _compact(payload.get("page_mode"), limit=40)
+    return mode or "unknown"
+
+
+def _canonical_source(payload, mode: str) -> str:
+    src = _compact(payload.get("source"), limit=100).lower()
+    if "hot_match" in src:
+        return CANONICAL_SOURCE_HOT_MATCH
+    if mode == CANONICAL_MODE_PERMIT:
+        return CANONICAL_SOURCE_PERMIT
+    if mode == CANONICAL_MODE_YANGDO:
+        return CANONICAL_SOURCE_YANGDO
+    return _compact(payload.get("source"), limit=100)
+
+
+def _normalize_business_payload(raw_payload: dict) -> dict:
+    payload = dict(raw_payload or {})
+    mode = _detect_business_mode(payload)
+    canonical_source = _canonical_source(payload, mode)
+    legacy_mode = _compact(payload.get("page_mode"), limit=40)
+    legacy_source = _compact(payload.get("source"), limit=100)
+    payload["page_mode"] = mode
+    payload["source"] = canonical_source
+    payload["service_track"] = _compact(payload.get("service_track"), limit=80) or (
+        "permit_precheck_new_registration" if mode == CANONICAL_MODE_PERMIT else "transfer_price_estimation"
+    )
+    payload["business_domain"] = _compact(payload.get("business_domain"), limit=80) or (
+        "permit_precheck" if mode == CANONICAL_MODE_PERMIT else "yangdo_transfer"
+    )
+    if legacy_mode and legacy_mode != mode and not _compact(payload.get("legacy_page_mode"), limit=40):
+        payload["legacy_page_mode"] = legacy_mode
+    if legacy_source and legacy_source != canonical_source and not _compact(payload.get("legacy_source"), limit=100):
+        payload["legacy_source"] = legacy_source
+    return payload
+
+
 def _build_tags(payload):
     tags = []
-    source = _compact(payload.get("source"), limit=80)
+    normalized = _normalize_business_payload(payload)
+    source = _compact(normalized.get("source"), limit=80)
     if source:
         tags.append(source)
-    mode = _compact(payload.get("page_mode"), limit=30)
+    mode = _compact(normalized.get("page_mode"), limit=30)
     if mode:
         tags.append(mode)
-    for token in _tokenize_license(payload.get("license_text", "")):
+    service_track = _compact(normalized.get("service_track"), limit=60)
+    if service_track:
+        tags.append(service_track)
+    for token in _tokenize_license(normalized.get("license_text", "")):
         tags.append(token)
-    if str(payload.get("estimated_neighbors", "")).strip():
+    if str(normalized.get("estimated_neighbors", "")).strip():
         tags.append("ai산정")
     out = []
     seen = set()
@@ -226,6 +313,7 @@ class ConsultStore:
             conn.close()
 
     def insert(self, payload, tags, priority, urgency):
+        payload = _normalize_business_payload(payload)
         row = {
             "received_at": _now_iso(),
             "source": _compact(payload.get("source"), limit=100),
@@ -276,6 +364,7 @@ class ConsultStore:
             conn.close()
 
     def insert_usage(self, payload):
+        payload = _normalize_business_payload(payload)
         row = {
             "received_at": _now_iso(),
             "source": _compact(payload.get("source"), limit=100),
@@ -348,6 +437,9 @@ class UsageSheetWriter:
         "received_at",
         "source",
         "page_mode",
+        "service_track",
+        "business_domain",
+        "source_mode",
         "status",
         "error_text",
         "license_text",
@@ -411,6 +503,7 @@ class UsageSheetWriter:
         if not self.enabled:
             return {"ok": False, "reason": "disabled"}
         try:
+            payload = _normalize_business_payload(payload)
             ws = self._connect()
             if ws is None:
                 return {"ok": False, "reason": "worksheet_unavailable"}
@@ -418,6 +511,9 @@ class UsageSheetWriter:
                 _now_iso(),
                 _compact(payload.get("source"), 100),
                 _compact(payload.get("page_mode"), 40),
+                _compact(payload.get("service_track"), 80),
+                _compact(payload.get("business_domain"), 80),
+                _compact(payload.get("source_mode"), 40),
                 _compact(payload.get("status"), 40),
                 _compact(payload.get("error_text"), 1000),
                 _compact(payload.get("license_text"), 200),
@@ -469,17 +565,21 @@ class CrmBridge:
     def submit(self, payload, tags, urgency):
         if not self.enabled:
             return {"status": "disabled", "lead_id": ""}
+        normalized = _normalize_business_payload(payload)
         try:
             hub = self._connect()
         except Exception as e:
             logger.exception("crm connect failed")
             return {"status": f"crm_connect_error:{e}", "lead_id": ""}
 
-        contact = _compact(payload.get("customer_phone")) or _compact(payload.get("customer_email"))
-        title = _compact(payload.get("subject")) or "서울건설정보 AI 산정 상담 요청"
-        summary = _compact(payload.get("summary_text"), limit=12000)
+        contact = _compact(normalized.get("customer_phone")) or _compact(normalized.get("customer_email"))
+        title = _compact(normalized.get("subject")) or "서울건설정보 AI 산정 상담 요청"
+        summary = _compact(normalized.get("summary_text"), limit=12000)
         if tags:
             summary += f"\n\n[자동 태그] {', '.join(tags)}"
+        mode = _compact(normalized.get("page_mode"), limit=40)
+        intent = "인허가(신규등록)" if mode == CANONICAL_MODE_PERMIT else "양도양수"
+        channel = "permit_precheck_web" if mode == CANONICAL_MODE_PERMIT else "yangdo_ai_web"
 
         out = {}
         try:
@@ -487,12 +587,12 @@ class CrmBridge:
                 {
                     "title": title,
                     "content": summary,
-                    "channel": "yangdo_ai_web",
-                    "customer_name": _compact(payload.get("customer_name"), limit=80),
+                    "channel": channel,
+                    "customer_name": _compact(normalized.get("customer_name"), limit=80),
                     "contact": contact,
-                    "source": _compact(payload.get("page_url"), limit=400),
+                    "source": _compact(normalized.get("page_url"), limit=400),
                     "urgency": urgency,
-                    "intent": "양도양수",
+                    "intent": intent,
                 },
                 dry_run=False,
             )
@@ -510,42 +610,143 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
 
     def _allow_origin(self):
         req_origin = _compact(self.headers.get("Origin"), limit=300)
-        allowed = self.server.allowed_origins
-        if "*" in allowed:
-            return req_origin or "*"
-        if req_origin in allowed:
-            return req_origin
-        return ""
+        return resolve_allow_origin(req_origin, self.server.allowed_origins)
 
-    def _write_json(self, status, data):
+    def _client_ip(self):
+        return safe_client_ip(self, trust_x_forwarded_for=bool(self.server.trust_x_forwarded_for))
+
+    def _tenant_resolution(self):
+        return self.server.tenant_gateway.resolve(
+            host=_compact(self.headers.get("Host"), limit=300),
+            origin=_compact(self.headers.get("Origin"), limit=300),
+        )
+
+    def _require_feature(self, feature: str):
+        if not bool(self.server.tenant_gateway_enabled):
+            return True
+        resolution = self._tenant_resolution()
+        if self.server.tenant_gateway.check_feature(resolution, feature):
+            return True
+        tenant_id = ""
+        if resolution.tenant is not None:
+            tenant_id = str(resolution.tenant.tenant_id or "")
+        self.server.security_events.append(
+            {
+                "event": "tenant_blocked",
+                "service": "yangdo_consult_api",
+                "path": self.path.split("?", 1)[0],
+                "feature": str(feature or ""),
+                "ip": self._client_ip(),
+                "host": _compact(self.headers.get("Host"), limit=300),
+                "origin": _compact(self.headers.get("Origin"), limit=300),
+                "tenant_id": tenant_id,
+            }
+        )
+        self._write_json(403, {"ok": False, "error": "tenant_not_allowed"})
+        return False
+
+    def _require_auth(self):
+        token = header_token(self.headers, "x")
+        if token and bool(self.server.tenant_gateway_enabled):
+            resolution = self._tenant_resolution()
+            if self.server.tenant_gateway.is_token_blocked(resolution, token):
+                tenant_id = ""
+                if resolution.tenant is not None:
+                    tenant_id = str(resolution.tenant.tenant_id or "")
+                self.server.security_events.append(
+                    {
+                        "event": "auth_blocked_key",
+                        "service": "yangdo_consult_api",
+                        "path": self.path.split("?", 1)[0],
+                        "ip": self._client_ip(),
+                        "origin": _compact(self.headers.get("Origin"), limit=300),
+                        "host": _compact(self.headers.get("Host"), limit=300),
+                        "tenant_id": tenant_id,
+                    }
+                )
+                self._write_json(401, {"ok": False, "error": "blocked_api_key"})
+                return False
+        if is_authorized_any(self.headers, self.server.api_keys):
+            return True
+        self.server.security_events.append(
+            {
+                "event": "auth_failed",
+                "service": "yangdo_consult_api",
+                "path": self.path.split("?", 1)[0],
+                "ip": self._client_ip(),
+                "origin": _compact(self.headers.get("Origin"), limit=300),
+            }
+        )
+        self._write_json(401, {"ok": False, "error": "unauthorized"})
+        return False
+
+    def _allow_request(self):
+        ok, retry_after = self.server.rate_limiter.allow(self._client_ip())
+        if ok:
+            return True
+        self.server.security_events.append(
+            {
+                "event": "rate_limited",
+                "service": "yangdo_consult_api",
+                "path": self.path.split("?", 1)[0],
+                "ip": self._client_ip(),
+                "retry_after": int(max(1, int(retry_after))),
+            }
+        )
+        self._write_json(
+            429,
+            {"ok": False, "error": "rate_limited"},
+            extra_headers={"Retry-After": str(max(1, int(retry_after)))},
+        )
+        return False
+
+    def _write_json(self, status, data, extra_headers=None):
         body = json.dumps(data, ensure_ascii=False).encode("utf-8")
         allow_origin = self._allow_origin()
         self.send_response(int(status))
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Cache-Control", "no-store")
+        for hk, hv in DEFAULT_SECURITY_HEADERS:
+            self.send_header(hk, hv)
         if allow_origin:
             self.send_header("Access-Control-Allow-Origin", allow_origin)
             self.send_header("Vary", "Origin")
-            self.send_header("Access-Control-Allow-Headers", "Content-Type")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-API-Key")
             self.send_header("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
+        if isinstance(extra_headers, dict):
+            for hk, hv in extra_headers.items():
+                if hk and hv is not None:
+                    self.send_header(str(hk), str(hv))
         self.end_headers()
-        self.wfile.write(body)
+        try:
+            self.wfile.write(body)
+        except Exception:
+            # Client disconnected before reading response.
+            pass
 
     def _read_json(self):
+        content_type = str(self.headers.get("Content-Type", "") or "").lower()
+        if content_type and "application/json" not in content_type:
+            raise ValueError("content_type_must_be_application_json")
         length = int(self.headers.get("Content-Length", "0") or 0)
         if length <= 0:
             return {}
-        if length > 128 * 1024:
+        if length > int(self.server.max_body_bytes):
             raise ValueError("payload_too_large")
         raw = self.rfile.read(length)
         return json.loads(raw.decode("utf-8"))
 
     def do_OPTIONS(self):
+        if not self._allow_request():
+            return
         self._write_json(200, {"ok": True})
 
     def do_GET(self):
-        if self.path.rstrip("/") == "/health":
+        path = self.path.split("?", 1)[0].rstrip("/")
+        if not self._allow_request():
+            return
+        if path == "/health":
             self._write_json(
                 200,
                 {
@@ -560,6 +761,7 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
         self._write_json(404, {"ok": False, "error": "not_found"})
 
     def _handle_consult(self, payload):
+        payload = _normalize_business_payload(payload)
         name = _compact(payload.get("customer_name"), limit=80)
         phone = _compact(payload.get("customer_phone"), limit=40)
         email = _compact(payload.get("customer_email"), limit=120)
@@ -575,9 +777,9 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
 
         try:
             request_id = self.server.store.insert(payload, tags, priority, urgency)
-        except Exception as e:
+        except Exception:
             logger.exception("db insert failed")
-            self._write_json(500, {"ok": False, "error": f"db_insert_failed:{e}"})
+            self._write_json(500, {"ok": False, "error": "db_insert_failed"})
             return
 
         crm = self.server.crm_bridge.submit(payload, tags, urgency)
@@ -601,13 +803,23 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
                 "received_at": _now_iso(),
             },
         )
+        self.server.security_events.append(
+            {
+                "event": "consult_accepted",
+                "service": "yangdo_consult_api",
+                "path": "/consult",
+                "ip": self._client_ip(),
+                "request_id": int(request_id),
+            }
+        )
 
     def _handle_usage(self, payload):
+        payload = _normalize_business_payload(payload)
         try:
             usage_id = self.server.store.insert_usage(payload)
-        except Exception as e:
+        except Exception:
             logger.exception("usage db insert failed")
-            self._write_json(500, {"ok": False, "error": f"usage_db_insert_failed:{e}"})
+            self._write_json(500, {"ok": False, "error": "usage_db_insert_failed"})
             return
 
         sheet_result = self.server.usage_sheet.append_usage(payload)
@@ -621,42 +833,77 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
                 "received_at": _now_iso(),
             },
         )
+        self.server.security_events.append(
+            {
+                "event": "usage_logged",
+                "service": "yangdo_consult_api",
+                "path": "/usage",
+                "ip": self._client_ip(),
+                "usage_id": int(usage_id),
+            }
+        )
 
     def do_POST(self):
         path = self.path.rstrip("/")
         if path not in {"/consult", "/usage"}:
             self._write_json(404, {"ok": False, "error": "not_found"})
             return
+        if not self._allow_request():
+            return
+        if not self._require_auth():
+            return
         try:
             payload = self._read_json()
-        except Exception as e:
-            self._write_json(400, {"ok": False, "error": f"invalid_json:{e}"})
+        except ValueError as e:
+            self._write_json(400, {"ok": False, "error": str(e)})
+            return
+        except Exception:
+            self._write_json(400, {"ok": False, "error": "invalid_json"})
             return
 
         if path == "/consult":
+            if not self._require_feature("consult"):
+                return
             self._handle_consult(payload)
+            return
+        if not self._require_feature("usage"):
             return
         self._handle_usage(payload)
 
 
 class YangdoConsultApiServer(ThreadingHTTPServer):
-    def __init__(self, addr, handler_cls, store, crm_bridge, allowed_origins, usage_sheet):
+    def __init__(
+        self,
+        addr,
+        handler_cls,
+        store,
+        crm_bridge,
+        allowed_origins,
+        usage_sheet,
+        api_key,
+        max_body_bytes,
+        rate_limit_per_min,
+        trust_x_forwarded_for,
+        security_log_file,
+        tenant_gateway_enabled,
+        tenant_gateway,
+    ):
         super().__init__(addr, handler_cls)
         self.store = store
         self.crm_bridge = crm_bridge
         self.allowed_origins = set(allowed_origins or [])
         self.usage_sheet = usage_sheet
+        self.api_keys = parse_key_values(str(api_key or ""))
+        self.max_body_bytes = max(1024, int(max_body_bytes or 131072))
+        self.rate_limiter = SlidingWindowRateLimiter(limit=max(1, int(rate_limit_per_min or 120)), window_seconds=60)
+        self.trust_x_forwarded_for = bool(trust_x_forwarded_for)
+        self.security_events = SecurityEventLogger(str(security_log_file or ""))
+        self.tenant_gateway_enabled = bool(tenant_gateway_enabled)
+        self.tenant_gateway = tenant_gateway if isinstance(tenant_gateway, TenantGateway) else TenantGateway([], strict=False, default_tenant_id="")
 
 
 def _parse_origins(raw):
-    out = []
-    for piece in str(raw or "").split(","):
-        origin = _compact(piece, limit=300)
-        if origin:
-            out.append(origin.rstrip("/"))
-    if not out:
-        out = ["*"]
-    return out
+    return sorted(parse_origin_allowlist(str(raw or "")))
 
 
 def main():
@@ -665,13 +912,24 @@ def main():
     parser.add_argument("--port", type=int, default=_cfg_int("YANGDO_CONSULT_API_PORT", 8788))
     parser.add_argument("--db-path", default=str(CONFIG.get("YANGDO_CONSULT_DB", "logs/yangdo_consult_requests.sqlite3")).strip())
     parser.add_argument("--allow-origins", default=str(CONFIG.get("YANGDO_CONSULT_ALLOW_ORIGINS", "")).strip())
+    parser.add_argument("--api-key", default=str(CONFIG.get("YANGDO_CONSULT_API_KEY", "")).strip())
+    parser.add_argument("--max-body-bytes", type=int, default=_cfg_int("YANGDO_CONSULT_MAX_BODY_BYTES", 131072))
+    parser.add_argument("--rate-limit-per-min", type=int, default=_cfg_int("YANGDO_CONSULT_RATE_LIMIT_PER_MIN", 120))
+    parser.add_argument("--trust-x-forwarded-for", action="store_true", default=_cfg_bool("YANGDO_CONSULT_TRUST_X_FORWARDED_FOR", False))
+    parser.add_argument("--security-log-file", default=str(CONFIG.get("YANGDO_CONSULT_SECURITY_LOG_FILE", "logs/security_consult_events.jsonl")).strip())
     parser.add_argument("--disable-crm", action="store_true")
     parser.add_argument("--run-match", action="store_true", default=_cfg_bool("YANGDO_CONSULT_RUN_MATCH", False))
     parser.add_argument("--disable-usage-sheet", action="store_true")
+    parser.add_argument("--tenant-gateway-enabled", default=str(CONFIG.get("TENANT_GATEWAY_ENABLED", "true")).strip())
+    parser.add_argument("--tenant-gateway-strict", default=str(CONFIG.get("TENANT_GATEWAY_STRICT", "false")).strip())
+    parser.add_argument("--tenant-gateway-config", default=str(CONFIG.get("TENANT_GATEWAY_CONFIG", "tenant_config/tenant_registry.json")).strip())
+    parser.add_argument("--tenant-gateway-default-tenant", default=str(CONFIG.get("TENANT_GATEWAY_DEFAULT_TENANT", "")).strip())
     args = parser.parse_args()
 
     db_path = os.path.abspath(args.db_path)
     allow_origins = _parse_origins(args.allow_origins)
+    api_key = str(args.api_key or "").strip()
+    api_keys = parse_key_values(api_key)
     enable_crm = _cfg_bool("YANGDO_CONSULT_ENABLE_CRM", True) and (not args.disable_crm)
     enable_usage_sheet = _cfg_bool("YANGDO_USAGE_SHEET_ENABLED", True) and (not args.disable_usage_sheet)
 
@@ -684,6 +942,14 @@ def main():
 
     store = ConsultStore(db_path)
     crm = CrmBridge(enabled=enable_crm, run_match=bool(args.run_match))
+    tenant_gateway_enabled = str(args.tenant_gateway_enabled or "").strip().lower() in {"1", "true", "yes", "on", "y"}
+    tenant_gateway_strict = str(args.tenant_gateway_strict or "").strip().lower() in {"1", "true", "yes", "on", "y"}
+    tenant_gateway = load_gateway(
+        strict=bool(tenant_gateway_strict),
+        default_tenant_id=str(args.tenant_gateway_default_tenant or "").strip(),
+        config_path=str(args.tenant_gateway_config or "").strip(),
+    )
+
     srv = YangdoConsultApiServer(
         (args.host, int(args.port)),
         YangdoConsultApiHandler,
@@ -691,10 +957,22 @@ def main():
         crm,
         allow_origins,
         usage_sheet,
+        api_key,
+        args.max_body_bytes,
+        args.rate_limit_per_min,
+        bool(args.trust_x_forwarded_for),
+        args.security_log_file,
+        bool(tenant_gateway_enabled),
+        tenant_gateway,
     )
 
     logger.info("consult api start: host=%s port=%s db=%s crm_enabled=%s usage_sheet=%s", args.host, args.port, db_path, enable_crm, enable_usage_sheet)
-    logger.info("consult api allow origins: %s", ",".join(allow_origins))
+    logger.info("consult api allow origins: %s", ",".join(allow_origins) if allow_origins else "(none)")
+    logger.info("consult api auth enabled: %s", bool(api_keys))
+    logger.info("consult api auth key count: %s", len(api_keys))
+    logger.info("consult api request caps: max_body_bytes=%s rate_limit_per_min=%s trust_xff=%s", args.max_body_bytes, args.rate_limit_per_min, bool(args.trust_x_forwarded_for))
+    logger.info("consult api security log file: %s", args.security_log_file)
+    logger.info("tenant gateway: enabled=%s strict=%s tenant_count=%s default_tenant=%s config=%s", bool(tenant_gateway_enabled), bool(tenant_gateway_strict), tenant_gateway.tenant_count, str(args.tenant_gateway_default_tenant or ""), str(args.tenant_gateway_config or ""))
     logger.info("consult endpoint: http://%s:%s/consult", args.host, args.port)
     logger.info("usage endpoint: http://%s:%s/usage", args.host, args.port)
     try:
@@ -710,3 +988,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+

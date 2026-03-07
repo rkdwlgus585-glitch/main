@@ -1194,7 +1194,8 @@ class OpenAIKeywordAdvisor:
             }
 
             system_prompt = (
-                "You are a construction SEO assistant. Return JSON only in this format: "
+                "You are a construction SEO assistant. Target keyword selection must stay within candidate_keywords. "
+                "Return valid JSON only in this format: "
                 "{\"ordered_keywords\":[\"...\"],\"reason\":\"...\"}. "
                 "{\"ordered_keywords\":[\"...\"],\"reason\":\"...\"}. "
                 "ordered_keywords must contain only items from candidate_keywords."
@@ -2228,7 +2229,7 @@ class ContentPortfolioOptimizer:
     - Mid score: rewrite/update on the same URL
     - Low score + old: delete and republish with a stronger target topic
     """
-    ALLOWED_AUTH_DOMAINS = ("law.go.kr", "cgbo.co.kr", "kosca.or.kr", "cak.or.kr", "g2b.go.kr")
+    ALLOWED_AUTH_DOMAINS = ("law.go.kr", "cgbo.co.kr", "kosca.or.kr", "cak.or.kr")
 
     def __init__(self):
         self.enabled = _cfg_bool("PORTFOLIO_CLEANUP_ENABLED", True)
@@ -4152,7 +4153,7 @@ class ColumnistEngine:
     def _ensure_outbound_link(self, keyword, content):
         """Guarantee at least two authoritative outbound links."""
         self._normalize_extlink_blocks(keyword, content)
-        allowed_domains = ['law.go.kr', 'cgbo.co.kr', 'kosca.or.kr', 'cak.or.kr', 'g2b.go.kr']
+        allowed_domains = ['law.go.kr', 'cgbo.co.kr', 'kosca.or.kr', 'cak.or.kr']
         all_text = " ".join([str(content.get(f, '')) for f in ['body1_text', 'body2_text', 'body3_text']])
         existing_links = re.findall(r"\[EXTLINK\].+?\|(.+?)\[/EXTLINK\]", all_text, flags=re.DOTALL)
         authoritative = [u.strip() for u in existing_links if any(d in u for d in allowed_domains)]
@@ -4807,7 +4808,7 @@ class PublicationQAAuditor:
         keyword_count = text_blob.count(keyword)
         intro = str(content.get("intro", ""))
         first_para = intro.split("[PARA]", 1)[0]
-        allowed_domains = ["law.go.kr", "cgbo.co.kr", "kosca.or.kr", "cak.or.kr", "g2b.go.kr"]
+        allowed_domains = ["law.go.kr", "cgbo.co.kr", "kosca.or.kr", "cak.or.kr"]
         extlinks = re.findall(r"\[EXTLINK\].+?\|(.+?)\[/EXTLINK\]", text_blob, flags=re.DOTALL)
         authoritative_links = [u for u in extlinks if any(domain in u for domain in allowed_domains)]
         checks = {
@@ -4911,7 +4912,7 @@ class PublicationQAAuditor:
             [str(content.get(k, "")) for k in ("intro", "body1_text", "body2_text", "body3_text", "conclusion")]
         )
         fact_errors = validate_fact(fact_blob)
-        allowed_domains = ["law.go.kr", "cgbo.co.kr", "kosca.or.kr", "cak.or.kr", "g2b.go.kr"]
+        allowed_domains = ["law.go.kr", "cgbo.co.kr", "kosca.or.kr", "cak.or.kr"]
         link_matches = re.findall(r"\[EXTLINK\].+?\|(.+?)\[/EXTLINK\]", text_blob)
         authoritative = [u for u in link_matches if any(domain in u for domain in allowed_domains)]
         has_law_link = any("law.go.kr" in u for u in authoritative)
@@ -8062,6 +8063,7 @@ if __name__ == "__main__":
         else:
             print(message)
         sys.exit(1)
+
 
 
 

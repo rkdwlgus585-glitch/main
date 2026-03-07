@@ -1,0 +1,3859 @@
+{
+  "generated_at": "2026-03-08 02:13:49",
+  "source": {
+    "packet_input": "C:\\Users\\rkdwl\\Desktop\\auto\\logs\\permit_focus_source_upgrade_packet_latest.json",
+    "focus_seed_input": "C:\\Users\\rkdwl\\Desktop\\auto\\config\\permit_focus_seed_catalog.json",
+    "scope_policy": "capital_and_technical_only",
+    "row_policy": "focus_family_registry overrides focus_seed_catalog for matching service_code"
+  },
+  "summary": {
+    "family_registry_row_total": 50,
+    "newly_materialized_row_total": 0,
+    "family_registry_group_total": 6,
+    "applied_family_total": 0,
+    "target_family_row_total": 0,
+    "rows_with_raw_source_proof_total": 50,
+    "focus_family_registry_with_raw_source_proof_total": 50,
+    "focus_family_registry_missing_raw_source_proof_total": 0,
+    "pending_focus_seed_row_total_after_apply": 0
+  },
+  "materialized_families": [
+    "건설산업기본법 시행령",
+    "경비업법 시행령",
+    "소방시설공사업법 시행령",
+    "액화석유가스의 안전관리 및 사업법 시행령",
+    "전기공사업법 시행령",
+    "정보통신공사업법 시행령"
+  ],
+  "last_applied_families": [],
+  "last_target_family": {
+    "family_key": "",
+    "law_title": "",
+    "major_name": "",
+    "group_name": "",
+    "row_total": 0
+  },
+  "industries": [
+    {
+      "service_code": "FOCUS::construction-special-common-7",
+      "service_name": "가스시설시공업1종(전문)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-special-common-7",
+      "seed_rule_id": "construction-special-common",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.5,
+        "technical_personnel_required": true,
+        "technicians_required": 2,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 가스시설시공업1종(전문) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "54c527efddeba12cbb027e6b10600106843e902120601146f9379080ec5420a9",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-general-geonchuk",
+      "service_name": "건축공사업(종합)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-general-geonchuk",
+      "seed_rule_id": "construction-general-geonchuk",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 5.0,
+        "technical_personnel_required": true,
+        "technicians_required": 5,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 건축공사업(종합) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "a26704c9d0849c57a270d6972e5b6282e32d100388654102a83a286572c0ffc8",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-special-common-12",
+      "service_name": "구조물해체·비계공사업(전문)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-special-common-12",
+      "seed_rule_id": "construction-special-common",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.5,
+        "technical_personnel_required": true,
+        "technicians_required": 2,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 구조물해체·비계공사업(전문) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "dce14570fab4e41d91fcf3f589edb30f6d40c5a6cb0d0097f6ea9f8ce8deb064",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-special-common-26",
+      "service_name": "구조물해체공사업(전문)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-special-common-26",
+      "seed_rule_id": "construction-special-common",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.5,
+        "technical_personnel_required": true,
+        "technicians_required": 2,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 구조물해체공사업(전문) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "2033b4ea64306d3685f6c975c831717755fc34e755191eab66468a0c9d5e4a12",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-special-common-22",
+      "service_name": "금속구조물공사업(전문)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-special-common-22",
+      "seed_rule_id": "construction-special-common",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.5,
+        "technical_personnel_required": true,
+        "technicians_required": 2,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 금속구조물공사업(전문) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "4b8964e26adf40baf05ad4ac1fa99f7f5fd2afdfb55605def8fa43f6ac4f80e8",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-special-common-10",
+      "service_name": "금속창호·지붕건축물조립공사업(전문)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-special-common-10",
+      "seed_rule_id": "construction-special-common",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.5,
+        "technical_personnel_required": true,
+        "technicians_required": 2,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 금속창호·지붕건축물조립공사업(전문) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "22b5236b7c502c9c59cecd8fc4e25b0ab89220b0b1bc71b7862d1ecd2dad8e54",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-special-common-5",
+      "service_name": "기계설비·가스공사업(전문)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-special-common-5",
+      "seed_rule_id": "construction-special-common",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.5,
+        "technical_personnel_required": true,
+        "technicians_required": 2,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 기계설비·가스공사업(전문) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "9d5fbdd6e3e6ee9034ccd24b98a6dcfd16ade6dfb83ff605d56b980496c1d9ae",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-special-common-6",
+      "service_name": "기계설비공사업(전문)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-special-common-6",
+      "seed_rule_id": "construction-special-common",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.5,
+        "technical_personnel_required": true,
+        "technicians_required": 2,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 기계설비공사업(전문) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "9e18eb764e33a05a1e0c8a22ac798d5cff72a0bbed74a50131efd9c9daa5c59c",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-special-common-11",
+      "service_name": "도장·습식·방수·석공사업(전문)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-special-common-11",
+      "seed_rule_id": "construction-special-common",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.5,
+        "technical_personnel_required": true,
+        "technicians_required": 2,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 도장·습식·방수·석공사업(전문) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "58889a2bc94e4b54914fdfd861903f0ba454caf5234f47b53c8a983a70f61da6",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-special-common-18",
+      "service_name": "도장공사업(전문)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-special-common-18",
+      "seed_rule_id": "construction-special-common",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.5,
+        "technical_personnel_required": true,
+        "technicians_required": 2,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 도장공사업(전문) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "90d9512253fb27bd5412e85a7ea41225452c4c0016922d77029c9b57031b162b",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-special-common-9",
+      "service_name": "보링·그라우팅공사업(전문)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-special-common-9",
+      "seed_rule_id": "construction-special-common",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.5,
+        "technical_personnel_required": true,
+        "technicians_required": 2,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 보링·그라우팅공사업(전문) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "d2621dde244d94477410cbda2509cf8efdecf1e16b924e3ebb70db501fbe90ef",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-special-common-25",
+      "service_name": "비계공사업(전문)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-special-common-25",
+      "seed_rule_id": "construction-special-common",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.5,
+        "technical_personnel_required": true,
+        "technicians_required": 2,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 비계공사업(전문) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "e9a77ec612516b90d67a66353e6a43b0e542a691fe5095f61245f459814d8ccf",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-special-common-34",
+      "service_name": "삭도설치공사업(전문)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-special-common-34",
+      "seed_rule_id": "construction-special-common",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.5,
+        "technical_personnel_required": true,
+        "technicians_required": 2,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 삭도설치공사업(전문) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "f3d0e75525743762d504a7b6b87c18d48ef6f2724a73774c230ef5f4a1d39310",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-general-industrial",
+      "service_name": "산업·환경설비공사업(종합)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-general-industrial",
+      "seed_rule_id": "construction-general-industrial",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 8.5,
+        "technical_personnel_required": true,
+        "technicians_required": 12,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 산업·환경설비공사업(종합) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "d5b12407d4d33587a96681960a3f6b20ce1ec27bea09e0234b96548aa9db35c6",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-special-common-4",
+      "service_name": "상하수도설비공사업(전문)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-special-common-4",
+      "seed_rule_id": "construction-special-common",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.5,
+        "technical_personnel_required": true,
+        "technicians_required": 2,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 상하수도설비공사업(전문) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "13834929cb65e73e14b035cc15f3a53b06fd6b51798d05257719d39afe0c1df6",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-special-common-20",
+      "service_name": "석공사업(전문)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-special-common-20",
+      "seed_rule_id": "construction-special-common",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.5,
+        "technical_personnel_required": true,
+        "technicians_required": 2,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 석공사업(전문) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "b1820b996cc1004da788945db6838c14da641970fac2bef39be3f9271ae41dc3",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-special-common-16",
+      "service_name": "수중·준설공사업(전문)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-special-common-16",
+      "seed_rule_id": "construction-special-common",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.5,
+        "technical_personnel_required": true,
+        "technicians_required": 2,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 수중·준설공사업(전문) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "6edfe0f5264e8dcb3265fa6fa5e735cf0c7804fb6eb432678597e9c96ff31095",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-special-common-31",
+      "service_name": "수중공사업(전문)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-special-common-31",
+      "seed_rule_id": "construction-special-common",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.5,
+        "technical_personnel_required": true,
+        "technicians_required": 2,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 수중공사업(전문) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "2071d18d8da80d266ad025a7c349db9bc4173632739e54226a350bdb0bf945c8",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-special-common-19",
+      "service_name": "습식·방수공사업(전문)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-special-common-19",
+      "seed_rule_id": "construction-special-common",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.5,
+        "technical_personnel_required": true,
+        "technicians_required": 2,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 습식·방수공사업(전문) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "c938cb11963526708030d7596ab7fb0d8f1fd0044021ccceaeccc787bd23e0e9",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-special-common-17",
+      "service_name": "승강기·삭도공사업(전문)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-special-common-17",
+      "seed_rule_id": "construction-special-common",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.5,
+        "technical_personnel_required": true,
+        "technicians_required": 2,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 승강기·삭도공사업(전문) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "1877b5f671f99297e6c6cad8d9141d8d55bf935f96ad83298015fc165d9fecae",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-special-common-33",
+      "service_name": "승강기설치공사업(전문)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-special-common-33",
+      "seed_rule_id": "construction-special-common",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.5,
+        "technical_personnel_required": true,
+        "technicians_required": 2,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 승강기설치공사업(전문) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "6d92902eb9692dec98030597962f35099007d0e61d9e07d355095fcf1400cab5",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-special-common-24",
+      "service_name": "시설물유지관리업(전문)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-special-common-24",
+      "seed_rule_id": "construction-special-common",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.5,
+        "technical_personnel_required": true,
+        "technicians_required": 2,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 시설물유지관리업(전문) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "bd843857776d56ed2c11169b4d282ecbd0dc53e6f5fa2e572cd302009b9d865a",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-special-common-1",
+      "service_name": "실내건축공사업(전문)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-special-common-1",
+      "seed_rule_id": "construction-special-common",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.5,
+        "technical_personnel_required": true,
+        "technicians_required": 2,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 실내건축공사업(전문) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "9ab418515bc96d2e8d237a3fa867665c462e35375a11f990f9346b492d1816e6",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-general-landscape",
+      "service_name": "조경공사업(종합)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-general-landscape",
+      "seed_rule_id": "construction-general-landscape",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 5.0,
+        "technical_personnel_required": true,
+        "technicians_required": 6,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 조경공사업(종합) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "04497b19c875f349eaf49c408ec914836f74792ae867e8da4a88ad0adb17732b",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-special-common-28",
+      "service_name": "조경시설물설치공사업(전문)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-special-common-28",
+      "seed_rule_id": "construction-special-common",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.5,
+        "technical_personnel_required": true,
+        "technicians_required": 2,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 조경시설물설치공사업(전문) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "bfb97fd9f67d6a55f44f5de56d0aa4b23abd66841d3b95ee46fc4eae9c4171d9",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-special-common-13",
+      "service_name": "조경식재·시설물공사업(전문)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-special-common-13",
+      "seed_rule_id": "construction-special-common",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.5,
+        "technical_personnel_required": true,
+        "technicians_required": 2,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 조경식재·시설물공사업(전문) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "ea1fde7c233693b04f6e43cd5a3c0fa36e95607d05443e547d3e0b28a1e575e0",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-special-common-27",
+      "service_name": "조경식재공사업(전문)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-special-common-27",
+      "seed_rule_id": "construction-special-common",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.5,
+        "technical_personnel_required": true,
+        "technicians_required": 2,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 조경식재공사업(전문) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "d361673d873992d0a5fa8ea1ec4f7c7f7b3fd6e174d84859642174a215ad9b9c",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-special-common-21",
+      "service_name": "조적공사업(전문)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-special-common-21",
+      "seed_rule_id": "construction-special-common",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.5,
+        "technical_personnel_required": true,
+        "technicians_required": 2,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 조적공사업(전문) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "2892d690957ee90d8b00b24930737c21a999b4dcf43991bc927ec2b1141a290b",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-special-common-32",
+      "service_name": "준설공사업(전문)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-special-common-32",
+      "seed_rule_id": "construction-special-common",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.5,
+        "technical_personnel_required": true,
+        "technicians_required": 2,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 준설공사업(전문) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "58803a4027c2a481a035767f8083f00526899ad59edcdafc61f4783145413f9d",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-special-common-8",
+      "service_name": "지반조성·포장공사업(전문)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-special-common-8",
+      "seed_rule_id": "construction-special-common",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.5,
+        "technical_personnel_required": true,
+        "technicians_required": 2,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 지반조성·포장공사업(전문) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "63460c202e7ff26696d4b620be70ebc61f50948e225a81193d5a40d6dd97a445",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-special-common-30",
+      "service_name": "지반조성공사업(전문)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-special-common-30",
+      "seed_rule_id": "construction-special-common",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.5,
+        "technical_personnel_required": true,
+        "technicians_required": 2,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 지반조성공사업(전문) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "b04ce24b890dacd3ed22e4fcd9f0dee77359883e92013fd4eb29feb7947025c4",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-special-common-23",
+      "service_name": "지붕판금·건축물조립공사업(전문)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-special-common-23",
+      "seed_rule_id": "construction-special-common",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.5,
+        "technical_personnel_required": true,
+        "technicians_required": 2,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 지붕판금·건축물조립공사업(전문) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "fa7d25cf9de34389adadcaab94e8d248c01bfc88be89e93699b8a73dc9916691",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-special-common-15",
+      "service_name": "철강구조물공사업(전문)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-special-common-15",
+      "seed_rule_id": "construction-special-common",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.5,
+        "technical_personnel_required": true,
+        "technicians_required": 2,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 철강구조물공사업(전문) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "5700df9ef5888e2d23b6b4ed339c4acda0324cfb58ce3a31460e6ee076227422",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-special-common-3",
+      "service_name": "철근콘크리트공사업(전문)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-special-common-3",
+      "seed_rule_id": "construction-special-common",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.5,
+        "technical_personnel_required": true,
+        "technicians_required": 2,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 철근콘크리트공사업(전문) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "29de6c7b3da8d117f452eef697d6bcb2bcbae63941c90198f5622ab0b4e40627",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-special-common-14",
+      "service_name": "철도·궤도공사업(전문)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-special-common-14",
+      "seed_rule_id": "construction-special-common",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.5,
+        "technical_personnel_required": true,
+        "technicians_required": 2,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 철도·궤도공사업(전문) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "7b73cff40be5332e3ff8abfa09c793b365cdf4ee87ed880b94042c1e0d8e7a8b",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-special-common-2",
+      "service_name": "토공사업(전문)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-special-common-2",
+      "seed_rule_id": "construction-special-common",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.5,
+        "technical_personnel_required": true,
+        "technicians_required": 2,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 토공사업(전문) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "fd336540ae5a3279181ac3c784139c84a04c49a84239c3b267525f62e26f7f5a",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-general-tocmok-geonchuk",
+      "service_name": "토목건축공사업(종합)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-general-tocmok-geonchuk",
+      "seed_rule_id": "construction-general-tocmok-geonchuk",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 8.5,
+        "technical_personnel_required": true,
+        "technicians_required": 11,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 토목건축공사업(종합) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "dca1b2d17f1c4ffa90a412aa3e3bf0ed8f014d096b0cb1e78eae9e8ed4c4345c",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-general-tocmok",
+      "service_name": "토목공사업(종합)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-general-tocmok",
+      "seed_rule_id": "construction-general-tocmok",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 5.0,
+        "technical_personnel_required": true,
+        "technicians_required": 6,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 토목공사업(종합) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "02952205d01dfff52decea6e8a0afef002d9d0b23f33779009fd00446033fdfd",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::construction-special-common-29",
+      "service_name": "포장공사업(전문)",
+      "major_code": "31",
+      "major_name": "건설",
+      "group_code": "31-01",
+      "group_name": "건설업 등록기준",
+      "group_description": "건설산업기본법상 자본금·기술인력 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::construction-special-common-29",
+      "seed_rule_id": "construction-special-common",
+      "seed_law_family": "건설업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "건설산업기본법 시행령",
+      "legal_basis_title": "별표 2 건설업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "건설산업기본법 시행령",
+          "article": "별표 2 건설업 등록기준",
+          "url": "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.5,
+        "technical_personnel_required": true,
+        "technicians_required": 2,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
+          "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
+        ],
+        "other_evidence": [
+          "전자,정보통신,안전관리,환경",
+          "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "건설산업기본법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 00:56:58",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "건설산업기본법 시행령 / 별표 2 건설업 등록기준 기준으로 포장공사업(전문) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/건설산업기본법시행령/별표2"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "5850cc2b07425309a939c76a7d137ca1df01e61e58a50e1977b0bcceee02c397",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "건설산업기본법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::electrical-construction",
+      "service_name": "전기공사업",
+      "major_code": "32",
+      "major_name": "전기·정보통신",
+      "group_code": "32-01",
+      "group_name": "전기공사업 등록기준",
+      "group_description": "전기공사업법상 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/전기공사업법시행령/별표1",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::electrical-construction",
+      "seed_rule_id": "electrical-construction",
+      "seed_law_family": "전기공사업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "전기공사업법 시행령",
+      "legal_basis_title": "별표 1 전기공사업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "전기공사업법 시행령",
+          "article": "별표 1 전기공사업 등록기준",
+          "url": "https://www.law.go.kr/법령/전기공사업법시행령/별표1"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.5,
+        "technical_personnel_required": true,
+        "technicians_required": 3,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "office"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [],
+        "other_evidence": [
+          "3.사무실공사업운영을위한사무실비고"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "전기공사업법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 01:12:06",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "전기공사업법 시행령 / 별표 1 전기공사업 등록기준 기준으로 전기공사업 row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/전기공사업법시행령/별표1"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "251b752df590fad27fe575bb3235d7098407785758c900f070967c4c723cc047",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "전기공사업법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::ict-construction",
+      "service_name": "정보통신공사업",
+      "major_code": "32",
+      "major_name": "전기·정보통신",
+      "group_code": "32-02",
+      "group_name": "정보통신공사업 등록기준",
+      "group_description": "정보통신공사업법상 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/정보통신공사업법시행령/별표1",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::ict-construction",
+      "seed_rule_id": "ict-construction",
+      "seed_law_family": "정보통신공사업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "정보통신공사업법 시행령",
+      "legal_basis_title": "별표 1 정보통신공사업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "정보통신공사업법 시행령",
+          "article": "별표 1 정보통신공사업 등록기준",
+          "url": "https://www.law.go.kr/법령/정보통신공사업법시행령/별표1"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.5,
+        "technical_personnel_required": true,
+        "technicians_required": 3,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "기술능력사무실"
+        ],
+        "other_evidence": []
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "정보통신공사업법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 01:12:06",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "정보통신공사업법 시행령 / 별표 1 정보통신공사업 등록기준 기준으로 정보통신공사업 row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/정보통신공사업법시행령/별표1"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "47002fd7797862af47195e3da866fbe441ff40181ebc262fd7b90cbb063ce46e",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "정보통신공사업법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::fire-general-mech",
+      "service_name": "일반소방시설공사업(기계)",
+      "major_code": "33",
+      "major_name": "소방",
+      "group_code": "33-01",
+      "group_name": "소방시설공사업 등록기준",
+      "group_description": "소방시설공사업법상 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/소방시설공사업법시행령/별표1",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::fire-general-mech",
+      "seed_rule_id": "fire-general-mech",
+      "seed_law_family": "소방시설공사업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "소방시설공사업법 시행령",
+      "legal_basis_title": "별표 1 소방시설공사업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "소방시설공사업법 시행령",
+          "article": "별표 1 소방시설공사업 등록기준",
+          "url": "https://www.law.go.kr/법령/소방시설공사업법시행령/별표1"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.0,
+        "technical_personnel_required": true,
+        "technicians_required": 2,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "facility_equipment",
+          "safety_environment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [],
+        "other_evidence": [
+          "■소방시설공사업법시행령[별표2]<개정",
+          "1)연면적20만제곱미터이상인특정소방대상물의공사현장2)지하층을포함한층수가40층이상인특정소방대상물의공사현장",
+          "1)연면적3만제곱미터이상20만제곱미터미만인특정소방대상물(아파트는제외한다)의공사현장2)지하층을포함한층수가16층이상40층미만인특정소방대상물의공사현장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "소방시설공사업법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 01:12:06",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "소방시설공사업법 시행령 / 별표 1 소방시설공사업 등록기준 기준으로 일반소방시설공사업(기계) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/소방시설공사업법시행령/별표1"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "626d5aa4483b232cee71b3fa2fb966e37ff1fe89009daff9d4cd48014212b588",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "소방시설공사업법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::fire-general-electric",
+      "service_name": "일반소방시설공사업(전기)",
+      "major_code": "33",
+      "major_name": "소방",
+      "group_code": "33-01",
+      "group_name": "소방시설공사업 등록기준",
+      "group_description": "소방시설공사업법상 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/소방시설공사업법시행령/별표1",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::fire-general-electric",
+      "seed_rule_id": "fire-general-electric",
+      "seed_law_family": "소방시설공사업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "소방시설공사업법 시행령",
+      "legal_basis_title": "별표 1 소방시설공사업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "소방시설공사업법 시행령",
+          "article": "별표 1 소방시설공사업 등록기준",
+          "url": "https://www.law.go.kr/법령/소방시설공사업법시행령/별표1"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.0,
+        "technical_personnel_required": true,
+        "technicians_required": 2,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "facility_equipment",
+          "safety_environment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [],
+        "other_evidence": [
+          "■소방시설공사업법시행령[별표2]<개정",
+          "1)연면적20만제곱미터이상인특정소방대상물의공사현장2)지하층을포함한층수가40층이상인특정소방대상물의공사현장",
+          "1)연면적3만제곱미터이상20만제곱미터미만인특정소방대상물(아파트는제외한다)의공사현장2)지하층을포함한층수가16층이상40층미만인특정소방대상물의공사현장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "소방시설공사업법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 01:12:06",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "소방시설공사업법 시행령 / 별표 1 소방시설공사업 등록기준 기준으로 일반소방시설공사업(전기) row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/소방시설공사업법시행령/별표1"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "ba6aa99038ec613285e5db27c165d677d58699fbaaeba8360a8eb90e5d643990",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "소방시설공사업법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::fire-specialized",
+      "service_name": "전문소방시설공사업",
+      "major_code": "33",
+      "major_name": "소방",
+      "group_code": "33-01",
+      "group_name": "소방시설공사업 등록기준",
+      "group_description": "소방시설공사업법상 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/소방시설공사업법시행령/별표1",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::fire-specialized",
+      "seed_rule_id": "fire-specialized",
+      "seed_law_family": "소방시설공사업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "소방시설공사업법 시행령",
+      "legal_basis_title": "별표 1 소방시설공사업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "소방시설공사업법 시행령",
+          "article": "별표 1 소방시설공사업 등록기준",
+          "url": "https://www.law.go.kr/법령/소방시설공사업법시행령/별표1"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.0,
+        "technical_personnel_required": true,
+        "technicians_required": 3,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "facility_equipment",
+          "safety_environment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [],
+        "other_evidence": [
+          "■소방시설공사업법시행령[별표2]<개정",
+          "1)연면적20만제곱미터이상인특정소방대상물의공사현장2)지하층을포함한층수가40층이상인특정소방대상물의공사현장",
+          "1)연면적3만제곱미터이상20만제곱미터미만인특정소방대상물(아파트는제외한다)의공사현장2)지하층을포함한층수가16층이상40층미만인특정소방대상물의공사현장"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "소방시설공사업법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 01:12:06",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "소방시설공사업법 시행령 / 별표 1 소방시설공사업 등록기준 기준으로 전문소방시설공사업 row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/소방시설공사업법시행령/별표1"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "15b5de63dbe1f63f3763f199acb0c75f669dd42bbcc021adb41899963c2e9030",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "소방시설공사업법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::security-machine",
+      "service_name": "기계경비업",
+      "major_code": "34",
+      "major_name": "경비",
+      "group_code": "34-01",
+      "group_name": "경비업 허가기준",
+      "group_description": "경비업법상 허가기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/경비업법시행령/별표1",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::security-machine",
+      "seed_rule_id": "security-machine",
+      "seed_law_family": "경비업 허가기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "경비업법 시행령",
+      "legal_basis_title": "별표 1 경비업의 허가기준",
+      "legal_basis": [
+        {
+          "law_title": "경비업법 시행령",
+          "article": "별표 1 경비업의 허가기준",
+          "url": "https://www.law.go.kr/법령/경비업법시행령/별표1"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.0,
+        "technical_personnel_required": true,
+        "technicians_required": 1,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [],
+        "other_evidence": [
+          "1.시설경비업무",
+          "배치하고,시설경비업무"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "경비업법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 01:12:06",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "경비업법 시행령 / 별표 1 경비업의 허가기준 기준으로 기계경비업 row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/경비업법시행령/별표1"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "61ca77b054b9b56983a3734b79759a688945a5318492c589406c2ef951c415c5",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "경비업법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::security-facility",
+      "service_name": "시설경비업",
+      "major_code": "34",
+      "major_name": "경비",
+      "group_code": "34-01",
+      "group_name": "경비업 허가기준",
+      "group_description": "경비업법상 허가기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/경비업법시행령/별표1",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::security-facility",
+      "seed_rule_id": "security-facility",
+      "seed_law_family": "경비업 허가기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "경비업법 시행령",
+      "legal_basis_title": "별표 1 경비업의 허가기준",
+      "legal_basis": [
+        {
+          "law_title": "경비업법 시행령",
+          "article": "별표 1 경비업의 허가기준",
+          "url": "https://www.law.go.kr/법령/경비업법시행령/별표1"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.0,
+        "technical_personnel_required": true,
+        "technicians_required": 1,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [],
+        "other_evidence": [
+          "1.시설경비업무",
+          "배치하고,시설경비업무"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "경비업법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 01:12:06",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "경비업법 시행령 / 별표 1 경비업의 허가기준 기준으로 시설경비업 row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/경비업법시행령/별표1"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "1bb92c03b412c1f5c4a9939c1873aafadaaead8745a67d66a87ca641dcb785fc",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "경비업법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::security-bodyguard",
+      "service_name": "신변보호업",
+      "major_code": "34",
+      "major_name": "경비",
+      "group_code": "34-01",
+      "group_name": "경비업 허가기준",
+      "group_description": "경비업법상 허가기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/경비업법시행령/별표1",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::security-bodyguard",
+      "seed_rule_id": "security-bodyguard",
+      "seed_law_family": "경비업 허가기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "경비업법 시행령",
+      "legal_basis_title": "별표 1 경비업의 허가기준",
+      "legal_basis": [
+        {
+          "law_title": "경비업법 시행령",
+          "article": "별표 1 경비업의 허가기준",
+          "url": "https://www.law.go.kr/법령/경비업법시행령/별표1"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.0,
+        "technical_personnel_required": true,
+        "technicians_required": 1,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [],
+        "other_evidence": [
+          "1.시설경비업무",
+          "배치하고,시설경비업무"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "경비업법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 01:12:06",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "경비업법 시행령 / 별표 1 경비업의 허가기준 기준으로 신변보호업 row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/경비업법시행령/별표1"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "8918f7197a76f484f86bfea21140171035a9b07cf1a21eb5173eea3b95abe707",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "경비업법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::security-escort",
+      "service_name": "호송경비업",
+      "major_code": "34",
+      "major_name": "경비",
+      "group_code": "34-01",
+      "group_name": "경비업 허가기준",
+      "group_description": "경비업법상 허가기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/경비업법시행령/별표1",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::security-escort",
+      "seed_rule_id": "security-escort",
+      "seed_law_family": "경비업 허가기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "경비업법 시행령",
+      "legal_basis_title": "별표 1 경비업의 허가기준",
+      "legal_basis": [
+        {
+          "law_title": "경비업법 시행령",
+          "article": "별표 1 경비업의 허가기준",
+          "url": "https://www.law.go.kr/법령/경비업법시행령/별표1"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 2.0,
+        "technical_personnel_required": true,
+        "technicians_required": 1,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [],
+        "other_evidence": [
+          "1.시설경비업무",
+          "배치하고,시설경비업무"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "경비업법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 01:12:06",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "경비업법 시행령 / 별표 1 경비업의 허가기준 기준으로 호송경비업 row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/경비업법시행령/별표1"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "e49af554dddd66437f2526537089ff45d0e7423368b36ee15486efe14952f36e",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "경비업법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::gas-facility-2",
+      "service_name": "가스시설시공업2종",
+      "major_code": "35",
+      "major_name": "가스",
+      "group_code": "35-01",
+      "group_name": "가스시설시공업 등록기준",
+      "group_description": "액화석유가스법상 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/액화석유가스의안전관리및사업법시행령/별표5",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::gas-facility-2",
+      "seed_rule_id": "gas-facility-2",
+      "seed_law_family": "가스시설시공업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "액화석유가스의 안전관리 및 사업법 시행령",
+      "legal_basis_title": "별표 5 가스시설시공업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "액화석유가스의 안전관리 및 사업법 시행령",
+          "article": "별표 5 가스시설시공업 등록기준",
+          "url": "https://www.law.go.kr/법령/액화석유가스의안전관리및사업법시행령/별표5"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.0,
+        "technical_personnel_required": true,
+        "technicians_required": 1,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "가.저장능력500톤초과안전관리총괄자:1명안전관리부총괄자:1명안전관리책임자:1명이상가스산업기사이상의자격을가진사람안전관리원:2명이상가스기능사이상의자격을가진사람또는한국가스안전공사가산업통상부장관의승인을받아실시하는충전시설안전관리자양성교육이수자(이하\"충전시설안전관리자양성교육이수자\"라한다)",
+          "나.저장능력1 0 0톤초과500톤이하안전관리총괄자:1명안전관리부총괄자:1명안전관리책임자:1명이상가스기능사이상의자격을가진사람안전관리원:2명이상가스기능사이상의자격을가진사람또는충전시설안전관리자양성교육이수자",
+          "다.저장능력100톤이하안전관리총괄자:1명안전관리부총괄자:1명안전관리책임자:1명이상가스기능사이상의자격을가진사람또는현장실무경력이5년이상인충전시설안전관리자양성교육이수자"
+        ],
+        "other_evidence": [
+          "■액화석유가스의안전관리및사업법시행령[별표1]<개정",
+          "1.액화석유가스충전시설",
+          "라.저장능력30톤이하(자동차에고정된용기충전시설만해당한다)"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "액화석유가스의 안전관리 및 사업법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 01:12:06",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "액화석유가스의 안전관리 및 사업법 시행령 / 별표 5 가스시설시공업 등록기준 기준으로 가스시설시공업2종 row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/액화석유가스의안전관리및사업법시행령/별표5"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "045240355b253543aaca8588e0818c57915ccaa1b4d01f2a729e6ddbb82ebc38",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "액화석유가스의 안전관리 및 사업법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    },
+    {
+      "service_code": "FOCUS::gas-facility-3",
+      "service_name": "가스시설시공업3종",
+      "major_code": "35",
+      "major_name": "가스",
+      "group_code": "35-01",
+      "group_name": "가스시설시공업 등록기준",
+      "group_description": "액화석유가스법상 등록기준 핵심 업종군",
+      "group_declared_total": 0,
+      "detail_url": "https://www.law.go.kr/법령/액화석유가스의안전관리및사업법시행령/별표5",
+      "catalog_source_kind": "focus_family_registry",
+      "catalog_source_label": "permit_focus_family_registry",
+      "seed_rule_service_code": "RULE::gas-facility-3",
+      "seed_rule_id": "gas-facility-3",
+      "seed_law_family": "가스시설시공업 등록기준",
+      "has_rule": true,
+      "is_rules_only": false,
+      "law_title": "액화석유가스의 안전관리 및 사업법 시행령",
+      "legal_basis_title": "별표 5 가스시설시공업 등록기준",
+      "legal_basis": [
+        {
+          "law_title": "액화석유가스의 안전관리 및 사업법 시행령",
+          "article": "별표 5 가스시설시공업 등록기준",
+          "url": "https://www.law.go.kr/법령/액화석유가스의안전관리및사업법시행령/별표5"
+        }
+      ],
+      "criteria_source_type": "rule_pack",
+      "quality_flags": [],
+      "registration_requirement_profile": {
+        "capital_required": true,
+        "capital_eok": 1.0,
+        "technical_personnel_required": true,
+        "technicians_required": 1,
+        "other_required": true,
+        "other_components": [
+          "equipment",
+          "deposit",
+          "safety_environment",
+          "facility_equipment"
+        ],
+        "equipment_count_required": 1,
+        "deposit_days_required": 30,
+        "profile_source": "structured_requirements",
+        "inferred_focus_candidate": false,
+        "focus_target": true,
+        "focus_target_with_other": true,
+        "focus_bucket": "capital_technical_other",
+        "capital_evidence": [],
+        "technical_personnel_evidence": [
+          "가.저장능력500톤초과안전관리총괄자:1명안전관리부총괄자:1명안전관리책임자:1명이상가스산업기사이상의자격을가진사람안전관리원:2명이상가스기능사이상의자격을가진사람또는한국가스안전공사가산업통상부장관의승인을받아실시하는충전시설안전관리자양성교육이수자(이하\"충전시설안전관리자양성교육이수자\"라한다)",
+          "나.저장능력1 0 0톤초과500톤이하안전관리총괄자:1명안전관리부총괄자:1명안전관리책임자:1명이상가스기능사이상의자격을가진사람안전관리원:2명이상가스기능사이상의자격을가진사람또는충전시설안전관리자양성교육이수자",
+          "다.저장능력100톤이하안전관리총괄자:1명안전관리부총괄자:1명안전관리책임자:1명이상가스기능사이상의자격을가진사람또는현장실무경력이5년이상인충전시설안전관리자양성교육이수자"
+        ],
+        "other_evidence": [
+          "■액화석유가스의안전관리및사업법시행령[별표1]<개정",
+          "1.액화석유가스충전시설",
+          "라.저장능력30톤이하(자동차에고정된용기충전시설만해당한다)"
+        ]
+      },
+      "source_upgrade_status": "materialized_from_focus_seed",
+      "source_upgrade_family": "액화석유가스의 안전관리 및 사업법 시행령",
+      "source_upgrade_generated_at": "2026-03-08 01:12:06",
+      "raw_source_proof": {
+        "proof_status": "raw_source_hardened",
+        "official_snapshot_note": "액화석유가스의 안전관리 및 사업법 시행령 / 별표 5 가스시설시공업 등록기준 기준으로 가스시설시공업3종 row를 curated family registry에 고정",
+        "source_urls": [
+          "https://www.law.go.kr/법령/액화석유가스의안전관리및사업법시행령/별표5"
+        ],
+        "source_url_total": 1,
+        "source_checksum": "4591e1e9bc8c44f6e6ca9264df65b367ec1d7dcfbe47fcc2de16cf88bba74379",
+        "capture_meta": {
+          "captured_at": "2026-03-08 02:13:49",
+          "capture_kind": "law_go_kr_curated_family_registry",
+          "scope_policy": "capital_and_technical_only",
+          "family_key": "액화석유가스의 안전관리 및 사업법 시행령",
+          "catalog_source_kind": "focus_family_registry"
+        }
+      }
+    }
+  ]
+}

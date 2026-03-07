@@ -30,6 +30,14 @@ class CoGlobalBannerSnippetTest(unittest.TestCase):
         self.assertIn("align-center", snippet)
         self.assertIn("전체 매물 페이지", snippet)
         self.assertIn("#header,body.smna-co-calc-bridge-mode #hd", snippet)
+        self.assertIn("supportMenuSeen", snippet)
+        self.assertIn("운전자금", snippet)
+        self.assertIn("ai_(calc|acq)", snippet)
+        self.assertIn("detectPremiumMode", snippet)
+        self.assertIn("enhancePremiumLanding", snippet)
+        self.assertIn("smna-premium-hero", snippet)
+        self.assertIn("smna-premium-strip", snippet)
+        self.assertNotIn("빈 게시판처럼 보이던", snippet)
 
 
 if __name__ == "__main__":

@@ -4,9 +4,10 @@ Publish monthly notice archive bundles to seoulmna.co.kr notice board.
 
 Behavior:
 - One post per month key (e.g. 2026-02, 2026-03).
-- If month already has wr_id in state, update that post.
-- If month has no wr_id, create a new post.
-- Skip unchanged months by content hash.
+- The scheduled job only syncs the current month unless --month-key is given.
+- If current month has no wr_id in state, keep trying to create it until success.
+- After creation, current month updates are allowed once per Monday/ISO week.
+- Skip unchanged months by content hash (ignoring the volatile "YYYY.MM.DD 기준" banner date).
 """
 
 from __future__ import annotations
@@ -31,10 +32,12 @@ if str(ROOT) not in sys.path:
 load_dotenv(ROOT / ".env")
 
 import all as listing_ops  # noqa: E402
+from scripts import monthly_notice_rotation as notice_rotation  # noqa: E402
 
 
 DEFAULT_MANIFEST = ROOT / "output" / "notice_archive" / "notice_archive_manifest.json"
 DEFAULT_STATE = ROOT / "logs" / "notice_publish_state.json"
+VOLATILE_NOTICE_DATE_RE = re.compile(r"\b\d{4}\.\d{2}\.\d{2}\s*기준\b")
 
 
 def _read_text(path: Path) -> str:
@@ -60,9 +63,31 @@ def _save_json(path: Path, data) -> None:
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
-def _content_hash(subject: str, body: str) -> str:
+def _hash_payload(subject: str, body: str) -> str:
     payload = f"{subject}\n\n{body}"
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def _normalize_body_for_hash(body: str) -> str:
+    return VOLATILE_NOTICE_DATE_RE.sub("__NOTICE_DATE__ 기준", str(body or ""))
+
+
+def _content_hash(subject: str, body: str) -> str:
+    return _hash_payload(subject, _normalize_body_for_hash(body))
+
+
+def _legacy_content_hash(subject: str, body: str) -> str:
+    return _hash_payload(subject, body)
+
+
+def _legacy_compatible_hashes(subject: str, body: str, prev: dict) -> set[str]:
+    hashes = {_legacy_content_hash(subject, body)}
+    prev_synced = _parse_iso_datetime(prev.get("last_synced_at", ""))
+    if prev_synced is None:
+        return hashes
+    compatible_body = VOLATILE_NOTICE_DATE_RE.sub(f"{prev_synced:%Y.%m.%d} 기준", str(body or ""))
+    hashes.add(_hash_payload(subject, compatible_body))
+    return hashes
 
 
 def _extract_wr_id(url: str, board_slug: str) -> int | None:
@@ -94,6 +119,90 @@ def _month_sort_key(month_key: str) -> tuple[int, int]:
     if not m:
         return (0, 0)
     return (int(m.group(1)), int(m.group(2)))
+
+
+def _month_key_from_datetime(now: datetime) -> str:
+    return f"{now.year:04d}-{now.month:02d}"
+
+
+def _iso_week_key(dt: datetime) -> str:
+    iso = dt.isocalendar()
+    return f"{iso.year}-W{iso.week:02d}"
+
+
+def _parse_iso_datetime(raw: str) -> datetime | None:
+    txt = str(raw or "").strip()
+    if not txt:
+        return None
+    try:
+        return datetime.fromisoformat(txt)
+    except Exception:
+        return None
+
+
+def _state_week_key(prev: dict) -> str:
+    explicit = str(prev.get("last_schedule_week", "")).strip()
+    if explicit:
+        return explicit
+    fallback = _parse_iso_datetime(prev.get("last_synced_at", ""))
+    if fallback is None:
+        return ""
+    return _iso_week_key(fallback)
+
+
+def _plan_sync_action(
+    month_key: str,
+    digest: str,
+    legacy_hashes: set[str],
+    prev: dict,
+    *,
+    now: datetime,
+    only_month: str,
+    min_update_days: float,
+) -> dict:
+    current_month_key = _month_key_from_datetime(now)
+    wr_id = int(prev.get("wr_id", 0) or 0)
+    prev_hash = str(prev.get("content_hash", "")).strip()
+    prev_matches = prev_hash == digest or prev_hash in set(legacy_hashes or set())
+
+    if only_month:
+        if month_key != only_month:
+            return {"action": "skip", "reason": "filtered-month"}
+    elif month_key != current_month_key:
+        return {"action": "skip", "reason": "not-current-month"}
+
+    if wr_id <= 0:
+        schedule_kind = "monthly_create" if now.day == 1 else "catchup_create"
+        return {"action": "create", "reason": "missing-post", "schedule_kind": schedule_kind}
+
+    if prev_matches:
+        return {"action": "skip", "reason": "unchanged"}
+
+    if only_month:
+        if min_update_days > 0:
+            prev_synced = _parse_iso_datetime(prev.get("last_synced_at", ""))
+            if prev_synced is not None:
+                age_days = (now - prev_synced).total_seconds() / 86400.0
+                if age_days < min_update_days:
+                    return {"action": "skip", "reason": "min-update-days"}
+        return {
+            "action": "update",
+            "reason": "targeted-month",
+            "schedule_kind": "targeted_month_update",
+        }
+
+    if now.weekday() != 0:
+        return {"action": "skip", "reason": "wait-until-monday"}
+
+    current_week_key = _iso_week_key(now)
+    if _state_week_key(prev) == current_week_key:
+        return {"action": "skip", "reason": "already-synced-this-week"}
+
+    return {
+        "action": "update",
+        "reason": "weekly-monday-update",
+        "schedule_kind": "weekly_monday_update",
+    }
 
 
 def _get_notice_write_form(publisher, board_slug: str, wr_id: int | None = None):
@@ -220,8 +329,11 @@ def main() -> int:
     month_state = state.get("months", {})
     if not isinstance(month_state, dict):
         month_state = {}
+    now = datetime.now()
+    current_month_key = _month_key_from_datetime(now)
 
     candidates = []
+    deferred: list[tuple[str, str]] = []
     for m in months:
         month_key = str(m.get("month_key", "")).strip()
         if only_month and month_key != only_month:
@@ -234,20 +346,21 @@ def main() -> int:
         body = _read_text(body_path)
         digest = _content_hash(subject, body)
         prev = dict(month_state.get(month_key, {}) or {})
-        prev_hash = str(prev.get("content_hash", "")).strip()
-        wr_id = int(prev.get("wr_id", 0) or 0)
-        if wr_id > 0 and prev_hash == digest:
+        legacy_hashes = _legacy_compatible_hashes(subject, body, prev)
+        plan = _plan_sync_action(
+            month_key=month_key,
+            digest=digest,
+            legacy_hashes=legacy_hashes,
+            prev=prev,
+            now=now,
+            only_month=only_month,
+            min_update_days=min_update_days,
+        )
+        if plan.get("action") == "skip":
+            reason = str(plan.get("reason", "")).strip()
+            if month_key == current_month_key and reason not in {"unchanged", "not-current-month"}:
+                deferred.append((month_key, reason))
             continue
-        if wr_id > 0 and min_update_days > 0:
-            prev_synced_raw = str(prev.get("last_synced_at", "")).strip()
-            if prev_synced_raw:
-                try:
-                    prev_synced = datetime.fromisoformat(prev_synced_raw)
-                    age_days = (datetime.now() - prev_synced).total_seconds() / 86400.0
-                    if age_days < min_update_days:
-                        continue
-                except Exception:
-                    pass
         candidates.append(
             {
                 "month_key": month_key,
@@ -256,18 +369,22 @@ def main() -> int:
                 "subject_path": str(subject_path),
                 "body_path": str(body_path),
                 "digest": digest,
-                "wr_id": wr_id,
+                "wr_id": int(prev.get("wr_id", 0) or 0),
+                "schedule_kind": str(plan.get("schedule_kind", "")).strip(),
+                "planned_action": str(plan.get("action", "")).strip() or "update",
             }
         )
 
     candidates.sort(key=lambda x: _month_sort_key(x["month_key"]), reverse=True)
     if not candidates:
+        for month_key, reason in deferred[:3]:
+            print(f"[hold] {month_key}: {reason}")
         print("[ok] no notice changes to sync")
         return 0
 
     print(f"[plan] changed months: {len(candidates)}")
     for c in candidates:
-        mode = "update" if int(c.get("wr_id", 0) or 0) > 0 else "create"
+        mode = str(c.get("planned_action", "")).strip() or ("update" if int(c.get("wr_id", 0) or 0) > 0 else "create")
         print(f" - {c['month_key']}: {mode}")
 
     if args.dry_run:
@@ -297,20 +414,32 @@ def main() -> int:
     safe_remaining = max(0, write_remaining - write_buffer) if write_cap > 0 else len(candidates)
 
     allowed = len(candidates)
+    reserve_for_rotation = 0
+    rotation_prev_month_key = ""
+    if any(str(c.get("month_key", "")).strip() == current_month_key for c in candidates):
+        rotation_prev_month_key = notice_rotation.pick_previous_notice_month(month_state, current_month_key)
+        if rotation_prev_month_key:
+            reserve_for_rotation = 1
+    total_write_need = len(candidates) + reserve_for_rotation
+    allowed = total_write_need
     if max_writes > 0:
         allowed = min(allowed, max_writes)
     if write_cap > 0:
         allowed = min(allowed, safe_remaining)
+    allowed = max(0, allowed - reserve_for_rotation)
 
     if allowed <= 0:
         print(
             "[skip] write budget exhausted "
             f"(used={write_used}, cap={write_cap}, buffer={write_buffer}, pending={len(candidates)})"
         )
+        if rotation_prev_month_key:
+            print(f"[hold] notice rotation deferred: prev={rotation_prev_month_key} current={current_month_key}")
         return 0
 
     applied = 0
     failed = 0
+    rotation_done = False
     for idx, row in enumerate(candidates):
         if applied >= allowed:
             break
@@ -318,6 +447,7 @@ def main() -> int:
         subject = row["subject"]
         body = row["body"]
         wr_id = int(row.get("wr_id", 0) or 0)
+        schedule_kind = str(row.get("schedule_kind", "")).strip()
         if wr_id <= 0:
             discovered = _find_existing_month_post(
                 publisher=publisher,
@@ -327,7 +457,10 @@ def main() -> int:
             )
             if discovered:
                 wr_id = int(discovered)
+                if schedule_kind in {"monthly_create", "catchup_create"}:
+                    schedule_kind = "state_recovery_update"
         mode = "update" if wr_id > 0 else "create"
+        should_notice = month_key == current_month_key
         try:
             if wr_id > 0:
                 action_url, payload = _get_notice_write_form(
@@ -335,6 +468,8 @@ def main() -> int:
                     board_slug=board_slug,
                     wr_id=wr_id,
                 )
+                if should_notice:
+                    payload = notice_rotation.set_notice_flag(payload, enabled=True)
                 out = publisher.submit_edit_updates(
                     action_url,
                     payload,
@@ -348,6 +483,8 @@ def main() -> int:
                     board_slug=board_slug,
                     wr_id=None,
                 )
+                if should_notice:
+                    payload = notice_rotation.set_notice_flag(payload, enabled=True)
                 payload["bo_table"] = board_slug
                 payload["wr_subject"] = subject
                 payload["wr_content"] = body
@@ -357,19 +494,60 @@ def main() -> int:
                 final_url = str(out.get("url", "")).strip()
                 out_wr_id = _extract_wr_id(final_url, board_slug)
                 if not out_wr_id:
-                    raise RuntimeError(f"wr_id parse failed from url: {final_url}")
+                    retry_wait = min(2.0, max(0.5, delay_sec or 0.0))
+                    for attempt in range(3):
+                        if attempt > 0 and retry_wait > 0:
+                            time.sleep(retry_wait)
+                        discovered = _find_existing_month_post(
+                            publisher=publisher,
+                            board_slug=board_slug,
+                            month_key=month_key,
+                            max_pages=max(discover_pages, 5),
+                        )
+                        if discovered:
+                            out_wr_id = int(discovered)
+                            final_url = final_url or f"{site_url}/{board_slug}/{out_wr_id}"
+                            break
+                    if not out_wr_id:
+                        raise RuntimeError(f"wr_id parse failed from url: {final_url}")
 
+            previous_entry = dict(month_state.get(month_key, {}) or {})
+            created_at = str(previous_entry.get("created_at", "")).strip()
+            if not created_at:
+                created_at = previous_entry.get("last_synced_at", "") if mode == "update" else ""
+            if mode == "create" or not created_at:
+                created_at = datetime.now().isoformat(timespec="seconds")
             month_state[month_key] = {
                 "wr_id": int(out_wr_id),
                 "url": final_url,
                 "content_hash": row["digest"],
                 "subject_path": row["subject_path"],
                 "body_path": row["body_path"],
+                "created_at": created_at,
                 "last_mode": mode,
+                "last_schedule_kind": schedule_kind or mode,
+                "last_schedule_week": _iso_week_key(datetime.now()),
                 "last_synced_at": datetime.now().isoformat(timespec="seconds"),
+                "notice_enabled": bool(should_notice),
             }
             applied += 1
             print(f"[ok] {month_key} {mode} wr_id={int(out_wr_id)}")
+            if should_notice and rotation_prev_month_key and (not rotation_done) and rotation_prev_month_key != month_key:
+                prev_entry = dict(month_state.get(rotation_prev_month_key, {}) or {})
+                prev_wr_id = int(prev_entry.get("wr_id", 0) or 0)
+                if prev_wr_id > 0:
+                    prev_action_url, prev_payload = _get_notice_write_form(
+                        publisher=publisher,
+                        board_slug=board_slug,
+                        wr_id=prev_wr_id,
+                    )
+                    prev_payload = notice_rotation.set_notice_flag(prev_payload, enabled=False)
+                    publisher.submit_edit_updates(prev_action_url, prev_payload, {})
+                    prev_entry["notice_enabled"] = False
+                    prev_entry["last_notice_rotated_at"] = datetime.now().isoformat(timespec="seconds")
+                    month_state[rotation_prev_month_key] = prev_entry
+                    rotation_done = True
+                    print(f"[ok] {rotation_prev_month_key} unpinned notice wr_id={prev_wr_id}")
             if idx < len(candidates) - 1 and delay_sec > 0:
                 time.sleep(delay_sec)
         except Exception as e:

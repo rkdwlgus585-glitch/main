@@ -214,7 +214,7 @@ def main() -> int:
 
     parser.add_argument("--acquisition-board", default="yangdo_ai_ops")
     parser.add_argument("--acquisition-wr-id", type=int, default=0)
-    parser.add_argument("--acquisition-subject", default="AI 인허가 사전검토 진단기(신규등록) | 서울건설정보")
+    parser.add_argument("--acquisition-subject", default="AI 인허가 사전검토 진단기(신규등록 전용) | 서울건설정보")
 
     parser.add_argument("--publish", action="store_true")
     parser.add_argument("--confirm-live", default="", help="실서비스 반영 승인 토큰 (`--confirm-live YES`)")
@@ -314,7 +314,7 @@ def main() -> int:
                     "--output",
                     str(acquisition_html),
                     "--title",
-                    "AI 인허가 사전검토 진단기(신규등록)",
+                    "AI 인허가 사전검토 진단기(신규등록 전용)",
                 ]
             ),
             timeout_sec=300,
@@ -427,4 +427,5 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
 

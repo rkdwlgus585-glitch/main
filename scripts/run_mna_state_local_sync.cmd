@@ -15,6 +15,6 @@ if errorlevel 1 (
     set "PY_CMD=python"
 )
 
-%PY_CMD% scripts\mna_state_local_sync.py --mode merge --headless --data-file logs/local_auto_state.json %*
+%PY_CMD% scripts\mna_state_local_sync.py --mode merge --headless --data-file logs/local_auto_state.json --state-file logs/mna_state_local_sync_state.json --skip-if-unchanged-today %*
 set "RC=%errorlevel%"
 exit /b %RC%

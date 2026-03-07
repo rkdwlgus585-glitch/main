@@ -7,21 +7,34 @@ from datetime import datetime
 from pathlib import Path
 
 
+ROOT = Path(__file__).resolve().parents[1]
 YEAR_KEYS = {"mp_2020[]", "mp_2021[]", "mp_2022[]", "mp_2023[]", "mp_2024[]", "mp_2025[]"}
 
 
-def _find_latest_targets():
-    root = Path(__file__).resolve().parents[1]
-    audit_dir = root / "logs" / "reconcile_audit"
+def _load_json(path: Path, default):
+    if not path.exists():
+        return default
+    try:
+        return json.loads(path.read_text(encoding="utf-8-sig"))
+    except Exception:
+        return default
+
+
+def _save_json(path: Path, payload) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def _find_latest_targets() -> str:
+    audit_dir = ROOT / "logs" / "reconcile_audit"
     candidates = sorted(audit_dir.glob("affected_row_shift_*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
     if not candidates:
         return ""
     return str(candidates[0])
 
 
-def _build_targets_from_latest_reconcile():
-    root = Path(__file__).resolve().parents[1]
-    audit_dir = root / "logs" / "reconcile_audit"
+def _build_targets_from_latest_reconcile() -> str:
+    audit_dir = ROOT / "logs" / "reconcile_audit"
     reconcile_files = sorted(audit_dir.glob("reconcile_*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
     for rec in reconcile_files:
         try:
@@ -35,7 +48,7 @@ def _build_targets_from_latest_reconcile():
             keys = list(row.get("site_changed_keys", []) or [])
             if not wr_id.isdigit() or not uid.isdigit():
                 continue
-            if not any(k in YEAR_KEYS for k in keys):
+            if not any(key in YEAR_KEYS for key in keys):
                 continue
             items.append(
                 {
@@ -56,7 +69,7 @@ def _build_targets_from_latest_reconcile():
     return ""
 
 
-def _load_targets(path, key_mode):
+def _load_targets(path: str, key_mode: str):
     src = Path(path)
     data = json.loads(src.read_text(encoding="utf-8"))
     items = data.get("items", [])
@@ -73,12 +86,42 @@ def _load_targets(path, key_mode):
         if key_mode == "all":
             keep = True
         elif key_mode == "mp":
-            keep = any(str(k).startswith("mp_") for k in keys)
+            keep = any(str(key).startswith("mp_") for key in keys)
         else:
-            keep = any(k in YEAR_KEYS for k in keys)
+            keep = any(key in YEAR_KEYS for key in keys)
         if keep:
             targets.append({"wr_id": int(wr_id), "uid": uid, "keys": keys})
     return targets
+
+
+def _build_source_marker(target_path: str) -> dict:
+    src = Path(str(target_path)).resolve()
+    data = _load_json(src, {})
+    source_path = src
+    source_reconcile = str(data.get("source_reconcile", "")).strip()
+    if source_reconcile:
+        candidate = Path(source_reconcile).resolve()
+        if candidate.exists():
+            source_path = candidate
+    source_stat = source_path.stat()
+    target_stat = src.stat()
+    return {
+        "target_path": str(src),
+        "target_mtime_ns": int(target_stat.st_mtime_ns),
+        "target_size": int(target_stat.st_size),
+        "source_path": str(source_path),
+        "source_mtime_ns": int(source_stat.st_mtime_ns),
+        "source_size": int(source_stat.st_size),
+        "source_key": f"{source_path}|{int(source_stat.st_mtime_ns)}|{int(source_stat.st_size)}",
+    }
+
+
+def _is_same_completed_source(state: dict, marker: dict) -> bool:
+    if not bool(state.get("complete")):
+        return False
+    prev_key = str(state.get("source_key", "")).strip()
+    cur_key = str(marker.get("source_key", "")).strip()
+    return bool(prev_key) and prev_key == cur_key
 
 
 def _read_daily_limit_state(allmod):
@@ -165,20 +208,40 @@ def _print_traffic_plan(limit_state, plan):
     print(f"  - safe target limit for this run: {plan['safe_limit']} / {plan['targets']}")
 
 
+def _write_state(path: Path, marker: dict, *, complete: bool, target_count: int, processed_count: int, updated: int, skipped_same: int, failed: int, dry_run: bool, reason: str = "") -> None:
+    _save_json(
+        path,
+        {
+            **marker,
+            "updated_at": datetime.now().isoformat(timespec="seconds"),
+            "complete": bool(complete),
+            "target_count": int(target_count),
+            "processed_count": int(processed_count),
+            "updated": int(updated),
+            "skipped_same": int(skipped_same),
+            "failed": int(failed),
+            "dry_run": bool(dry_run),
+            "reason": str(reason or "").strip(),
+        },
+    )
+
+
 def main():
-    repo_root = Path(__file__).resolve().parents[1]
-    if str(repo_root) not in sys.path:
-        sys.path.insert(0, str(repo_root))
+    if str(ROOT) not in sys.path:
+        sys.path.insert(0, str(ROOT))
 
     parser = argparse.ArgumentParser(description="Republish selected entries from reconcile audit targets.")
-    parser.add_argument("--targets", default="", help="Path to target json (default: latest affected_row_shift_*.json)")
+    parser.add_argument("--targets", default="", help="Path to target json (default: latest affected_row_shift_*.json).")
     parser.add_argument("--key-mode", choices=["year", "mp", "all"], default="year")
-    parser.add_argument("--limit", type=int, default=0, help="Max items to process (0=all)")
-    parser.add_argument("--delay-sec", type=float, default=1.5, help="Delay between updates")
-    parser.add_argument("--plan-only", action="store_true", help="실제 요청 없이 트래픽 사전 실행계획만 출력")
-    parser.add_argument("--request-buffer", type=int, default=80, help="일일 요청 상한 대비 안전 여유치")
-    parser.add_argument("--write-buffer", type=int, default=8, help="일일 수정 상한 대비 안전 여유치")
-    parser.add_argument("--yes", action="store_true", help="사전 확인 프롬프트를 생략하고 진행")
+    parser.add_argument("--limit", type=int, default=0, help="Max items to process (0=all).")
+    parser.add_argument("--delay-sec", type=float, default=1.5, help="Delay between updates.")
+    parser.add_argument("--plan-only", action="store_true", help="Print the traffic plan without opening the site.")
+    parser.add_argument("--request-buffer", type=int, default=80, help="Reserved request headroom.")
+    parser.add_argument("--write-buffer", type=int, default=8, help="Reserved write headroom.")
+    parser.add_argument("--state-file", default="logs/republish_from_audit_state.json", help="Path to run state json.")
+    parser.add_argument("--skip-if-source-unchanged", action="store_true", help="Skip when the latest completed source matches the prior run.")
+    parser.add_argument("--force", action="store_true", help="Ignore source-based skip state.")
+    parser.add_argument("--yes", action="store_true", help="Proceed without interactive confirmation.")
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
 
@@ -189,15 +252,36 @@ def main():
     if not target_path:
         print("No targets file found. Skip this run.")
         return
+
     print(f"Targets file: {target_path}")
+    state_path = Path(str(args.state_file)).resolve()
+    source_marker = _build_source_marker(target_path)
+    prior_state = _load_json(state_path, {})
+    if bool(args.skip_if_source_unchanged) and (not bool(args.force)) and _is_same_completed_source(prior_state, source_marker):
+        print("Skip this run: latest reconcile source already completed without diff/write errors.")
+        return
+
     targets = _load_targets(target_path, args.key_mode)
     if args.limit > 0:
         targets = targets[: args.limit]
 
     if not targets:
         print("No targets to process.")
+        _write_state(
+            state_path,
+            source_marker,
+            complete=True,
+            target_count=0,
+            processed_count=0,
+            updated=0,
+            skipped_same=0,
+            failed=0,
+            dry_run=bool(args.dry_run),
+            reason="no_targets",
+        )
         return
 
+    original_target_count = len(targets)
     limit_state = _read_daily_limit_state(allmod)
     plan = _build_traffic_plan(
         target_count=len(targets),
@@ -214,6 +298,18 @@ def main():
     safe_limit = int(plan.get("safe_limit", 0) or 0)
     if safe_limit <= 0:
         print("Safe limit is 0. Skip this run to avoid traffic overrun.")
+        _write_state(
+            state_path,
+            source_marker,
+            complete=False,
+            target_count=original_target_count,
+            processed_count=0,
+            updated=0,
+            skipped_same=0,
+            failed=0,
+            dry_run=bool(args.dry_run),
+            reason="safe_limit_zero",
+        )
         return
     if len(targets) > safe_limit:
         print(f"Trimming targets by plan: {len(targets)} -> {safe_limit}")
@@ -252,6 +348,7 @@ def main():
     updated = 0
     skipped_same = 0
     failed = 0
+    processed_count = 0
     try:
         for idx, target in enumerate(targets, start=1):
             wr_id = int(target["wr_id"])
@@ -284,6 +381,7 @@ def main():
             except Exception as exc:
                 failed += 1
                 print(f"   - failed: {exc}")
+            processed_count += 1
 
             if args.delay_sec > 0:
                 time.sleep(max(0.0, float(args.delay_sec)))
@@ -295,6 +393,18 @@ def main():
         f"Done: updated={updated}, skipped_same={skipped_same}, failed={failed}, "
         f"req {limit_after['requests']}/{limit_after['request_cap']}, "
         f"write {limit_after['writes']}/{limit_after['write_cap']}"
+    )
+    _write_state(
+        state_path,
+        source_marker,
+        complete=bool(processed_count == original_target_count and failed == 0 and len(targets) == original_target_count),
+        target_count=original_target_count,
+        processed_count=processed_count,
+        updated=updated,
+        skipped_same=skipped_same,
+        failed=failed,
+        dry_run=bool(args.dry_run),
+        reason="completed",
     )
 
 
