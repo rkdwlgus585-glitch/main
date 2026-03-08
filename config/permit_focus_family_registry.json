@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-08 14:19:21",
+  "generated_at": "2026-03-08 22:27:38",
   "source": {
     "packet_input": "H:\\auto\\logs\\permit_focus_source_upgrade_packet_latest.json",
     "focus_seed_input": "H:\\auto\\config\\permit_focus_seed_catalog.json",
@@ -81,7 +81,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 가스시설시공업1종(전문)의 자본금은 1억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -89,6 +91,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -103,7 +109,7 @@
         "source_url_total": 1,
         "source_checksum": "54c527efddeba12cbb027e6b10600106843e902120601146f9379080ec5420a9",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -158,7 +164,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 건축공사업(종합)의 자본금은 5억원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -166,6 +174,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -180,7 +192,7 @@
         "source_url_total": 1,
         "source_checksum": "a26704c9d0849c57a270d6972e5b6282e32d100388654102a83a286572c0ffc8",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -235,7 +247,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 구조물해체·비계공사업(전문)의 자본금은 1억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -243,6 +257,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -257,7 +275,7 @@
         "source_url_total": 1,
         "source_checksum": "dce14570fab4e41d91fcf3f589edb30f6d40c5a6cb0d0097f6ea9f8ce8deb064",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -312,7 +330,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 구조물해체공사업(전문)의 자본금은 1억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -320,6 +340,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -334,7 +358,7 @@
         "source_url_total": 1,
         "source_checksum": "2033b4ea64306d3685f6c975c831717755fc34e755191eab66468a0c9d5e4a12",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -389,7 +413,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 금속구조물공사업(전문)의 자본금은 1억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -397,6 +423,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -411,7 +441,7 @@
         "source_url_total": 1,
         "source_checksum": "4b8964e26adf40baf05ad4ac1fa99f7f5fd2afdfb55605def8fa43f6ac4f80e8",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -466,7 +496,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 금속창호·지붕건축물조립공사업(전문)의 자본금은 1억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -474,6 +506,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -488,7 +524,7 @@
         "source_url_total": 1,
         "source_checksum": "22b5236b7c502c9c59cecd8fc4e25b0ab89220b0b1bc71b7862d1ecd2dad8e54",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -543,7 +579,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 기계설비·가스공사업(전문)의 자본금은 1억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -551,6 +589,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -565,7 +607,7 @@
         "source_url_total": 1,
         "source_checksum": "9d5fbdd6e3e6ee9034ccd24b98a6dcfd16ade6dfb83ff605d56b980496c1d9ae",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -620,7 +662,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 기계설비공사업(전문)의 자본금은 1억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -628,6 +672,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -642,7 +690,7 @@
         "source_url_total": 1,
         "source_checksum": "9e18eb764e33a05a1e0c8a22ac798d5cff72a0bbed74a50131efd9c9daa5c59c",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -697,7 +745,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 도장·습식·방수·석공사업(전문)의 자본금은 1억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -705,6 +755,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -719,7 +773,7 @@
         "source_url_total": 1,
         "source_checksum": "58889a2bc94e4b54914fdfd861903f0ba454caf5234f47b53c8a983a70f61da6",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -774,7 +828,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 도장공사업(전문)의 자본금은 1억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -782,6 +838,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -796,7 +856,7 @@
         "source_url_total": 1,
         "source_checksum": "90d9512253fb27bd5412e85a7ea41225452c4c0016922d77029c9b57031b162b",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -851,7 +911,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 보링·그라우팅공사업(전문)의 자본금은 1억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -859,6 +921,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -873,7 +939,7 @@
         "source_url_total": 1,
         "source_checksum": "d2621dde244d94477410cbda2509cf8efdecf1e16b924e3ebb70db501fbe90ef",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -928,7 +994,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 비계공사업(전문)의 자본금은 1억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -936,6 +1004,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -950,7 +1022,7 @@
         "source_url_total": 1,
         "source_checksum": "e9a77ec612516b90d67a66353e6a43b0e542a691fe5095f61245f459814d8ccf",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -1005,7 +1077,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 삭도설치공사업(전문)의 자본금은 1억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -1013,6 +1087,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -1027,7 +1105,7 @@
         "source_url_total": 1,
         "source_checksum": "f3d0e75525743762d504a7b6b87c18d48ef6f2724a73774c230ef5f4a1d39310",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -1082,7 +1160,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 산업·환경설비공사업(종합)의 자본금은 8억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -1090,6 +1170,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -1104,7 +1188,7 @@
         "source_url_total": 1,
         "source_checksum": "d5b12407d4d33587a96681960a3f6b20ce1ec27bea09e0234b96548aa9db35c6",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -1159,7 +1243,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 상하수도설비공사업(전문)의 자본금은 1억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -1167,6 +1253,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -1181,7 +1271,7 @@
         "source_url_total": 1,
         "source_checksum": "13834929cb65e73e14b035cc15f3a53b06fd6b51798d05257719d39afe0c1df6",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -1236,7 +1326,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 석공사업(전문)의 자본금은 1억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -1244,6 +1336,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -1258,7 +1354,7 @@
         "source_url_total": 1,
         "source_checksum": "b1820b996cc1004da788945db6838c14da641970fac2bef39be3f9271ae41dc3",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -1313,7 +1409,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 수중·준설공사업(전문)의 자본금은 1억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -1321,6 +1419,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -1335,7 +1437,7 @@
         "source_url_total": 1,
         "source_checksum": "6edfe0f5264e8dcb3265fa6fa5e735cf0c7804fb6eb432678597e9c96ff31095",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -1390,7 +1492,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 수중공사업(전문)의 자본금은 1억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -1398,6 +1502,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -1412,7 +1520,7 @@
         "source_url_total": 1,
         "source_checksum": "2071d18d8da80d266ad025a7c349db9bc4173632739e54226a350bdb0bf945c8",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -1467,7 +1575,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 습식·방수공사업(전문)의 자본금은 1억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -1475,6 +1585,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -1489,7 +1603,7 @@
         "source_url_total": 1,
         "source_checksum": "c938cb11963526708030d7596ab7fb0d8f1fd0044021ccceaeccc787bd23e0e9",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -1544,7 +1658,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 승강기·삭도공사업(전문)의 자본금은 1억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -1552,6 +1668,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -1566,7 +1686,7 @@
         "source_url_total": 1,
         "source_checksum": "1877b5f671f99297e6c6cad8d9141d8d55bf935f96ad83298015fc165d9fecae",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -1621,7 +1741,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 승강기설치공사업(전문)의 자본금은 1억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -1629,6 +1751,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -1643,7 +1769,7 @@
         "source_url_total": 1,
         "source_checksum": "6d92902eb9692dec98030597962f35099007d0e61d9e07d355095fcf1400cab5",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -1698,7 +1824,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 시설물유지관리업(전문)의 자본금은 1억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -1706,6 +1834,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -1720,7 +1852,7 @@
         "source_url_total": 1,
         "source_checksum": "bd843857776d56ed2c11169b4d282ecbd0dc53e6f5fa2e572cd302009b9d865a",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -1775,7 +1907,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 실내건축공사업(전문)의 자본금은 1억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -1783,6 +1917,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -1797,7 +1935,7 @@
         "source_url_total": 1,
         "source_checksum": "9ab418515bc96d2e8d237a3fa867665c462e35375a11f990f9346b492d1816e6",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -1852,7 +1990,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 조경공사업(종합)의 자본금은 5억원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -1860,6 +2000,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -1874,7 +2018,7 @@
         "source_url_total": 1,
         "source_checksum": "04497b19c875f349eaf49c408ec914836f74792ae867e8da4a88ad0adb17732b",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -1929,7 +2073,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 조경시설물설치공사업(전문)의 자본금은 1억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -1937,6 +2083,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -1951,7 +2101,7 @@
         "source_url_total": 1,
         "source_checksum": "bfb97fd9f67d6a55f44f5de56d0aa4b23abd66841d3b95ee46fc4eae9c4171d9",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -2006,7 +2156,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 조경식재·시설물공사업(전문)의 자본금은 1억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -2014,6 +2166,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -2028,7 +2184,7 @@
         "source_url_total": 1,
         "source_checksum": "ea1fde7c233693b04f6e43cd5a3c0fa36e95607d05443e547d3e0b28a1e575e0",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -2083,7 +2239,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 조경식재공사업(전문)의 자본금은 1억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -2091,6 +2249,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -2105,7 +2267,7 @@
         "source_url_total": 1,
         "source_checksum": "d361673d873992d0a5fa8ea1ec4f7c7f7b3fd6e174d84859642174a215ad9b9c",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -2160,7 +2322,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 조적공사업(전문)의 자본금은 1억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -2168,6 +2332,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -2182,7 +2350,7 @@
         "source_url_total": 1,
         "source_checksum": "2892d690957ee90d8b00b24930737c21a999b4dcf43991bc927ec2b1141a290b",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -2237,7 +2405,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 준설공사업(전문)의 자본금은 1억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -2245,6 +2415,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -2259,7 +2433,7 @@
         "source_url_total": 1,
         "source_checksum": "58803a4027c2a481a035767f8083f00526899ad59edcdafc61f4783145413f9d",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -2314,7 +2488,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 지반조성·포장공사업(전문)의 자본금은 1억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -2322,6 +2498,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -2336,7 +2516,7 @@
         "source_url_total": 1,
         "source_checksum": "63460c202e7ff26696d4b620be70ebc61f50948e225a81193d5a40d6dd97a445",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -2391,7 +2571,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 지반조성공사업(전문)의 자본금은 1억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -2399,6 +2581,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -2413,7 +2599,7 @@
         "source_url_total": 1,
         "source_checksum": "b04ce24b890dacd3ed22e4fcd9f0dee77359883e92013fd4eb29feb7947025c4",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -2468,7 +2654,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 지붕판금·건축물조립공사업(전문)의 자본금은 1억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -2476,6 +2664,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -2490,7 +2682,7 @@
         "source_url_total": 1,
         "source_checksum": "fa7d25cf9de34389adadcaab94e8d248c01bfc88be89e93699b8a73dc9916691",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -2545,7 +2737,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 철강구조물공사업(전문)의 자본금은 1억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -2553,6 +2747,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -2567,7 +2765,7 @@
         "source_url_total": 1,
         "source_checksum": "5700df9ef5888e2d23b6b4ed339c4acda0324cfb58ce3a31460e6ee076227422",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -2622,7 +2820,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 철근콘크리트공사업(전문)의 자본금은 1억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -2630,6 +2830,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -2644,7 +2848,7 @@
         "source_url_total": 1,
         "source_checksum": "29de6c7b3da8d117f452eef697d6bcb2bcbae63941c90198f5622ab0b4e40627",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -2699,7 +2903,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 철도·궤도공사업(전문)의 자본금은 1억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -2707,6 +2913,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -2721,7 +2931,7 @@
         "source_url_total": 1,
         "source_checksum": "7b73cff40be5332e3ff8abfa09c793b365cdf4ee87ed880b94042c1e0d8e7a8b",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -2776,7 +2986,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 토공사업(전문)의 자본금은 1억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -2784,6 +2996,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -2798,7 +3014,7 @@
         "source_url_total": 1,
         "source_checksum": "fd336540ae5a3279181ac3c784139c84a04c49a84239c3b267525f62e26f7f5a",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -2853,7 +3069,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 토목건축공사업(종합)의 자본금은 8억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -2861,6 +3079,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -2875,7 +3097,7 @@
         "source_url_total": 1,
         "source_checksum": "dca1b2d17f1c4ffa90a412aa3e3bf0ed8f014d096b0cb1e78eae9e8ed4c4345c",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -2930,7 +3152,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 토목공사업(종합)의 자본금은 5억원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -2938,6 +3162,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -2952,7 +3180,7 @@
         "source_url_total": 1,
         "source_checksum": "02952205d01dfff52decea6e8a0afef002d9d0b23f33779009fd00446033fdfd",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -3007,7 +3235,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 2 건설업 등록기준 기준 포장공사업(전문)의 자본금은 1억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "2.전문공사를시공하는업종의업무분야별등록기준건설업종업무분야기술능력시설",
           "판매시설안전관리자양성교육또는사용시설안전관리자양성교육을이수한사람(3)난방공사(제1종)또는난방공사(제2종)을주력분야로등록한사람나)한국가스안전공사에서실시하는가스시설시공관리자양성교육을이수한사람다)난방공사(제1종)또는난방공사(제2종)의기술능력을갖춘후한국가스안전공사에서실시하는온수보일러시공관리자양성교육을이수하고,온수보일러시공자양성교육을이수한사람"
@@ -3015,6 +3245,10 @@
         "other_evidence": [
           "전자,정보통신,안전관리,환경",
           "(가)운반궤도차(모터카를말하며,견인력25톤이상인것으로한정한다)1대이상(나)트롤리(trolley:흙등운반차량을말하며,적재하중10톤이상인것으로한정한다)4대이상(다)타이탬퍼( t i etamper:철로자갈을다지는장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -3029,7 +3263,7 @@
         "source_url_total": 1,
         "source_checksum": "5850cc2b07425309a939c76a7d137ca1df01e61e58a50e1977b0bcceee02c397",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -3083,10 +3317,19 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
-        "technical_personnel_evidence": [],
+        "capital_evidence": [
+          "별표 1 전기공사업 등록기준 기준 전기공사업의 자본금은 1억 5000만원 이상이어야 한다."
+        ],
+        "technical_personnel_evidence": [
+          "별표 1 전기공사업 등록기준 기준 전기공사업의 기술인력은 3명 이상이어야 한다."
+        ],
         "other_evidence": [
           "3.사무실공사업운영을위한사무실비고"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence",
+          "technical_personnel_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -3101,7 +3344,7 @@
         "source_url_total": 1,
         "source_checksum": "251b752df590fad27fe575bb3235d7098407785758c900f070967c4c723cc047",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "전기공사업법 시행령",
@@ -3154,11 +3397,20 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 1 정보통신공사업 등록기준 기준 정보통신공사업의 자본금은 1억 5000만원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "기술능력사무실"
         ],
-        "other_evidence": []
+        "other_evidence": [
+          "별표 1 정보통신공사업 등록기준 기준 정보통신공사업의 기타 등록기준에는 장비 1종 이상, 보증가능금액 확인서 30일 이상이 포함된다."
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence",
+          "other_evidence"
+        ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
       "source_upgrade_family": "정보통신공사업법 시행령",
@@ -3172,7 +3424,7 @@
         "source_url_total": 1,
         "source_checksum": "47002fd7797862af47195e3da866fbe441ff40181ebc262fd7b90cbb063ce46e",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "정보통신공사업법 시행령",
@@ -3227,12 +3479,21 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
-        "technical_personnel_evidence": [],
+        "capital_evidence": [
+          "별표 1 소방시설공사업 등록기준 기준 일반소방시설공사업(기계)의 자본금은 1억원 이상이어야 한다."
+        ],
+        "technical_personnel_evidence": [
+          "별표 1 소방시설공사업 등록기준 기준 일반소방시설공사업(기계)의 기술인력은 2명 이상이어야 한다."
+        ],
         "other_evidence": [
           "■소방시설공사업법시행령[별표2]<개정",
           "1)연면적20만제곱미터이상인특정소방대상물의공사현장2)지하층을포함한층수가40층이상인특정소방대상물의공사현장",
           "1)연면적3만제곱미터이상20만제곱미터미만인특정소방대상물(아파트는제외한다)의공사현장2)지하층을포함한층수가16층이상40층미만인특정소방대상물의공사현장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence",
+          "technical_personnel_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -3247,7 +3508,7 @@
         "source_url_total": 1,
         "source_checksum": "626d5aa4483b232cee71b3fa2fb966e37ff1fe89009daff9d4cd48014212b588",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "소방시설공사업법 시행령",
@@ -3302,12 +3563,21 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
-        "technical_personnel_evidence": [],
+        "capital_evidence": [
+          "별표 1 소방시설공사업 등록기준 기준 일반소방시설공사업(전기)의 자본금은 1억원 이상이어야 한다."
+        ],
+        "technical_personnel_evidence": [
+          "별표 1 소방시설공사업 등록기준 기준 일반소방시설공사업(전기)의 기술인력은 2명 이상이어야 한다."
+        ],
         "other_evidence": [
           "■소방시설공사업법시행령[별표2]<개정",
           "1)연면적20만제곱미터이상인특정소방대상물의공사현장2)지하층을포함한층수가40층이상인특정소방대상물의공사현장",
           "1)연면적3만제곱미터이상20만제곱미터미만인특정소방대상물(아파트는제외한다)의공사현장2)지하층을포함한층수가16층이상40층미만인특정소방대상물의공사현장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence",
+          "technical_personnel_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -3322,7 +3592,7 @@
         "source_url_total": 1,
         "source_checksum": "ba6aa99038ec613285e5db27c165d677d58699fbaaeba8360a8eb90e5d643990",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "소방시설공사업법 시행령",
@@ -3377,12 +3647,21 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
-        "technical_personnel_evidence": [],
+        "capital_evidence": [
+          "별표 1 소방시설공사업 등록기준 기준 전문소방시설공사업의 자본금은 1억원 이상이어야 한다."
+        ],
+        "technical_personnel_evidence": [
+          "별표 1 소방시설공사업 등록기준 기준 전문소방시설공사업의 기술인력은 3명 이상이어야 한다."
+        ],
         "other_evidence": [
           "■소방시설공사업법시행령[별표2]<개정",
           "1)연면적20만제곱미터이상인특정소방대상물의공사현장2)지하층을포함한층수가40층이상인특정소방대상물의공사현장",
           "1)연면적3만제곱미터이상20만제곱미터미만인특정소방대상물(아파트는제외한다)의공사현장2)지하층을포함한층수가16층이상40층미만인특정소방대상물의공사현장"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence",
+          "technical_personnel_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -3397,7 +3676,7 @@
         "source_url_total": 1,
         "source_checksum": "15b5de63dbe1f63f3763f199acb0c75f669dd42bbcc021adb41899963c2e9030",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "소방시설공사업법 시행령",
@@ -3451,11 +3730,20 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
-        "technical_personnel_evidence": [],
+        "capital_evidence": [
+          "별표 1 경비업의 허가기준 기준 기계경비업의 자본금은 1억원 이상이어야 한다."
+        ],
+        "technical_personnel_evidence": [
+          "별표 1 경비업의 허가기준 기준 기계경비업의 기술인력은 1명 이상이어야 한다."
+        ],
         "other_evidence": [
           "1.시설경비업무",
           "배치하고,시설경비업무"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence",
+          "technical_personnel_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -3470,7 +3758,7 @@
         "source_url_total": 1,
         "source_checksum": "61ca77b054b9b56983a3734b79759a688945a5318492c589406c2ef951c415c5",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "경비업법 시행령",
@@ -3524,11 +3812,20 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
-        "technical_personnel_evidence": [],
+        "capital_evidence": [
+          "별표 1 경비업의 허가기준 기준 시설경비업의 자본금은 1억원 이상이어야 한다."
+        ],
+        "technical_personnel_evidence": [
+          "별표 1 경비업의 허가기준 기준 시설경비업의 기술인력은 1명 이상이어야 한다."
+        ],
         "other_evidence": [
           "1.시설경비업무",
           "배치하고,시설경비업무"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence",
+          "technical_personnel_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -3543,7 +3840,7 @@
         "source_url_total": 1,
         "source_checksum": "1bb92c03b412c1f5c4a9939c1873aafadaaead8745a67d66a87ca641dcb785fc",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "경비업법 시행령",
@@ -3597,11 +3894,20 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
-        "technical_personnel_evidence": [],
+        "capital_evidence": [
+          "별표 1 경비업의 허가기준 기준 신변보호업의 자본금은 1억원 이상이어야 한다."
+        ],
+        "technical_personnel_evidence": [
+          "별표 1 경비업의 허가기준 기준 신변보호업의 기술인력은 1명 이상이어야 한다."
+        ],
         "other_evidence": [
           "1.시설경비업무",
           "배치하고,시설경비업무"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence",
+          "technical_personnel_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -3616,7 +3922,7 @@
         "source_url_total": 1,
         "source_checksum": "8918f7197a76f484f86bfea21140171035a9b07cf1a21eb5173eea3b95abe707",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "경비업법 시행령",
@@ -3670,11 +3976,20 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
-        "technical_personnel_evidence": [],
+        "capital_evidence": [
+          "별표 1 경비업의 허가기준 기준 호송경비업의 자본금은 2억원 이상이어야 한다."
+        ],
+        "technical_personnel_evidence": [
+          "별표 1 경비업의 허가기준 기준 호송경비업의 기술인력은 1명 이상이어야 한다."
+        ],
         "other_evidence": [
           "1.시설경비업무",
           "배치하고,시설경비업무"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence",
+          "technical_personnel_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -3689,7 +4004,7 @@
         "source_url_total": 1,
         "source_checksum": "e49af554dddd66437f2526537089ff45d0e7423368b36ee15486efe14952f36e",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "경비업법 시행령",
@@ -3744,7 +4059,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 5 가스시설시공업 등록기준 기준 가스시설시공업2종의 자본금은 1억원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "가.저장능력500톤초과안전관리총괄자:1명안전관리부총괄자:1명안전관리책임자:1명이상가스산업기사이상의자격을가진사람안전관리원:2명이상가스기능사이상의자격을가진사람또는한국가스안전공사가산업통상부장관의승인을받아실시하는충전시설안전관리자양성교육이수자(이하\"충전시설안전관리자양성교육이수자\"라한다)",
           "나.저장능력1 0 0톤초과500톤이하안전관리총괄자:1명안전관리부총괄자:1명안전관리책임자:1명이상가스기능사이상의자격을가진사람안전관리원:2명이상가스기능사이상의자격을가진사람또는충전시설안전관리자양성교육이수자",
@@ -3754,6 +4071,10 @@
           "■액화석유가스의안전관리및사업법시행령[별표1]<개정",
           "1.액화석유가스충전시설",
           "라.저장능력30톤이하(자동차에고정된용기충전시설만해당한다)"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -3768,7 +4089,7 @@
         "source_url_total": 1,
         "source_checksum": "045240355b253543aaca8588e0818c57915ccaa1b4d01f2a729e6ddbb82ebc38",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "액화석유가스의 안전관리 및 사업법 시행령",
@@ -3823,7 +4144,9 @@
         "focus_target": true,
         "focus_target_with_other": true,
         "focus_bucket": "capital_technical_other",
-        "capital_evidence": [],
+        "capital_evidence": [
+          "별표 5 가스시설시공업 등록기준 기준 가스시설시공업3종의 자본금은 1억원 이상이어야 한다."
+        ],
         "technical_personnel_evidence": [
           "가.저장능력500톤초과안전관리총괄자:1명안전관리부총괄자:1명안전관리책임자:1명이상가스산업기사이상의자격을가진사람안전관리원:2명이상가스기능사이상의자격을가진사람또는한국가스안전공사가산업통상부장관의승인을받아실시하는충전시설안전관리자양성교육이수자(이하\"충전시설안전관리자양성교육이수자\"라한다)",
           "나.저장능력1 0 0톤초과500톤이하안전관리총괄자:1명안전관리부총괄자:1명안전관리책임자:1명이상가스기능사이상의자격을가진사람안전관리원:2명이상가스기능사이상의자격을가진사람또는충전시설안전관리자양성교육이수자",
@@ -3833,6 +4156,10 @@
           "■액화석유가스의안전관리및사업법시행령[별표1]<개정",
           "1.액화석유가스충전시설",
           "라.저장능력30톤이하(자동차에고정된용기충전시설만해당한다)"
+        ],
+        "generated_evidence_kind": "law_referenced_structured_template",
+        "generated_evidence_fields": [
+          "capital_evidence"
         ]
       },
       "source_upgrade_status": "materialized_from_focus_seed",
@@ -3847,7 +4174,7 @@
         "source_url_total": 1,
         "source_checksum": "4591e1e9bc8c44f6e6ca9264df65b367ec1d7dcfbe47fcc2de16cf88bba74379",
         "capture_meta": {
-          "captured_at": "2026-03-08 14:19:21",
+          "captured_at": "2026-03-08 22:27:38",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "액화석유가스의 안전관리 및 사업법 시행령",
