@@ -24,6 +24,24 @@ PID_FILE = LAB_RUNTIME / "php-site.pid"
 DEFAULT_BASE_URL = "http://127.0.0.1:18081"
 
 
+def _body_has_bootstrap_error(body: str) -> bool:
+    lowered = str(body or "").lower()
+    needles = (
+        "fatal error",
+        "failed opening required",
+        "warning</b>:  require(",
+        "warning: require(",
+        "uncaught error",
+    )
+    return any(token in lowered for token in needles)
+
+
+def _probe_ok(probe: Dict[str, Any]) -> bool:
+    status = int(probe.get("status") or 0)
+    body_excerpt = str(probe.get("body_excerpt") or "")
+    return bool(probe.get("ok")) and 200 <= status < 400 and not _body_has_bootstrap_error(body_excerpt)
+
+
 def _now() -> str:
     return datetime.now().astimezone().isoformat(timespec="seconds")
 
@@ -82,13 +100,13 @@ def _load_json(path: Path) -> Dict[str, Any]:
     return {}
 
 
-def _request(url: str, *, timeout: int = 8) -> Tuple[int, str, str]:
+def _request(url: str, *, timeout: int = 12) -> Tuple[int, str, str]:
     try:
         with urllib.request.urlopen(url, timeout=max(1, int(timeout))) as response:
-            body = response.read().decode("utf-8", errors="replace")
+            body = response.read(65536).decode("utf-8", errors="replace")
             return int(response.status), str(response.geturl()), body
     except urllib.error.HTTPError as exc:
-        body = exc.read().decode("utf-8", errors="replace")
+        body = exc.read(65536).decode("utf-8", errors="replace")
         return int(exc.code), str(exc.geturl()), body
     except Exception as exc:  # noqa: BLE001
         return 0, url, str(exc)
@@ -100,7 +118,7 @@ def _wait_for_http(url: str, *, timeout_sec: int = 20) -> Dict[str, Any]:
     last_url = url
     last_body = ""
     while time.time() < deadline:
-        status, final_url, body = _request(url, timeout=6)
+        status, final_url, body = _request(url, timeout=12)
         last_status = status
         last_url = final_url
         last_body = body
@@ -212,11 +230,17 @@ def run_smoke(*, report_path: Path | None = None, base_url: str = DEFAULT_BASE_U
     home_probe = _wait_for_http(home_url, timeout_sec=20)
     admin_probe = _wait_for_http(admin_url, timeout_sec=20)
     install_probe = _wait_for_http(install_url, timeout_sec=20)
+    home_ok = _probe_ok(home_probe)
+    admin_ok = _probe_ok(admin_probe)
+    install_ok = _probe_ok(install_probe)
     out["probes"] = {
         "home": home_probe,
         "admin": admin_probe,
         "install": install_probe,
-        "ok": bool(home_probe.get("ok")) and bool(admin_probe.get("ok")) and bool(install_probe.get("ok")),
+        "home_ok": home_ok,
+        "admin_ok": admin_ok,
+        "install_ok": install_ok,
+        "ok": home_ok and admin_ok and install_ok,
     }
     out["timing"]["probe_sec"] = _elapsed(started)
     if not out["probes"].get("ok"):

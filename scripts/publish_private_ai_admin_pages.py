@@ -2,6 +2,7 @@
 import base64
 import html
 import json
+import mimetypes
 import re
 import subprocess
 import sys
@@ -23,7 +24,10 @@ PERMIT_SANITY_PATH = ROOT / "logs" / "permit_wizard_sanity_latest.json"
 PERMIT_STEP_SMOKE_PATH = ROOT / "logs" / "permit_step_transition_smoke_latest.json"
 BROWSER_SMOKE_PATH = ROOT / "logs" / "calculator_browser_smoke_latest.json"
 PARTNER_API_SMOKE_PATH = ROOT / "logs" / "partner_api_contract_smoke_latest.json"
+FIRST_PRINCIPLES_JSON_PATH = ROOT / "logs" / "ai_platform_first_principles_review_latest.json"
+FIRST_PRINCIPLES_MD_PATH = ROOT / "logs" / "ai_platform_first_principles_review_latest.md"
 HUB_DASHBOARD_PATH = ROOT / "logs" / "ai_admin_dashboard_latest.json"
+PUBLIC_SUMMARY_PATH = ROOT / "logs" / "public_calculator_publish_summary_latest.json"
 PLAYWRIGHT_ARTIFACT_DIR = ROOT / "output" / "playwright"
 PERMIT_STEP_FAIL_SCREENSHOT = PLAYWRIGHT_ARTIFACT_DIR / "permit_step_transition_failure_latest.png"
 PERMIT_STEP_FAIL_HTML = PLAYWRIGHT_ARTIFACT_DIR / "permit_step_transition_failure_latest.html"
@@ -200,6 +204,59 @@ def _artifact_entry(label: str, kind: str, path: Path) -> Dict[str, Any]:
     }
 
 
+def _read_text_excerpt(path: Path, *, limit: int = 3200) -> str:
+    if not path.exists():
+        return ""
+    text = ""
+    for encoding in ("utf-8-sig", "utf-8", "cp949"):
+        try:
+            text = path.read_text(encoding=encoding, errors="replace")
+            break
+        except Exception:
+            text = ""
+    text = str(text or "").strip()
+    if not text:
+        return ""
+    if len(text) <= limit:
+        return text
+    half = max(600, limit // 2)
+    return text[:half] + "\n... [trimmed] ...\n" + text[-half:]
+
+
+def _image_data_url(path: Path, *, max_bytes: int = 1_500_000) -> str:
+    if not path.exists():
+        return ""
+    try:
+        raw = path.read_bytes()
+    except Exception:
+        return ""
+    if len(raw) > max_bytes:
+        return ""
+    mime = mimetypes.guess_type(str(path))[0] or "image/png"
+    encoded = base64.b64encode(raw).decode("ascii")
+    return f"data:{mime};base64,{encoded}"
+
+
+def _artifact_web_preview(entry: Dict[str, Any]) -> Dict[str, Any]:
+    path = Path(str(entry.get("path") or ""))
+    preview: Dict[str, Any] = dict(entry)
+    preview["preview_mode"] = "none"
+    preview["preview_excerpt"] = ""
+    preview["preview_data_url"] = ""
+    if not bool(entry.get("exists")):
+        return preview
+    kind = str(entry.get("kind") or "").strip().lower()
+    if kind == "image":
+        data_url = _image_data_url(path)
+        preview["preview_mode"] = "image" if data_url else "unavailable"
+        preview["preview_data_url"] = data_url
+    elif kind == "html":
+        excerpt = _read_text_excerpt(path)
+        preview["preview_mode"] = "html" if excerpt else "unavailable"
+        preview["preview_excerpt"] = excerpt
+    return preview
+
+
 def _build_dashboard_snapshot(*, regression_gate: Dict[str, Any], publish_generated_at: str) -> Dict[str, Any]:
     secure = _read_json_file(SECURE_STATUS_PATH)
     permit_sanity = _read_json_file(PERMIT_SANITY_PATH)
@@ -207,6 +264,7 @@ def _build_dashboard_snapshot(*, regression_gate: Dict[str, Any], publish_genera
     browser_smoke = _read_json_file(BROWSER_SMOKE_PATH)
     partner_api_smoke = _read_json_file(PARTNER_API_SMOKE_PATH)
     regression = _read_json_file(REGRESSION_REPORT_PATH)
+    public_summary = _read_json_file(PUBLIC_SUMMARY_PATH)
     permit_checks = dict(permit_sanity.get("checks") or {})
     permit_integrity = dict(permit_checks.get("integrity") or {})
     permit_integrity_matches = [row for row in list(permit_integrity.get("matches") or []) if isinstance(row, dict)]
@@ -291,17 +349,34 @@ def _build_dashboard_snapshot(*, regression_gate: Dict[str, Any], publish_genera
             "blocking_issues": [str(x) for x in list(regression.get("blocking_issues") or [])],
             "gate_ok": bool(regression_gate.get("ok")),
         },
+        "public_publish_summary": {
+            "generated_at": str(public_summary.get("generated_at") or ""),
+            "ok": bool(public_summary.get("ok")),
+            "one_line_verdict": str(public_summary.get("one_line_verdict") or ""),
+            "customer_ok": bool(((public_summary.get("customer") or {}).get("static_ok")))
+            and bool(((public_summary.get("customer") or {}).get("runtime_ok")))
+            and bool(((public_summary.get("customer") or {}).get("interaction_ok"))),
+            "permit_ok": bool(((public_summary.get("permit") or {}).get("static_ok")))
+            and bool(((public_summary.get("permit") or {}).get("runtime_ok")))
+            and bool(((public_summary.get("permit") or {}).get("interaction_ok"))),
+            "release_checklist": {
+                "do_now": str(((public_summary.get("release_checklist") or {}).get("do_now")) or ""),
+                "hold": str(((public_summary.get("release_checklist") or {}).get("hold")) or ""),
+                "falsification_test": str(((public_summary.get("release_checklist") or {}).get("falsification_test")) or ""),
+            },
+        },
         "publish": {
             "generated_at": publish_generated_at,
             "gate_ok": bool(regression_gate.get("ok")),
         },
         "permit_failure_artifacts": {
             "items": [
-                _artifact_entry("permit step screenshot", "image", PERMIT_STEP_FAIL_SCREENSHOT),
-                _artifact_entry("permit step html", "html", PERMIT_STEP_FAIL_HTML),
-                _artifact_entry("permit browser screenshot", "image", PERMIT_BROWSER_FAIL_SCREENSHOT),
-                _artifact_entry("permit browser html", "html", PERMIT_BROWSER_FAIL_HTML),
+                _artifact_web_preview(_artifact_entry("permit step screenshot", "image", PERMIT_STEP_FAIL_SCREENSHOT)),
+                _artifact_web_preview(_artifact_entry("permit step html", "html", PERMIT_STEP_FAIL_HTML)),
+                _artifact_web_preview(_artifact_entry("permit browser screenshot", "image", PERMIT_BROWSER_FAIL_SCREENSHOT)),
+                _artifact_web_preview(_artifact_entry("permit browser html", "html", PERMIT_BROWSER_FAIL_HTML)),
             ],
+            "web_access_mode": "private_hub_embed",
         },
     }
     snapshot["one_line_summary"] = {
@@ -342,8 +417,10 @@ def _hub_html(snapshot: Dict[str, Any]) -> str:
     smoke = dict(snapshot.get("browser_smoke") or {})
     partner_api = dict(snapshot.get("partner_api_contract_smoke") or {})
     regression = dict(snapshot.get("regression") or {})
+    public_summary = dict(snapshot.get("public_publish_summary") or {})
     publish = dict(snapshot.get("publish") or {})
     permit_failure_artifacts = dict(snapshot.get("permit_failure_artifacts") or {})
+    first_principles_review = dict(snapshot.get("first_principles_review") or {})
     one_line = dict(snapshot.get("one_line_summary") or {})
     secure_rows = [row for row in list(secure.get("rows") or []) if isinstance(row, dict)]
     integrity_matches = [row for row in list(permit_integrity.get("matches") or []) if isinstance(row, dict)]
@@ -383,6 +460,32 @@ def _hub_html(snapshot: Dict[str, Any]) -> str:
             f'<div style="margin-top:6px;font-size:12px;color:#5c7085;">{html.escape(str(row.get("updated_at") or "-"))}</div>'
             f'<div style="margin-top:6px;font:12px/1.55 Consolas,monospace;color:#163047;word-break:break-all;">{html.escape(str(row.get("path") or "-"))}</div>'
             '</div>'
+        )
+        for row in failure_artifact_items
+    )
+    failure_artifact_detail_html = "".join(
+        (
+            '<div style="background:#ffffff;border:1px solid #d6e0ea;border-radius:16px;padding:18px 20px;box-shadow:0 10px 24px rgba(8,36,64,.06);">'
+            f'<div style="font-size:12px;font-weight:800;color:#8c6a3c;margin-bottom:6px;">FAILURE ARTIFACT</div>'
+            f'<div style="font-size:22px;font-weight:800;margin-bottom:10px;">{html.escape(str(row.get("label") or "-"))}</div>'
+            f'{_summary_line("Kind", str(row.get("kind") or "-"))}'
+            f'{_summary_line("Updated", str(row.get("updated_at") or "-"))}'
+            f'{_summary_line("Web Access", "private hub embed" if bool(row.get("exists")) else "artifact missing")}'
+            f'<div style="margin-top:10px;font:12px/1.55 Consolas,monospace;color:#163047;word-break:break-all;">{html.escape(str(row.get("path") or "-"))}</div>'
+            + (
+                f'<div style="margin-top:12px;"><img alt="{html.escape(str(row.get("label") or "artifact"))}" src="{html.escape(str(row.get("preview_data_url") or ""))}" style="display:block;max-width:100%;height:auto;border:1px solid #dbe3ec;border-radius:12px;background:#f8fafc;" /></div>'
+                if str(row.get("preview_mode") or "") == "image" and str(row.get("preview_data_url") or "")
+                else (
+                    f'<pre style="margin-top:12px;white-space:pre-wrap;word-break:break-word;font:12px/1.55 Consolas,monospace;color:#163047;background:#f8fafc;border:1px solid #dbe3ec;border-radius:12px;padding:12px;max-height:420px;overflow:auto;">{html.escape(str(row.get("preview_excerpt") or "-"))}</pre>'
+                    if str(row.get("preview_mode") or "") == "html" and str(row.get("preview_excerpt") or "")
+                    else (
+                        '<div style="margin-top:12px;font-size:13px;color:#7b8794;">Preview unavailable. Check the local file path for the raw artifact.</div>'
+                        if bool(row.get("exists"))
+                        else '<div style="margin-top:12px;font-size:13px;color:#7b8794;">No recent failure artifact.</div>'
+                    )
+                )
+            )
+            + '</div>'
         )
         for row in failure_artifact_items
     )
@@ -437,6 +540,18 @@ def _hub_html(snapshot: Dict[str, Any]) -> str:
       {_summary_line("blocking issues", partner_api_blockers)}
     </div>
     <div style="background:#ffffff;border:1px solid #d6e0ea;border-radius:16px;padding:18px 20px;box-shadow:0 10px 24px rgba(8,36,64,.06);">
+      <div style="font-size:12px;font-weight:800;color:#8c6a3c;margin-bottom:6px;">PUBLIC</div>
+      <div style="font-size:22px;font-weight:800;margin-bottom:10px;">Public Publish Summary</div>
+      {_summary_line("summary", "정상" if bool(public_summary.get("ok")) else "확인 필요")}
+      {_summary_line("customer", "정상" if bool(public_summary.get("customer_ok")) else "확인 필요")}
+      {_summary_line("permit", "정상" if bool(public_summary.get("permit_ok")) else "확인 필요")}
+      {_summary_line("verdict", str(public_summary.get("one_line_verdict") or "-"))}
+      {_summary_line("점검 시각", str(public_summary.get("generated_at") or "-"))}
+      {_summary_line("do now", str(((public_summary.get("release_checklist") or {}).get("do_now")) or "-"))}
+      {_summary_line("hold", str(((public_summary.get("release_checklist") or {}).get("hold")) or "-"))}
+      {_summary_line("falsification", str(((public_summary.get("release_checklist") or {}).get("falsification_test")) or "-"))}
+    </div>
+    <div style="background:#ffffff;border:1px solid #d6e0ea;border-radius:16px;padding:18px 20px;box-shadow:0 10px 24px rgba(8,36,64,.06);">
       <div style="font-size:12px;font-weight:800;color:#8c6a3c;margin-bottom:6px;">PERMIT INTEGRITY</div>
       <div style="font-size:22px;font-weight:800;margin-bottom:10px;">Template Integrity</div>
       {_summary_line("상태", "정상" if bool(permit_integrity.get("ok", True)) else "확인 필요")}
@@ -456,10 +571,27 @@ def _hub_html(snapshot: Dict[str, Any]) -> str:
       {_summary_line("browser smoke issues", smoke_blockers)}
     </div>
     <div style="background:#ffffff;border:1px solid #d6e0ea;border-radius:16px;padding:18px 20px;box-shadow:0 10px 24px rgba(8,36,64,.06);">
+      <div style="font-size:12px;font-weight:800;color:#8c6a3c;margin-bottom:6px;">FIRST PRINCIPLES</div>
+      <div style="font-size:22px;font-weight:800;margin-bottom:10px;">Current Bottleneck</div>
+      {_summary_line("packet", "ready" if bool(first_principles_review.get("packet_ready")) else "check")}
+      {_summary_line("current bottleneck", str(first_principles_review.get("current_bottleneck") or "-"))}
+      {_summary_line("gate recommendation", str(first_principles_review.get("gate_recommendation") or "-"))}
+      {_summary_line("fallback smoke", "ok" if bool(first_principles_review.get("fallback_smoke_ok")) else "check")}
+      {_summary_line("fallback visibility", str((((first_principles_review.get("fallback_visibility_policy") or {}).get("visibility")) or "-")))}
+      {_summary_line("next experiments", str(first_principles_review.get("next_experiment_count") or "-"))}
+    </div>
+    <div style="background:#ffffff;border:1px solid #d6e0ea;border-radius:16px;padding:18px 20px;box-shadow:0 10px 24px rgba(8,36,64,.06);">
       <div style="font-size:12px;font-weight:800;color:#8c6a3c;margin-bottom:6px;">PERMIT ARTIFACTS</div>
       <div style="font-size:22px;font-weight:800;margin-bottom:10px;">Latest Failure Files</div>
-      {_summary_line("설명", "최근 실패 screenshot/html 경로")}
-      {failure_artifact_rows_html or _summary_line("artifact", "저장된 실패 artifact 없음")}
+      {_summary_line("Note", "Latest permit failure screenshot/html is embedded in this private hub when available")}
+      {_summary_line("Web access mode", str(permit_failure_artifacts.get("web_access_mode") or "-"))}
+      {failure_artifact_rows_html or _summary_line("artifact", "No stored failure artifact")}
+    </div>
+  </div>
+  <div style="margin:0 0 20px;">
+    <div style="font-size:12px;font-weight:800;color:#8c6a3c;margin:0 0 8px;">FAILURE ARTIFACT PREVIEW</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;">
+      {failure_artifact_detail_html or '<div style="background:#ffffff;border:1px solid #d6e0ea;border-radius:16px;padding:18px 20px;color:#7b8794;">No recent permit failure artifact, so the preview section is empty.</div>'}
     </div>
   </div>
   <div style="display:grid;grid-template-columns:1fr;gap:16px;">
@@ -544,6 +676,47 @@ def _run_regression_gate(*, skip_regression: bool) -> Dict[str, Any]:
     return result
 
 
+def _run_first_principles_review() -> Dict[str, Any]:
+    cmd = [
+        sys.executable,
+        str(ROOT / "scripts" / "generate_ai_platform_first_principles_review.py"),
+        "--json",
+        str(FIRST_PRINCIPLES_JSON_PATH),
+        "--md",
+        str(FIRST_PRINCIPLES_MD_PATH),
+    ]
+    proc = subprocess.run(
+        cmd,
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        timeout=300,
+    )
+    review = _read_json_file(FIRST_PRINCIPLES_JSON_PATH)
+    summary = dict(review.get("summary") or {}) if isinstance(review, dict) else {}
+    return {
+        "ok": proc.returncode == 0 and bool(summary.get("packet_ready")),
+        "command": cmd,
+        "returncode": int(proc.returncode),
+        "stdout_preview": _trim_text(proc.stdout or ""),
+        "stderr_preview": _trim_text(proc.stderr or ""),
+        "review_path": str(FIRST_PRINCIPLES_JSON_PATH),
+        "summary": {
+            "packet_ready": bool(summary.get("packet_ready")),
+            "current_bottleneck": str(summary.get("current_bottleneck") or ""),
+            "gate_recommendation": str(summary.get("gate_recommendation") or ""),
+            "fallback_smoke_ok": bool(summary.get("fallback_smoke_ok")),
+            "fallback_policy_visibility": str(summary.get("fallback_policy_visibility") or ""),
+            "checklist_promoted": bool(summary.get("checklist_promoted")),
+            "next_experiment_count": int(summary.get("next_experiment_count") or 0),
+        },
+        "release_checklist": dict(review.get("release_checklist") or {}) if isinstance(review, dict) else {},
+        "fallback_visibility_policy": dict(review.get("fallback_visibility_policy") or {}) if isinstance(review, dict) else {},
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Publish the private SeoulMNA AI admin pages after regression checks.")
     parser.add_argument("--skip-regression", action="store_true", default=False)
@@ -555,6 +728,14 @@ def main() -> int:
         regression_gate=regression_gate,
         publish_generated_at=publish_generated_at,
     )
+    HUB_DASHBOARD_PATH.parent.mkdir(parents=True, exist_ok=True)
+    HUB_DASHBOARD_PATH.write_text(json.dumps(dashboard_snapshot, ensure_ascii=False, indent=2), encoding="utf-8")
+    first_principles_review = _run_first_principles_review()
+    dashboard_snapshot["first_principles_review"] = {
+        **dict(first_principles_review.get("summary") or {}),
+        "release_checklist": dict(first_principles_review.get("release_checklist") or {}),
+        "fallback_visibility_policy": dict(first_principles_review.get("fallback_visibility_policy") or {}),
+    }
     if not regression_gate.get("ok"):
         fail_report = {
             "generated_at": publish_generated_at,

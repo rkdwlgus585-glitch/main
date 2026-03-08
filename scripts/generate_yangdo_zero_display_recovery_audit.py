@@ -78,11 +78,12 @@ def build_yangdo_zero_display_recovery_audit(
     brainstorm_summary = _as_dict(brainstorm.get("summary"))
     brainstorm_lane = _as_dict(brainstorm.get("current_execution_lane"))
     track_a = next((row for row in attorney.get("tracks", []) if isinstance(row, dict) and row.get("track_id") == "A"), {})
+    track_a_position = _as_dict(track_a.get("attorney_position"))
 
     consult_target = str(_as_dict(cta_ladder.get("secondary_consult")).get("target") or "")
     market_target = str(_as_dict(cta_ladder.get("primary_market_bridge")).get("target") or "")
-    claim_focus = _as_list(track_a.get("claim_focus"))
-    commercial_positioning = _as_list(track_a.get("commercial_positioning"))
+    claim_focus = _as_list(track_a_position.get("claim_focus") or track_a.get("claim_focus"))
+    commercial_positioning = _as_list(track_a_position.get("commercial_positioning") or track_a.get("commercial_positioning"))
 
     lane_selected = str(brainstorm_lane.get("id") or "") == "zero_display_recovery_guard"
     runtime_ready = bool(brainstorm_summary.get("zero_recovery_ready"))
@@ -106,7 +107,6 @@ def build_yangdo_zero_display_recovery_audit(
     guard_ready = all(
         [
             comparable_zero_display_total > 0,
-            lane_selected,
             runtime_ready,
             contract_policy_ok,
             market_bridge_route_ok,
@@ -117,6 +117,7 @@ def build_yangdo_zero_display_recovery_audit(
             patent_hook_ready,
         ]
     )
+    selected_lane_guard_ok = guard_ready and lane_selected
 
     return {
         "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -125,6 +126,7 @@ def build_yangdo_zero_display_recovery_audit(
             "packet_ready": True,
             "zero_display_total": comparable_zero_display_total,
             "selected_lane_ok": lane_selected,
+            "selected_lane_guard_ok": selected_lane_guard_ok,
             "runtime_ready": runtime_ready,
             "contract_policy_ok": contract_policy_ok,
             "market_bridge_route_ok": market_bridge_route_ok,
@@ -138,6 +140,7 @@ def build_yangdo_zero_display_recovery_audit(
         "guard_contract": {
             "trigger": "recommended_count == 0",
             "selected_lane_id": str(brainstorm_lane.get("id") or ""),
+            "selected_lane_guard_ok": selected_lane_guard_ok,
             "service_flow_policy": str(bridge_market.get("service_flow_policy") or ""),
             "market_cta_target": market_target,
             "consult_cta_target": consult_target,
@@ -166,6 +169,7 @@ def _to_markdown(payload: Dict[str, Any]) -> str:
         f"- packet_ready: {summary.get('packet_ready')}",
         f"- zero_display_total: {summary.get('zero_display_total')}",
         f"- selected_lane_ok: {summary.get('selected_lane_ok')}",
+        f"- selected_lane_guard_ok: {summary.get('selected_lane_guard_ok')}",
         f"- runtime_ready: {summary.get('runtime_ready')}",
         f"- contract_policy_ok: {summary.get('contract_policy_ok')}",
         f"- market_bridge_route_ok: {summary.get('market_bridge_route_ok')}",
@@ -178,6 +182,7 @@ def _to_markdown(payload: Dict[str, Any]) -> str:
         "",
         "## Guard Contract",
         f"- selected_lane_id: {guard_contract.get('selected_lane_id')}",
+        f"- selected_lane_guard_ok: {guard_contract.get('selected_lane_guard_ok')}",
         f"- service_flow_policy: {guard_contract.get('service_flow_policy')}",
         f"- market_cta_target: {guard_contract.get('market_cta_target')}",
         f"- consult_cta_target: {guard_contract.get('consult_cta_target')}",

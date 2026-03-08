@@ -76,8 +76,17 @@ def build_co_listing_bridge_apply_packet(
             }
         )
 
+    placement_asset_ready_count = len(
+        [
+            row
+            for row in placement_rows
+            if bool(row.get("snippet_file")) and bool(row.get("target_url"))
+        ]
+    )
     placement_ready = all(bool(row.get("selector_verified")) and bool(row.get("snippet_file")) for row in placement_rows)
-    apply_ready = bool(summary_operator.get("checklist_ready")) and bool(summary_plan.get("plan_ready")) and bool(summary_bundle.get("bundle_ready")) and placement_ready
+    strict_live_ready = bool(summary_plan.get("strict_live_ready"))
+    artifact_ready = bool(summary_operator.get("checklist_ready")) and bool(summary_plan.get("plan_ready")) and bool(summary_bundle.get("bundle_ready")) and placement_asset_ready_count == len(placement_rows)
+    apply_ready = bool(summary_operator.get("checklist_ready")) and strict_live_ready and bool(summary_bundle.get("bundle_ready")) and placement_ready
 
     bundle_script = str(next((row.get("path") for row in _as_list(bundle.get("files")) if str(row.get("kind") or "") == "script"), ""))
     bundle_manifest = str(next((row.get("path") for row in _as_list(bundle.get("files")) if str(row.get("kind") or "") == "manifest"), ""))
@@ -88,7 +97,11 @@ def build_co_listing_bridge_apply_packet(
             "listing_host": str(summary_policy.get("listing_host") or "seoulmna.co.kr"),
             "platform_host": str(summary_policy.get("platform_host") or "seoulmna.kr"),
             "placement_count": len(placement_rows),
+            "placement_asset_ready_count": placement_asset_ready_count,
             "placement_ready_count": len([row for row in placement_rows if row.get("selector_verified") and row.get("snippet_file")]),
+            "artifact_ready": artifact_ready,
+            "plan_ready": bool(summary_plan.get("plan_ready")),
+            "strict_live_ready": strict_live_ready,
             "apply_ready": apply_ready,
             "bundle_script": bundle_script,
             "bundle_manifest": bundle_manifest,
@@ -138,7 +151,11 @@ def _to_markdown(payload: Dict[str, Any]) -> str:
         f"- listing_host: {summary.get('listing_host') or '(none)'}",
         f"- platform_host: {summary.get('platform_host') or '(none)'}",
         f"- placement_count: {summary.get('placement_count')}",
+        f"- placement_asset_ready_count: {summary.get('placement_asset_ready_count')}",
         f"- placement_ready_count: {summary.get('placement_ready_count')}",
+        f"- artifact_ready: {summary.get('artifact_ready')}",
+        f"- plan_ready: {summary.get('plan_ready')}",
+        f"- strict_live_ready: {summary.get('strict_live_ready')}",
         f"- apply_ready: {summary.get('apply_ready')}",
         f"- css_file: {summary.get('css_file') or '(none)'}",
         f"- bundle_script: {summary.get('bundle_script') or '(none)'}",
@@ -168,6 +185,7 @@ def main() -> int:
     parser.add_argument("--bundle", type=Path, default=DEFAULT_BUNDLE)
     parser.add_argument("--json", type=Path, default=DEFAULT_JSON)
     parser.add_argument("--md", type=Path, default=DEFAULT_MD)
+    parser.add_argument("--strict", action="store_true", help="Fail unless all live selectors are verified and the apply packet is fully ready.")
     args = parser.parse_args()
 
     payload = build_co_listing_bridge_apply_packet(
@@ -183,7 +201,9 @@ def main() -> int:
     args.md.write_text(_to_markdown(payload), encoding="utf-8")
     print(f"[ok] wrote {args.json}")
     print(f"[ok] wrote {args.md}")
-    return 0 if bool((payload.get("summary") or {}).get("apply_ready")) else 1
+    summary = payload.get("summary") if isinstance(payload.get("summary"), dict) else {}
+    ready_flag = bool(summary.get("apply_ready")) if args.strict else bool(summary.get("artifact_ready"))
+    return 0 if ready_flag else 1
 
 
 if __name__ == "__main__":

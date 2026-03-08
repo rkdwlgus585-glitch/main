@@ -234,6 +234,7 @@ def build_operations_packet(
     yangdo_recommendation_qa_path: Path | None = None,
     yangdo_recommendation_precision_matrix_path: Path | None = None,
     yangdo_recommendation_diversity_audit_path: Path | None = None,
+    yangdo_special_sector_packet_path: Path | None = None,
     yangdo_recommendation_contract_audit_path: Path | None = None,
     yangdo_recommendation_bridge_packet_path: Path | None = None,
     yangdo_recommendation_ux_packet_path: Path | None = None,
@@ -245,14 +246,27 @@ def build_operations_packet(
     permit_rental_lane_packet_path: Path | None = None,
     permit_service_ux_packet_path: Path | None = None,
     permit_public_contract_audit_path: Path | None = None,
+    permit_prompt_case_binding_packet_path: Path | None = None,
+    permit_critical_prompt_surface_packet_path: Path | None = None,
+    permit_partner_binding_parity_packet_path: Path | None = None,
+    permit_partner_binding_observability_path: Path | None = None,
+    permit_thinking_prompt_bundle_packet_path: Path | None = None,
+    permit_next_action_brainstorm_path: Path | None = None,
+    permit_runtime_reasoning_binding_audit_path: Path | None = None,
+    permit_law_case_coverage_packet_path: Path | None = None,
     partner_input_handoff_packet_path: Path | None = None,
     partner_input_operator_flow_path: Path | None = None,
     widget_rental_catalog_path: Path | None = None,
     program_improvement_loop_path: Path | None = None,
     ai_platform_first_principles_review_path: Path | None = None,
+    external_masterplan_alignment_path: Path | None = None,
     system_split_first_principles_packet_path: Path | None = None,
     next_batch_focus_packet_path: Path | None = None,
     next_execution_packet_path: Path | None = None,
+    yangdo_next_action_brainstorm_path: Path | None = None,
+    yangdo_public_language_audit_path: Path | None = None,
+    founder_execution_chain_path: Path | None = None,
+    founder_selection_consistency_audit_path: Path | None = None,
     listing_platform_bridge_policy_path: Path | None = None,
     co_listing_bridge_snippets_path: Path | None = None,
     co_listing_bridge_operator_checklist_path: Path | None = None,
@@ -388,6 +402,8 @@ def build_operations_packet(
     recommendation_precision_summary = yangdo_recommendation_precision_matrix.get("summary") if isinstance(yangdo_recommendation_precision_matrix.get("summary"), dict) else {}
     recommendation_diversity_audit = _load_json(yangdo_recommendation_diversity_audit_path or Path())
     recommendation_diversity_summary = recommendation_diversity_audit.get("summary") if isinstance(recommendation_diversity_audit.get("summary"), dict) else {}
+    yangdo_special_sector_packet = _load_json(yangdo_special_sector_packet_path or Path())
+    yangdo_special_sector_summary = yangdo_special_sector_packet.get("summary") if isinstance(yangdo_special_sector_packet.get("summary"), dict) else {}
     recommendation_contract_summary = yangdo_recommendation_contract_audit.get("summary") if isinstance(yangdo_recommendation_contract_audit.get("summary"), dict) else {}
     recommendation_bridge_summary = yangdo_recommendation_bridge_packet.get("summary") if isinstance(yangdo_recommendation_bridge_packet.get("summary"), dict) else {}
     recommendation_bridge_public = yangdo_recommendation_bridge_packet.get("public_summary_contract") if isinstance(yangdo_recommendation_bridge_packet.get("public_summary_contract"), dict) else {}
@@ -428,6 +444,24 @@ def build_operations_packet(
     permit_service_ux_assist = permit_service_ux_packet.get("manual_review_assist_experience") if isinstance(permit_service_ux_packet.get("manual_review_assist_experience"), dict) else {}
     permit_public_contract_audit = _load_json(permit_public_contract_audit_path or Path())
     permit_public_contract_summary = permit_public_contract_audit.get("summary") if isinstance(permit_public_contract_audit.get("summary"), dict) else {}
+    permit_prompt_case_binding_packet = _load_json(permit_prompt_case_binding_packet_path or Path())
+    permit_prompt_case_binding_summary = permit_prompt_case_binding_packet.get("summary") if isinstance(permit_prompt_case_binding_packet.get("summary"), dict) else {}
+    permit_critical_prompt_surface_packet = _load_json(permit_critical_prompt_surface_packet_path or Path())
+    permit_critical_prompt_surface_summary = permit_critical_prompt_surface_packet.get("summary") if isinstance(permit_critical_prompt_surface_packet.get("summary"), dict) else {}
+    permit_partner_binding_parity_packet = _load_json(permit_partner_binding_parity_packet_path or Path())
+    permit_partner_binding_parity_summary = permit_partner_binding_parity_packet.get("summary") if isinstance(permit_partner_binding_parity_packet.get("summary"), dict) else {}
+    permit_partner_binding_observability = _load_json(permit_partner_binding_observability_path or Path())
+    permit_partner_binding_observability_summary = permit_partner_binding_observability.get("summary") if isinstance(permit_partner_binding_observability.get("summary"), dict) else {}
+    permit_thinking_prompt_bundle_packet = _load_json(permit_thinking_prompt_bundle_packet_path or Path())
+    permit_thinking_prompt_bundle_summary = permit_thinking_prompt_bundle_packet.get("summary") if isinstance(permit_thinking_prompt_bundle_packet.get("summary"), dict) else {}
+    permit_next_action_brainstorm = _load_json(permit_next_action_brainstorm_path or Path())
+    permit_next_action_brainstorm_summary = permit_next_action_brainstorm.get("summary") if isinstance(permit_next_action_brainstorm.get("summary"), dict) else {}
+    permit_next_action_brainstorm_execution = permit_next_action_brainstorm.get("current_execution_lane") if isinstance(permit_next_action_brainstorm.get("current_execution_lane"), dict) else {}
+    permit_next_action_brainstorm_parallel = permit_next_action_brainstorm.get("parallel_brainstorm_lane") if isinstance(permit_next_action_brainstorm.get("parallel_brainstorm_lane"), dict) else {}
+    permit_runtime_reasoning_binding_audit = _load_json(permit_runtime_reasoning_binding_audit_path or Path())
+    permit_runtime_reasoning_binding_summary = permit_runtime_reasoning_binding_audit.get("summary") if isinstance(permit_runtime_reasoning_binding_audit.get("summary"), dict) else {}
+    permit_law_case_coverage_packet = _load_json(permit_law_case_coverage_packet_path or Path())
+    permit_law_case_coverage_summary = permit_law_case_coverage_packet.get("summary") if isinstance(permit_law_case_coverage_packet.get("summary"), dict) else {}
     partner_input_handoff_packet = _load_json(partner_input_handoff_packet_path or Path())
     partner_input_handoff_summary = partner_input_handoff_packet.get("summary") if isinstance(partner_input_handoff_packet.get("summary"), dict) else {}
     partner_input_operator_flow = _load_json(partner_input_operator_flow_path or Path())
@@ -448,6 +482,8 @@ def build_operations_packet(
     improvement_top_actions = program_improvement_loop.get("top_next_actions") if isinstance(program_improvement_loop.get("top_next_actions"), list) else []
     ai_platform_first_principles_review = _load_json(ai_platform_first_principles_review_path or Path())
     ai_platform_first_principles_summary = ai_platform_first_principles_review.get("summary") if isinstance(ai_platform_first_principles_review.get("summary"), dict) else {}
+    external_masterplan_alignment = _load_json(external_masterplan_alignment_path or Path())
+    external_masterplan_alignment_summary = external_masterplan_alignment.get("summary") if isinstance(external_masterplan_alignment.get("summary"), dict) else {}
     system_split_first_principles_packet = _load_json(system_split_first_principles_packet_path or Path())
     system_split_first_principles_summary = system_split_first_principles_packet.get("summary") if isinstance(system_split_first_principles_packet.get("summary"), dict) else {}
     next_batch_focus_packet = _load_json(next_batch_focus_packet_path or Path())
@@ -456,6 +492,17 @@ def build_operations_packet(
     next_execution_packet = _load_json(next_execution_packet_path or Path())
     next_execution_summary = next_execution_packet.get("summary") if isinstance(next_execution_packet.get("summary"), dict) else {}
     next_execution_selected = next_execution_packet.get("selected_execution") if isinstance(next_execution_packet.get("selected_execution"), dict) else {}
+    next_execution_founder_mode = next_execution_packet.get("founder_mode") if isinstance(next_execution_packet.get("founder_mode"), dict) else {}
+    yangdo_next_action_brainstorm = _load_json(yangdo_next_action_brainstorm_path or Path())
+    yangdo_next_action_brainstorm_summary = yangdo_next_action_brainstorm.get("summary") if isinstance(yangdo_next_action_brainstorm.get("summary"), dict) else {}
+    yangdo_next_action_brainstorm_execution = yangdo_next_action_brainstorm.get("current_execution_lane") if isinstance(yangdo_next_action_brainstorm.get("current_execution_lane"), dict) else {}
+    yangdo_next_action_brainstorm_parallel = yangdo_next_action_brainstorm.get("parallel_brainstorm_lane") if isinstance(yangdo_next_action_brainstorm.get("parallel_brainstorm_lane"), dict) else {}
+    yangdo_public_language_audit = _load_json(yangdo_public_language_audit_path or Path())
+    yangdo_public_language_audit_summary = yangdo_public_language_audit.get("summary") if isinstance(yangdo_public_language_audit.get("summary"), dict) else {}
+    founder_execution_chain = _load_json(founder_execution_chain_path or Path())
+    founder_execution_chain_summary = founder_execution_chain.get("summary") if isinstance(founder_execution_chain.get("summary"), dict) else {}
+    founder_selection_consistency_audit = _load_json(founder_selection_consistency_audit_path or Path())
+    founder_selection_consistency_audit_summary = founder_selection_consistency_audit.get("summary") if isinstance(founder_selection_consistency_audit.get("summary"), dict) else {}
     listing_bridge_summary = listing_platform_bridge_policy.get("summary") if isinstance(listing_platform_bridge_policy.get("summary"), dict) else {}
     listing_bridge_policy_section = listing_platform_bridge_policy.get("policy") if isinstance(listing_platform_bridge_policy.get("policy"), dict) else {}
     listing_bridge_ctas = listing_platform_bridge_policy.get("ctas") if isinstance(listing_platform_bridge_policy.get("ctas"), list) else []
@@ -756,6 +803,8 @@ def build_operations_packet(
             "yangdo_recommendation_precision_ok": bool(recommendation_precision_summary.get("precision_ok")),
             "yangdo_recommendation_diversity_ok": bool(recommendation_diversity_summary.get("diversity_ok")),
             "yangdo_recommendation_concentration_ok": bool(recommendation_diversity_summary.get("cluster_concentration_ok")) and bool(recommendation_diversity_summary.get("top_rank_signature_concentration_ok")) and bool(recommendation_diversity_summary.get("price_band_concentration_ok")),
+            "yangdo_special_sector_ready": bool(yangdo_special_sector_summary.get("packet_ready")),
+            "yangdo_special_sector_publication_safe": bool(yangdo_special_sector_summary.get("publication_safety_ok")),
             "yangdo_recommendation_contract_ok": bool(recommendation_contract_summary.get("contract_ok")),
             "yangdo_recommendation_bridge_ready": bool(recommendation_bridge_summary.get("packet_ready")),
             "yangdo_recommendation_ux_ready": bool(recommendation_ux_summary.get("packet_ready")),
@@ -769,9 +818,26 @@ def build_operations_packet(
             "permit_rental_lane_ready": bool(permit_rental_lane_summary.get("packet_ready")),
             "permit_service_ux_ready": bool(permit_service_ux_summary.get("packet_ready")),
             "permit_public_contract_ok": bool(permit_public_contract_summary.get("contract_ok")),
+            "permit_prompt_case_binding_ready": bool(permit_prompt_case_binding_summary.get("packet_ready")),
+            "permit_critical_prompt_surface_ready": bool(permit_critical_prompt_surface_summary.get("packet_ready")),
+            "permit_partner_binding_parity_ready": bool(permit_partner_binding_parity_summary.get("packet_ready")),
+            "permit_partner_binding_observability_ready": bool(permit_partner_binding_observability_summary.get("observability_ready")),
+            "permit_thinking_prompt_bundle_ready": bool(permit_thinking_prompt_bundle_summary.get("packet_ready")),
+            "permit_runtime_reasoning_binding_ok": bool(permit_runtime_reasoning_binding_summary.get("packet_ready")),
+            "permit_law_case_coverage_ready": bool(permit_law_case_coverage_summary.get("packet_ready"))
+            and bool(permit_law_case_coverage_summary.get("law_basis_coverage_ok"))
+            and bool(permit_law_case_coverage_summary.get("criteria_coverage_ok"))
+            and bool(permit_law_case_coverage_summary.get("provenance_ok"))
+            and bool(permit_law_case_coverage_summary.get("exception_tracking_ready"))
+            and bool(permit_law_case_coverage_summary.get("case_goldset_ready"))
+            and bool(permit_law_case_coverage_summary.get("story_surface_ready"))
+            and bool(permit_law_case_coverage_summary.get("prompt_binding_ready")),
+            "permit_prompt_loop_execution_lane": str(permit_next_action_brainstorm_summary.get("execution_lane") or permit_next_action_brainstorm_execution.get("id") or ""),
+            "permit_prompt_loop_parallel_lane": str(permit_next_action_brainstorm_summary.get("parallel_lane") or permit_next_action_brainstorm_parallel.get("id") or ""),
             "partner_input_handoff_ready": bool(partner_input_handoff_summary.get("partner_count")) and bool(partner_input_handoff_summary.get("copy_paste_ready")),
             "partner_input_operator_flow_ready": bool(partner_input_operator_flow_summary.get("packet_ready")),
             "ai_platform_first_principles_ready": bool(ai_platform_first_principles_summary.get("packet_ready")),
+            "external_masterplan_alignment_ok": bool(external_masterplan_alignment_summary.get("alignment_ok")),
             "system_split_first_principles_ready": bool(system_split_first_principles_summary.get("packet_ready")),
             "next_batch_focus_ready": bool(next_batch_focus_summary.get("packet_ready")),
             "next_batch_focus_track": str(next_batch_focus_summary.get("selected_track") or next_batch_focus_selected.get("track") or ""),
@@ -780,6 +846,15 @@ def build_operations_packet(
             "next_execution_ready": bool(next_execution_summary.get("execution_ready")),
             "next_execution_track": str(next_execution_summary.get("selected_track") or _safe_dict(next_execution_selected.get("selected_focus")).get("track") or ""),
             "next_execution_lane_id": str(next_execution_summary.get("selected_lane_id") or _safe_dict(next_execution_selected.get("selected_focus")).get("lane_id") or ""),
+            "yangdo_public_language_audit_ready": bool(yangdo_public_language_audit_summary.get("packet_ready")),
+            "yangdo_public_language_ready": bool(yangdo_public_language_audit_summary.get("public_language_ready")),
+            "yangdo_public_language_remaining_phrase_count": int(yangdo_public_language_audit_summary.get("remaining_phrase_count", 0) or 0),
+            "yangdo_prompt_loop_ready": bool(yangdo_next_action_brainstorm_summary.get("all_green")),
+            "yangdo_prompt_loop_execution_lane": str(yangdo_next_action_brainstorm_summary.get("execution_lane") or yangdo_next_action_brainstorm_execution.get("id") or ""),
+            "yangdo_prompt_loop_parallel_lane": str(yangdo_next_action_brainstorm_summary.get("parallel_lane") or yangdo_next_action_brainstorm_parallel.get("id") or ""),
+            "founder_execution_chain_ready": bool(founder_execution_chain_summary.get("overall_ok")),
+            "founder_execution_chain_converged": bool(founder_execution_chain_summary.get("focus_matches_execution")),
+            "founder_selection_consistency_ok": bool(founder_selection_consistency_audit_summary.get("audit_ok")),
         },
         "go_live": {
             "quality_green": quality_green,
@@ -839,6 +914,7 @@ def build_operations_packet(
             "yangdo_recommendation_qa": str((yangdo_recommendation_qa_path or Path()).resolve()) if yangdo_recommendation_qa_path else "",
             "yangdo_recommendation_precision_matrix": str((yangdo_recommendation_precision_matrix_path or Path()).resolve()) if yangdo_recommendation_precision_matrix_path else "",
             "yangdo_recommendation_diversity_audit": str((yangdo_recommendation_diversity_audit_path or Path()).resolve()) if yangdo_recommendation_diversity_audit_path else "",
+            "yangdo_special_sector_packet": str((yangdo_special_sector_packet_path or Path()).resolve()) if yangdo_special_sector_packet_path else "",
             "yangdo_recommendation_contract_audit": str((yangdo_recommendation_contract_audit_path or Path()).resolve()) if yangdo_recommendation_contract_audit_path else "",
             "yangdo_recommendation_bridge_packet": str((yangdo_recommendation_bridge_packet_path or Path()).resolve()) if yangdo_recommendation_bridge_packet_path else "",
             "yangdo_recommendation_ux_packet": str((yangdo_recommendation_ux_packet_path or Path()).resolve()) if yangdo_recommendation_ux_packet_path else "",
@@ -849,14 +925,27 @@ def build_operations_packet(
             "permit_service_alignment_audit": str((permit_service_alignment_audit_path or Path()).resolve()) if permit_service_alignment_audit_path else "",
             "permit_service_ux_packet": str((permit_service_ux_packet_path or Path()).resolve()) if permit_service_ux_packet_path else "",
             "permit_public_contract_audit": str((permit_public_contract_audit_path or Path()).resolve()) if permit_public_contract_audit_path else "",
+            "permit_prompt_case_binding_packet": str((permit_prompt_case_binding_packet_path or Path()).resolve()) if permit_prompt_case_binding_packet_path else "",
+            "permit_critical_prompt_surface_packet": str((permit_critical_prompt_surface_packet_path or Path()).resolve()) if permit_critical_prompt_surface_packet_path else "",
+            "permit_partner_binding_parity_packet": str((permit_partner_binding_parity_packet_path or Path()).resolve()) if permit_partner_binding_parity_packet_path else "",
+            "permit_partner_binding_observability": str((permit_partner_binding_observability_path or Path()).resolve()) if permit_partner_binding_observability_path else "",
+            "permit_thinking_prompt_bundle_packet": str((permit_thinking_prompt_bundle_packet_path or Path()).resolve()) if permit_thinking_prompt_bundle_packet_path else "",
+            "permit_next_action_brainstorm": str((permit_next_action_brainstorm_path or Path()).resolve()) if permit_next_action_brainstorm_path else "",
+            "permit_runtime_reasoning_binding_audit": str((permit_runtime_reasoning_binding_audit_path or Path()).resolve()) if permit_runtime_reasoning_binding_audit_path else "",
+            "permit_law_case_coverage_packet": str((permit_law_case_coverage_packet_path or Path()).resolve()) if permit_law_case_coverage_packet_path else "",
             "partner_input_handoff_packet": str((partner_input_handoff_packet_path or Path()).resolve()) if partner_input_handoff_packet_path else "",
             "partner_input_operator_flow": str((partner_input_operator_flow_path or Path()).resolve()) if partner_input_operator_flow_path else "",
             "widget_rental_catalog": str((widget_rental_catalog_path or Path()).resolve()) if widget_rental_catalog_path else "",
             "program_improvement_loop": str((program_improvement_loop_path or Path()).resolve()) if program_improvement_loop_path else "",
             "ai_platform_first_principles_review": str((ai_platform_first_principles_review_path or Path()).resolve()) if ai_platform_first_principles_review_path else "",
+            "external_masterplan_alignment": str((external_masterplan_alignment_path or Path()).resolve()) if external_masterplan_alignment_path else "",
             "system_split_first_principles_packet": str((system_split_first_principles_packet_path or Path()).resolve()) if system_split_first_principles_packet_path else "",
             "next_batch_focus_packet": str((next_batch_focus_packet_path or Path()).resolve()) if next_batch_focus_packet_path else "",
             "next_execution_packet": str((next_execution_packet_path or Path()).resolve()) if next_execution_packet_path else "",
+            "yangdo_next_action_brainstorm": str((yangdo_next_action_brainstorm_path or Path()).resolve()) if yangdo_next_action_brainstorm_path else "",
+            "yangdo_public_language_audit": str((yangdo_public_language_audit_path or Path()).resolve()) if yangdo_public_language_audit_path else "",
+            "founder_execution_chain": str((founder_execution_chain_path or Path()).resolve()) if founder_execution_chain_path else "",
+            "founder_selection_consistency_audit": str((founder_selection_consistency_audit_path or Path()).resolve()) if founder_selection_consistency_audit_path else "",
             "listing_platform_bridge_policy": str((listing_platform_bridge_policy_path or Path()).resolve()) if listing_platform_bridge_policy_path else "",
             "co_listing_bridge_snippets": str((co_listing_bridge_snippets_path or Path()).resolve()) if co_listing_bridge_snippets_path else "",
             "co_listing_bridge_operator_checklist": str((co_listing_bridge_operator_checklist_path or Path()).resolve()) if co_listing_bridge_operator_checklist_path else "",
@@ -1124,6 +1213,18 @@ def build_operations_packet(
                 "top_rank_signature_concentration_ok": bool(recommendation_diversity_summary.get("top_rank_signature_concentration_ok")),
                 "price_band_concentration_ok": bool(recommendation_diversity_summary.get("price_band_concentration_ok")),
             },
+            "yangdo_special_sector_packet": {
+                "packet_ready": bool(yangdo_special_sector_summary.get("packet_ready")),
+                "special_sector_count": int(yangdo_special_sector_summary.get("special_sector_count", 0) or 0),
+                "sector_ready_count": int(yangdo_special_sector_summary.get("sector_ready_count", 0) or 0),
+                "publication_safety_ok": bool(yangdo_special_sector_summary.get("publication_safety_ok")),
+                "pricing_watch_required": bool(yangdo_special_sector_summary.get("pricing_watch_required")),
+                "precision_green": bool(yangdo_special_sector_summary.get("precision_green")),
+                "diversity_green": bool(yangdo_special_sector_summary.get("diversity_green")),
+                "contract_green": bool(yangdo_special_sector_summary.get("contract_green")),
+                "expansion_candidate_count": int(yangdo_special_sector_summary.get("expansion_candidate_count", 0) or 0),
+                "expansion_candidates": list(yangdo_special_sector_summary.get("expansion_candidates") or []),
+            },
             "yangdo_recommendation_contract_audit": {
                 "contract_ok": bool(recommendation_contract_summary.get("contract_ok")),
                 "summary_safe": bool(recommendation_contract_summary.get("summary_safe")),
@@ -1275,6 +1376,97 @@ def build_operations_packet(
                 "offering_exposure_ok": bool(permit_public_contract_summary.get("offering_exposure_ok")),
                 "patent_handoff_ok": bool(permit_public_contract_summary.get("patent_handoff_ok")),
             },
+            "permit_prompt_case_binding": {
+                "packet_ready": bool(permit_prompt_case_binding_summary.get("packet_ready")),
+                "lane_id": str(permit_prompt_case_binding_summary.get("lane_id") or ""),
+                "founder_lane_match": bool(permit_prompt_case_binding_summary.get("founder_lane_match")),
+                "prompt_doc_ready": bool(permit_prompt_case_binding_summary.get("prompt_doc_ready")),
+                "preset_ready": bool(permit_prompt_case_binding_summary.get("preset_ready")),
+                "story_ready": bool(permit_prompt_case_binding_summary.get("story_ready")),
+                "operator_demo_ready": bool(permit_prompt_case_binding_summary.get("operator_demo_ready")),
+                "operator_jump_table_ready": bool(permit_prompt_case_binding_summary.get("operator_jump_table_ready")),
+                "representative_family_total": int(permit_prompt_case_binding_summary.get("representative_family_total", 0) or 0),
+                "representative_case_total": int(permit_prompt_case_binding_summary.get("representative_case_total", 0) or 0),
+                "manual_review_case_total": int(permit_prompt_case_binding_summary.get("manual_review_case_total", 0) or 0),
+            },
+            "permit_critical_prompt_surface": {
+                "packet_ready": bool(permit_critical_prompt_surface_summary.get("packet_ready")),
+                "lane_id": str(permit_critical_prompt_surface_summary.get("lane_id") or ""),
+                "lane_title": str(permit_critical_prompt_surface_summary.get("lane_title") or ""),
+                "operator_surface_ready": bool(permit_critical_prompt_surface_summary.get("operator_surface_ready")),
+                "release_surface_ready": bool(permit_critical_prompt_surface_summary.get("release_surface_ready")),
+                "founder_lane_match": bool(permit_critical_prompt_surface_summary.get("founder_lane_match")),
+                "alignment_ok": bool(permit_critical_prompt_surface_summary.get("alignment_ok")),
+                "service_copy_ready": bool(permit_critical_prompt_surface_summary.get("service_copy_ready")),
+                "service_ux_ready": bool(permit_critical_prompt_surface_summary.get("service_ux_ready")),
+            },
+            "permit_partner_binding_parity": {
+                "packet_ready": bool(permit_partner_binding_parity_summary.get("packet_ready")),
+                "family_total": int(permit_partner_binding_parity_summary.get("family_total", 0) or 0),
+                "detail_checklist_family_total": int(permit_partner_binding_parity_summary.get("detail_checklist_family_total", 0) or 0),
+                "manual_review_family_total": int(permit_partner_binding_parity_summary.get("manual_review_family_total", 0) or 0),
+                "public_contract_ok": bool(permit_partner_binding_parity_summary.get("public_contract_ok")),
+                "offering_exposure_ok": bool(permit_partner_binding_parity_summary.get("offering_exposure_ok")),
+                "partner_surface_ready": bool(permit_partner_binding_parity_summary.get("partner_surface_ready")),
+            },
+            "permit_partner_binding_observability": {
+                "observability_ready": bool(permit_partner_binding_observability_summary.get("observability_ready")),
+                "expected_family_total": int(permit_partner_binding_observability_summary.get("expected_family_total", 0) or 0),
+                "widget_binding_family_total": int(permit_partner_binding_observability_summary.get("widget_binding_family_total", 0) or 0),
+                "api_binding_family_total": int(permit_partner_binding_observability_summary.get("api_binding_family_total", 0) or 0),
+                "partner_binding_surface_ready": bool(permit_partner_binding_observability_summary.get("partner_binding_surface_ready")),
+                "widget_missing_family_total": int(permit_partner_binding_observability_summary.get("widget_missing_family_total", 0) or 0),
+                "api_missing_family_total": int(permit_partner_binding_observability_summary.get("api_missing_family_total", 0) or 0),
+                "widget_extra_family_total": int(permit_partner_binding_observability_summary.get("widget_extra_family_total", 0) or 0),
+                "api_extra_family_total": int(permit_partner_binding_observability_summary.get("api_extra_family_total", 0) or 0),
+            },
+            "permit_thinking_prompt_bundle": {
+                "packet_ready": bool(permit_thinking_prompt_bundle_summary.get("packet_ready")),
+                "lane_id": str(permit_thinking_prompt_bundle_summary.get("lane_id") or ""),
+                "prompt_doc_ready": bool(permit_thinking_prompt_bundle_summary.get("prompt_doc_ready")),
+                "runtime_target_ready": bool(permit_thinking_prompt_bundle_summary.get("runtime_target_ready")),
+                "release_target_ready": bool(permit_thinking_prompt_bundle_summary.get("release_target_ready")),
+                "operator_target_ready": bool(permit_thinking_prompt_bundle_summary.get("operator_target_ready")),
+                "founder_transition_context_ready": bool(permit_thinking_prompt_bundle_summary.get("founder_transition_context_ready")),
+            },
+            "permit_next_action_brainstorm": {
+                "execution_lane": str(permit_next_action_brainstorm_summary.get("execution_lane") or permit_next_action_brainstorm_execution.get("id") or ""),
+                "parallel_lane": str(permit_next_action_brainstorm_summary.get("parallel_lane") or permit_next_action_brainstorm_parallel.get("id") or ""),
+                "prompt_doc_ready": bool(permit_next_action_brainstorm_summary.get("prompt_doc_ready")),
+                "review_reason_decision_ladder_ready": bool(permit_next_action_brainstorm_summary.get("review_reason_decision_ladder_ready")),
+                "partner_binding_parity_ready": bool(permit_next_action_brainstorm_summary.get("partner_binding_parity_ready")),
+                "runtime_critical_prompt_surface_ready": bool(permit_next_action_brainstorm_summary.get("runtime_critical_prompt_surface_ready")),
+            },
+            "permit_runtime_reasoning_binding": {
+                "packet_ready": bool(permit_runtime_reasoning_binding_summary.get("packet_ready")),
+                "lane_id": str(permit_runtime_reasoning_binding_summary.get("lane_id") or ""),
+                "expected_lane_id": str(permit_runtime_reasoning_binding_summary.get("expected_lane_id") or ""),
+                "runtime_binding_ok": bool(permit_runtime_reasoning_binding_summary.get("runtime_binding_ok")),
+                "successor_transition_ok": bool(permit_runtime_reasoning_binding_summary.get("successor_transition_ok")),
+                "service_binding_ok": bool(permit_runtime_reasoning_binding_summary.get("service_binding_ok")),
+                "operator_binding_ok": bool(permit_runtime_reasoning_binding_summary.get("operator_binding_ok")),
+                "release_binding_ok": bool(permit_runtime_reasoning_binding_summary.get("release_binding_ok")),
+                "cta_split_ok": bool(permit_runtime_reasoning_binding_summary.get("cta_split_ok")),
+                "offering_split_ok": bool(permit_runtime_reasoning_binding_summary.get("offering_split_ok")),
+                "issue_count": int(permit_runtime_reasoning_binding_summary.get("issue_count", 0) or 0),
+            },
+            "permit_law_case_coverage": {
+                "packet_ready": bool(permit_law_case_coverage_summary.get("packet_ready")),
+                "law_basis_coverage_ok": bool(permit_law_case_coverage_summary.get("law_basis_coverage_ok")),
+                "criteria_coverage_ok": bool(permit_law_case_coverage_summary.get("criteria_coverage_ok")),
+                "provenance_ok": bool(permit_law_case_coverage_summary.get("provenance_ok")),
+                "exception_tracking_ready": bool(permit_law_case_coverage_summary.get("exception_tracking_ready")),
+                "case_goldset_ready": bool(permit_law_case_coverage_summary.get("case_goldset_ready")),
+                "story_surface_ready": bool(permit_law_case_coverage_summary.get("story_surface_ready")),
+                "prompt_binding_ready": bool(permit_law_case_coverage_summary.get("prompt_binding_ready")),
+                "real_industry_total": int(permit_law_case_coverage_summary.get("real_industry_total", 0) or 0),
+                "pending_industry_total": int(permit_law_case_coverage_summary.get("pending_industry_total", 0) or 0),
+                "manual_scope_override_total": int(permit_law_case_coverage_summary.get("manual_scope_override_total", 0) or 0),
+                "family_total": int(permit_law_case_coverage_summary.get("family_total", 0) or 0),
+                "case_total": int(permit_law_case_coverage_summary.get("case_total", 0) or 0),
+                "manual_review_case_total": int(permit_law_case_coverage_summary.get("manual_review_case_total", 0) or 0),
+                "blocker_count": int(permit_law_case_coverage_summary.get("blocker_count", 0) or 0),
+            },
             "partner_input_handoff": {
                 "partner_count": int(partner_input_handoff_summary.get("partner_count", 0) or 0),
                 "uniform_required_inputs": bool(partner_input_handoff_summary.get("uniform_required_inputs")),
@@ -1297,12 +1489,77 @@ def build_operations_packet(
                 "current_bottleneck": str(ai_platform_first_principles_summary.get("current_bottleneck") or ""),
                 "next_experiment_count": int(ai_platform_first_principles_summary.get("next_experiment_count", 0) or 0),
             },
+            "external_masterplan_alignment": {
+                "packet_ready": bool(external_masterplan_alignment_summary.get("packet_ready")),
+                "alignment_ok": bool(external_masterplan_alignment_summary.get("alignment_ok")),
+                "source_directive_count": int(external_masterplan_alignment_summary.get("source_directive_count", 0) or 0),
+                "missing_count": int(external_masterplan_alignment_summary.get("missing_count", 0) or 0),
+                "missing_keys": list(external_masterplan_alignment_summary.get("missing_keys") or []),
+            },
             "system_split_first_principles": {
                 "packet_ready": bool(system_split_first_principles_summary.get("packet_ready")),
                 "platform_ready": bool(system_split_first_principles_summary.get("platform_ready")),
                 "yangdo_ready": bool(system_split_first_principles_summary.get("yangdo_ready")),
                 "permit_ready": bool(system_split_first_principles_summary.get("permit_ready")),
                 "prompt_count": int(system_split_first_principles_summary.get("prompt_count", 0) or 0),
+            },
+            "next_batch_focus": {
+                "packet_ready": bool(next_batch_focus_summary.get("packet_ready")),
+                "selected_track": str(next_batch_focus_summary.get("selected_track") or next_batch_focus_selected.get("track") or ""),
+                "selected_lane_id": str(next_batch_focus_summary.get("selected_lane_id") or next_batch_focus_selected.get("lane_id") or ""),
+                "selected_title": str(next_batch_focus_selected.get("title") or ""),
+                "selected_next_move": str(next_batch_focus_selected.get("next_move") or ""),
+                "parallel_candidate_count": int(next_batch_focus_summary.get("parallel_candidate_count", 0) or 0),
+                "deferred_candidate_count": int(next_batch_focus_summary.get("deferred_candidate_count", 0) or 0),
+                "selection_policy": str(next_batch_focus_summary.get("selection_policy") or ""),
+                "founder_primary_system": str(next_batch_focus_summary.get("founder_primary_system") or ""),
+                "founder_primary_lane_id": str(next_batch_focus_summary.get("founder_primary_lane_id") or ""),
+                "selected_matches_founder": bool(next_batch_focus_summary.get("selected_matches_founder")),
+            },
+            "next_execution": {
+                "packet_ready": bool(next_execution_summary.get("packet_ready")),
+                "selected_track": str(next_execution_summary.get("selected_track") or _safe_dict(next_execution_selected.get("selected_focus")).get("track") or ""),
+                "selected_lane_id": str(next_execution_summary.get("selected_lane_id") or _safe_dict(next_execution_selected.get("selected_focus")).get("lane_id") or ""),
+                "execution_ready": bool(next_execution_summary.get("execution_ready")),
+                "founder_selected_matches_primary": bool(next_execution_summary.get("founder_selected_matches_primary")),
+                "founder_primary_system": str(next_execution_founder_mode.get("primary_system") or ""),
+                "founder_primary_lane_id": str(next_execution_founder_mode.get("primary_lane_id") or ""),
+                "bottleneck": str(next_execution_selected.get("bottleneck") or ""),
+                "success_criteria_count": len(_as_list(next_execution_selected.get("success_criteria"))),
+                "verification_command_count": len(_as_list(next_execution_selected.get("verification_commands"))),
+                "next_after_completion_count": len(_as_list(next_execution_selected.get("next_after_completion"))),
+            },
+            "yangdo_next_action_brainstorm": {
+                "execution_lane": str(yangdo_next_action_brainstorm_summary.get("execution_lane") or yangdo_next_action_brainstorm_execution.get("id") or ""),
+                "parallel_lane": str(yangdo_next_action_brainstorm_summary.get("parallel_lane") or yangdo_next_action_brainstorm_parallel.get("id") or ""),
+                "all_green": bool(yangdo_next_action_brainstorm_summary.get("all_green")),
+                "autoloop_ready": bool(yangdo_next_action_brainstorm_summary.get("autoloop_ready")),
+                "zero_display_guard_ready": bool(yangdo_next_action_brainstorm_summary.get("zero_display_guard_ready")),
+                "public_language_ready": bool(yangdo_next_action_brainstorm_summary.get("public_language_ready")),
+                "public_language_remaining_phrase_count": int(yangdo_next_action_brainstorm_summary.get("public_language_remaining_phrase_count", 0) or 0),
+            },
+            "yangdo_public_language_audit": {
+                "packet_ready": bool(yangdo_public_language_audit_summary.get("packet_ready")),
+                "public_language_ready": bool(yangdo_public_language_audit_summary.get("public_language_ready")),
+                "remaining_phrase_count": int(yangdo_public_language_audit_summary.get("remaining_phrase_count", 0) or 0),
+                "jargon_total": int(yangdo_public_language_audit_summary.get("jargon_total", 0) or 0),
+            },
+            "founder_execution_chain": {
+                "overall_ok": bool(founder_execution_chain_summary.get("overall_ok")),
+                "focus_matches_execution": bool(founder_execution_chain_summary.get("focus_matches_execution")),
+                "founder_successor_transition": bool(founder_execution_chain_summary.get("founder_successor_transition")),
+                "focus_selected_track": str(founder_execution_chain_summary.get("focus_selected_track") or ""),
+                "focus_selected_lane_id": str(founder_execution_chain_summary.get("focus_selected_lane_id") or ""),
+                "execution_selected_track": str(founder_execution_chain_summary.get("execution_selected_track") or ""),
+                "execution_selected_lane_id": str(founder_execution_chain_summary.get("execution_selected_lane_id") or ""),
+            },
+            "founder_selection_consistency_audit": {
+                "audit_ok": bool(founder_selection_consistency_audit_summary.get("audit_ok")),
+                "issue_count": int(founder_selection_consistency_audit_summary.get("issue_count", 0) or 0),
+                "founder_primary_ready": bool(founder_selection_consistency_audit_summary.get("founder_primary_ready")),
+                "selected_matches_founder": bool(founder_selection_consistency_audit_summary.get("selected_matches_founder")),
+                "focus_matches_execution": bool(founder_selection_consistency_audit_summary.get("focus_matches_execution")),
+                "selection_policy": str(founder_selection_consistency_audit_summary.get("selection_policy") or ""),
             },
             "widget_rental_catalog": {
                 "offering_count": int(widget_rental_summary.get("offering_count", 0) or 0),
@@ -1361,6 +1618,10 @@ def build_operations_packet(
                 "platform_host": str(co_listing_live_injection_plan_summary.get("platform_host") or ""),
                 "placement_count": int(co_listing_live_injection_plan_summary.get("placement_count", 0) or 0),
                 "selector_verified_count": int(co_listing_live_injection_plan_summary.get("selector_verified_count", 0) or 0),
+                "snippet_ready_count": int(co_listing_live_injection_plan_summary.get("snippet_ready_count", 0) or 0),
+                "operator_ready": bool(co_listing_live_injection_plan_summary.get("operator_ready")),
+                "artifact_ready": bool(co_listing_live_injection_plan_summary.get("artifact_ready")),
+                "strict_live_ready": bool(co_listing_live_injection_plan_summary.get("strict_live_ready")),
                 "plan_ready": bool(co_listing_live_injection_plan_summary.get("plan_ready")),
                 "detail_sample_url": str(co_listing_live_injection_plan_summary.get("detail_sample_url") or ""),
             },
@@ -1370,9 +1631,13 @@ def build_operations_packet(
                 "output_dir": str(co_listing_injection_bundle_summary.get("output_dir") or ""),
             },
             "co_listing_bridge_apply_packet": {
+                "artifact_ready": bool(co_listing_bridge_apply_packet_summary.get("artifact_ready")),
                 "apply_ready": bool(co_listing_bridge_apply_packet_summary.get("apply_ready")),
                 "placement_count": int(co_listing_bridge_apply_packet_summary.get("placement_count", 0) or 0),
+                "placement_asset_ready_count": int(co_listing_bridge_apply_packet_summary.get("placement_asset_ready_count", 0) or 0),
                 "placement_ready_count": int(co_listing_bridge_apply_packet_summary.get("placement_ready_count", 0) or 0),
+                "plan_ready": bool(co_listing_bridge_apply_packet_summary.get("plan_ready")),
+                "strict_live_ready": bool(co_listing_bridge_apply_packet_summary.get("strict_live_ready")),
                 "css_file": str(co_listing_bridge_apply_packet_summary.get("css_file") or ""),
                 "bundle_script": str(co_listing_bridge_apply_packet_summary.get("bundle_script") or ""),
             },
@@ -1462,6 +1727,8 @@ def _to_markdown(packet: Dict[str, Any]) -> str:
     lines.append(f"- yangdo_recommendation_precision_ok: {decisions.get('yangdo_recommendation_precision_ok')}")
     lines.append(f"- yangdo_recommendation_diversity_ok: {decisions.get('yangdo_recommendation_diversity_ok')}")
     lines.append(f"- yangdo_recommendation_concentration_ok: {decisions.get('yangdo_recommendation_concentration_ok')}")
+    lines.append(f"- yangdo_special_sector_ready: {decisions.get('yangdo_special_sector_ready')}")
+    lines.append(f"- yangdo_special_sector_publication_safe: {decisions.get('yangdo_special_sector_publication_safe')}")
     lines.append(f"- yangdo_recommendation_contract_ok: {decisions.get('yangdo_recommendation_contract_ok')}")
     lines.append(f"- yangdo_recommendation_bridge_ready: {decisions.get('yangdo_recommendation_bridge_ready')}")
     lines.append(f"- yangdo_recommendation_ux_ready: {decisions.get('yangdo_recommendation_ux_ready')}")
@@ -1473,14 +1740,36 @@ def _to_markdown(packet: Dict[str, Any]) -> str:
     lines.append(f"- permit_service_alignment_ok: {decisions.get('permit_service_alignment_ok')}")
     lines.append(f"- permit_service_ux_ready: {decisions.get('permit_service_ux_ready')}")
     lines.append(f"- permit_public_contract_ok: {decisions.get('permit_public_contract_ok')}")
+    lines.append(f"- permit_partner_binding_observability_ready: {decisions.get('permit_partner_binding_observability_ready')}")
+    lines.append(f"- permit_thinking_prompt_bundle_ready: {decisions.get('permit_thinking_prompt_bundle_ready')}")
+    lines.append(f"- permit_runtime_reasoning_binding_ok: {decisions.get('permit_runtime_reasoning_binding_ok')}")
+    lines.append(f"- permit_law_case_coverage_ready: {decisions.get('permit_law_case_coverage_ready')}")
+    if decisions.get("permit_prompt_loop_execution_lane"):
+        lines.append(f"- permit_prompt_loop_execution_lane: {decisions.get('permit_prompt_loop_execution_lane')}")
+        lines.append(f"- permit_prompt_loop_parallel_lane: {decisions.get('permit_prompt_loop_parallel_lane')}")
     lines.append(f"- partner_input_handoff_ready: {decisions.get('partner_input_handoff_ready')}")
     lines.append(f"- partner_input_operator_flow_ready: {decisions.get('partner_input_operator_flow_ready')}")
     lines.append(f"- ai_platform_first_principles_ready: {decisions.get('ai_platform_first_principles_ready')}")
+    lines.append(f"- external_masterplan_alignment_ok: {decisions.get('external_masterplan_alignment_ok')}")
     lines.append(f"- system_split_first_principles_ready: {decisions.get('system_split_first_principles_ready')}")
     lines.append(f"- next_batch_focus_ready: {decisions.get('next_batch_focus_ready')}")
+    lines.append(f"- next_execution_packet_ready: {decisions.get('next_execution_packet_ready')}")
+    lines.append(f"- next_execution_ready: {decisions.get('next_execution_ready')}")
+    lines.append(f"- yangdo_public_language_audit_ready: {decisions.get('yangdo_public_language_audit_ready')}")
+    lines.append(f"- yangdo_public_language_ready: {decisions.get('yangdo_public_language_ready')}")
+    lines.append(f"- yangdo_prompt_loop_ready: {decisions.get('yangdo_prompt_loop_ready')}")
+    lines.append(f"- founder_execution_chain_ready: {decisions.get('founder_execution_chain_ready')}")
+    lines.append(f"- founder_selection_consistency_ok: {decisions.get('founder_selection_consistency_ok')}")
+    lines.append(f"- founder_execution_chain_converged: {decisions.get('founder_execution_chain_converged')}")
     if decisions.get("next_batch_focus_track"):
         lines.append(f"- next_batch_focus_track: {decisions.get('next_batch_focus_track')}")
         lines.append(f"- next_batch_focus_lane_id: {decisions.get('next_batch_focus_lane_id')}")
+    if decisions.get("next_execution_track"):
+        lines.append(f"- next_execution_track: {decisions.get('next_execution_track')}")
+        lines.append(f"- next_execution_lane_id: {decisions.get('next_execution_lane_id')}")
+    if decisions.get("yangdo_prompt_loop_execution_lane"):
+        lines.append(f"- yangdo_prompt_loop_execution_lane: {decisions.get('yangdo_prompt_loop_execution_lane')}")
+        lines.append(f"- yangdo_prompt_loop_parallel_lane: {decisions.get('yangdo_prompt_loop_parallel_lane')}")
     if decisions.get("partner_fastest_path_scenario"):
         lines.append(f"- partner_fastest_path_scenario: {decisions.get('partner_fastest_path_scenario')}")
         lines.append(f"- partner_fastest_path_ready: {decisions.get('partner_fastest_path_ready')}")
@@ -1741,6 +2030,20 @@ def _to_markdown(packet: Dict[str, Any]) -> str:
         lines.append(f"- price_band_concentration_ok: {recommendation_diversity.get('price_band_concentration_ok')}")
         lines.append("")
 
+    yangdo_special_sector = (packet.get("summaries") or {}).get("yangdo_special_sector_packet") if isinstance((packet.get("summaries") or {}).get("yangdo_special_sector_packet"), dict) else {}
+    if yangdo_special_sector:
+        lines.append("## Yangdo Special Sector")
+        lines.append(f"- packet_ready: {yangdo_special_sector.get('packet_ready')}")
+        lines.append(f"- special_sector_count: {yangdo_special_sector.get('special_sector_count')}")
+        lines.append(f"- sector_ready_count: {yangdo_special_sector.get('sector_ready_count')}")
+        lines.append(f"- publication_safety_ok: {yangdo_special_sector.get('publication_safety_ok')}")
+        lines.append(f"- pricing_watch_required: {yangdo_special_sector.get('pricing_watch_required')}")
+        lines.append(f"- precision_green: {yangdo_special_sector.get('precision_green')}")
+        lines.append(f"- diversity_green: {yangdo_special_sector.get('diversity_green')}")
+        lines.append(f"- contract_green: {yangdo_special_sector.get('contract_green')}")
+        lines.append(f"- expansion_candidate_count: {yangdo_special_sector.get('expansion_candidate_count')}")
+        lines.append("")
+
     recommendation_contract = (packet.get("summaries") or {}).get("yangdo_recommendation_contract_audit") if isinstance((packet.get("summaries") or {}).get("yangdo_recommendation_contract_audit"), dict) else {}
     if recommendation_contract:
         lines.append("## Yangdo Recommendation Contract")
@@ -1954,6 +2257,98 @@ def _to_markdown(packet: Dict[str, Any]) -> str:
         lines.append(f"- patent_handoff_ok: {permit_public_contract.get('patent_handoff_ok')}")
         lines.append("")
 
+    permit_partner_binding = (packet.get("summaries") or {}).get("permit_partner_binding_parity") if isinstance((packet.get("summaries") or {}).get("permit_partner_binding_parity"), dict) else {}
+    if permit_partner_binding:
+        lines.append("## Permit Partner Binding Parity")
+        lines.append(f"- packet_ready: {permit_partner_binding.get('packet_ready')}")
+        lines.append(f"- family_total: {permit_partner_binding.get('family_total')}")
+        lines.append(f"- detail_checklist_family_total: {permit_partner_binding.get('detail_checklist_family_total')}")
+        lines.append(f"- manual_review_family_total: {permit_partner_binding.get('manual_review_family_total')}")
+        lines.append(f"- public_contract_ok: {permit_partner_binding.get('public_contract_ok')}")
+        lines.append(f"- offering_exposure_ok: {permit_partner_binding.get('offering_exposure_ok')}")
+        lines.append(f"- partner_surface_ready: {permit_partner_binding.get('partner_surface_ready')}")
+        lines.append("")
+
+    permit_partner_binding_observability = (packet.get("summaries") or {}).get("permit_partner_binding_observability") if isinstance((packet.get("summaries") or {}).get("permit_partner_binding_observability"), dict) else {}
+    if permit_partner_binding_observability:
+        lines.append("## Permit Partner Binding Observability")
+        lines.append(f"- observability_ready: {permit_partner_binding_observability.get('observability_ready')}")
+        lines.append(f"- expected_family_total: {permit_partner_binding_observability.get('expected_family_total')}")
+        lines.append(f"- widget_binding_family_total: {permit_partner_binding_observability.get('widget_binding_family_total')}")
+        lines.append(f"- api_binding_family_total: {permit_partner_binding_observability.get('api_binding_family_total')}")
+        lines.append(f"- partner_binding_surface_ready: {permit_partner_binding_observability.get('partner_binding_surface_ready')}")
+        lines.append(f"- widget_missing_family_total: {permit_partner_binding_observability.get('widget_missing_family_total')}")
+        lines.append(f"- api_missing_family_total: {permit_partner_binding_observability.get('api_missing_family_total')}")
+        lines.append(f"- widget_extra_family_total: {permit_partner_binding_observability.get('widget_extra_family_total')}")
+        lines.append(f"- api_extra_family_total: {permit_partner_binding_observability.get('api_extra_family_total')}")
+        lines.append("")
+
+    permit_runtime_reasoning_binding = (packet.get("summaries") or {}).get("permit_runtime_reasoning_binding") if isinstance((packet.get("summaries") or {}).get("permit_runtime_reasoning_binding"), dict) else {}
+    if permit_runtime_reasoning_binding:
+        lines.append("## Permit Runtime Reasoning Binding")
+        lines.append(f"- packet_ready: {permit_runtime_reasoning_binding.get('packet_ready')}")
+        lines.append(f"- lane_id: {permit_runtime_reasoning_binding.get('lane_id') or '(none)'}")
+        lines.append(f"- expected_lane_id: {permit_runtime_reasoning_binding.get('expected_lane_id') or '(none)'}")
+        lines.append(f"- runtime_binding_ok: {permit_runtime_reasoning_binding.get('runtime_binding_ok')}")
+        lines.append(f"- successor_transition_ok: {permit_runtime_reasoning_binding.get('successor_transition_ok')}")
+        lines.append(f"- service_binding_ok: {permit_runtime_reasoning_binding.get('service_binding_ok')}")
+        lines.append(f"- operator_binding_ok: {permit_runtime_reasoning_binding.get('operator_binding_ok')}")
+        lines.append(f"- release_binding_ok: {permit_runtime_reasoning_binding.get('release_binding_ok')}")
+        lines.append(f"- cta_split_ok: {permit_runtime_reasoning_binding.get('cta_split_ok')}")
+        lines.append(f"- offering_split_ok: {permit_runtime_reasoning_binding.get('offering_split_ok')}")
+        lines.append(f"- issue_count: {permit_runtime_reasoning_binding.get('issue_count')}")
+        lines.append("")
+
+    permit_law_case_coverage = (packet.get("summaries") or {}).get("permit_law_case_coverage") if isinstance((packet.get("summaries") or {}).get("permit_law_case_coverage"), dict) else {}
+    if permit_law_case_coverage:
+        lines.append("## Permit Law / Exception / Case Coverage")
+        lines.append(f"- packet_ready: {permit_law_case_coverage.get('packet_ready')}")
+        lines.append(f"- law_basis_coverage_ok: {permit_law_case_coverage.get('law_basis_coverage_ok')}")
+        lines.append(f"- criteria_coverage_ok: {permit_law_case_coverage.get('criteria_coverage_ok')}")
+        lines.append(f"- provenance_ok: {permit_law_case_coverage.get('provenance_ok')}")
+        lines.append(f"- exception_tracking_ready: {permit_law_case_coverage.get('exception_tracking_ready')}")
+        lines.append(f"- case_goldset_ready: {permit_law_case_coverage.get('case_goldset_ready')}")
+        lines.append(f"- story_surface_ready: {permit_law_case_coverage.get('story_surface_ready')}")
+        lines.append(f"- prompt_binding_ready: {permit_law_case_coverage.get('prompt_binding_ready')}")
+        lines.append(f"- real_industry_total: {permit_law_case_coverage.get('real_industry_total')}")
+        lines.append(f"- pending_industry_total: {permit_law_case_coverage.get('pending_industry_total')}")
+        lines.append(f"- manual_scope_override_total: {permit_law_case_coverage.get('manual_scope_override_total')}")
+        lines.append(f"- family_total: {permit_law_case_coverage.get('family_total')}")
+        lines.append(f"- case_total: {permit_law_case_coverage.get('case_total')}")
+        lines.append(f"- manual_review_case_total: {permit_law_case_coverage.get('manual_review_case_total')}")
+        lines.append(f"- blocker_count: {permit_law_case_coverage.get('blocker_count')}")
+        lines.append("")
+
+    permit_prompt_case_binding = (packet.get("summaries") or {}).get("permit_prompt_case_binding") if isinstance((packet.get("summaries") or {}).get("permit_prompt_case_binding"), dict) else {}
+    if permit_prompt_case_binding:
+        lines.append("## Permit Prompt Case Binding")
+        lines.append(f"- packet_ready: {permit_prompt_case_binding.get('packet_ready')}")
+        lines.append(f"- lane_id: {permit_prompt_case_binding.get('lane_id') or '(none)'}")
+        lines.append(f"- founder_lane_match: {permit_prompt_case_binding.get('founder_lane_match')}")
+        lines.append(f"- prompt_doc_ready: {permit_prompt_case_binding.get('prompt_doc_ready')}")
+        lines.append(f"- preset_ready: {permit_prompt_case_binding.get('preset_ready')}")
+        lines.append(f"- story_ready: {permit_prompt_case_binding.get('story_ready')}")
+        lines.append(f"- operator_demo_ready: {permit_prompt_case_binding.get('operator_demo_ready')}")
+        lines.append(f"- operator_jump_table_ready: {permit_prompt_case_binding.get('operator_jump_table_ready')}")
+        lines.append(f"- representative_family_total: {permit_prompt_case_binding.get('representative_family_total')}")
+        lines.append(f"- representative_case_total: {permit_prompt_case_binding.get('representative_case_total')}")
+        lines.append(f"- manual_review_case_total: {permit_prompt_case_binding.get('manual_review_case_total')}")
+        lines.append("")
+
+    permit_critical_prompt_surface = (packet.get("summaries") or {}).get("permit_critical_prompt_surface") if isinstance((packet.get("summaries") or {}).get("permit_critical_prompt_surface"), dict) else {}
+    if permit_critical_prompt_surface:
+        lines.append("## Permit Critical Prompt Surface")
+        lines.append(f"- packet_ready: {permit_critical_prompt_surface.get('packet_ready')}")
+        lines.append(f"- lane_id: {permit_critical_prompt_surface.get('lane_id') or '(none)'}")
+        lines.append(f"- lane_title: {permit_critical_prompt_surface.get('lane_title') or '(none)'}")
+        lines.append(f"- operator_surface_ready: {permit_critical_prompt_surface.get('operator_surface_ready')}")
+        lines.append(f"- release_surface_ready: {permit_critical_prompt_surface.get('release_surface_ready')}")
+        lines.append(f"- founder_lane_match: {permit_critical_prompt_surface.get('founder_lane_match')}")
+        lines.append(f"- alignment_ok: {permit_critical_prompt_surface.get('alignment_ok')}")
+        lines.append(f"- service_copy_ready: {permit_critical_prompt_surface.get('service_copy_ready')}")
+        lines.append(f"- service_ux_ready: {permit_critical_prompt_surface.get('service_ux_ready')}")
+        lines.append("")
+
     partner_input_handoff = (packet.get("summaries") or {}).get("partner_input_handoff") if isinstance((packet.get("summaries") or {}).get("partner_input_handoff"), dict) else {}
     if partner_input_handoff:
         lines.append("## Partner Input Handoff")
@@ -1986,6 +2381,16 @@ def _to_markdown(packet: Dict[str, Any]) -> str:
         lines.append(f"- next_experiment_count: {first_principles.get('next_experiment_count')}")
         lines.append("")
 
+    external_masterplan_alignment = (packet.get("summaries") or {}).get("external_masterplan_alignment") if isinstance((packet.get("summaries") or {}).get("external_masterplan_alignment"), dict) else {}
+    if external_masterplan_alignment:
+        lines.append("## External Masterplan Alignment")
+        lines.append(f"- packet_ready: {external_masterplan_alignment.get('packet_ready')}")
+        lines.append(f"- alignment_ok: {external_masterplan_alignment.get('alignment_ok')}")
+        lines.append(f"- source_directive_count: {external_masterplan_alignment.get('source_directive_count')}")
+        lines.append(f"- missing_count: {external_masterplan_alignment.get('missing_count')}")
+        lines.append(f"- missing_keys: {', '.join(external_masterplan_alignment.get('missing_keys') or []) or '(none)'}")
+        lines.append("")
+
     split_first_principles = (packet.get("summaries") or {}).get("system_split_first_principles") if isinstance((packet.get("summaries") or {}).get("system_split_first_principles"), dict) else {}
     if split_first_principles:
         lines.append("## System Split First-Principles")
@@ -1994,6 +2399,38 @@ def _to_markdown(packet: Dict[str, Any]) -> str:
         lines.append(f"- yangdo_ready: {split_first_principles.get('yangdo_ready')}")
         lines.append(f"- permit_ready: {split_first_principles.get('permit_ready')}")
         lines.append(f"- prompt_count: {split_first_principles.get('prompt_count')}")
+        lines.append("")
+
+    next_batch_focus = (packet.get("summaries") or {}).get("next_batch_focus") if isinstance((packet.get("summaries") or {}).get("next_batch_focus"), dict) else {}
+    if next_batch_focus:
+        lines.append("## Next Batch Focus")
+        lines.append(f"- packet_ready: {next_batch_focus.get('packet_ready')}")
+        lines.append(f"- selected_track: {next_batch_focus.get('selected_track') or '(none)'}")
+        lines.append(f"- selected_lane_id: {next_batch_focus.get('selected_lane_id') or '(none)'}")
+        lines.append(f"- selected_title: {next_batch_focus.get('selected_title') or '(none)'}")
+        lines.append(f"- selected_next_move: {next_batch_focus.get('selected_next_move') or '(none)'}")
+        lines.append(f"- parallel_candidate_count: {next_batch_focus.get('parallel_candidate_count')}")
+        lines.append(f"- deferred_candidate_count: {next_batch_focus.get('deferred_candidate_count')}")
+        lines.append(f"- selection_policy: {next_batch_focus.get('selection_policy') or '(none)'}")
+        lines.append(f"- founder_primary_system: {next_batch_focus.get('founder_primary_system') or '(none)'}")
+        lines.append(f"- founder_primary_lane_id: {next_batch_focus.get('founder_primary_lane_id') or '(none)'}")
+        lines.append(f"- selected_matches_founder: {next_batch_focus.get('selected_matches_founder')}")
+        lines.append("")
+
+    next_execution = (packet.get("summaries") or {}).get("next_execution") if isinstance((packet.get("summaries") or {}).get("next_execution"), dict) else {}
+    if next_execution:
+        lines.append("## Next Execution")
+        lines.append(f"- packet_ready: {next_execution.get('packet_ready')}")
+        lines.append(f"- execution_ready: {next_execution.get('execution_ready')}")
+        lines.append(f"- selected_track: {next_execution.get('selected_track') or '(none)'}")
+        lines.append(f"- selected_lane_id: {next_execution.get('selected_lane_id') or '(none)'}")
+        lines.append(f"- founder_selected_matches_primary: {next_execution.get('founder_selected_matches_primary')}")
+        lines.append(f"- founder_primary_system: {next_execution.get('founder_primary_system') or '(none)'}")
+        lines.append(f"- founder_primary_lane_id: {next_execution.get('founder_primary_lane_id') or '(none)'}")
+        lines.append(f"- bottleneck: {next_execution.get('bottleneck') or '(none)'}")
+        lines.append(f"- success_criteria_count: {next_execution.get('success_criteria_count')}")
+        lines.append(f"- verification_command_count: {next_execution.get('verification_command_count')}")
+        lines.append(f"- next_after_completion_count: {next_execution.get('next_after_completion_count')}")
         lines.append("")
 
     widget_rental = (packet.get("summaries") or {}).get("widget_rental_catalog") if isinstance((packet.get("summaries") or {}).get("widget_rental_catalog"), dict) else {}
@@ -2072,6 +2509,10 @@ def _to_markdown(packet: Dict[str, Any]) -> str:
         lines.append(f"- platform_host: {co_bridge_plan.get('platform_host') or '(none)'}")
         lines.append(f"- placement_count: {co_bridge_plan.get('placement_count')}")
         lines.append(f"- selector_verified_count: {co_bridge_plan.get('selector_verified_count')}")
+        lines.append(f"- snippet_ready_count: {co_bridge_plan.get('snippet_ready_count')}")
+        lines.append(f"- operator_ready: {co_bridge_plan.get('operator_ready')}")
+        lines.append(f"- artifact_ready: {co_bridge_plan.get('artifact_ready')}")
+        lines.append(f"- strict_live_ready: {co_bridge_plan.get('strict_live_ready')}")
         lines.append(f"- plan_ready: {co_bridge_plan.get('plan_ready')}")
         lines.append(f"- detail_sample_url: {co_bridge_plan.get('detail_sample_url') or '(none)'}")
         lines.append("")
@@ -2087,9 +2528,13 @@ def _to_markdown(packet: Dict[str, Any]) -> str:
     co_bridge_apply = (packet.get("summaries") or {}).get("co_listing_bridge_apply_packet") if isinstance((packet.get("summaries") or {}).get("co_listing_bridge_apply_packet"), dict) else {}
     if co_bridge_apply:
         lines.append("## CO Listing Bridge Apply Packet")
+        lines.append(f"- artifact_ready: {co_bridge_apply.get('artifact_ready')}")
         lines.append(f"- apply_ready: {co_bridge_apply.get('apply_ready')}")
         lines.append(f"- placement_count: {co_bridge_apply.get('placement_count')}")
+        lines.append(f"- placement_asset_ready_count: {co_bridge_apply.get('placement_asset_ready_count')}")
         lines.append(f"- placement_ready_count: {co_bridge_apply.get('placement_ready_count')}")
+        lines.append(f"- plan_ready: {co_bridge_apply.get('plan_ready')}")
+        lines.append(f"- strict_live_ready: {co_bridge_apply.get('strict_live_ready')}")
         lines.append(f"- css_file: {co_bridge_apply.get('css_file') or '(none)'}")
         lines.append(f"- bundle_script: {co_bridge_apply.get('bundle_script') or '(none)'}")
         lines.append("")
@@ -2310,6 +2755,7 @@ def main() -> int:
     parser.add_argument("--yangdo-recommendation-qa", default="logs/yangdo_recommendation_qa_matrix_latest.json")
     parser.add_argument("--yangdo-recommendation-precision-matrix", default="logs/yangdo_recommendation_precision_matrix_latest.json")
     parser.add_argument("--yangdo-recommendation-diversity-audit", default="logs/yangdo_recommendation_diversity_audit_latest.json")
+    parser.add_argument("--yangdo-special-sector-packet", default="logs/yangdo_special_sector_packet_latest.json")
     parser.add_argument("--yangdo-recommendation-contract-audit", default="logs/yangdo_recommendation_contract_audit_latest.json")
     parser.add_argument("--yangdo-recommendation-bridge-packet", default="logs/yangdo_recommendation_bridge_packet_latest.json")
     parser.add_argument("--yangdo-recommendation-ux-packet", default="logs/yangdo_recommendation_ux_packet_latest.json")
@@ -2321,13 +2767,27 @@ def main() -> int:
     parser.add_argument("--permit-rental-lane-packet", default="logs/permit_rental_lane_packet_latest.json")
     parser.add_argument("--permit-service-ux-packet", default="logs/permit_service_ux_packet_latest.json")
     parser.add_argument("--permit-public-contract-audit", default="logs/permit_public_contract_audit_latest.json")
+    parser.add_argument("--permit-prompt-case-binding-packet", default="logs/permit_prompt_case_binding_packet_latest.json")
+    parser.add_argument("--permit-critical-prompt-surface-packet", default="logs/permit_critical_prompt_surface_packet_latest.json")
+    parser.add_argument("--permit-partner-binding-parity-packet", default="logs/permit_partner_binding_parity_packet_latest.json")
+    parser.add_argument("--permit-partner-binding-observability", default="logs/permit_partner_binding_observability_latest.json")
+    parser.add_argument("--permit-thinking-prompt-bundle-packet", default="logs/permit_thinking_prompt_bundle_packet_latest.json")
+    parser.add_argument("--permit-next-action-brainstorm", default="logs/permit_next_action_brainstorm_latest.json")
+    parser.add_argument("--permit-runtime-reasoning-binding-audit", default="logs/permit_runtime_reasoning_binding_audit_latest.json")
+    parser.add_argument("--permit-law-case-coverage-packet", default="logs/permit_law_case_coverage_packet_latest.json")
     parser.add_argument("--partner-input-handoff-packet", default="logs/partner_input_handoff_packet_latest.json")
     parser.add_argument("--partner-input-operator-flow", default="logs/partner_input_operator_flow_latest.json")
     parser.add_argument("--widget-rental-catalog", default="logs/widget_rental_catalog_latest.json")
     parser.add_argument("--program-improvement-loop", default="logs/program_improvement_loop_latest.json")
     parser.add_argument("--ai-platform-first-principles-review", default="logs/ai_platform_first_principles_review_latest.json")
+    parser.add_argument("--external-masterplan-alignment", default="logs/external_masterplan_alignment_latest.json")
     parser.add_argument("--system-split-first-principles-packet", default="logs/system_split_first_principles_packet_latest.json")
     parser.add_argument("--next-batch-focus-packet", default="logs/next_batch_focus_packet_latest.json")
+    parser.add_argument("--next-execution-packet", default="logs/next_execution_packet_latest.json")
+    parser.add_argument("--yangdo-next-action-brainstorm", default="logs/yangdo_next_action_brainstorm_latest.json")
+    parser.add_argument("--yangdo-public-language-audit", default="logs/yangdo_public_language_audit_latest.json")
+    parser.add_argument("--founder-execution-chain", default="logs/founder_execution_chain_latest.json")
+    parser.add_argument("--founder-selection-consistency-audit", default="logs/founder_selection_consistency_audit_latest.json")
     parser.add_argument("--listing-platform-bridge-policy", default="logs/listing_platform_bridge_policy_latest.json")
     parser.add_argument("--co-listing-bridge-snippets", default="logs/co_listing_bridge_snippets_latest.json")
     parser.add_argument("--co-listing-bridge-operator-checklist", default="logs/co_listing_bridge_operator_checklist_latest.json")
@@ -2380,6 +2840,7 @@ def main() -> int:
         yangdo_recommendation_qa_path=(ROOT / str(args.yangdo_recommendation_qa)).resolve(),
         yangdo_recommendation_precision_matrix_path=(ROOT / str(args.yangdo_recommendation_precision_matrix)).resolve(),
         yangdo_recommendation_diversity_audit_path=(ROOT / str(args.yangdo_recommendation_diversity_audit)).resolve(),
+        yangdo_special_sector_packet_path=(ROOT / str(args.yangdo_special_sector_packet)).resolve(),
         yangdo_recommendation_contract_audit_path=(ROOT / str(args.yangdo_recommendation_contract_audit)).resolve(),
         yangdo_recommendation_bridge_packet_path=(ROOT / str(args.yangdo_recommendation_bridge_packet)).resolve(),
         yangdo_recommendation_ux_packet_path=(ROOT / str(args.yangdo_recommendation_ux_packet)).resolve(),
@@ -2391,13 +2852,27 @@ def main() -> int:
         permit_rental_lane_packet_path=(ROOT / str(args.permit_rental_lane_packet)).resolve(),
         permit_service_ux_packet_path=(ROOT / str(args.permit_service_ux_packet)).resolve(),
         permit_public_contract_audit_path=(ROOT / str(args.permit_public_contract_audit)).resolve(),
+        permit_prompt_case_binding_packet_path=(ROOT / str(args.permit_prompt_case_binding_packet)).resolve(),
+        permit_critical_prompt_surface_packet_path=(ROOT / str(args.permit_critical_prompt_surface_packet)).resolve(),
+        permit_partner_binding_parity_packet_path=(ROOT / str(args.permit_partner_binding_parity_packet)).resolve(),
+        permit_partner_binding_observability_path=(ROOT / str(args.permit_partner_binding_observability)).resolve(),
+        permit_thinking_prompt_bundle_packet_path=(ROOT / str(args.permit_thinking_prompt_bundle_packet)).resolve(),
+        permit_next_action_brainstorm_path=(ROOT / str(args.permit_next_action_brainstorm)).resolve(),
+        permit_runtime_reasoning_binding_audit_path=(ROOT / str(args.permit_runtime_reasoning_binding_audit)).resolve(),
+        permit_law_case_coverage_packet_path=(ROOT / str(args.permit_law_case_coverage_packet)).resolve(),
         partner_input_handoff_packet_path=(ROOT / str(args.partner_input_handoff_packet)).resolve(),
         partner_input_operator_flow_path=(ROOT / str(args.partner_input_operator_flow)).resolve(),
         widget_rental_catalog_path=(ROOT / str(args.widget_rental_catalog)).resolve(),
         program_improvement_loop_path=(ROOT / str(args.program_improvement_loop)).resolve(),
         ai_platform_first_principles_review_path=(ROOT / str(args.ai_platform_first_principles_review)).resolve(),
+        external_masterplan_alignment_path=(ROOT / str(args.external_masterplan_alignment)).resolve(),
         system_split_first_principles_packet_path=(ROOT / str(args.system_split_first_principles_packet)).resolve(),
         next_batch_focus_packet_path=(ROOT / str(args.next_batch_focus_packet)).resolve(),
+        next_execution_packet_path=(ROOT / str(args.next_execution_packet)).resolve(),
+        yangdo_next_action_brainstorm_path=(ROOT / str(args.yangdo_next_action_brainstorm)).resolve(),
+        yangdo_public_language_audit_path=(ROOT / str(args.yangdo_public_language_audit)).resolve(),
+        founder_execution_chain_path=(ROOT / str(args.founder_execution_chain)).resolve(),
+        founder_selection_consistency_audit_path=(ROOT / str(args.founder_selection_consistency_audit)).resolve(),
         listing_platform_bridge_policy_path=(ROOT / str(args.listing_platform_bridge_policy)).resolve(),
         co_listing_bridge_snippets_path=(ROOT / str(args.co_listing_bridge_snippets)).resolve(),
         co_listing_bridge_operator_checklist_path=(ROOT / str(args.co_listing_bridge_operator_checklist)).resolve(),

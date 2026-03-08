@@ -188,8 +188,8 @@ def _permit_case_story_samples(permit_case_story_surface: dict | None, limit: in
             "claim_id": str(family.get("claim_id") or "").strip(),
             "preset_total": int(family.get("preset_total", 0) or 0),
             "manual_review_preset_total": int(family.get("manual_review_preset_total", 0) or 0),
-            "review_reasons": review_reasons[:3],
-            "representative_preset_ids": representative_preset_ids[:3],
+            "review_reasons": review_reasons[:4],
+            "representative_preset_ids": representative_preset_ids[:4],
             "operator_story_points": [
                 str(item or "").strip()
                 for item in list(family.get("operator_story_points") or [])
@@ -227,6 +227,7 @@ def _permit_partner_demo_samples(permit_operator_demo_packet: dict | None, limit
                 representative_statuses.append(expected_status)
             if bool(case.get("manual_review_expected", False)):
                 manual_review_demo_total += 1
+        binding = family.get("prompt_case_binding") if isinstance(family.get("prompt_case_binding"), dict) else {}
         sample = {
             "family_key": str(family.get("family_key") or "").strip(),
             "claim_id": str(family.get("claim_id") or "").strip(),
@@ -234,9 +235,17 @@ def _permit_partner_demo_samples(permit_operator_demo_packet: dict | None, limit
             "proof_coverage_ratio": str(family.get("proof_coverage_ratio") or "").strip(),
             "demo_case_total": len(cases),
             "manual_review_demo_total": manual_review_demo_total,
-            "review_reasons": review_reasons[:3],
-            "representative_services": representative_services[:3],
-            "representative_statuses": representative_statuses[:3],
+            "review_reasons": review_reasons[:4],
+            "representative_services": representative_services[:4],
+            "representative_statuses": representative_statuses[:4],
+            "binding_preset_id": str(binding.get("preset_id") or "").strip(),
+            "binding_service_code": str(binding.get("service_code") or "").strip(),
+            "binding_service_name": str(binding.get("service_name") or "").strip(),
+            "binding_expected_status": str(binding.get("expected_status") or "").strip(),
+            "binding_review_reason": str(binding.get("review_reason") or "").strip(),
+            "binding_focus": str(binding.get("binding_focus") or "").strip(),
+            "binding_question": str(binding.get("binding_question") or "").strip(),
+            "binding_manual_review_expected": bool(binding.get("manual_review_expected", False)),
         }
         if not sample["family_key"] or not sample["claim_id"]:
             continue
@@ -306,6 +315,9 @@ def build_contract_spec(
         else {}
     )
     permit_partner_demo_samples = _permit_partner_demo_samples(permit_operator_demo_packet)
+    permit_partner_binding_sample_total = sum(
+        1 for item in permit_partner_demo_samples if str(item.get("binding_preset_id") or "").strip()
+    )
 
     spec = {
         "api_version": "v1",
@@ -568,9 +580,15 @@ def build_contract_spec(
                                     permit_operator_demo_summary.get("manual_review_demo_total", 0) or 0
                                 ),
                                 "partner_demo_sample_total": len(permit_partner_demo_samples),
+                                "partner_binding_sample_total": permit_partner_binding_sample_total,
                                 "partner_demo_surface_ready": bool(
                                     permit_operator_demo_summary.get("operator_demo_ready", False)
                                 ) and bool(permit_partner_demo_samples),
+                                "partner_binding_surface_ready": bool(
+                                    permit_operator_demo_summary.get("family_total", 0)
+                                ) and permit_partner_binding_sample_total >= int(
+                                    permit_operator_demo_summary.get("family_total", 0) or 0
+                                ),
                             },
                             "proof_surface_examples": {
                                 "family_checksum_samples": permit_checksum_samples,
@@ -615,6 +633,14 @@ def build_contract_spec(
                                     "review_reasons",
                                     "representative_services",
                                     "representative_statuses",
+                                    "binding_preset_id",
+                                    "binding_service_code",
+                                    "binding_service_name",
+                                    "binding_expected_status",
+                                    "binding_review_reason",
+                                    "binding_focus",
+                                    "binding_question",
+                                    "binding_manual_review_expected",
                                 ],
                             },
                         },

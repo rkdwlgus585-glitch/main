@@ -14,6 +14,7 @@ DEFAULT_JSON_OUTPUT = ROOT / "logs" / "permit_review_case_presets_latest.json"
 DEFAULT_MD_OUTPUT = ROOT / "logs" / "permit_review_case_presets_latest.md"
 
 CASE_KIND_LABELS = {
+    "shortfall_fail": "자본금·기술인력 동시 부족 프리셋",
     "capital_only_fail": "자본금 부족 프리셋",
     "technician_only_fail": "기술인력 부족 프리셋",
     "document_missing_review": "서류 누락 검토 프리셋",
@@ -47,6 +48,8 @@ def _safe_float(value: Any) -> float:
 
 def _preset_operator_note(case_kind: str, expected: Dict[str, Any]) -> str:
     review_reason = _safe_str(expected.get("review_reason"))
+    if case_kind == "shortfall_fail":
+        return "자본금과 기술인력이 동시에 부족한 상황을 즉시 재현하는 프리셋입니다."
     if case_kind == "capital_only_fail":
         return "자본금만 부족한 상황을 즉시 재현하는 프리셋입니다."
     if case_kind == "technician_only_fail":
@@ -100,6 +103,7 @@ def _build_preset(family_key: str, claim_id: str, case: Dict[str, Any]) -> Dict[
 def build_review_case_presets(*, permit_family_case_goldset: Dict[str, Any]) -> Dict[str, Any]:
     families_out: List[Dict[str, Any]] = []
     preset_total = 0
+    shortfall_fail_preset_total = 0
     capital_only_fail_preset_total = 0
     technician_only_fail_preset_total = 0
     document_missing_review_preset_total = 0
@@ -116,7 +120,9 @@ def build_review_case_presets(*, permit_family_case_goldset: Dict[str, Any]) -> 
             preset = _build_preset(family_key, claim_id, case)
             presets.append(preset)
             preset_total += 1
-            if case_kind == "capital_only_fail":
+            if case_kind == "shortfall_fail":
+                shortfall_fail_preset_total += 1
+            elif case_kind == "capital_only_fail":
                 capital_only_fail_preset_total += 1
             elif case_kind == "technician_only_fail":
                 technician_only_fail_preset_total += 1
@@ -139,13 +145,14 @@ def build_review_case_presets(*, permit_family_case_goldset: Dict[str, Any]) -> 
         "family_total": family_total,
         "preset_total": preset_total,
         "preset_family_total": family_total,
+        "shortfall_fail_preset_total": shortfall_fail_preset_total,
         "capital_only_fail_preset_total": capital_only_fail_preset_total,
         "technician_only_fail_preset_total": technician_only_fail_preset_total,
         "document_missing_review_preset_total": document_missing_review_preset_total,
         "manual_review_expected_total": manual_review_expected_total,
         "execution_lane_id": "review_case_input_presets",
         "parallel_lane_id": "case_story_surface",
-        "preset_ready": family_total > 0 and preset_total >= family_total * 3,
+        "preset_ready": family_total > 0 and preset_total >= family_total * 4,
     }
     return {
         "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -166,6 +173,7 @@ def render_markdown(report: Dict[str, Any]) -> str:
         f"- family_total: `{summary.get('family_total', 0)}`",
         f"- preset_total: `{summary.get('preset_total', 0)}`",
         f"- preset_family_total: `{summary.get('preset_family_total', 0)}`",
+        f"- shortfall_fail_preset_total: `{summary.get('shortfall_fail_preset_total', 0)}`",
         f"- capital_only_fail_preset_total: `{summary.get('capital_only_fail_preset_total', 0)}`",
         f"- technician_only_fail_preset_total: `{summary.get('technician_only_fail_preset_total', 0)}`",
         f"- document_missing_review_preset_total: `{summary.get('document_missing_review_preset_total', 0)}`",

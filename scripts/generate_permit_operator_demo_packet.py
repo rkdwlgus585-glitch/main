@@ -46,6 +46,73 @@ def _story_lookup(payload: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
     return lookup
 
 
+def _binding_priority(case: Dict[str, Any]) -> tuple[int, int]:
+    manual_review_expected = bool(case.get("manual_review_expected", False))
+    expected_status = _safe_str(case.get("expected_status"))
+    review_reason = _safe_str(case.get("review_reason"))
+    if manual_review_expected:
+        return (0, 0)
+    if review_reason == "capital_and_technician_shortfall":
+        return (1, 0 if expected_status == "shortfall" else 1)
+    if review_reason == "capital_shortfall_only":
+        return (2, 0 if expected_status == "shortfall" else 1)
+    if review_reason == "technician_shortfall_only":
+        return (3, 0 if expected_status == "shortfall" else 1)
+    if review_reason:
+        return (4, 0 if expected_status == "shortfall" else 1)
+    if expected_status == "shortfall":
+        return (5, 0)
+    if expected_status == "pass":
+        return (6, 0)
+    return (7, 0)
+
+
+def _binding_question(case: Dict[str, Any]) -> str:
+    review_reason = _safe_str(case.get("review_reason"))
+    if bool(case.get("manual_review_expected", False)):
+        return "어디서 자동판단을 멈추고 수동검토로 넘겨야 하는가."
+    if review_reason == "capital_and_technician_shortfall":
+        return "자본금과 기술인력이 둘 다 부족한지 먼저 고정했는가."
+    if "capital" in review_reason or "technician" in review_reason:
+        return "지금 가장 먼저 결정해야 하는 부족값은 무엇인가."
+    if review_reason:
+        return "법령 근거, 체크리스트, 수동검토 중 어디서 먼저 분기되는가."
+    return "이 케이스를 기준점으로 둘 때 어떤 입력이 정말 필수인가."
+
+
+def _binding_focus(case: Dict[str, Any]) -> str:
+    review_reason = _safe_str(case.get("review_reason"))
+    if bool(case.get("manual_review_expected", False)):
+        return "manual_review_gate"
+    if review_reason == "capital_and_technician_shortfall":
+        return "capital_and_technician_gap_first"
+    if "capital" in review_reason:
+        return "capital_gap_first"
+    if "technician" in review_reason:
+        return "technician_gap_first"
+    if review_reason:
+        return "review_reason_first"
+    return "baseline_reference"
+
+
+def _select_prompt_case_binding(demo_cases: List[Dict[str, Any]]) -> Dict[str, Any]:
+    candidates = [row for row in list(demo_cases or []) if isinstance(row, dict)]
+    if not candidates:
+        return {}
+    selected = sorted(candidates, key=_binding_priority)[0]
+    binding = {
+        "preset_id": _safe_str(selected.get("preset_id")),
+        "service_code": _safe_str(selected.get("service_code")),
+        "service_name": _safe_str(selected.get("service_name")),
+        "expected_status": _safe_str(selected.get("expected_status")),
+        "review_reason": _safe_str(selected.get("review_reason")),
+        "manual_review_expected": bool(selected.get("manual_review_expected", False)),
+        "binding_focus": _binding_focus(selected),
+        "binding_question": _binding_question(selected),
+    }
+    return {key: value for key, value in binding.items() if value not in ("", [], {}) and value is not None}
+
+
 def build_operator_demo_packet(
     *,
     permit_review_case_presets: Dict[str, Any],
@@ -58,6 +125,7 @@ def build_operator_demo_packet(
     demo_case_total = 0
     manual_review_demo_total = 0
     review_reasons: List[str] = []
+    prompt_case_binding_total = 0
 
     for family in [row for row in list(permit_review_case_presets.get("families") or []) if isinstance(row, dict)]:
         family_key = _safe_str(family.get("family_key"))
@@ -102,6 +170,9 @@ def build_operator_demo_packet(
             demo_case_total += 1
         if not demo_cases:
             continue
+        prompt_case_binding = _select_prompt_case_binding(demo_cases)
+        if prompt_case_binding:
+            prompt_case_binding_total += 1
         families_out.append(
             {
                 "family_key": family_key,
@@ -118,6 +189,7 @@ def build_operator_demo_packet(
                     for item in list(story_surface.get("operator_story_points") or [])
                     if _safe_str(item)
                 ][:3],
+                "prompt_case_binding": prompt_case_binding,
                 "demo_cases": demo_cases,
             }
         )
@@ -127,9 +199,10 @@ def build_operator_demo_packet(
         "demo_case_total": demo_case_total,
         "manual_review_demo_total": manual_review_demo_total,
         "review_reason_total": len(review_reasons),
+        "prompt_case_binding_total": prompt_case_binding_total,
         "execution_lane_id": "operator_demo_packet",
         "parallel_lane_id": "operator_demo_surface",
-        "operator_demo_ready": bool(families_out) and demo_case_total >= len(families_out) * 3,
+        "operator_demo_ready": bool(families_out) and demo_case_total >= len(families_out) * 4,
     }
     return {
         "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -153,6 +226,7 @@ def render_markdown(report: Dict[str, Any]) -> str:
         f"- demo_case_total: `{summary.get('demo_case_total', 0)}`",
         f"- manual_review_demo_total: `{summary.get('manual_review_demo_total', 0)}`",
         f"- review_reason_total: `{summary.get('review_reason_total', 0)}`",
+        f"- prompt_case_binding_total: `{summary.get('prompt_case_binding_total', 0)}`",
         f"- operator_demo_ready: `{summary.get('operator_demo_ready', False)}`",
         f"- execution_lane_id: `{summary.get('execution_lane_id', '')}`",
         f"- parallel_lane_id: `{summary.get('parallel_lane_id', '')}`",
@@ -160,8 +234,18 @@ def render_markdown(report: Dict[str, Any]) -> str:
         "## Families",
     ]
     for family in [row for row in list(report.get("families") or []) if isinstance(row, dict)]:
+        binding = family.get("prompt_case_binding") if isinstance(family.get("prompt_case_binding"), dict) else {}
+        binding_parts = []
+        if _safe_str(binding.get("preset_id")):
+            binding_parts.append(f"preset `{_safe_str(binding.get('preset_id'))}`")
+        if _safe_str(binding.get("expected_status")):
+            binding_parts.append(f"expected `{_safe_str(binding.get('expected_status'))}`")
+        if _safe_str(binding.get("binding_focus")):
+            binding_parts.append(f"focus `{_safe_str(binding.get('binding_focus'))}`")
         lines.append(
-            f"- `{family.get('family_key', '')}` claim `{family.get('claim_id', '')}` / demo_cases {len(list(family.get('demo_cases') or []))}"
+            f"- `{family.get('family_key', '')}` claim `{family.get('claim_id', '')}` / "
+            f"demo_cases {len(list(family.get('demo_cases') or []))}"
+            f"{' / ' + ' / '.join(binding_parts) if binding_parts else ''}"
         )
     return "\n".join(lines).strip() + "\n"
 

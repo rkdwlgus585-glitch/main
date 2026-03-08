@@ -13,8 +13,11 @@ DEFAULT_QA_INPUT = ROOT / "logs" / "yangdo_recommendation_qa_matrix_latest.json"
 DEFAULT_DIVERSITY_INPUT = ROOT / "logs" / "yangdo_recommendation_diversity_audit_latest.json"
 DEFAULT_ALIGNMENT_INPUT = ROOT / "logs" / "yangdo_recommendation_alignment_audit_latest.json"
 DEFAULT_COMPARABLE_INPUT = ROOT / "logs" / "yangdo_comparable_selection_overall_latest.json"
+DEFAULT_SPECIAL_SECTOR_INPUT = ROOT / "logs" / "yangdo_special_sector_packet_latest.json"
 DEFAULT_UX_INPUT = ROOT / "logs" / "yangdo_recommendation_ux_packet_latest.json"
 DEFAULT_SERVICE_COPY_INPUT = ROOT / "logs" / "yangdo_service_copy_packet_latest.json"
+DEFAULT_ZERO_DISPLAY_AUDIT_INPUT = ROOT / "logs" / "yangdo_zero_display_recovery_audit_latest.json"
+DEFAULT_PUBLIC_LANGUAGE_AUDIT_INPUT = ROOT / "logs" / "yangdo_public_language_audit_latest.json"
 DEFAULT_PROMPT_DOC_INPUT = ROOT / "docs" / "yangdo_critical_thinking_prompt.md"
 DEFAULT_RUNTIME_SOURCE = ROOT / "yangdo_calculator.py"
 DEFAULT_JSON_OUTPUT = ROOT / "logs" / "yangdo_next_action_brainstorm_latest.json"
@@ -75,6 +78,21 @@ def _safe_bool(value: Any) -> bool:
     return bool(value)
 
 
+def _safe_str(value: Any) -> str:
+    return str(value or "").strip()
+
+
+def _find_sector(packet: Dict[str, Any], sector_name: str) -> Dict[str, Any]:
+    for row in list(packet.get("sectors") or []):
+        if not isinstance(row, dict):
+            continue
+        aliases = [str(alias or "").strip() for alias in list(row.get("aliases") or [])]
+        label = _safe_str(row.get("sector"))
+        if sector_name == label or sector_name in aliases:
+            return row
+    return {}
+
+
 def _make_item(
     *,
     item_id: str,
@@ -105,18 +123,28 @@ def _select_execution_lane(
     regression_fail_total: int,
     alignment_issue_count: int,
     one_or_less_display_total: int,
+    special_sector_publication_safety_ok: bool,
     special_sector_scenario_total: int,
     zero_display_total: int,
     autoloop_ready: bool,
+    zero_display_guard_ready: bool,
+    public_language_ready: bool,
+    prompt_doc_ready: bool,
 ) -> str:
     if regression_fail_total > 0 or alignment_issue_count > 0:
         return "recommendation_regression_repair"
     if one_or_less_display_total >= 200 and not autoloop_ready:
         return "single_recommendation_autoloop"
+    if not special_sector_publication_safety_ok:
+        return "special_sector_publication_guard"
     if special_sector_scenario_total < 6:
         return "special_sector_split_precision_expansion"
-    if zero_display_total > 0:
+    if zero_display_total > 0 and not zero_display_guard_ready:
         return "zero_display_recovery_guard"
+    if not public_language_ready:
+        return "public_language_normalization"
+    if prompt_doc_ready:
+        return "prompt_loop_operationalization"
     return "public_language_normalization"
 
 
@@ -124,21 +152,36 @@ def _select_parallel_lane(
     *,
     primary_id: str,
     one_or_less_display_total: int,
+    special_sector_publication_safety_ok: bool,
     special_sector_scenario_total: int,
     zero_display_total: int,
     prompt_doc_ready: bool,
     autoloop_ready: bool,
+    zero_display_guard_ready: bool,
+    public_language_ready: bool,
 ) -> str:
     candidates: List[str] = []
+    if not special_sector_publication_safety_ok:
+        candidates.append("special_sector_publication_guard")
     if special_sector_scenario_total < 6:
         candidates.append("special_sector_split_precision_expansion")
     if one_or_less_display_total >= 200 and not autoloop_ready:
         candidates.append("single_recommendation_autoloop")
-    if zero_display_total > 0:
+    if zero_display_total > 0 and not zero_display_guard_ready:
         candidates.append("zero_display_recovery_guard")
-    candidates.append("public_language_normalization")
+    if not public_language_ready:
+        candidates.append("public_language_normalization")
     if prompt_doc_ready:
         candidates.append("prompt_loop_operationalization")
+    if (
+        prompt_doc_ready
+        and public_language_ready
+        and autoloop_ready
+        and zero_display_guard_ready
+        and special_sector_publication_safety_ok
+        and special_sector_scenario_total >= 6
+    ):
+        candidates.append("service_explainability_upgrade")
     for candidate in candidates:
         if candidate != primary_id:
             return candidate
@@ -214,8 +257,11 @@ def build_brainstorm(
     diversity_audit: Dict[str, Any],
     alignment_audit: Dict[str, Any],
     comparable_selection_overall: Dict[str, Any],
+    special_sector_packet: Dict[str, Any] | None = None,
     ux_packet: Dict[str, Any] | None = None,
     service_copy_packet: Dict[str, Any] | None = None,
+    zero_display_audit: Dict[str, Any] | None = None,
+    public_language_audit: Dict[str, Any] | None = None,
     prompt_doc: str = "",
     runtime_source_text: str = "",
 ) -> Dict[str, Any]:
@@ -223,10 +269,14 @@ def build_brainstorm(
     qa_summary = dict(qa_matrix.get("summary") or {})
     diversity_summary = dict(diversity_audit.get("summary") or {})
     alignment_summary = dict(alignment_audit.get("summary") or {})
+    special_sector_packet = dict(special_sector_packet or {})
+    special_sector_summary = dict(special_sector_packet.get("summary") or {})
     ux_summary = dict((ux_packet or {}).get("summary") or {})
     service_copy_summary = dict((service_copy_packet or {}).get("summary") or {})
     precision_sector_groups = dict(precision_summary.get("sector_groups") or {})
     balance_excluded_sector = dict(precision_sector_groups.get("balance_excluded_sector") or {})
+    telecom_sector = _find_sector(special_sector_packet, "정보통신")
+    telecom_publication = dict(telecom_sector.get("publication_metrics") or {})
 
     precision_failed_count = _safe_int(precision_summary.get("failed_count"))
     qa_failed_count = _safe_int(qa_summary.get("failed_count"))
@@ -234,6 +284,18 @@ def build_brainstorm(
     alignment_issue_count = _safe_int(alignment_summary.get("issue_count"))
     regression_fail_total = precision_failed_count + qa_failed_count + diversity_failed_count + alignment_issue_count
     special_sector_scenario_total = _safe_int(balance_excluded_sector.get("scenario_count"))
+    special_sector_publication_safety_ok = (
+        _safe_bool(special_sector_summary.get("publication_safety_ok"))
+        if special_sector_summary
+        else True
+    )
+    telecom_publication_safety_ok = (
+        _safe_bool(telecom_publication.get("publication_safety_ok"))
+        if telecom_publication
+        else True
+    )
+    telecom_full_count = _safe_int(telecom_publication.get("full_count"))
+    telecom_full_share = _safe_float(telecom_publication.get("full_share"))
     one_or_less_display_total = _safe_int(comparable_selection_overall.get("records_one_or_less_display"))
     zero_display_total = _safe_int(comparable_selection_overall.get("records_zero_display"))
     avg_display_neighbors = _safe_float(comparable_selection_overall.get("avg_display_neighbors"))
@@ -241,11 +303,37 @@ def build_brainstorm(
     prompt_doc_excerpt = _doc_excerpt(prompt_doc)
     public_copy_ready = _safe_bool(service_copy_summary.get("service_copy_ready"))
     ux_packet_ready = _safe_bool(ux_summary.get("packet_ready"))
+    zero_display_audit_summary = dict((zero_display_audit or {}).get("summary") or {})
+    public_language_audit_summary = dict((public_language_audit or {}).get("summary") or {})
     runtime_flags = _load_runtime_flags(runtime_source_text)
     autoloop_ready = _safe_bool(runtime_flags.get("autoloop_ready"))
     zero_recovery_ready = _safe_bool(runtime_flags.get("zero_recovery_ready"))
+    zero_display_audit_ready = _safe_bool(zero_display_audit_summary.get("packet_ready"))
+    zero_display_guard_ready = _safe_bool(zero_display_audit_summary.get("zero_display_guard_ok"))
+    zero_display_selected_lane_ok = _safe_bool(zero_display_audit_summary.get("selected_lane_ok"))
+    public_language_audit_ready = _safe_bool(public_language_audit_summary.get("packet_ready"))
+    public_language_ready = _safe_bool(public_language_audit_summary.get("public_language_ready"))
+    public_language_remaining_phrase_count = _safe_int(public_language_audit_summary.get("remaining_phrase_count"))
 
     brainstorm_items = [
+        _make_item(
+            item_id="special_sector_publication_guard",
+            priority="P1",
+            track="quality",
+            title="정보통신 공개 안전도 가드",
+            current_gap=(
+                "특수 업종 정밀도 자체는 녹색이어도, 정보통신 업종군에서 full 공개 비중이 높으면 "
+                "추천 공개정책이 실제 서비스 계약보다 공격적으로 보일 수 있다."
+            ),
+            evidence=(
+                f"special_sector_publication_safety_ok={special_sector_publication_safety_ok}, "
+                f"telecom_publication_safety_ok={telecom_publication_safety_ok}, "
+                f"telecom_full_count={telecom_full_count}, telecom_full_share={telecom_full_share:.4f}"
+            ),
+            proposed_next_step="정보통신 업종군은 range_only/consult_only 우선으로 더 보수적으로 분기하고, full 공개 임계치를 sector별로 다시 고정한다.",
+            success_metric="yangdo_special_sector_publication_safe == true and telecom full publication share falls below the sector threshold",
+            parallelizable_with=["public_language_normalization", "prompt_loop_operationalization"],
+        ),
         _make_item(
             item_id="recommendation_regression_repair",
             priority="P0",
@@ -301,7 +389,7 @@ def build_brainstorm(
             current_gap="정책과 계약은 맞아도 사용자가 결과를 즉시 행동으로 옮길 수 있을 만큼 쉬운 문구는 아직 부족하다.",
             evidence=(
                 f"service_copy_ready={public_copy_ready}, ux_packet_ready={ux_packet_ready}, "
-                f"precision_label_count={_safe_int(service_copy_summary.get('precision_label_count'))}"
+                f"public_language_remaining_phrase_count={public_language_remaining_phrase_count}"
             ),
             proposed_next_step="가격 계산이 아니라 시장 적합도 해석으로 읽히도록 CTA와 결과 카피를 다시 정리한다.",
             success_metric="public UI smoke shows only plain-language labels and no technical helper wording",
@@ -313,7 +401,7 @@ def build_brainstorm(
             track="quality",
             title="추천 0건 fallback 복구 가드",
             current_gap=f"비교매물이 0건인 케이스가 {zero_display_total}건이라 fallback CTA의 순서와 문구가 제품 신뢰에 직접 영향을 준다.",
-            evidence=f"records_zero_display={zero_display_total}",
+            evidence=f"records_zero_display={zero_display_total}, zero_display_guard_ready={zero_display_guard_ready}",
             proposed_next_step="0건 케이스를 별도 회귀로 고정하고 보강 입력과 상담 CTA의 노출 순서를 계약으로 묶는다.",
             success_metric="zero-display fallback scenarios pass and publish the intended CTA order",
             parallelizable_with=["single_recommendation_autoloop", "public_language_normalization"],
@@ -329,24 +417,54 @@ def build_brainstorm(
             success_metric="latest JSON/MD brainstorm packet exists and MASTERPLAN points to it",
             parallelizable_with=["special_sector_split_precision_expansion", "public_language_normalization"],
         ),
+        _make_item(
+            item_id="service_explainability_upgrade",
+            priority="P2",
+            track="product",
+            title="시장 적합도 해석 UX 고도화",
+            current_gap=(
+                "정밀도와 공개 계약은 녹색이어도, 서비스 페이지와 추천 요약이 아직 "
+                "'가격 계산기'처럼 읽히는 구간이 남아 있다."
+            ),
+            evidence=(
+                f"service_copy_ready={public_copy_ready}, ux_packet_ready={ux_packet_ready}, "
+                f"public_language_ready={public_language_ready}, prompt_doc_ready={prompt_doc_ready}"
+            ),
+            proposed_next_step=(
+                "추천 이유, 일치 축, 비일치 축, 시장 확인 CTA를 '시장 적합도 해석' 중심으로 "
+                "재배치하고 detail_explainable lane을 단독 업셀 단계로 더 선명하게 만든다."
+            ),
+            success_metric=(
+                "public service copy and UX packet describe recommendation output as market-fit "
+                "interpretation instead of price-only estimation"
+            ),
+            parallelizable_with=["prompt_loop_operationalization", "public_language_normalization"],
+        ),
     ]
 
     primary_id = _select_execution_lane(
         regression_fail_total=regression_fail_total,
         alignment_issue_count=alignment_issue_count,
         one_or_less_display_total=one_or_less_display_total,
+        special_sector_publication_safety_ok=special_sector_publication_safety_ok,
         special_sector_scenario_total=special_sector_scenario_total,
         zero_display_total=zero_display_total,
         autoloop_ready=autoloop_ready,
+        zero_display_guard_ready=zero_display_guard_ready,
+        public_language_ready=public_language_ready,
+        prompt_doc_ready=prompt_doc_ready,
     )
     primary_execution = next((item for item in brainstorm_items if item.get("id") == primary_id), {})
     parallel_id = _select_parallel_lane(
         primary_id=primary_id,
         one_or_less_display_total=one_or_less_display_total,
+        special_sector_publication_safety_ok=special_sector_publication_safety_ok,
         special_sector_scenario_total=special_sector_scenario_total,
         zero_display_total=zero_display_total,
         prompt_doc_ready=prompt_doc_ready,
         autoloop_ready=autoloop_ready,
+        zero_display_guard_ready=zero_display_guard_ready,
+        public_language_ready=public_language_ready,
     )
     primary_parallel = next((item for item in brainstorm_items if item.get("id") == parallel_id), {})
 
@@ -376,11 +494,23 @@ def build_brainstorm(
             "zero_display_total": zero_display_total,
             "avg_display_neighbors": round(avg_display_neighbors, 4),
             "special_sector_scenario_total": special_sector_scenario_total,
+            "special_sector_publication_safety_ok": special_sector_publication_safety_ok,
+            "telecom_publication_safety_ok": telecom_publication_safety_ok,
+            "telecom_full_count": telecom_full_count,
+            "telecom_full_share": round(telecom_full_share, 4),
             "prompt_doc_ready": prompt_doc_ready,
             "service_copy_ready": public_copy_ready,
             "ux_packet_ready": ux_packet_ready,
             "autoloop_ready": autoloop_ready,
             "zero_recovery_ready": zero_recovery_ready,
+            "zero_display_audit_ready": zero_display_audit_ready,
+            "zero_display_guard_ready": zero_display_guard_ready,
+            "zero_display_selected_lane_ok": zero_display_selected_lane_ok,
+            "public_language_audit_ready": public_language_audit_ready,
+            "public_language_ready": public_language_ready,
+            "public_language_remaining_phrase_count": public_language_remaining_phrase_count,
+            "execution_lane": _safe_str(primary_execution.get("id")),
+            "parallel_lane": _safe_str(primary_parallel.get("id")),
             "all_green": regression_fail_total == 0,
         },
         "current_execution_lane": primary_execution,
@@ -425,11 +555,21 @@ def render_markdown(report: Dict[str, Any]) -> str:
         f"- zero_display_total: `{summary.get('zero_display_total', 0)}`",
         f"- avg_display_neighbors: `{summary.get('avg_display_neighbors', 0)}`",
         f"- special_sector_scenario_total: `{summary.get('special_sector_scenario_total', 0)}`",
+        f"- special_sector_publication_safety_ok: `{summary.get('special_sector_publication_safety_ok', False)}`",
+        f"- telecom_publication_safety_ok: `{summary.get('telecom_publication_safety_ok', False)}`",
+        f"- telecom_full_count: `{summary.get('telecom_full_count', 0)}`",
+        f"- telecom_full_share: `{summary.get('telecom_full_share', 0)}`",
         f"- prompt_doc_ready: `{summary.get('prompt_doc_ready', False)}`",
         f"- service_copy_ready: `{summary.get('service_copy_ready', False)}`",
         f"- ux_packet_ready: `{summary.get('ux_packet_ready', False)}`",
         f"- autoloop_ready: `{summary.get('autoloop_ready', False)}`",
         f"- zero_recovery_ready: `{summary.get('zero_recovery_ready', False)}`",
+        f"- zero_display_audit_ready: `{summary.get('zero_display_audit_ready', False)}`",
+        f"- zero_display_guard_ready: `{summary.get('zero_display_guard_ready', False)}`",
+        f"- zero_display_selected_lane_ok: `{summary.get('zero_display_selected_lane_ok', False)}`",
+        f"- public_language_audit_ready: `{summary.get('public_language_audit_ready', False)}`",
+        f"- public_language_ready: `{summary.get('public_language_ready', False)}`",
+        f"- public_language_remaining_phrase_count: `{summary.get('public_language_remaining_phrase_count', 0)}`",
         f"- all_green: `{summary.get('all_green', False)}`",
         "",
         "## Active Execution Lane",
@@ -510,8 +650,11 @@ def main() -> int:
     parser.add_argument("--diversity-input", default=str(DEFAULT_DIVERSITY_INPUT))
     parser.add_argument("--alignment-input", default=str(DEFAULT_ALIGNMENT_INPUT))
     parser.add_argument("--comparable-input", default=str(DEFAULT_COMPARABLE_INPUT))
+    parser.add_argument("--special-sector-input", default=str(DEFAULT_SPECIAL_SECTOR_INPUT))
     parser.add_argument("--ux-input", default=str(DEFAULT_UX_INPUT))
     parser.add_argument("--service-copy-input", default=str(DEFAULT_SERVICE_COPY_INPUT))
+    parser.add_argument("--zero-display-audit-input", default=str(DEFAULT_ZERO_DISPLAY_AUDIT_INPUT))
+    parser.add_argument("--public-language-audit-input", default=str(DEFAULT_PUBLIC_LANGUAGE_AUDIT_INPUT))
     parser.add_argument("--prompt-doc-input", default=str(DEFAULT_PROMPT_DOC_INPUT))
     parser.add_argument("--runtime-source", default=str(DEFAULT_RUNTIME_SOURCE))
     parser.add_argument("--json-output", default=str(DEFAULT_JSON_OUTPUT))
@@ -524,8 +667,11 @@ def main() -> int:
         diversity_audit=_load_json(Path(args.diversity_input).expanduser().resolve()),
         alignment_audit=_load_json(Path(args.alignment_input).expanduser().resolve()),
         comparable_selection_overall=_load_json(Path(args.comparable_input).expanduser().resolve()),
+        special_sector_packet=_load_json(Path(args.special_sector_input).expanduser().resolve()),
         ux_packet=_load_json(Path(args.ux_input).expanduser().resolve()),
         service_copy_packet=_load_json(Path(args.service_copy_input).expanduser().resolve()),
+        zero_display_audit=_load_json(Path(args.zero_display_audit_input).expanduser().resolve()),
+        public_language_audit=_load_json(Path(args.public_language_audit_input).expanduser().resolve()),
         prompt_doc=_load_text(Path(args.prompt_doc_input).expanduser().resolve()),
         runtime_source_text=_load_text(Path(args.runtime_source).expanduser().resolve()),
     )

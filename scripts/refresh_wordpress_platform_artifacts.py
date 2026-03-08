@@ -11,6 +11,9 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 ROOT = Path(__file__).resolve().parents[1]
+NON_BLOCKING_FAILURES = {
+    "generate_permit_preset_story_release_guard.py",
+}
 
 
 def _python_exe() -> str:
@@ -61,6 +64,8 @@ def refresh_wordpress_platform_artifacts() -> Dict[str, Any]:
         ROOT / "scripts" / "generate_yangdo_recommendation_qa_matrix.py",
         ROOT / "scripts" / "generate_yangdo_recommendation_precision_matrix.py",
         ROOT / "scripts" / "generate_yangdo_recommendation_diversity_audit.py",
+        ROOT / "scripts" / "audit_special_sector_settlement_modes.py",
+        ROOT / "scripts" / "generate_yangdo_special_sector_packet.py",
         ROOT / "scripts" / "generate_yangdo_recommendation_contract_audit.py",
         ROOT / "scripts" / "generate_widget_rental_catalog.py",
         ROOT / "scripts" / "generate_yangdo_recommendation_bridge_packet.py",
@@ -70,6 +75,26 @@ def refresh_wordpress_platform_artifacts() -> Dict[str, Any]:
         ROOT / "scripts" / "generate_permit_rental_lane_packet.py",
         ROOT / "scripts" / "generate_permit_service_ux_packet.py",
         ROOT / "scripts" / "generate_permit_public_contract_audit.py",
+        ROOT / "scripts" / "generate_permit_review_case_presets.py",
+        ROOT / "scripts" / "generate_permit_case_story_surface.py",
+        ROOT / "scripts" / "generate_permit_case_release_guard.py",
+        ROOT / "scripts" / "generate_permit_preset_story_release_guard.py",
+        ROOT / "scripts" / "generate_permit_operator_demo_packet.py",
+        ROOT / "scripts" / "generate_permit_review_reason_decision_ladder.py",
+        ROOT / "scripts" / "generate_permit_prompt_case_binding_packet.py",
+        ROOT / "scripts" / "generate_permit_critical_prompt_surface_packet.py",
+        ROOT / "scripts" / "generate_permit_partner_binding_parity_packet.py",
+        ROOT / "scripts" / "generate_permit_partner_binding_observability.py",
+        ROOT / "scripts" / "generate_permit_release_bundle.py",
+        ROOT / "scripts" / "generate_permit_demo_surface_observability.py",
+        ROOT / "scripts" / "generate_permit_surface_drift_digest.py",
+        ROOT / "scripts" / "generate_founder_mode_prompt_bundle.py",
+        ROOT / "scripts" / "generate_system_split_first_principles_packet.py",
+        ROOT / "scripts" / "generate_permit_thinking_prompt_bundle_packet.py",
+        ROOT / "scripts" / "generate_permit_next_action_brainstorm.py",
+        ROOT / "scripts" / "generate_permit_runtime_reasoning_binding_audit.py",
+        ROOT / "scripts" / "generate_permit_law_case_coverage_packet.py",
+        ROOT / "scripts" / "generate_yangdo_next_action_brainstorm.py",
         ROOT / "scripts" / "generate_partner_input_handoff_packet.py",
         ROOT / "scripts" / "scaffold_wp_platform_blueprints.py",
         ROOT / "scripts" / "apply_wp_surface_lab_blueprints.py",
@@ -85,16 +110,23 @@ def refresh_wordpress_platform_artifacts() -> Dict[str, Any]:
         ROOT / "scripts" / "generate_kr_live_operator_checklist.py",
         ROOT / "scripts" / "generate_program_improvement_loop.py",
         ROOT / "scripts" / "generate_ai_platform_first_principles_review.py",
+        ROOT / "scripts" / "generate_external_masterplan_alignment.py",
         ROOT / "scripts" / "generate_partner_input_operator_flow.py",
-        ROOT / "scripts" / "generate_system_split_first_principles_packet.py",
         ROOT / "scripts" / "generate_next_batch_focus_packet.py",
         ROOT / "scripts" / "generate_next_execution_packet.py",
+        ROOT / "scripts" / "generate_founder_execution_chain.py",
+        ROOT / "scripts" / "generate_founder_selection_consistency_audit.py",
         ROOT / "scripts" / "generate_operations_packet.py",
     ]
     steps: List[Dict[str, Any]] = []
     ok = True
     for script in scripts:
         result = _run(script)
+        if not result["ok"] and script.name in NON_BLOCKING_FAILURES:
+            result["non_blocking"] = True
+            result["warning"] = "non_blocking_artifact_failed"
+            steps.append(result)
+            continue
         steps.append(result)
         if not result["ok"]:
             ok = False

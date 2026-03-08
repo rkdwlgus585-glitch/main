@@ -115,6 +115,14 @@ def build_step_specs(python_executable: str) -> List[Dict[str, Any]]:
             ],
         },
         {
+            "name": "permit_capital_registration_logic_packet",
+            "command": [python_executable, "scripts\\generate_permit_capital_registration_logic_packet.py"],
+            "outputs": [
+                str(ROOT / "logs" / "permit_capital_registration_logic_packet_latest.json"),
+                str(ROOT / "logs" / "permit_capital_registration_logic_packet_latest.md"),
+            ],
+        },
+        {
             "name": "permit_provenance_audit",
             "command": [python_executable, "scripts\\generate_permit_provenance_audit.py"],
             "outputs": [
@@ -155,6 +163,14 @@ def build_step_specs(python_executable: str) -> List[Dict[str, Any]]:
             ],
         },
         {
+            "name": "permit_capital_registration_logic_packet_refresh",
+            "command": [python_executable, "scripts\\generate_permit_capital_registration_logic_packet.py"],
+            "outputs": [
+                str(ROOT / "logs" / "permit_capital_registration_logic_packet_latest.json"),
+                str(ROOT / "logs" / "permit_capital_registration_logic_packet_latest.md"),
+            ],
+        },
+        {
             "name": "permit_review_case_presets",
             "command": [python_executable, "scripts\\generate_permit_review_case_presets.py"],
             "outputs": [
@@ -179,6 +195,30 @@ def build_step_specs(python_executable: str) -> List[Dict[str, Any]]:
             ],
         },
         {
+            "name": "permit_review_reason_decision_ladder",
+            "command": [python_executable, "scripts\\generate_permit_review_reason_decision_ladder.py"],
+            "outputs": [
+                str(ROOT / "logs" / "permit_review_reason_decision_ladder_latest.json"),
+                str(ROOT / "logs" / "permit_review_reason_decision_ladder_latest.md"),
+            ],
+        },
+        {
+            "name": "permit_prompt_case_binding_packet",
+            "command": [python_executable, "scripts\\generate_permit_prompt_case_binding_packet.py"],
+            "outputs": [
+                str(ROOT / "logs" / "permit_prompt_case_binding_packet_latest.json"),
+                str(ROOT / "logs" / "permit_prompt_case_binding_packet_latest.md"),
+            ],
+        },
+        {
+            "name": "permit_critical_prompt_surface_packet",
+            "command": [python_executable, "scripts\\generate_permit_critical_prompt_surface_packet.py"],
+            "outputs": [
+                str(ROOT / "logs" / "permit_critical_prompt_surface_packet_latest.json"),
+                str(ROOT / "logs" / "permit_critical_prompt_surface_packet_latest.md"),
+            ],
+        },
+        {
             "name": "widget_rental_catalog",
             "command": [python_executable, "scripts\\generate_widget_rental_catalog.py"],
             "outputs": [
@@ -190,6 +230,38 @@ def build_step_specs(python_executable: str) -> List[Dict[str, Any]]:
             "name": "api_contract_spec",
             "command": [python_executable, "scripts\\generate_api_contract_spec.py"],
             "outputs": [str(ROOT / "logs" / "api_contract_spec_latest.json")],
+        },
+        {
+            "name": "permit_partner_binding_parity_packet",
+            "command": [python_executable, "scripts\\generate_permit_partner_binding_parity_packet.py"],
+            "outputs": [
+                str(ROOT / "logs" / "permit_partner_binding_parity_packet_latest.json"),
+                str(ROOT / "logs" / "permit_partner_binding_parity_packet_latest.md"),
+            ],
+        },
+        {
+            "name": "permit_thinking_prompt_bundle_packet",
+            "command": [python_executable, "scripts\\generate_permit_thinking_prompt_bundle_packet.py"],
+            "outputs": [
+                str(ROOT / "logs" / "permit_thinking_prompt_bundle_packet_latest.json"),
+                str(ROOT / "logs" / "permit_thinking_prompt_bundle_packet_latest.md"),
+            ],
+        },
+        {
+            "name": "permit_partner_binding_observability",
+            "command": [python_executable, "scripts\\generate_permit_partner_binding_observability.py"],
+            "outputs": [
+                str(ROOT / "logs" / "permit_partner_binding_observability_latest.json"),
+                str(ROOT / "logs" / "permit_partner_binding_observability_latest.md"),
+            ],
+        },
+        {
+            "name": "permit_partner_gap_preview_digest",
+            "command": [python_executable, "scripts\\generate_permit_partner_gap_preview_digest.py"],
+            "outputs": [
+                str(ROOT / "logs" / "permit_partner_gap_preview_digest_latest.json"),
+                str(ROOT / "logs" / "permit_partner_gap_preview_digest_latest.md"),
+            ],
         },
         {
             "name": "permit_case_release_guard",
@@ -208,7 +280,71 @@ def build_step_specs(python_executable: str) -> List[Dict[str, Any]]:
             ],
         },
         {
+            "name": "permit_demo_surface_observability",
+            "command": [python_executable, "scripts\\generate_permit_demo_surface_observability.py"],
+            "outputs": [
+                str(ROOT / "logs" / "permit_demo_surface_observability_latest.json"),
+                str(ROOT / "logs" / "permit_demo_surface_observability_latest.md"),
+            ],
+        },
+        {
+            "name": "permit_surface_drift_digest",
+            "command": [python_executable, "scripts\\generate_permit_surface_drift_digest.py"],
+            "outputs": [
+                str(ROOT / "logs" / "permit_surface_drift_digest_latest.json"),
+                str(ROOT / "logs" / "permit_surface_drift_digest_latest.md"),
+            ],
+        },
+        {
+            "name": "permit_runtime_reasoning_guard",
+            "command": [python_executable, "scripts\\generate_permit_runtime_reasoning_guard.py"],
+            "outputs": [
+                str(ROOT / "logs" / "permit_runtime_reasoning_guard_latest.json"),
+                str(ROOT / "logs" / "permit_runtime_reasoning_guard_latest.md"),
+            ],
+        },
+        {
             "name": "permit_next_action_brainstorm",
+            "command": [python_executable, "scripts\\generate_permit_next_action_brainstorm.py"],
+            "outputs": [
+                str(ROOT / "logs" / "permit_next_action_brainstorm_latest.json"),
+                str(ROOT / "logs" / "permit_next_action_brainstorm_latest.md"),
+            ],
+        },
+        {
+            "name": "founder_mode_prompt_bundle_refresh",
+            "command": [python_executable, "scripts\\generate_founder_mode_prompt_bundle.py"],
+            "outputs": [
+                str(ROOT / "logs" / "founder_mode_prompt_bundle_latest.json"),
+                str(ROOT / "logs" / "founder_mode_prompt_bundle_latest.md"),
+            ],
+        },
+        {
+            "name": "system_split_first_principles_packet_refresh",
+            "command": [python_executable, "scripts\\generate_system_split_first_principles_packet.py"],
+            "outputs": [
+                str(ROOT / "logs" / "system_split_first_principles_packet_latest.json"),
+                str(ROOT / "logs" / "system_split_first_principles_packet_latest.md"),
+            ],
+        },
+        {
+            "name": "permit_thinking_prompt_bundle_packet_refresh",
+            "command": [python_executable, "scripts\\generate_permit_thinking_prompt_bundle_packet.py"],
+            "outputs": [
+                str(ROOT / "logs" / "permit_thinking_prompt_bundle_packet_latest.json"),
+                str(ROOT / "logs" / "permit_thinking_prompt_bundle_packet_latest.md"),
+            ],
+        },
+        {
+            "name": "permit_closed_lane_stale_audit",
+            "command": [python_executable, "scripts\\generate_permit_closed_lane_stale_audit.py"],
+            "outputs": [
+                str(ROOT / "logs" / "permit_closed_lane_stale_audit_latest.json"),
+                str(ROOT / "logs" / "permit_closed_lane_stale_audit_latest.md"),
+            ],
+        },
+        {
+            "name": "permit_next_action_brainstorm_refresh",
             "command": [python_executable, "scripts\\generate_permit_next_action_brainstorm.py"],
             "outputs": [
                 str(ROOT / "logs" / "permit_next_action_brainstorm_latest.json"),
@@ -223,6 +359,10 @@ def _truncate_output(text: str, limit: int = 4000) -> str:
     if len(clean) <= limit:
         return clean
     return clean[: limit - 3] + "..."
+
+
+def _safe_str(value: Any) -> str:
+    return str(value or "").strip()
 
 
 def _find_step_output_path(step_results: List[Dict[str, Any]], step_name: str, suffix: str) -> str:
@@ -270,6 +410,18 @@ def run_bundle(*, python_executable: str) -> Dict[str, Any]:
     case_story_surface_report = {}
     preset_story_release_guard_report = {}
     operator_demo_packet_report = {}
+    review_reason_decision_ladder_report = {}
+    prompt_case_binding_packet_report = {}
+    critical_prompt_surface_packet_report = {}
+    partner_binding_parity_packet_report = {}
+    thinking_prompt_bundle_packet_report = {}
+    partner_binding_observability_report = {}
+    partner_gap_preview_digest_report = {}
+    demo_surface_observability_report = {}
+    surface_drift_digest_report = {}
+    runtime_reasoning_guard_report = {}
+    closed_lane_stale_audit_report = {}
+    capital_registration_logic_packet_report = {}
     widget_rental_catalog_report = {}
     api_contract_spec_report = {}
     for row in results:
@@ -288,6 +440,30 @@ def run_bundle(*, python_executable: str) -> Dict[str, Any]:
             preset_story_release_guard_report = _load_json_if_exists(json_output)
         elif name == "permit_operator_demo_packet":
             operator_demo_packet_report = _load_json_if_exists(json_output)
+        elif name == "permit_review_reason_decision_ladder":
+            review_reason_decision_ladder_report = _load_json_if_exists(json_output)
+        elif name == "permit_prompt_case_binding_packet":
+            prompt_case_binding_packet_report = _load_json_if_exists(json_output)
+        elif name == "permit_critical_prompt_surface_packet":
+            critical_prompt_surface_packet_report = _load_json_if_exists(json_output)
+        elif name == "permit_partner_binding_parity_packet":
+            partner_binding_parity_packet_report = _load_json_if_exists(json_output)
+        elif name == "permit_thinking_prompt_bundle_packet":
+            thinking_prompt_bundle_packet_report = _load_json_if_exists(json_output)
+        elif name == "permit_partner_binding_observability":
+            partner_binding_observability_report = _load_json_if_exists(json_output)
+        elif name == "permit_partner_gap_preview_digest":
+            partner_gap_preview_digest_report = _load_json_if_exists(json_output)
+        elif name == "permit_demo_surface_observability":
+            demo_surface_observability_report = _load_json_if_exists(json_output)
+        elif name == "permit_surface_drift_digest":
+            surface_drift_digest_report = _load_json_if_exists(json_output)
+        elif name == "permit_runtime_reasoning_guard":
+            runtime_reasoning_guard_report = _load_json_if_exists(json_output)
+        elif name == "permit_closed_lane_stale_audit":
+            closed_lane_stale_audit_report = _load_json_if_exists(json_output)
+        elif name in {"permit_capital_registration_logic_packet", "permit_capital_registration_logic_packet_refresh"}:
+            capital_registration_logic_packet_report = _load_json_if_exists(json_output)
         elif name == "widget_rental_catalog":
             widget_rental_catalog_report = _load_json_if_exists(json_output)
         elif name == "api_contract_spec":
@@ -300,6 +476,18 @@ def run_bundle(*, python_executable: str) -> Dict[str, Any]:
         case_story_surface_report=case_story_surface_report,
         preset_story_release_guard_report=preset_story_release_guard_report,
         operator_demo_packet_report=operator_demo_packet_report,
+        review_reason_decision_ladder_report=review_reason_decision_ladder_report,
+        prompt_case_binding_packet_report=prompt_case_binding_packet_report,
+        critical_prompt_surface_packet_report=critical_prompt_surface_packet_report,
+        partner_binding_parity_packet_report=partner_binding_parity_packet_report,
+        thinking_prompt_bundle_packet_report=thinking_prompt_bundle_packet_report,
+        partner_binding_observability_report=partner_binding_observability_report,
+        partner_gap_preview_digest_report=partner_gap_preview_digest_report,
+        demo_surface_observability_report=demo_surface_observability_report,
+        surface_drift_digest_report=surface_drift_digest_report,
+        runtime_reasoning_guard_report=runtime_reasoning_guard_report,
+        closed_lane_stale_audit_report=closed_lane_stale_audit_report,
+        capital_registration_logic_packet_report=capital_registration_logic_packet_report,
         widget_rental_catalog_report=widget_rental_catalog_report,
         api_contract_spec_report=api_contract_spec_report,
     )
@@ -314,6 +502,18 @@ def build_manifest(
     case_story_surface_report: Dict[str, Any] | None = None,
     preset_story_release_guard_report: Dict[str, Any] | None = None,
     operator_demo_packet_report: Dict[str, Any] | None = None,
+    review_reason_decision_ladder_report: Dict[str, Any] | None = None,
+    prompt_case_binding_packet_report: Dict[str, Any] | None = None,
+    critical_prompt_surface_packet_report: Dict[str, Any] | None = None,
+    partner_binding_parity_packet_report: Dict[str, Any] | None = None,
+    thinking_prompt_bundle_packet_report: Dict[str, Any] | None = None,
+    partner_binding_observability_report: Dict[str, Any] | None = None,
+    partner_gap_preview_digest_report: Dict[str, Any] | None = None,
+    demo_surface_observability_report: Dict[str, Any] | None = None,
+    surface_drift_digest_report: Dict[str, Any] | None = None,
+    runtime_reasoning_guard_report: Dict[str, Any] | None = None,
+    closed_lane_stale_audit_report: Dict[str, Any] | None = None,
+    capital_registration_logic_packet_report: Dict[str, Any] | None = None,
     widget_rental_catalog_report: Dict[str, Any] | None = None,
     api_contract_spec_report: Dict[str, Any] | None = None,
 ) -> Dict[str, Any]:
@@ -357,6 +557,66 @@ def build_manifest(
         if isinstance(operator_demo_packet_report, dict)
         else {}
     )
+    review_reason_decision_ladder_summary = (
+        dict((review_reason_decision_ladder_report or {}).get("summary") or {})
+        if isinstance(review_reason_decision_ladder_report, dict)
+        else {}
+    )
+    prompt_case_binding_packet_summary = (
+        dict((prompt_case_binding_packet_report or {}).get("summary") or {})
+        if isinstance(prompt_case_binding_packet_report, dict)
+        else {}
+    )
+    critical_prompt_surface_packet_summary = (
+        dict((critical_prompt_surface_packet_report or {}).get("summary") or {})
+        if isinstance(critical_prompt_surface_packet_report, dict)
+        else {}
+    )
+    partner_binding_parity_packet_summary = (
+        dict((partner_binding_parity_packet_report or {}).get("summary") or {})
+        if isinstance(partner_binding_parity_packet_report, dict)
+        else {}
+    )
+    thinking_prompt_bundle_packet_summary = (
+        dict((thinking_prompt_bundle_packet_report or {}).get("summary") or {})
+        if isinstance(thinking_prompt_bundle_packet_report, dict)
+        else {}
+    )
+    partner_binding_observability_summary = (
+        dict((partner_binding_observability_report or {}).get("summary") or {})
+        if isinstance(partner_binding_observability_report, dict)
+        else {}
+    )
+    partner_gap_preview_digest_summary = (
+        dict((partner_gap_preview_digest_report or {}).get("summary") or {})
+        if isinstance(partner_gap_preview_digest_report, dict)
+        else {}
+    )
+    demo_surface_observability_summary = (
+        dict((demo_surface_observability_report or {}).get("summary") or {})
+        if isinstance(demo_surface_observability_report, dict)
+        else {}
+    )
+    surface_drift_digest_summary = (
+        dict((surface_drift_digest_report or {}).get("summary") or {})
+        if isinstance(surface_drift_digest_report, dict)
+        else {}
+    )
+    runtime_reasoning_guard_summary = (
+        dict((runtime_reasoning_guard_report or {}).get("summary") or {})
+        if isinstance(runtime_reasoning_guard_report, dict)
+        else {}
+    )
+    closed_lane_stale_audit_summary = (
+        dict((closed_lane_stale_audit_report or {}).get("summary") or {})
+        if isinstance(closed_lane_stale_audit_report, dict)
+        else {}
+    )
+    capital_registration_logic_packet_summary = (
+        dict((capital_registration_logic_packet_report or {}).get("summary") or {})
+        if isinstance(capital_registration_logic_packet_report, dict)
+        else {}
+    )
     widget_summary = (
         dict((widget_rental_catalog_report or {}).get("summary") or {})
         if isinstance(widget_rental_catalog_report, dict)
@@ -390,12 +650,90 @@ def build_manifest(
         "permit_operator_demo_packet",
         "permit_operator_demo_packet_latest.md",
     )
+    thinking_prompt_bundle_json_path = _find_step_output_path(
+        step_results,
+        "permit_thinking_prompt_bundle_packet",
+        "permit_thinking_prompt_bundle_packet_latest.json",
+    )
+    thinking_prompt_bundle_md_path = _find_step_output_path(
+        step_results,
+        "permit_thinking_prompt_bundle_packet",
+        "permit_thinking_prompt_bundle_packet_latest.md",
+    )
+    partner_binding_observability_json_path = _find_step_output_path(
+        step_results,
+        "permit_partner_binding_observability",
+        "permit_partner_binding_observability_latest.json",
+    )
+    partner_binding_observability_md_path = _find_step_output_path(
+        step_results,
+        "permit_partner_binding_observability",
+        "permit_partner_binding_observability_latest.md",
+    )
+    partner_gap_preview_digest_json_path = _find_step_output_path(
+        step_results,
+        "permit_partner_gap_preview_digest",
+        "permit_partner_gap_preview_digest_latest.json",
+    )
+    partner_gap_preview_digest_md_path = _find_step_output_path(
+        step_results,
+        "permit_partner_gap_preview_digest",
+        "permit_partner_gap_preview_digest_latest.md",
+    )
+    demo_surface_observability_json_path = _find_step_output_path(
+        step_results,
+        "permit_demo_surface_observability",
+        "permit_demo_surface_observability_latest.json",
+    )
+    demo_surface_observability_md_path = _find_step_output_path(
+        step_results,
+        "permit_demo_surface_observability",
+        "permit_demo_surface_observability_latest.md",
+    )
+    surface_drift_digest_json_path = _find_step_output_path(
+        step_results,
+        "permit_surface_drift_digest",
+        "permit_surface_drift_digest_latest.json",
+    )
+    surface_drift_digest_md_path = _find_step_output_path(
+        step_results,
+        "permit_surface_drift_digest",
+        "permit_surface_drift_digest_latest.md",
+    )
+    runtime_reasoning_guard_json_path = _find_step_output_path(
+        step_results,
+        "permit_runtime_reasoning_guard",
+        "permit_runtime_reasoning_guard_latest.json",
+    )
+    runtime_reasoning_guard_md_path = _find_step_output_path(
+        step_results,
+        "permit_runtime_reasoning_guard",
+        "permit_runtime_reasoning_guard_latest.md",
+    )
+    closed_lane_stale_audit_json_path = _find_step_output_path(
+        step_results,
+        "permit_closed_lane_stale_audit",
+        "permit_closed_lane_stale_audit_latest.json",
+    )
+    closed_lane_stale_audit_md_path = _find_step_output_path(
+        step_results,
+        "permit_closed_lane_stale_audit",
+        "permit_closed_lane_stale_audit_latest.md",
+    )
     operator_demo_release_surface_ready = bool(
         operator_demo_summary.get("operator_demo_ready", False) and operator_demo_packet_md_path
     )
     widget_partner_demo_surface_ready = bool(widget_summary.get("permit_partner_demo_surface_ready", False))
+    widget_partner_binding_surface_ready = bool(widget_summary.get("permit_partner_binding_surface_ready", False))
     api_partner_demo_surface_ready = bool(api_contract_master_summary.get("partner_demo_surface_ready", False))
+    api_partner_binding_surface_ready = bool(api_contract_master_summary.get("partner_binding_surface_ready", False))
     partner_demo_surface_ready = widget_partner_demo_surface_ready and api_partner_demo_surface_ready
+    thinking_prompt_bundle_ready = bool(thinking_prompt_bundle_packet_summary.get("packet_ready", False))
+    partner_binding_observability_ready = bool(partner_binding_observability_summary.get("observability_ready", False))
+    demo_surface_observability_ready = bool(
+        demo_surface_observability_summary.get("observability_ready", False)
+    )
+    surface_drift_digest_ready = bool(surface_drift_digest_summary.get("digest_ready", False))
     critical_prompt_doc = _load_text_if_exists(DEFAULT_PROMPT_DOC)
     critical_prompt_doc_ready = bool(critical_prompt_doc.strip())
     critical_prompt_doc_excerpt = _doc_excerpt(critical_prompt_doc)
@@ -431,6 +769,181 @@ def build_manifest(
         "widget_partner_demo_surface_ready": widget_partner_demo_surface_ready,
         "api_partner_demo_surface_ready": api_partner_demo_surface_ready,
         "partner_demo_surface_ready": partner_demo_surface_ready,
+        "widget_partner_binding_surface_ready": widget_partner_binding_surface_ready,
+        "api_partner_binding_surface_ready": api_partner_binding_surface_ready,
+        "partner_binding_surface_ready": widget_partner_binding_surface_ready and api_partner_binding_surface_ready,
+        "prompt_case_binding_packet_ready": bool(prompt_case_binding_packet_summary.get("packet_ready", False)),
+        "critical_prompt_surface_packet_ready": bool(critical_prompt_surface_packet_summary.get("packet_ready", False)),
+        "partner_binding_parity_packet_ready": bool(partner_binding_parity_packet_summary.get("packet_ready", False)),
+        "thinking_prompt_bundle_ready": thinking_prompt_bundle_ready,
+        "thinking_prompt_bundle_prompt_section_total": int(
+            thinking_prompt_bundle_packet_summary.get("prompt_section_total", 0) or 0
+        ),
+        "thinking_prompt_bundle_operator_jump_case_total": int(
+            thinking_prompt_bundle_packet_summary.get("operator_jump_case_total", 0) or 0
+        ),
+        "thinking_prompt_bundle_decision_ladder_row_total": int(
+            thinking_prompt_bundle_packet_summary.get("decision_ladder_row_total", 0) or 0
+        ),
+        "thinking_prompt_bundle_runtime_target_ready": bool(
+            thinking_prompt_bundle_packet_summary.get("runtime_target_ready", False)
+        ),
+        "thinking_prompt_bundle_release_target_ready": bool(
+            thinking_prompt_bundle_packet_summary.get("release_target_ready", False)
+        ),
+        "thinking_prompt_bundle_operator_target_ready": bool(
+            thinking_prompt_bundle_packet_summary.get("operator_target_ready", False)
+        ),
+        "thinking_prompt_bundle_json_path": thinking_prompt_bundle_json_path,
+        "thinking_prompt_bundle_md_path": thinking_prompt_bundle_md_path,
+        "partner_binding_observability_ready": partner_binding_observability_ready,
+        "partner_binding_expected_family_total": int(
+            partner_binding_observability_summary.get("expected_family_total", 0) or 0
+        ),
+        "partner_binding_widget_family_total": int(
+            partner_binding_observability_summary.get("widget_binding_family_total", 0) or 0
+        ),
+        "partner_binding_api_family_total": int(
+            partner_binding_observability_summary.get("api_binding_family_total", 0) or 0
+        ),
+        "partner_binding_widget_missing_total": int(
+            partner_binding_observability_summary.get("widget_missing_family_total", 0) or 0
+        ),
+        "partner_binding_api_missing_total": int(
+            partner_binding_observability_summary.get("api_missing_family_total", 0) or 0
+        ),
+        "partner_binding_observability_json_path": partner_binding_observability_json_path,
+        "partner_binding_observability_md_path": partner_binding_observability_md_path,
+        "partner_binding_widget_missing_preview": [
+            str(item.get("claim_id") or "")
+            for item in list((partner_binding_observability_report or {}).get("widget_missing_preview") or [])[:5]
+            if isinstance(item, dict) and str(item.get("claim_id") or "").strip()
+        ],
+        "partner_binding_api_missing_preview": [
+            str(item.get("claim_id") or "")
+            for item in list((partner_binding_observability_report or {}).get("api_missing_preview") or [])[:5]
+            if isinstance(item, dict) and str(item.get("claim_id") or "").strip()
+        ],
+        "partner_gap_preview_digest_ready": bool(
+            partner_gap_preview_digest_summary.get("digest_ready", False)
+        ),
+        "partner_gap_preview_blank_binding_preset_total": int(
+            partner_gap_preview_digest_summary.get("blank_binding_preset_total", 0) or 0
+        ),
+        "partner_gap_preview_widget_preset_mismatch_total": int(
+            partner_gap_preview_digest_summary.get("widget_preset_mismatch_total", 0) or 0
+        ),
+        "partner_gap_preview_api_preset_mismatch_total": int(
+            partner_gap_preview_digest_summary.get("api_preset_mismatch_total", 0) or 0
+        ),
+        "partner_gap_preview_json_path": partner_gap_preview_digest_json_path,
+        "partner_gap_preview_md_path": partner_gap_preview_digest_md_path,
+        "partner_gap_preview_blank_binding_preview": [
+            str(item.get("claim_id") or "")
+            for item in list((partner_gap_preview_digest_report or {}).get("blank_binding_preset_preview") or [])[:5]
+            if isinstance(item, dict) and str(item.get("claim_id") or "").strip()
+        ],
+        "capital_registration_logic_packet_ready": bool(
+            capital_registration_logic_packet_summary.get("packet_ready", False)
+        ),
+        "capital_registration_focus_total": int(
+            capital_registration_logic_packet_summary.get("focus_target_total", 0) or 0
+        ),
+            "capital_registration_family_total": int(
+                capital_registration_logic_packet_summary.get("family_total", 0) or 0
+            ),
+            "capital_registration_core_only_guarded_total": int(
+                capital_registration_logic_packet_summary.get("core_only_guarded_total", 0) or 0
+            ),
+            "capital_evidence_missing_total": int(
+                capital_registration_logic_packet_summary.get("capital_evidence_missing_total", 0) or 0
+            ),
+        "technical_evidence_missing_total": int(
+            capital_registration_logic_packet_summary.get("technical_evidence_missing_total", 0) or 0
+        ),
+        "other_evidence_missing_total": int(
+            capital_registration_logic_packet_summary.get("other_evidence_missing_total", 0) or 0
+        ),
+        "capital_registration_primary_gap_id": _safe_str(
+            capital_registration_logic_packet_summary.get("primary_gap_id")
+        ),
+        "review_reason_total": int(review_reason_decision_ladder_summary.get("review_reason_total", 0) or 0),
+        "review_reason_manual_review_gate_total": int(
+            review_reason_decision_ladder_summary.get("manual_review_gate_total", 0) or 0
+        ),
+        "review_reason_prompt_bound_total": int(
+            review_reason_decision_ladder_summary.get("prompt_bound_reason_total", 0) or 0
+        ),
+        "review_reason_decision_ladder_ready": bool(
+            review_reason_decision_ladder_summary.get("decision_ladder_ready", False)
+        ),
+        "demo_surface_observability_ready": demo_surface_observability_ready,
+        "demo_surface_observability_json_path": demo_surface_observability_json_path,
+        "demo_surface_observability_md_path": demo_surface_observability_md_path,
+        "runtime_reasoning_card_surface_ready": bool(
+            demo_surface_observability_summary.get("runtime_reasoning_card_surface_ready", False)
+        ),
+        "runtime_reasoning_review_reason_total": int(
+            runtime_reasoning_guard_summary.get(
+                "review_reason_total",
+                demo_surface_observability_summary.get(
+                    "runtime_reasoning_review_reason_total",
+                    review_reason_decision_ladder_summary.get("review_reason_total", 0),
+                ),
+            )
+            or 0
+        ),
+        "runtime_reasoning_prompt_bound_total": int(
+            runtime_reasoning_guard_summary.get(
+                "prompt_bound_reason_total",
+                demo_surface_observability_summary.get(
+                    "runtime_reasoning_prompt_bound_total",
+                    review_reason_decision_ladder_summary.get("prompt_bound_reason_total", 0),
+                ),
+            )
+            or 0
+        ),
+        "runtime_reasoning_binding_gap_total": int(
+            runtime_reasoning_guard_summary.get(
+                "binding_gap_total",
+                demo_surface_observability_summary.get("runtime_reasoning_binding_gap_total", 0),
+            )
+            or 0
+        ),
+        "runtime_reasoning_guard_ready": bool(runtime_reasoning_guard_summary.get("guard_ready", False)),
+        "runtime_reasoning_guard_json_path": runtime_reasoning_guard_json_path,
+        "runtime_reasoning_guard_md_path": runtime_reasoning_guard_md_path,
+        "closed_lane_stale_audit_ready": bool(closed_lane_stale_audit_summary.get("audit_ready", False)),
+        "closed_lane_id": _safe_str(closed_lane_stale_audit_summary.get("closed_lane_id")),
+        "closed_lane_stale_reference_total": int(
+            closed_lane_stale_audit_summary.get("stale_reference_total", 0) or 0
+        ),
+        "closed_lane_stale_artifact_total": int(
+            closed_lane_stale_audit_summary.get("stale_artifact_total", 0) or 0
+        ),
+        "closed_lane_stale_primary_lane_total": int(
+            closed_lane_stale_audit_summary.get("stale_primary_lane_total", 0) or 0
+        ),
+        "closed_lane_stale_system_bottleneck_total": int(
+            closed_lane_stale_audit_summary.get("stale_system_bottleneck_total", 0) or 0
+        ),
+        "closed_lane_stale_prompt_bundle_lane_total": int(
+            closed_lane_stale_audit_summary.get("stale_prompt_bundle_lane_total", 0) or 0
+        ),
+        "closed_lane_stale_audit_json_path": closed_lane_stale_audit_json_path,
+        "closed_lane_stale_audit_md_path": closed_lane_stale_audit_md_path,
+        "surface_drift_digest_ready": surface_drift_digest_ready,
+        "surface_drift_digest_delta_ready": bool(surface_drift_digest_summary.get("delta_ready", False)),
+        "surface_drift_changed_surface_total": int(surface_drift_digest_summary.get("changed_surface_total", 0) or 0),
+        "surface_drift_readiness_flip_total": int(surface_drift_digest_summary.get("readiness_flip_total", 0) or 0),
+        "surface_drift_reasoning_changed_surface_total": int(
+            surface_drift_digest_summary.get("reasoning_changed_surface_total", 0) or 0
+        ),
+        "surface_drift_reasoning_regression_total": int(
+            surface_drift_digest_summary.get("reasoning_regression_total", 0) or 0
+        ),
+        "surface_drift_digest_json_path": surface_drift_digest_json_path,
+        "surface_drift_digest_md_path": surface_drift_digest_md_path,
         "critical_prompt_doc_ready": critical_prompt_doc_ready,
         "critical_prompt_doc_path": str(DEFAULT_PROMPT_DOC.resolve()),
         "runtime_missing_cases": list(case_guard_missing.get("runtime_cases") or [])[:5],
@@ -484,6 +997,166 @@ def build_manifest(
             "widget_partner_demo_surface_ready": widget_partner_demo_surface_ready,
             "api_partner_demo_surface_ready": api_partner_demo_surface_ready,
             "partner_demo_surface_ready": partner_demo_surface_ready,
+            "widget_partner_binding_surface_ready": widget_partner_binding_surface_ready,
+            "api_partner_binding_surface_ready": api_partner_binding_surface_ready,
+            "partner_binding_surface_ready": widget_partner_binding_surface_ready and api_partner_binding_surface_ready,
+            "prompt_case_binding_packet_ready": bool(prompt_case_binding_packet_summary.get("packet_ready", False)),
+            "critical_prompt_surface_packet_ready": bool(critical_prompt_surface_packet_summary.get("packet_ready", False)),
+            "partner_binding_parity_packet_ready": bool(partner_binding_parity_packet_summary.get("packet_ready", False)),
+            "thinking_prompt_bundle_ready": thinking_prompt_bundle_ready,
+            "thinking_prompt_bundle_prompt_section_total": int(
+                thinking_prompt_bundle_packet_summary.get("prompt_section_total", 0) or 0
+            ),
+            "thinking_prompt_bundle_operator_jump_case_total": int(
+                thinking_prompt_bundle_packet_summary.get("operator_jump_case_total", 0) or 0
+            ),
+            "thinking_prompt_bundle_decision_ladder_row_total": int(
+                thinking_prompt_bundle_packet_summary.get("decision_ladder_row_total", 0) or 0
+            ),
+            "thinking_prompt_bundle_runtime_target_ready": bool(
+                thinking_prompt_bundle_packet_summary.get("runtime_target_ready", False)
+            ),
+            "thinking_prompt_bundle_release_target_ready": bool(
+                thinking_prompt_bundle_packet_summary.get("release_target_ready", False)
+            ),
+            "thinking_prompt_bundle_operator_target_ready": bool(
+                thinking_prompt_bundle_packet_summary.get("operator_target_ready", False)
+            ),
+            "thinking_prompt_bundle_json_path": thinking_prompt_bundle_json_path,
+            "thinking_prompt_bundle_md_path": thinking_prompt_bundle_md_path,
+            "partner_binding_observability_ready": partner_binding_observability_ready,
+            "partner_binding_expected_family_total": int(
+                partner_binding_observability_summary.get("expected_family_total", 0) or 0
+            ),
+            "partner_binding_widget_family_total": int(
+                partner_binding_observability_summary.get("widget_binding_family_total", 0) or 0
+            ),
+            "partner_binding_api_family_total": int(
+                partner_binding_observability_summary.get("api_binding_family_total", 0) or 0
+            ),
+            "partner_binding_widget_missing_total": int(
+                partner_binding_observability_summary.get("widget_missing_family_total", 0) or 0
+            ),
+            "partner_binding_api_missing_total": int(
+                partner_binding_observability_summary.get("api_missing_family_total", 0) or 0
+            ),
+            "partner_binding_observability_json_path": partner_binding_observability_json_path,
+            "partner_binding_observability_md_path": partner_binding_observability_md_path,
+            "partner_gap_preview_digest_ready": bool(
+                partner_gap_preview_digest_summary.get("digest_ready", False)
+            ),
+            "partner_gap_preview_blank_binding_preset_total": int(
+                partner_gap_preview_digest_summary.get("blank_binding_preset_total", 0) or 0
+            ),
+            "partner_gap_preview_widget_preset_mismatch_total": int(
+                partner_gap_preview_digest_summary.get("widget_preset_mismatch_total", 0) or 0
+            ),
+            "partner_gap_preview_api_preset_mismatch_total": int(
+                partner_gap_preview_digest_summary.get("api_preset_mismatch_total", 0) or 0
+            ),
+            "partner_gap_preview_json_path": partner_gap_preview_digest_json_path,
+            "partner_gap_preview_md_path": partner_gap_preview_digest_md_path,
+            "capital_registration_logic_packet_ready": bool(
+                capital_registration_logic_packet_summary.get("packet_ready", False)
+            ),
+            "capital_registration_focus_total": int(
+                capital_registration_logic_packet_summary.get("focus_target_total", 0) or 0
+            ),
+            "capital_registration_family_total": int(
+                capital_registration_logic_packet_summary.get("family_total", 0) or 0
+            ),
+            "capital_registration_core_only_guarded_total": int(
+                capital_registration_logic_packet_summary.get("core_only_guarded_total", 0) or 0
+            ),
+            "capital_evidence_missing_total": int(
+                capital_registration_logic_packet_summary.get("capital_evidence_missing_total", 0) or 0
+            ),
+            "technical_evidence_missing_total": int(
+                capital_registration_logic_packet_summary.get("technical_evidence_missing_total", 0) or 0
+            ),
+            "other_evidence_missing_total": int(
+                capital_registration_logic_packet_summary.get("other_evidence_missing_total", 0) or 0
+            ),
+            "capital_registration_primary_gap_id": _safe_str(
+                capital_registration_logic_packet_summary.get("primary_gap_id")
+            ),
+            "review_reason_total": int(review_reason_decision_ladder_summary.get("review_reason_total", 0) or 0),
+            "review_reason_manual_review_gate_total": int(
+                review_reason_decision_ladder_summary.get("manual_review_gate_total", 0) or 0
+            ),
+            "review_reason_prompt_bound_total": int(
+                review_reason_decision_ladder_summary.get("prompt_bound_reason_total", 0) or 0
+            ),
+            "review_reason_decision_ladder_ready": bool(
+                review_reason_decision_ladder_summary.get("decision_ladder_ready", False)
+            ),
+            "demo_surface_observability_ready": demo_surface_observability_ready,
+            "demo_surface_observability_json_path": demo_surface_observability_json_path,
+            "demo_surface_observability_md_path": demo_surface_observability_md_path,
+            "runtime_reasoning_card_surface_ready": bool(
+                demo_surface_observability_summary.get("runtime_reasoning_card_surface_ready", False)
+            ),
+            "runtime_reasoning_review_reason_total": int(
+                runtime_reasoning_guard_summary.get(
+                    "review_reason_total",
+                    demo_surface_observability_summary.get(
+                        "runtime_reasoning_review_reason_total",
+                        review_reason_decision_ladder_summary.get("review_reason_total", 0),
+                    ),
+                )
+                or 0
+            ),
+            "runtime_reasoning_prompt_bound_total": int(
+                runtime_reasoning_guard_summary.get(
+                    "prompt_bound_reason_total",
+                    demo_surface_observability_summary.get(
+                        "runtime_reasoning_prompt_bound_total",
+                        review_reason_decision_ladder_summary.get("prompt_bound_reason_total", 0),
+                    ),
+                )
+                or 0
+            ),
+            "runtime_reasoning_binding_gap_total": int(
+                runtime_reasoning_guard_summary.get(
+                    "binding_gap_total",
+                    demo_surface_observability_summary.get("runtime_reasoning_binding_gap_total", 0),
+                )
+                or 0
+            ),
+            "runtime_reasoning_guard_ready": bool(runtime_reasoning_guard_summary.get("guard_ready", False)),
+            "runtime_reasoning_guard_json_path": runtime_reasoning_guard_json_path,
+            "runtime_reasoning_guard_md_path": runtime_reasoning_guard_md_path,
+            "closed_lane_stale_audit_ready": bool(closed_lane_stale_audit_summary.get("audit_ready", False)),
+            "closed_lane_id": _safe_str(closed_lane_stale_audit_summary.get("closed_lane_id")),
+            "closed_lane_stale_reference_total": int(
+                closed_lane_stale_audit_summary.get("stale_reference_total", 0) or 0
+            ),
+            "closed_lane_stale_artifact_total": int(
+                closed_lane_stale_audit_summary.get("stale_artifact_total", 0) or 0
+            ),
+            "closed_lane_stale_primary_lane_total": int(
+                closed_lane_stale_audit_summary.get("stale_primary_lane_total", 0) or 0
+            ),
+            "closed_lane_stale_system_bottleneck_total": int(
+                closed_lane_stale_audit_summary.get("stale_system_bottleneck_total", 0) or 0
+            ),
+            "closed_lane_stale_prompt_bundle_lane_total": int(
+                closed_lane_stale_audit_summary.get("stale_prompt_bundle_lane_total", 0) or 0
+            ),
+            "closed_lane_stale_audit_json_path": closed_lane_stale_audit_json_path,
+            "closed_lane_stale_audit_md_path": closed_lane_stale_audit_md_path,
+            "surface_drift_digest_ready": surface_drift_digest_ready,
+            "surface_drift_digest_delta_ready": bool(surface_drift_digest_summary.get("delta_ready", False)),
+            "surface_drift_changed_surface_total": int(surface_drift_digest_summary.get("changed_surface_total", 0) or 0),
+            "surface_drift_readiness_flip_total": int(surface_drift_digest_summary.get("readiness_flip_total", 0) or 0),
+            "surface_drift_reasoning_changed_surface_total": int(
+                surface_drift_digest_summary.get("reasoning_changed_surface_total", 0) or 0
+            ),
+            "surface_drift_reasoning_regression_total": int(
+                surface_drift_digest_summary.get("reasoning_regression_total", 0) or 0
+            ),
+            "surface_drift_digest_json_path": surface_drift_digest_json_path,
+            "surface_drift_digest_md_path": surface_drift_digest_md_path,
             "critical_prompt_doc_ready": critical_prompt_doc_ready,
             "critical_prompt_doc_path": str(DEFAULT_PROMPT_DOC.resolve()),
             "critical_prompt_doc_excerpt": critical_prompt_doc_excerpt,
@@ -531,6 +1204,74 @@ def render_markdown(manifest: Dict[str, Any]) -> str:
         f"- widget_partner_demo_surface_ready: `{summary.get('widget_partner_demo_surface_ready', False)}`",
         f"- api_partner_demo_surface_ready: `{summary.get('api_partner_demo_surface_ready', False)}`",
         f"- partner_demo_surface_ready: `{summary.get('partner_demo_surface_ready', False)}`",
+        f"- widget_partner_binding_surface_ready: `{summary.get('widget_partner_binding_surface_ready', False)}`",
+        f"- api_partner_binding_surface_ready: `{summary.get('api_partner_binding_surface_ready', False)}`",
+        f"- partner_binding_surface_ready: `{summary.get('partner_binding_surface_ready', False)}`",
+        f"- prompt_case_binding_packet_ready: `{summary.get('prompt_case_binding_packet_ready', False)}`",
+        f"- critical_prompt_surface_packet_ready: `{summary.get('critical_prompt_surface_packet_ready', False)}`",
+        f"- partner_binding_parity_packet_ready: `{summary.get('partner_binding_parity_packet_ready', False)}`",
+        f"- thinking_prompt_bundle_ready: `{summary.get('thinking_prompt_bundle_ready', False)}`",
+        f"- thinking_prompt_bundle_prompt_section_total: `{summary.get('thinking_prompt_bundle_prompt_section_total', 0)}`",
+        f"- thinking_prompt_bundle_operator_jump_case_total: `{summary.get('thinking_prompt_bundle_operator_jump_case_total', 0)}`",
+        f"- thinking_prompt_bundle_decision_ladder_row_total: `{summary.get('thinking_prompt_bundle_decision_ladder_row_total', 0)}`",
+        f"- thinking_prompt_bundle_runtime_target_ready: `{summary.get('thinking_prompt_bundle_runtime_target_ready', False)}`",
+        f"- thinking_prompt_bundle_release_target_ready: `{summary.get('thinking_prompt_bundle_release_target_ready', False)}`",
+        f"- thinking_prompt_bundle_operator_target_ready: `{summary.get('thinking_prompt_bundle_operator_target_ready', False)}`",
+        f"- thinking_prompt_bundle_json_path: `{summary.get('thinking_prompt_bundle_json_path', '')}`",
+        f"- thinking_prompt_bundle_md_path: `{summary.get('thinking_prompt_bundle_md_path', '')}`",
+        f"- partner_binding_observability_ready: `{summary.get('partner_binding_observability_ready', False)}`",
+        f"- partner_binding_expected_family_total: `{summary.get('partner_binding_expected_family_total', 0)}`",
+        f"- partner_binding_widget_family_total: `{summary.get('partner_binding_widget_family_total', 0)}`",
+        f"- partner_binding_api_family_total: `{summary.get('partner_binding_api_family_total', 0)}`",
+        f"- partner_binding_widget_missing_total: `{summary.get('partner_binding_widget_missing_total', 0)}`",
+        f"- partner_binding_api_missing_total: `{summary.get('partner_binding_api_missing_total', 0)}`",
+        f"- partner_binding_observability_json_path: `{summary.get('partner_binding_observability_json_path', '')}`",
+        f"- partner_binding_observability_md_path: `{summary.get('partner_binding_observability_md_path', '')}`",
+        f"- partner_gap_preview_digest_ready: `{summary.get('partner_gap_preview_digest_ready', False)}`",
+        f"- partner_gap_preview_blank_binding_preset_total: `{summary.get('partner_gap_preview_blank_binding_preset_total', 0)}`",
+        f"- partner_gap_preview_widget_preset_mismatch_total: `{summary.get('partner_gap_preview_widget_preset_mismatch_total', 0)}`",
+        f"- partner_gap_preview_api_preset_mismatch_total: `{summary.get('partner_gap_preview_api_preset_mismatch_total', 0)}`",
+        f"- partner_gap_preview_json_path: `{summary.get('partner_gap_preview_json_path', '')}`",
+        f"- partner_gap_preview_md_path: `{summary.get('partner_gap_preview_md_path', '')}`",
+        f"- capital_registration_logic_packet_ready: `{summary.get('capital_registration_logic_packet_ready', False)}`",
+        f"- capital_registration_focus_total: `{summary.get('capital_registration_focus_total', 0)}`",
+        f"- capital_registration_family_total: `{summary.get('capital_registration_family_total', 0)}`",
+        f"- capital_registration_core_only_guarded_total: `{summary.get('capital_registration_core_only_guarded_total', 0)}`",
+        f"- capital_evidence_missing_total: `{summary.get('capital_evidence_missing_total', 0)}`",
+        f"- technical_evidence_missing_total: `{summary.get('technical_evidence_missing_total', 0)}`",
+        f"- other_evidence_missing_total: `{summary.get('other_evidence_missing_total', 0)}`",
+        f"- capital_registration_primary_gap_id: `{summary.get('capital_registration_primary_gap_id', '')}`",
+        f"- review_reason_total: `{summary.get('review_reason_total', 0)}`",
+        f"- review_reason_manual_review_gate_total: `{summary.get('review_reason_manual_review_gate_total', 0)}`",
+        f"- review_reason_prompt_bound_total: `{summary.get('review_reason_prompt_bound_total', 0)}`",
+        f"- review_reason_decision_ladder_ready: `{summary.get('review_reason_decision_ladder_ready', False)}`",
+        f"- demo_surface_observability_ready: `{summary.get('demo_surface_observability_ready', False)}`",
+        f"- demo_surface_observability_json_path: `{summary.get('demo_surface_observability_json_path', '')}`",
+        f"- demo_surface_observability_md_path: `{summary.get('demo_surface_observability_md_path', '')}`",
+        f"- runtime_reasoning_card_surface_ready: `{summary.get('runtime_reasoning_card_surface_ready', False)}`",
+        f"- runtime_reasoning_review_reason_total: `{summary.get('runtime_reasoning_review_reason_total', 0)}`",
+        f"- runtime_reasoning_prompt_bound_total: `{summary.get('runtime_reasoning_prompt_bound_total', 0)}`",
+        f"- runtime_reasoning_binding_gap_total: `{summary.get('runtime_reasoning_binding_gap_total', 0)}`",
+        f"- runtime_reasoning_guard_ready: `{summary.get('runtime_reasoning_guard_ready', False)}`",
+        f"- runtime_reasoning_guard_json_path: `{summary.get('runtime_reasoning_guard_json_path', '')}`",
+        f"- runtime_reasoning_guard_md_path: `{summary.get('runtime_reasoning_guard_md_path', '')}`",
+        f"- closed_lane_stale_audit_ready: `{summary.get('closed_lane_stale_audit_ready', False)}`",
+        f"- closed_lane_id: `{summary.get('closed_lane_id', '')}`",
+        f"- closed_lane_stale_reference_total: `{summary.get('closed_lane_stale_reference_total', 0)}`",
+        f"- closed_lane_stale_artifact_total: `{summary.get('closed_lane_stale_artifact_total', 0)}`",
+        f"- closed_lane_stale_primary_lane_total: `{summary.get('closed_lane_stale_primary_lane_total', 0)}`",
+        f"- closed_lane_stale_system_bottleneck_total: `{summary.get('closed_lane_stale_system_bottleneck_total', 0)}`",
+        f"- closed_lane_stale_prompt_bundle_lane_total: `{summary.get('closed_lane_stale_prompt_bundle_lane_total', 0)}`",
+        f"- closed_lane_stale_audit_json_path: `{summary.get('closed_lane_stale_audit_json_path', '')}`",
+        f"- closed_lane_stale_audit_md_path: `{summary.get('closed_lane_stale_audit_md_path', '')}`",
+        f"- surface_drift_digest_ready: `{summary.get('surface_drift_digest_ready', False)}`",
+        f"- surface_drift_digest_delta_ready: `{summary.get('surface_drift_digest_delta_ready', False)}`",
+        f"- surface_drift_changed_surface_total: `{summary.get('surface_drift_changed_surface_total', 0)}`",
+        f"- surface_drift_readiness_flip_total: `{summary.get('surface_drift_readiness_flip_total', 0)}`",
+        f"- surface_drift_reasoning_changed_surface_total: `{summary.get('surface_drift_reasoning_changed_surface_total', 0)}`",
+        f"- surface_drift_reasoning_regression_total: `{summary.get('surface_drift_reasoning_regression_total', 0)}`",
+        f"- surface_drift_digest_json_path: `{summary.get('surface_drift_digest_json_path', '')}`",
+        f"- surface_drift_digest_md_path: `{summary.get('surface_drift_digest_md_path', '')}`",
         f"- critical_prompt_doc_ready: `{summary.get('critical_prompt_doc_ready', False)}`",
         f"- critical_prompt_doc_path: `{summary.get('critical_prompt_doc_path', '')}`",
         "",
@@ -571,13 +1312,106 @@ def render_markdown(manifest: Dict[str, Any]) -> str:
             f"- widget_partner_demo_surface_ready: `{partner_qa_snapshot.get('widget_partner_demo_surface_ready', False)}`",
             f"- api_partner_demo_surface_ready: `{partner_qa_snapshot.get('api_partner_demo_surface_ready', False)}`",
             f"- partner_demo_surface_ready: `{partner_qa_snapshot.get('partner_demo_surface_ready', False)}`",
+            f"- widget_partner_binding_surface_ready: `{partner_qa_snapshot.get('widget_partner_binding_surface_ready', False)}`",
+            f"- api_partner_binding_surface_ready: `{partner_qa_snapshot.get('api_partner_binding_surface_ready', False)}`",
+            f"- partner_binding_surface_ready: `{partner_qa_snapshot.get('partner_binding_surface_ready', False)}`",
+            f"- prompt_case_binding_packet_ready: `{partner_qa_snapshot.get('prompt_case_binding_packet_ready', False)}`",
+            f"- critical_prompt_surface_packet_ready: `{partner_qa_snapshot.get('critical_prompt_surface_packet_ready', False)}`",
+            f"- partner_binding_parity_packet_ready: `{partner_qa_snapshot.get('partner_binding_parity_packet_ready', False)}`",
+            f"- thinking_prompt_bundle_ready: `{partner_qa_snapshot.get('thinking_prompt_bundle_ready', False)}`",
+            f"- thinking_prompt_bundle_prompt_section_total: `{partner_qa_snapshot.get('thinking_prompt_bundle_prompt_section_total', 0)}`",
+            f"- thinking_prompt_bundle_operator_jump_case_total: `{partner_qa_snapshot.get('thinking_prompt_bundle_operator_jump_case_total', 0)}`",
+            f"- thinking_prompt_bundle_decision_ladder_row_total: `{partner_qa_snapshot.get('thinking_prompt_bundle_decision_ladder_row_total', 0)}`",
+            f"- thinking_prompt_bundle_runtime_target_ready: `{partner_qa_snapshot.get('thinking_prompt_bundle_runtime_target_ready', False)}`",
+            f"- thinking_prompt_bundle_release_target_ready: `{partner_qa_snapshot.get('thinking_prompt_bundle_release_target_ready', False)}`",
+            f"- thinking_prompt_bundle_operator_target_ready: `{partner_qa_snapshot.get('thinking_prompt_bundle_operator_target_ready', False)}`",
+            f"- thinking_prompt_bundle_json_path: `{partner_qa_snapshot.get('thinking_prompt_bundle_json_path', '')}`",
+            f"- thinking_prompt_bundle_md_path: `{partner_qa_snapshot.get('thinking_prompt_bundle_md_path', '')}`",
+            f"- partner_binding_observability_ready: `{partner_qa_snapshot.get('partner_binding_observability_ready', False)}`",
+            f"- partner_binding_expected_family_total: `{partner_qa_snapshot.get('partner_binding_expected_family_total', 0)}`",
+            f"- partner_binding_widget_family_total: `{partner_qa_snapshot.get('partner_binding_widget_family_total', 0)}`",
+            f"- partner_binding_api_family_total: `{partner_qa_snapshot.get('partner_binding_api_family_total', 0)}`",
+            f"- partner_binding_widget_missing_total: `{partner_qa_snapshot.get('partner_binding_widget_missing_total', 0)}`",
+            f"- partner_binding_api_missing_total: `{partner_qa_snapshot.get('partner_binding_api_missing_total', 0)}`",
+            f"- partner_binding_observability_json_path: `{partner_qa_snapshot.get('partner_binding_observability_json_path', '')}`",
+            f"- partner_binding_observability_md_path: `{partner_qa_snapshot.get('partner_binding_observability_md_path', '')}`",
+            f"- partner_gap_preview_digest_ready: `{partner_qa_snapshot.get('partner_gap_preview_digest_ready', False)}`",
+            f"- partner_gap_preview_blank_binding_preset_total: `{partner_qa_snapshot.get('partner_gap_preview_blank_binding_preset_total', 0)}`",
+            f"- partner_gap_preview_widget_preset_mismatch_total: `{partner_qa_snapshot.get('partner_gap_preview_widget_preset_mismatch_total', 0)}`",
+            f"- partner_gap_preview_api_preset_mismatch_total: `{partner_qa_snapshot.get('partner_gap_preview_api_preset_mismatch_total', 0)}`",
+            f"- partner_gap_preview_json_path: `{partner_qa_snapshot.get('partner_gap_preview_json_path', '')}`",
+            f"- partner_gap_preview_md_path: `{partner_qa_snapshot.get('partner_gap_preview_md_path', '')}`",
+            f"- capital_registration_logic_packet_ready: `{partner_qa_snapshot.get('capital_registration_logic_packet_ready', False)}`",
+        f"- capital_registration_focus_total: `{partner_qa_snapshot.get('capital_registration_focus_total', 0)}`",
+        f"- capital_registration_family_total: `{partner_qa_snapshot.get('capital_registration_family_total', 0)}`",
+        f"- capital_registration_core_only_guarded_total: `{partner_qa_snapshot.get('capital_registration_core_only_guarded_total', 0)}`",
+        f"- capital_evidence_missing_total: `{partner_qa_snapshot.get('capital_evidence_missing_total', 0)}`",
+            f"- technical_evidence_missing_total: `{partner_qa_snapshot.get('technical_evidence_missing_total', 0)}`",
+            f"- other_evidence_missing_total: `{partner_qa_snapshot.get('other_evidence_missing_total', 0)}`",
+            f"- capital_registration_primary_gap_id: `{partner_qa_snapshot.get('capital_registration_primary_gap_id', '')}`",
+            f"- review_reason_total: `{partner_qa_snapshot.get('review_reason_total', 0)}`",
+            f"- review_reason_manual_review_gate_total: `{partner_qa_snapshot.get('review_reason_manual_review_gate_total', 0)}`",
+            f"- review_reason_prompt_bound_total: `{partner_qa_snapshot.get('review_reason_prompt_bound_total', 0)}`",
+            f"- review_reason_decision_ladder_ready: `{partner_qa_snapshot.get('review_reason_decision_ladder_ready', False)}`",
+            f"- demo_surface_observability_ready: `{partner_qa_snapshot.get('demo_surface_observability_ready', False)}`",
+            f"- demo_surface_observability_json_path: `{partner_qa_snapshot.get('demo_surface_observability_json_path', '')}`",
+            f"- demo_surface_observability_md_path: `{partner_qa_snapshot.get('demo_surface_observability_md_path', '')}`",
+            f"- runtime_reasoning_card_surface_ready: `{partner_qa_snapshot.get('runtime_reasoning_card_surface_ready', False)}`",
+            f"- runtime_reasoning_review_reason_total: `{partner_qa_snapshot.get('runtime_reasoning_review_reason_total', 0)}`",
+            f"- runtime_reasoning_prompt_bound_total: `{partner_qa_snapshot.get('runtime_reasoning_prompt_bound_total', 0)}`",
+            f"- runtime_reasoning_binding_gap_total: `{partner_qa_snapshot.get('runtime_reasoning_binding_gap_total', 0)}`",
+            f"- runtime_reasoning_guard_ready: `{partner_qa_snapshot.get('runtime_reasoning_guard_ready', False)}`",
+            f"- runtime_reasoning_guard_json_path: `{partner_qa_snapshot.get('runtime_reasoning_guard_json_path', '')}`",
+            f"- runtime_reasoning_guard_md_path: `{partner_qa_snapshot.get('runtime_reasoning_guard_md_path', '')}`",
+            f"- closed_lane_stale_audit_ready: `{partner_qa_snapshot.get('closed_lane_stale_audit_ready', False)}`",
+            f"- closed_lane_id: `{partner_qa_snapshot.get('closed_lane_id', '')}`",
+            f"- closed_lane_stale_reference_total: `{partner_qa_snapshot.get('closed_lane_stale_reference_total', 0)}`",
+            f"- closed_lane_stale_artifact_total: `{partner_qa_snapshot.get('closed_lane_stale_artifact_total', 0)}`",
+            f"- closed_lane_stale_primary_lane_total: `{partner_qa_snapshot.get('closed_lane_stale_primary_lane_total', 0)}`",
+            f"- closed_lane_stale_system_bottleneck_total: `{partner_qa_snapshot.get('closed_lane_stale_system_bottleneck_total', 0)}`",
+            f"- closed_lane_stale_prompt_bundle_lane_total: `{partner_qa_snapshot.get('closed_lane_stale_prompt_bundle_lane_total', 0)}`",
+            f"- closed_lane_stale_audit_json_path: `{partner_qa_snapshot.get('closed_lane_stale_audit_json_path', '')}`",
+            f"- closed_lane_stale_audit_md_path: `{partner_qa_snapshot.get('closed_lane_stale_audit_md_path', '')}`",
+            f"- surface_drift_digest_ready: `{partner_qa_snapshot.get('surface_drift_digest_ready', False)}`",
+            f"- surface_drift_digest_delta_ready: `{partner_qa_snapshot.get('surface_drift_digest_delta_ready', False)}`",
+            f"- surface_drift_changed_surface_total: `{partner_qa_snapshot.get('surface_drift_changed_surface_total', 0)}`",
+            f"- surface_drift_readiness_flip_total: `{partner_qa_snapshot.get('surface_drift_readiness_flip_total', 0)}`",
+            f"- surface_drift_reasoning_changed_surface_total: `{partner_qa_snapshot.get('surface_drift_reasoning_changed_surface_total', 0)}`",
+            f"- surface_drift_reasoning_regression_total: `{partner_qa_snapshot.get('surface_drift_reasoning_regression_total', 0)}`",
+            f"- surface_drift_digest_json_path: `{partner_qa_snapshot.get('surface_drift_digest_json_path', '')}`",
+            f"- surface_drift_digest_md_path: `{partner_qa_snapshot.get('surface_drift_digest_md_path', '')}`",
             f"- critical_prompt_doc_ready: `{partner_qa_snapshot.get('critical_prompt_doc_ready', False)}`",
             f"- critical_prompt_doc_path: `{partner_qa_snapshot.get('critical_prompt_doc_path', '')}`",
             f"- runtime_missing_cases: `{', '.join(partner_qa_snapshot.get('runtime_missing_cases', []))}`",
             f"- widget_missing_cases: `{', '.join(partner_qa_snapshot.get('widget_missing_cases', []))}`",
             f"- api_missing_cases: `{', '.join(partner_qa_snapshot.get('api_missing_cases', []))}`",
+            f"- partner_binding_widget_missing_preview: `{', '.join(partner_qa_snapshot.get('partner_binding_widget_missing_preview', []))}`",
+            f"- partner_binding_api_missing_preview: `{', '.join(partner_qa_snapshot.get('partner_binding_api_missing_preview', []))}`",
         ]
     )
+    critical_prompt_doc_excerpt = summary.get("critical_prompt_doc_excerpt") or ""
+    if isinstance(critical_prompt_doc_excerpt, str):
+        critical_prompt_doc_excerpt_lines = [
+            line.rstrip()
+            for line in critical_prompt_doc_excerpt.splitlines()
+            if line.strip()
+        ]
+    else:
+        critical_prompt_doc_excerpt_lines = [
+            str(line).rstrip()
+            for line in list(critical_prompt_doc_excerpt)
+            if str(line).strip()
+        ]
+    if critical_prompt_doc_excerpt_lines:
+        lines.extend(
+            [
+                "",
+                "## Critical Prompt Excerpt",
+                "```text",
+                *critical_prompt_doc_excerpt_lines,
+                "```",
+            ]
+        )
     return "\n".join(lines).strip() + "\n"
 
 

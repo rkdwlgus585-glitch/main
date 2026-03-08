@@ -91,11 +91,12 @@ def _preserve_directory(src: Path, dst: Path) -> bool:
 def _router_script() -> str:
     return """<?php
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/';
-$file = __DIR__ . $path;
+$siteRoot = realpath(getcwd()) ?: getcwd();
+$file = $siteRoot . $path;
 if ($path !== '/' && file_exists($file) && !is_dir($file)) {
     return false;
 }
-require __DIR__ . '/index.php';
+require $siteRoot . '/index.php';
 """
 
 
@@ -236,13 +237,16 @@ def build_wp_surface_lab_php_fallback(
         stop_script,
         "\n".join(
             [
-                "$ErrorActionPreference = 'SilentlyContinue'",
+                "$ErrorActionPreference = 'Stop'",
                 "$pidFile = Join-Path $PSScriptRoot 'php-site.pid'",
-                "if (Test-Path $pidFile) {",
-                "  $pid = Get-Content $pidFile -Raw",
-                "  if ($pid) { Stop-Process -Id ([int]$pid) -Force -ErrorAction SilentlyContinue }",
-                "  Remove-Item $pidFile -Force -ErrorAction SilentlyContinue",
+                "if (-not (Test-Path $pidFile)) { exit 0 }",
+                "$targetPid = (Get-Content $pidFile -Raw).Trim()",
+                "if ($targetPid -match '^[0-9]+$') {",
+                "  try { taskkill /PID $targetPid /T /F | Out-Null } catch { }",
+                "  Start-Sleep -Milliseconds 800",
                 "}",
+                "Remove-Item $pidFile -Force -ErrorAction SilentlyContinue",
+                "exit 0",
                 "",
             ]
         ),

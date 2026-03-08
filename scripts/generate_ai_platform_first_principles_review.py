@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 from __future__ import annotations
 
 import argparse
@@ -16,6 +16,7 @@ DEFAULT_REGRESSION = LOG_DIR / "yangdo_operational_regression_latest.json"
 DEFAULT_BRAINSTORM = LOG_DIR / "ai_platform_next_brainstorm_latest.md"
 DEFAULT_GATE_REVIEW = LOG_DIR / "partner_gate_placement_latest.json"
 DEFAULT_FALLBACK_SMOKE = LOG_DIR / "wp_surface_lab_fallback_smoke_latest.json"
+DEFAULT_PUBLIC_SUMMARY = LOG_DIR / "public_calculator_publish_summary_latest.json"
 
 
 def _read_json(path: Path) -> Dict[str, Any]:
@@ -55,11 +56,56 @@ def _one_line(dashboard: Dict[str, Any]) -> str:
     return str(((dashboard.get("one_line_summary") or {}).get("text")) or "").strip()
 
 
+def _decision_pack(current_bottleneck: str) -> Dict[str, str]:
+    if current_bottleneck == "public-only publish summary missing":
+        return {
+            "do_now": "Add a compact public-only publish summary that shows public verify status, one-line health, and customer/permit verdicts on one screen.",
+            "hold": "Do not add more public deploy branches or extra public checks until the summary exists.",
+            "falsification_test": "Run the public post-publish verifier and confirm the summary alone is enough to decide whether customer and permit are both healthy.",
+        }
+    if current_bottleneck == "fallback smoke visibility policy unresolved":
+        return {
+            "do_now": "Decide whether fallback smoke stays ops-only or deserves a separate lab-health dashboard.",
+            "hold": "Do not surface fallback smoke in the main operator dashboard until that policy is explicit.",
+            "falsification_test": "Ask whether any operator used fallback smoke in the last release loop. If not, keep it out of the main dashboard.",
+        }
+    if current_bottleneck == "summary/checklist drift policy unresolved":
+        return {
+            "do_now": "Define when public summary and first-principles checklist must be regenerated together so operators never read stale guidance.",
+            "hold": "Do not add more summary surfaces until checklist drift is explicitly controlled.",
+            "falsification_test": "Change the first-principles checklist and verify that operator-facing summary stays stale unless the chosen sync policy runs.",
+        }
+    return {
+        "do_now": f"Attack the current bottleneck first: {current_bottleneck}.",
+        "hold": "Do not add new feature branches until the primary release bottleneck is reduced.",
+        "falsification_test": "Define one smoke or regression check that proves the chosen fix is wrong.",
+    }
+
+
+def _fallback_visibility_policy(fallback_smoke: Dict[str, Any]) -> Dict[str, Any]:
+    timing = fallback_smoke.get("timing") if isinstance(fallback_smoke.get("timing"), dict) else {}
+    total_sec = float(timing.get("total_duration_sec") or 0.0)
+    return {
+        "visibility": "ops_only",
+        "decision": "keep_out_of_main_operator_dashboard",
+        "reason": (
+            "Fallback smoke validates the WordPress lab/bootstrap path, not the main customer-facing release path. "
+            "It is useful for ops and migration diagnostics, but too expensive and too indirect for the main release surface."
+        ),
+        "total_duration_sec": total_sec,
+        "falsification_test": (
+            "If any operator needs fallback smoke to approve a normal release, or if production depends on the fallback path, "
+            "promote it into a separate lab-health dashboard instead of the main operator hub."
+        ),
+    }
+
+
 def build_review_payload() -> Dict[str, Any]:
     dashboard = _read_json(DEFAULT_DASHBOARD)
     regression = _read_json(DEFAULT_REGRESSION)
     gate_review = _read_json(DEFAULT_GATE_REVIEW)
     fallback_smoke = _read_json(DEFAULT_FALLBACK_SMOKE)
+    public_summary = _read_json(DEFAULT_PUBLIC_SUMMARY)
     brainstorm_lines = _lines(DEFAULT_BRAINSTORM)
     next_candidates = _brainstorm_candidates(brainstorm_lines)
 
@@ -69,75 +115,94 @@ def build_review_payload() -> Dict[str, Any]:
     partner_api_ok = bool(((dashboard.get("partner_api_contract_smoke") or {}).get("ok")))
     browser_ok = bool(((dashboard.get("browser_smoke") or {}).get("ok")))
     secure_ok = bool(((dashboard.get("secure_stack") or {}).get("ok")))
+    artifact_mode = str((((dashboard.get("permit_failure_artifacts") or {}).get("web_access_mode")) or "")).strip() or "local_only"
     gate_recommendation = str(gate_review.get("recommendation") or "").strip() or "unknown"
     gate_share_pct = ((gate_review.get("timing") or {}).get("partner_share_pct")) if isinstance(gate_review.get("timing"), dict) else None
     fallback_smoke_ok = bool(fallback_smoke.get("ok"))
+    public_summary_ok = bool(public_summary.get("ok"))
+    fallback_policy = _fallback_visibility_policy(fallback_smoke)
+    checklist_promoted = isinstance(public_summary.get("release_checklist"), dict) and bool(public_summary.get("release_checklist"))
 
-    current_bottleneck = "partner API smoke 위치 결정"
+    current_bottleneck = "partner API smoke placement undecided"
     if gate_recommendation == "keep_in_publish_gate":
-        current_bottleneck = "wp_surface_lab fallback bootstrap smoke 부재"
+        current_bottleneck = "wp_surface_lab fallback smoke missing"
     elif gate_recommendation == "move_to_ops_loop":
-        current_bottleneck = "publish gate 비용 과다"
+        current_bottleneck = "publish gate cost too high"
     elif gate_recommendation == "keep_but_watch_cost":
-        current_bottleneck = "partner API smoke 비용 감시 필요"
+        current_bottleneck = "partner API smoke cost watch required"
 
     if not partner_api_ok:
-        current_bottleneck = "partner API contract 불일치"
+        current_bottleneck = "partner API contract mismatch"
     elif not browser_ok:
-        current_bottleneck = "browser smoke 불안정"
+        current_bottleneck = "browser smoke unstable"
     elif not secure_ok:
-        current_bottleneck = "secure stack 실행 경로"
+        current_bottleneck = "secure stack drift"
     elif not permit_integrity_ok:
         current_bottleneck = "permit generated HTML integrity"
     elif blocking:
-        current_bottleneck = f"회귀 blocking issue {blocking[0]}"
-    elif fallback_smoke_ok:
-        current_bottleneck = "failure artifact가 아직 로컬 경로에만 남음"
+        current_bottleneck = f"regression blocking issue: {blocking[0]}"
+    elif artifact_mode != "private_hub_embed":
+        current_bottleneck = "failure artifacts still local-only"
+    elif not public_summary_ok:
+        current_bottleneck = "public-only publish summary missing"
+    elif str(fallback_policy.get("visibility") or "") == "undecided":
+        current_bottleneck = "fallback smoke visibility policy unresolved"
+    elif not checklist_promoted:
+        current_bottleneck = "release checklist promotion incomplete"
+    else:
+        current_bottleneck = "summary/checklist drift policy unresolved"
 
-    prompt_block = """너는 기능 추가자가 아니라 시스템 책임자다.
-목표는 기능 수를 늘리는 것이 아니라 운영 변수와 오해 가능성을 줄이고, 재현 가능한 검증 경로를 고정하는 것이다.
-아래 순서로만 판단하라.
-1. 이 기능을 완전히 제거하면 무엇이 망가지는가.
-2. 제거해도 안 망가지면 왜 아직 존재하는가.
-3. 꼭 필요하다면 가장 작은 인터페이스는 무엇인가.
-4. 운영자가 선택해야 하는 분기 수는 몇 개인가. 하나로 줄일 수 있는가.
-5. smoke/regression 없이도 안전한가. 아니라면 배포 전에 어떤 자동 검증이 강제되어야 하는가.
-6. 고객이 실제로 이해해야 하는 출력은 무엇인가. 많은 정보가 아니라 직접 의사결정에 필요한 정보인가.
-7. 지금 병목은 코드 복잡성인가, 데이터 품질인가, 배포 동선인가, 설명 UX인가. 가장 큰 병목 하나만 먼저 친다.
+    prompt_block = """You are not a feature shipper. You are the system owner.
+Goal: reduce operational branches, ambiguity, and unreproducible failures.
+Think in first principles, not legacy respect.
 
-추가 규율:
-- 비교 기준은 현재 구현이 아니라 시장의 실제 의사결정 흐름이다.
-- 총 거래가, 공제 활용분, 현금 정산액을 절대 섞지 않는다.
-- public/private/partner가 서로 다른 규칙을 쓰면 버그로 간주한다.
-- 설명 문구는 길게 쓰지 말고, 이유를 한 줄 칩이나 한 문장으로 압축한다.
-- 실패 아티팩트는 재현 가능한 형태로 남겨야 하며, 로그만 남기고 끝내지 않는다."""
+Decision order:
+1. If this feature is deleted, what actually breaks for user, operator, and partner?
+2. If nothing breaks, why does it still exist: legacy, fear, duplication, or habit?
+3. If it must stay, what is the smallest interface that preserves value?
+4. How many manual branches remain for the operator? Remove every branch that reality does not force.
+5. What single automated check must block release if this assumption is wrong?
+6. Which output directly supports the decision: total value, balance usage, cash due, or confidence?
+7. What is the biggest bottleneck right now: code complexity, data quality, deployment flow, explanation UX, artifact access, or release readability?
+8. For every proposal, define one falsification test that can prove the idea wrong.
+
+Rules:
+- Market decision flow beats legacy implementation details.
+- Never mix total transfer value, balance usage, and cash due.
+- If public, private, and partner use different rules, treat it as a bug.
+- Compress explanations into one chip or one sentence.
+- Leave reproducible failure evidence, not only logs.
+- Prefer delete, merge, and automate over feature addition.
+- End with exactly three outputs: do now, hold, falsification test."""
 
     musk_questions = [
-        "무엇을 만들지보다 무엇을 지워야 하는가.",
-        "운영자의 수동 판단이 남는 단계는 몇 개인가. 더 줄일 수 있는가.",
-        "public/private/partner가 서로 다른 경로를 쓰는 이유가 실제로 존재하는가.",
-        "고객이 실제로 이해해야 하는 값은 총 거래가, 현금 정산가, 공개 신뢰도 중 무엇인가.",
-        "smoke 결과를 사람이 해석해야 한다면 아직 시스템 설계가 덜 끝난 것은 아닌가.",
+        "What should be deleted instead of improved?",
+        "Which branch exists only because the system is not trusted yet?",
+        "If one screen had to decide the release, what would it show?",
+        "What value does the customer actually act on, and what is just diagnostic noise?",
+        "Which check catches a failure before an operator has to think?",
     ]
     kill_list = [
-        "수동 배포 분기",
-        "중복 WordPress publish 로직",
-        "smoke 입력 drift",
-        "길지만 결론이 없는 결과 문구",
+        "operator-only local paths for critical failure evidence",
+        "multi-step publish interpretation that needs log reading",
+        "duplicate rule drift across public/private/partner",
+        "long explanations without decision value",
     ]
     force_multiplier_bets = [
-        "public/private publish 단일 진입점",
-        "post-publish verifier 자동화",
-        "partner/live/private health contract 단일화",
-        "결과 카드의 이유 칩 표준화",
+        "publish summary with one-screen release verdict",
+        "first-principles packet embedded in each publish",
+        "shared health contract across live, partner, and private surfaces",
+        "artifact previews accessible inside the private hub",
     ]
     operator_loop = [
-        "현재 one-line health를 읽고 빨간 항목 1개만 고른다.",
-        "그 항목이 데이터 문제인지, UI 문제인지, smoke 문제인지 10분 안에 가설을 세운다.",
-        "수정은 한 축만 건드린다. 동시에 여러 원인을 고치지 않는다.",
-        "수정 후 `smoke -> regression -> publish gate` 순으로 다시 닫는다.",
-        "남은 다음 병목 1개를 다시 고른다.",
+        "Read one-line health and pick one red or weakest yellow item.",
+        "Classify it as data, UI, deployment, or observability within 10 minutes.",
+        "Change one axis only.",
+        "Close the loop with smoke, regression, and publish gate.",
+        "Write the next bottleneck before leaving the loop.",
     ]
+    release_checklist = _decision_pack(current_bottleneck)
+
     return {
         "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "summary": {
@@ -150,6 +215,10 @@ def build_review_payload() -> Dict[str, Any]:
             "gate_recommendation": gate_recommendation,
             "gate_partner_share_pct": gate_share_pct,
             "fallback_smoke_ok": fallback_smoke_ok,
+            "fallback_policy_visibility": str(fallback_policy.get("visibility") or ""),
+            "artifact_web_access_mode": artifact_mode,
+            "public_summary_ok": public_summary_ok,
+            "checklist_promoted": bool(checklist_promoted),
         },
         "current_state": {
             "one_line_health": one_line,
@@ -158,15 +227,18 @@ def build_review_payload() -> Dict[str, Any]:
         },
         "gate_decision": gate_review,
         "fallback_smoke": fallback_smoke,
+        "fallback_visibility_policy": fallback_policy,
+        "public_publish_summary": public_summary,
         "first_principles_prompt": prompt_block,
         "musk_style_questions": musk_questions,
         "kill_list": kill_list,
         "force_multiplier_bets": force_multiplier_bets,
         "next_experiments": next_candidates[:5],
         "operator_loop": operator_loop,
+        "release_checklist": release_checklist,
         "decision": {
             "primary_focus": current_bottleneck,
-            "secondary_focus": "특허/고도화보다 재현 가능한 판단 체계와 운영 자동 검증 고정",
+            "secondary_focus": "Stabilize release readability before adding more release surface area.",
         },
     }
 
@@ -178,6 +250,9 @@ def _to_markdown(payload: Dict[str, Any]) -> str:
     gate_timing = gate.get("timing") if isinstance(gate.get("timing"), dict) else {}
     fallback_smoke = payload.get("fallback_smoke") if isinstance(payload.get("fallback_smoke"), dict) else {}
     fallback_timing = fallback_smoke.get("timing") if isinstance(fallback_smoke.get("timing"), dict) else {}
+    public_summary = payload.get("public_publish_summary") if isinstance(payload.get("public_publish_summary"), dict) else {}
+    fallback_policy = payload.get("fallback_visibility_policy") if isinstance(payload.get("fallback_visibility_policy"), dict) else {}
+    checklist = payload.get("release_checklist") if isinstance(payload.get("release_checklist"), dict) else {}
     lines = [
         "# AI Platform First-Principles Review",
         "",
@@ -198,6 +273,17 @@ def _to_markdown(payload: Dict[str, Any]) -> str:
         f"- Status: `{fallback_smoke.get('ok')}`",
         f"- Total duration: `{fallback_timing.get('total_duration_sec')}` sec",
         f"- Blocking issues: `{', '.join(fallback_smoke.get('blocking_issues') or []) or 'none'}`",
+        f"- Artifact web access: `{summary.get('artifact_web_access_mode') or '(missing)'}`",
+        f"- Visibility policy: `{fallback_policy.get('visibility') or '(missing)'}`",
+        "",
+        "## Public Summary",
+        f"- Summary ready: `{summary.get('public_summary_ok')}`",
+        f"- Verdict: `{(public_summary.get('one_line_verdict') or '(missing)')}`",
+        "",
+        "## Release Checklist",
+        f"- Do now: {checklist.get('do_now') or '(missing)'}",
+        f"- Hold: {checklist.get('hold') or '(missing)'}",
+        f"- Falsification test: {checklist.get('falsification_test') or '(missing)'}",
         "",
         "## First-Principles Prompt",
         "```text",

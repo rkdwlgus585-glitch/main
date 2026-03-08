@@ -63,7 +63,9 @@ def build_permit_service_copy_packet(*, ia_path: Path, ux_path: Path, rental_pat
     manual_review_assist_offerings = _as_list(((package_matrix.get("manual_review_assist") or {}).get("offering_ids")))
     internal_offerings = _as_list(((package_matrix.get("internal_full") or {}).get("offering_ids")))
 
-    packet_ready = bool(ux_summary.get("ux_ok")) and bool(service_slug)
+    # This packet defines the canonical service copy contract and should be
+    # generatable before the downstream UX audit runs in the refresh chain.
+    packet_ready = bool(service_slug)
     checklist_story_ready = bool(detail_checklist_offerings)
     manual_review_story_ready = bool(manual_review_assist_offerings or lane_positioning.get("manual_review_assist"))
     document_story_ready = int(rental_summary.get("permit_selector_entry_total", 0) or 0) > 0

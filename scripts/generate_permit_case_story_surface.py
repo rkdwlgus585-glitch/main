@@ -34,6 +34,8 @@ def _safe_int(value: Any) -> int:
 
 
 def _review_reason_story(reason: str, manual_review_expected: bool) -> str:
+    if reason == "capital_and_technician_shortfall":
+        return "자본금과 기술인력이 동시에 부족한 경우를 별도 케이스로 분리해 핵심 shortfall을 즉시 고정합니다."
     if reason == "capital_shortfall_only":
         return "자본금만 부족한 경우를 별도 케이스로 분리해 즉시 shortfall 판정 근거를 보여줍니다."
     if reason == "technician_shortfall_only":

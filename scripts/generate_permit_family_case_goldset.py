@@ -9,6 +9,7 @@ from typing import Any, Dict, List
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_FOCUS_FAMILY_REGISTRY_INPUT = ROOT / "config" / "permit_focus_family_registry.json"
+DEFAULT_MASTER_INPUT = ROOT / "logs" / "permit_master_catalog_latest.json"
 DEFAULT_PATENT_INPUT = ROOT / "logs" / "permit_patent_evidence_bundle_latest.json"
 DEFAULT_JSON_OUTPUT = ROOT / "logs" / "permit_family_case_goldset_latest.json"
 DEFAULT_MD_OUTPUT = ROOT / "logs" / "permit_family_case_goldset_latest.md"
@@ -56,6 +57,18 @@ def _row_family_key(row: Dict[str, Any]) -> str:
         if text:
             return text
     return ""
+
+
+def _group_family_rows(rows: List[Dict[str, Any]]) -> Dict[str, List[Dict[str, Any]]]:
+    grouped: Dict[str, List[Dict[str, Any]]] = {}
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        family_key = _row_family_key(row)
+        if not family_key:
+            continue
+        grouped.setdefault(family_key, []).append(row)
+    return grouped
 
 
 def _other_checklist(profile: Dict[str, Any]) -> Dict[str, bool]:
@@ -140,15 +153,18 @@ def build_family_case_goldset(
     *,
     focus_family_registry: Dict[str, Any],
     permit_patent_evidence_bundle: Dict[str, Any],
+    master_catalog: Dict[str, Any] | None = None,
 ) -> Dict[str, Any]:
-    family_rows: Dict[str, List[Dict[str, Any]]] = {}
-    for row in list(focus_family_registry.get("industries") or []):
-        if not isinstance(row, dict):
-            continue
-        family_key = _row_family_key(row)
-        if not family_key:
-            continue
-        family_rows.setdefault(family_key, []).append(row)
+    family_rows = _group_family_rows(
+        [row for row in list(focus_family_registry.get("industries") or []) if isinstance(row, dict)]
+    )
+    master_family_rows = _group_family_rows(
+        [
+            row
+            for row in list((master_catalog or {}).get("industries") or [])
+            if isinstance(row, dict) and bool((_profile(row) or {}).get("focus_target"))
+        ]
+    )
 
     patent_families = [
         family for family in list(permit_patent_evidence_bundle.get("families") or []) if isinstance(family, dict)
@@ -165,7 +181,7 @@ def build_family_case_goldset(
     for family in patent_families:
         family_key = _safe_str(family.get("family_key"))
         claim_packet = family.get("claim_packet") or {}
-        rows = list(family_rows.get(family_key) or [])
+        rows = list(family_rows.get(family_key) or master_family_rows.get(family_key) or [])
         if not family_key or not isinstance(claim_packet, dict) or not rows:
             continue
 
@@ -216,6 +232,15 @@ def build_family_case_goldset(
             expected_status="shortfall",
             capital_gap_eok=0.1 if max_capital > 0 else 0.0,
             technicians_gap=1 if max_technicians > 0 else 0,
+            review_reason=(
+                "capital_and_technician_shortfall"
+                if max_capital > 0 and max_technicians > 0
+                else (
+                    "capital_shortfall_only"
+                    if max_capital > 0
+                    else ("technician_shortfall_only" if max_technicians > 0 else "")
+                )
+            ),
         )
         capital_only_fail_case = _build_case(
             family_key=family_key,
@@ -363,6 +388,7 @@ def render_markdown(bundle: Dict[str, Any]) -> str:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Generate permit family case gold-set scenarios.")
     parser.add_argument("--focus-family-registry-input", default=str(DEFAULT_FOCUS_FAMILY_REGISTRY_INPUT))
+    parser.add_argument("--master-input", default=str(DEFAULT_MASTER_INPUT))
     parser.add_argument("--patent-input", default=str(DEFAULT_PATENT_INPUT))
     parser.add_argument("--json-output", default=str(DEFAULT_JSON_OUTPUT))
     parser.add_argument("--md-output", default=str(DEFAULT_MD_OUTPUT))
@@ -371,6 +397,7 @@ def main() -> int:
     bundle = build_family_case_goldset(
         focus_family_registry=_load_json(Path(args.focus_family_registry_input).expanduser().resolve()),
         permit_patent_evidence_bundle=_load_json(Path(args.patent_input).expanduser().resolve()),
+        master_catalog=_load_json(Path(args.master_input).expanduser().resolve()),
     )
     json_output = Path(args.json_output).expanduser().resolve()
     md_output = Path(args.md_output).expanduser().resolve()

@@ -97,14 +97,15 @@ def build_permit_service_ux_packet(
     ]
     internal_fields = assist_fields + ["pending_criteria_lines", "mapping_confidence"]
 
+    # This packet defines the intended service UX contract and should be
+    # generatable before the downstream page/UX audit runs in refresh.
     packet_ready = all(
         [
-            bool(ux_summary.get("ux_ok")),
-            bool(ux_summary.get("service_pages_ok")),
             bool(copy_summary.get("packet_ready")),
             bool(copy_summary.get("service_flow_ready")),
             bool(alignment_summary.get("alignment_ok")),
             bool(rental_lane_summary.get("packet_ready")),
+            bool(service_slug),
             bool(gate_shortcode),
         ]
     )
@@ -114,7 +115,7 @@ def build_permit_service_ux_packet(
         "packet_id": "permit_service_ux_packet_latest",
         "summary": {
             "packet_ready": packet_ready,
-            "service_surface_ready": bool(ux_summary.get("service_pages_ok")) and bool(gate_shortcode),
+            "service_surface_ready": bool(service_slug) and bool(gate_shortcode),
             "lane_exposure_ready": bool(rental_lane_summary.get("lane_ladder_ready")),
             "alignment_ready": bool(alignment_summary.get("alignment_ok")),
             "service_flow_policy": "public_summary_then_checklist_or_manual_review",

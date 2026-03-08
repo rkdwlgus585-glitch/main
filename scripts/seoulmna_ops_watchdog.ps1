@@ -136,6 +136,9 @@ if (-not (Test-Path $logsDir)) {
 
 $watchdogLog = Join-Path $logsDir "ops_watchdog.log"
 $statePath = Join-Path $logsDir "ops_watchdog_state.json"
+$script:KrHolidayCache = @{}
+$script:KrLunarCalendar = New-Object System.Globalization.KoreanLunisolarCalendar
+$script:KrLunarEra = $script:KrLunarCalendar.Eras[0]
 
 function Write-Log([string]$message) {
     $ts = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
@@ -218,6 +221,180 @@ function Load-MemoDailyCounter {
     } catch {
     }
     return $out
+}
+
+function Add-HolidayDate([hashtable]$holidays, [datetime]$date) {
+    $key = $date.Date.ToString("yyyy-MM-dd")
+    $count = 0
+    if ($holidays.ContainsKey($key)) {
+        $count = [int]$holidays[$key]
+    }
+    $holidays[$key] = $count + 1
+}
+
+function Convert-KoreanLunarToSolar([int]$lunarYear, [int]$lunarMonth, [int]$lunarDay) {
+    $monthIndex = [int]$lunarMonth
+    $leapMonth = $script:KrLunarCalendar.GetLeapMonth($lunarYear, $script:KrLunarEra)
+    if ($leapMonth -gt 0 -and $leapMonth -le $lunarMonth) {
+        $monthIndex += 1
+    }
+    return $script:KrLunarCalendar.ToDateTime(
+        $lunarYear,
+        $monthIndex,
+        [int]$lunarDay,
+        0,
+        0,
+        0,
+        0,
+        $script:KrLunarEra
+    ).Date
+}
+
+function Get-NextObservedHoliday([datetime]$anchorDate, [hashtable]$holidays) {
+    $cursor = $anchorDate.Date.AddDays(1)
+    while ($true) {
+        $key = $cursor.ToString("yyyy-MM-dd")
+        $isWeekend = ($cursor.DayOfWeek -eq [System.DayOfWeek]::Saturday -or $cursor.DayOfWeek -eq [System.DayOfWeek]::Sunday)
+        if ((-not $isWeekend) -and (-not $holidays.ContainsKey($key))) {
+            return $cursor
+        }
+        $cursor = $cursor.AddDays(1)
+    }
+}
+
+function Get-KoreanHolidayTable([int]$year) {
+    $cacheKey = [string]$year
+    if ($script:KrHolidayCache.ContainsKey($cacheKey)) {
+        return $script:KrHolidayCache[$cacheKey]
+    }
+
+    $holidays = @{}
+    $solarDates = @(
+        (Get-Date -Year $year -Month 1 -Day 1),
+        (Get-Date -Year $year -Month 3 -Day 1),
+        (Get-Date -Year $year -Month 5 -Day 5),
+        (Get-Date -Year $year -Month 6 -Day 6),
+        (Get-Date -Year $year -Month 8 -Day 15),
+        (Get-Date -Year $year -Month 10 -Day 3),
+        (Get-Date -Year $year -Month 10 -Day 9),
+        (Get-Date -Year $year -Month 12 -Day 25)
+    )
+    foreach ($date in $solarDates) {
+        Add-HolidayDate $holidays $date
+    }
+
+    $seollal = Convert-KoreanLunarToSolar $year 1 1
+    $seollalSpan = @($seollal.AddDays(-1), $seollal, $seollal.AddDays(1))
+    foreach ($date in $seollalSpan) {
+        Add-HolidayDate $holidays $date
+    }
+
+    $buddha = Convert-KoreanLunarToSolar $year 4 8
+    Add-HolidayDate $holidays $buddha
+
+    $chuseok = Convert-KoreanLunarToSolar $year 8 15
+    $chuseokSpan = @($chuseok.AddDays(-1), $chuseok, $chuseok.AddDays(1))
+    foreach ($date in $chuseokSpan) {
+        Add-HolidayDate $holidays $date
+    }
+
+    $observedSingles = @(
+        (Get-Date -Year $year -Month 3 -Day 1),
+        (Get-Date -Year $year -Month 5 -Day 5),
+        $buddha,
+        (Get-Date -Year $year -Month 8 -Day 15),
+        (Get-Date -Year $year -Month 10 -Day 3),
+        (Get-Date -Year $year -Month 10 -Day 9),
+        (Get-Date -Year $year -Month 12 -Day 25)
+    )
+    foreach ($date in $observedSingles) {
+        $key = $date.ToString("yyyy-MM-dd")
+        $needsObserved = (
+            $date.DayOfWeek -eq [System.DayOfWeek]::Saturday -or
+            $date.DayOfWeek -eq [System.DayOfWeek]::Sunday -or
+            [int]$holidays[$key] -gt 1
+        )
+        if ($needsObserved) {
+            $observed = Get-NextObservedHoliday $date $holidays
+            Add-HolidayDate $holidays $observed
+        }
+    }
+
+    foreach ($group in @($seollalSpan, $chuseokSpan)) {
+        $needsObserved = $false
+        foreach ($date in $group) {
+            $key = $date.ToString("yyyy-MM-dd")
+            if (
+                $date.DayOfWeek -eq [System.DayOfWeek]::Sunday -or
+                [int]$holidays[$key] -gt 1
+            ) {
+                $needsObserved = $true
+                break
+            }
+        }
+        if ($needsObserved) {
+            $anchor = ($group | Sort-Object | Select-Object -Last 1)
+            $observed = Get-NextObservedHoliday $anchor $holidays
+            Add-HolidayDate $holidays $observed
+        }
+    }
+
+    $script:KrHolidayCache[$cacheKey] = $holidays
+    return $holidays
+}
+
+function Test-KoreanHoliday([datetime]$ts) {
+    $holidays = Get-KoreanHolidayTable $ts.Year
+    return $holidays.ContainsKey($ts.Date.ToString("yyyy-MM-dd"))
+}
+
+function Get-MemoCapacityMultiplier([datetime]$ts) {
+    $isWeekend = ($ts.DayOfWeek -eq [System.DayOfWeek]::Saturday -or $ts.DayOfWeek -eq [System.DayOfWeek]::Sunday)
+    # Double capacity only for weekends and statutory/substitute holidays.
+    # Election days and temporary public holidays are intentionally excluded.
+    if ($isWeekend -or (Test-KoreanHoliday $ts)) {
+        return 2
+    }
+    return 1
+}
+
+function Get-MemoDailyCap([datetime]$ts) {
+    return 10 * (Get-MemoCapacityMultiplier $ts)
+}
+
+function Test-AdminMemoFinalizeReady([string]$statusPath) {
+    if (-not (Test-Path $statusPath)) {
+        return $false
+    }
+    try {
+        $raw = Get-Content -Path $statusPath -Raw -Encoding UTF8 | ConvertFrom-Json
+    } catch {
+        return $false
+    }
+    if (-not $raw) {
+        return $false
+    }
+    $complete = $false
+    $remaining = 999999
+    try {
+        $complete = [bool]$raw.complete
+    } catch {
+        $complete = $false
+    }
+    try {
+        $remaining = [int]$raw.remaining
+    } catch {
+        $remaining = 999999
+    }
+    return ($complete -and $remaining -le 0)
+}
+
+function Invoke-AdminMemoFinalizeIfReady([string]$statusPath, [string]$repoCommand) {
+    if (-not (Test-AdminMemoFinalizeReady $statusPath)) {
+        return
+    }
+    Write-Log 'admin memo finalize trigger: backlog complete'
+    [void](Invoke-RepoCommand 'admin_memo_finalize' $repoCommand)
 }
 
 function Invoke-RepoCommand([string]$jobName, [string]$repoCommand) {
@@ -387,8 +564,7 @@ function Get-PermitCollectIntervalMinutes([datetime]$ts) {
 }
 
 function Get-MemoIncrementalLimit([datetime]$ts) {
-    # Requirement: max 1 item per incremental run.
-    return 1
+    return 1 * (Get-MemoCapacityMultiplier $ts)
 }
 
 function Get-MemoIncrementalDelaySec([datetime]$ts) {
@@ -416,7 +592,7 @@ $lastMemoFullDate = Load-LastMemoFullDate
 $memoDaily = Load-MemoDailyCounter
 $memoDailyDate = [string]$memoDaily.Date
 $memoDailyCount = [int]$memoDaily.Count
-$memoDailyCap = 10
+$memoDailyCap = Get-MemoDailyCap (Get-Date)
 
 $cmdNowToSheet = 'scripts\run_startup_now_to_sheet.cmd'
 $cmdConfirmedPublish = (
@@ -424,7 +600,13 @@ $cmdConfirmedPublish = (
 )
 $cmdNoticeArchive = 'scripts\run_startup_notice_archive.cmd'
 $cmdMemoFull = (
-    '{0} all.py --fix-admin-memo --fix-admin-memo-all --fix-admin-memo-pages 0 --fix-admin-memo-limit 0 --fix-admin-memo-delay-sec 1.2 --fix-admin-memo-request-buffer 120 --fix-admin-memo-write-buffer 12 --fix-admin-memo-state-file logs/admin_memo_sync_state.json >> logs\auto_admin_memo_sync.log 2>&1' -f $pythonPrefix
+    '{0} all.py --fix-admin-memo --fix-admin-memo-all --fix-admin-memo-pages 0 --fix-admin-memo-limit 0 --fix-admin-memo-delay-sec 1.2 --fix-admin-memo-request-buffer 120 --fix-admin-memo-write-buffer 12 --fix-admin-memo-state-file logs/admin_memo_sync_state.json --confirm-bulk YES >> logs\auto_admin_memo_sync.log 2>&1' -f $pythonPrefix
+)
+$adminMemoLogPath = Join-Path $logsDir 'auto_admin_memo_sync.log'
+$adminMemoStatusPath = Join-Path $logsDir 'admin_memo_sync_status.json'
+$adminMemoOutputDir = Join-Path ([Environment]::GetFolderPath('Desktop')) ([string]([char]99)+[char]108+[char]105+[char]54617+[char]49845)
+$cmdAdminMemoFinalize = (
+    '{0} scripts\admin_memo_compact_finalize.py --state-file logs/admin_memo_sync_state.json --output-dir "{1}" --txt-name seoulmna_admin_memo_compact_latest.txt --marker-file logs/admin_memo_compact_finalize_marker.json --trim-log-path logs/auto_admin_memo_sync.log --trim-log-lines 200 >> logs\auto_admin_memo_finalize.log 2>&1' -f $pythonPrefix, $adminMemoOutputDir
 )
 $enableMemoFull = $false
 $cmdQualityDaily = 'scripts\run_quality_daily.cmd'
@@ -476,7 +658,9 @@ $bootWindow = Get-ActiveWindowInfo (Get-Date)
 Write-Log ("active window profile={0} start={1:00}:00 end={2:00}:00 memo_full={3:00}:{4:00}" -f $bootWindow.Label, [int]$bootWindow.StartHour, [int]$bootWindow.EndHour, [int]$bootWindow.MemoFullHour, [int]$bootWindow.MemoFullMinute)
 $memoIntervalBoot = Get-MemoIncrementalIntervalMinutes (Get-Date)
 Write-Log ("admin memo incremental interval={0}m" -f [int]$memoIntervalBoot)
-Write-Log ("admin memo incremental policy: per-run-limit=1, daily-cap={0}" -f [int]$memoDailyCap)
+$memoCapacityMultiplier = Get-MemoCapacityMultiplier (Get-Date)
+Write-Log ("admin memo incremental policy: per-run-limit={0}, daily-cap={1}, capacity-multiplier={2}" -f [int](Get-MemoIncrementalLimit (Get-Date)), [int]$memoDailyCap, [int]$memoCapacityMultiplier)
+Write-Log "admin memo holiday scope: weekends + statutory/substitute holidays only (election/temp excluded)"
 Write-Log ("now-to-sheet weekly slot: Monday 18:00 / next={0}" -f $nextNowRun.ToString("s"))
 Write-Log "now-to-sheet policy: weekly full catchup (now scan + sheet sync + co.kr + reconcile)"
 Write-Log "admin memo full-run policy: disabled"
@@ -500,10 +684,11 @@ if ($enableLocalAutoBridge) {
 while ($true) {
     $now = Get-Date
     $todayMemoKey = $now.ToString("yyyy-MM-dd")
+    $memoDailyCap = Get-MemoDailyCap $now
     if ($memoDailyDate -ne $todayMemoKey) {
         $memoDailyDate = $todayMemoKey
         $memoDailyCount = 0
-        Write-Log ("admin memo daily counter reset: {0}" -f $memoDailyDate)
+        Write-Log ("admin memo daily counter reset: {0} (cap={1})" -f $memoDailyDate, [int]$memoDailyCap)
     }
     if ($enableLocalAutoBridge) {
         Ensure-LocalAutoBridge $cmdLocalAutoBridge
@@ -544,9 +729,12 @@ while ($true) {
             $memoLimit = Get-MemoIncrementalLimit (Get-Date)
             $memoDelay = Get-MemoIncrementalDelaySec (Get-Date)
             $cmdMemoIncremental = (
-                '{0} all.py --fix-admin-memo --fix-admin-memo-all --fix-admin-memo-pages 3 --fix-admin-memo-limit {1} --fix-admin-memo-delay-sec {2} --fix-admin-memo-request-buffer 120 --fix-admin-memo-write-buffer 12 --fix-admin-memo-state-file logs/admin_memo_sync_state.json >> logs\auto_admin_memo_sync.log 2>&1' -f $pythonPrefix, [int]$memoLimit, [double]$memoDelay
+                '{0} all.py --fix-admin-memo --fix-admin-memo-all --fix-admin-memo-pages 3 --fix-admin-memo-limit {1} --fix-admin-memo-delay-sec {2} --fix-admin-memo-request-buffer 120 --fix-admin-memo-write-buffer 12 --fix-admin-memo-state-file logs/admin_memo_sync_state.json --confirm-bulk YES >> logs\auto_admin_memo_sync.log 2>&1' -f $pythonPrefix, [int]$memoLimit, [double]$memoDelay
             )
-            [void](Invoke-RepoCommand "admin_memo_incremental" $cmdMemoIncremental)
+            $memoRc = Invoke-RepoCommand "admin_memo_incremental" $cmdMemoIncremental
+            if ($memoRc -eq 0) {
+                Invoke-AdminMemoFinalizeIfReady $adminMemoStatusPath $cmdAdminMemoFinalize
+            }
             $memoDailyCount += 1
             Write-Log ("admin_memo_incremental progress: {0}/{1} for {2}" -f [int]$memoDailyCount, [int]$memoDailyCap, $memoDailyDate)
         }
@@ -635,9 +823,11 @@ while ($true) {
         $fullRc = Invoke-RepoCommand "admin_memo_full" $cmdMemoFull
         if ($fullRc -eq 0) {
             $lastMemoFullDate = $todayKey
+            Invoke-AdminMemoFinalizeIfReady $adminMemoStatusPath $cmdAdminMemoFinalize
         }
     }
 
     Save-State $nextNowRun $nowFailStreak $nextPublishRun $nextNoticeArchiveRun $nextMemoIncrementalRun $lastMemoFullDate $nextSiteGuardRun $nextRankMathDetailRun $nextCxProbeRun $nextDomSnapshotRun $nextCxForceRecoverRun $nextCxHealthDigestRun $nextLocalSyncRun $memoDailyDate $memoDailyCount
     Start-Sleep -Seconds $loopSleepSeconds
 }
+

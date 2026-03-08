@@ -427,6 +427,10 @@ def _run_yangdo_smoke(page_url: str, headless: bool = True) -> Dict[str, Any]:
                 or 0
             )
             wizard_initial_title = _text(driver, "yangdoWizardStepTitle")
+            wizard_progress_initial = _text(driver, "yangdoWizardProgressLabel")
+            wizard_progress_meta_initial = _text(driver, "yangdoWizardProgressMeta")
+            wizard_next_action_initial = _text(driver, "yangdoWizardNextActionText")
+            wizard_action_reason_initial = _text(driver, "yangdoWizardActionReason")
             wizard_step1_visible = bool(
                 driver.execute_script("const el=document.getElementById('yangdoWizardStep1'); return !!el && el.hidden === false;")
             )
@@ -435,6 +439,124 @@ def _run_yangdo_smoke(page_url: str, headless: bool = True) -> Dict[str, Any]:
                 or ""
             ).strip()
             wizard_blocker_initial = _text(driver, "yangdoWizardBlocker")
+            driver.execute_script(
+                """
+const note = document.getElementById('yangdoWizardActionReason');
+if (note) note.click();
+                """
+            )
+            wait.until(
+                lambda d: str(
+                    d.execute_script("const el=document.activeElement; return el ? (el.id || '') : '';")
+                    or ""
+                ).strip() == "in-license"
+            )
+            wizard_action_reason_initial_focus = str(
+                driver.execute_script("const el=document.activeElement; return el ? (el.id || '') : '';")
+                or ""
+            ).strip()
+            wizard_action_reason_initial_highlight = bool(
+                driver.execute_script(
+                    "const el=document.activeElement;"
+                    " const box = el ? (el.closest('.guided-focus-target') || (el.classList && el.classList.contains('guided-focus-target') ? el : null)) : null;"
+                    " return !!box;"
+                )
+            )
+            wizard_action_reason_initial_helper = str(
+                driver.execute_script(
+                    "const el=document.activeElement;"
+                    " const box = el ? (el.closest('.guided-focus-target') || (el.classList && el.classList.contains('guided-focus-target') ? el : null)) : null;"
+                    " return box ? (box.getAttribute('data-guided-focus-copy') || '') : '';"
+                )
+                or ""
+            ).strip()
+            driver.execute_script(
+                """
+const btn = document.getElementById('yangdoWizardNextAction');
+if (btn) btn.click();
+                """
+            )
+            wait.until(
+                lambda d: str(
+                    d.execute_script("const el=document.activeElement; return el ? (el.id || '') : '';")
+                    or ""
+                ).strip() == "in-license"
+            )
+            wizard_next_action_initial_focus = str(
+                driver.execute_script("const el=document.activeElement; return el ? (el.id || '') : '';")
+                or ""
+            ).strip()
+            wizard_next_action_initial_highlight = bool(
+                driver.execute_script(
+                    "const el=document.activeElement;"
+                    " const box = el ? (el.closest('.guided-focus-target') || (el.classList && el.classList.contains('guided-focus-target') ? el : null)) : null;"
+                    " return !!box;"
+                )
+            )
+            driver.set_window_size(430, 1400)
+            wait.until(
+                lambda d: bool(
+                    d.execute_script(
+                        "const el=document.getElementById('yangdoWizardMobileSticky');"
+                        " if (!el) return false;"
+                        " const st=window.getComputedStyle(el);"
+                        " return st.display !== 'none';"
+                    )
+                )
+            )
+            wizard_mobile_sticky_visible = bool(
+                driver.execute_script(
+                    "const el=document.getElementById('yangdoWizardMobileSticky');"
+                    " if (!el) return false;"
+                    " const st=window.getComputedStyle(el);"
+                    " return st.display !== 'none';"
+                )
+            )
+            wizard_mobile_sticky_label = _text(driver, "yangdoWizardMobileStickyLabel")
+            wizard_mobile_sticky_action = _text(driver, "yangdoWizardMobileStickyAction")
+            wizard_mobile_sticky_compact = _text(driver, "yangdoWizardMobileStickyCompact")
+            wizard_mobile_sticky_reason = _text(driver, "yangdoWizardMobileStickyReason")
+            driver.execute_script("if (document.activeElement && document.activeElement.blur) document.activeElement.blur();")
+            driver.execute_script(
+                """
+const btn = document.getElementById('yangdoWizardMobileSticky');
+if (btn) btn.click();
+                """
+            )
+            wait.until(
+                lambda d: str(
+                    d.execute_script("const el=document.activeElement; return el ? (el.id || '') : '';")
+                    or ""
+                ).strip() == "in-license"
+            )
+            wizard_mobile_sticky_focus = str(
+                driver.execute_script("const el=document.activeElement; return el ? (el.id || '') : '';")
+                or ""
+            ).strip()
+            wizard_mobile_sticky_highlight = bool(
+                driver.execute_script(
+                    "const el=document.activeElement;"
+                    " const box = el ? (el.closest('.guided-focus-target') || (el.classList && el.classList.contains('guided-focus-target') ? el : null)) : null;"
+                    " return !!box;"
+                )
+            )
+            wizard_mobile_sticky_helper = str(
+                driver.execute_script(
+                    "const el=document.activeElement;"
+                    " const box = el ? (el.closest('.guided-focus-target') || (el.classList && el.classList.contains('guided-focus-target') ? el : null)) : null;"
+                    " return box ? (box.getAttribute('data-guided-focus-copy') || '') : '';"
+                )
+                or ""
+            ).strip()
+            wizard_mobile_sticky_level = str(
+                driver.execute_script(
+                    "const el=document.activeElement;"
+                    " const box = el ? (el.closest('.guided-focus-target') || (el.classList && el.classList.contains('guided-focus-target') ? el : null)) : null;"
+                    " return box ? (box.getAttribute('data-guided-focus-level') || '') : '';"
+                )
+                or ""
+            ).strip()
+            driver.set_window_size(1440, 2200)
             initial_share_hidden = bool(
                 driver.execute_script(
                     "const el=document.getElementById('result-share-actions');"
@@ -465,6 +587,32 @@ def _run_yangdo_smoke(page_url: str, headless: bool = True) -> Dict[str, Any]:
                 or ""
             ).strip()
             wizard_blocker_after_license = _text(driver, "yangdoWizardBlocker")
+            wizard_next_action_after_license = _text(driver, "yangdoWizardNextActionText")
+            wizard_action_reason_after_license = _text(driver, "yangdoWizardActionReason")
+            driver.execute_script(
+                """
+const btn = document.getElementById('yangdoWizardNextAction');
+if (btn) btn.click();
+                """
+            )
+            wait.until(lambda d: "검색 기준 입력" in _text(d, "yangdoWizardStepTitle"))
+            wait.until(
+                lambda d: str(
+                    d.execute_script("const el=document.activeElement; return el ? (el.id || '') : '';")
+                    or ""
+                ).strip() in {"in-specialty", "in-y23", "in-sales3-total", "in-sales5-total"}
+            )
+            wizard_next_action_after_license_focus = str(
+                driver.execute_script("const el=document.activeElement; return el ? (el.id || '') : '';")
+                or ""
+            ).strip()
+            wizard_next_action_after_license_highlight = bool(
+                driver.execute_script(
+                    "const el=document.activeElement;"
+                    " const box = el ? (el.closest('.guided-focus-target') || (el.classList && el.classList.contains('guided-focus-target') ? el : null)) : null;"
+                    " return !!box;"
+                )
+            )
             driver.execute_script(
                 """
 const btn = document.querySelector('[data-yangdo-wizard-next="0"]');
@@ -473,6 +621,7 @@ if (btn && !btn.disabled) btn.click();
             )
             wait.until(lambda d: "검색 기준 입력" in _text(d, "yangdoWizardStepTitle"))
             wizard_step2_title = _text(driver, "yangdoWizardStepTitle")
+            wizard_progress_step2 = _text(driver, "yangdoWizardProgressLabel")
             driver.execute_script(
                 """
 const btn = document.querySelector('[data-scale-mode="sales"]');
@@ -538,7 +687,27 @@ if (btn && !btn.disabled) btn.click();
             )
             wait.until(lambda d: "구조·정산 정보" in _text(d, "yangdoWizardStepTitle"))
             wizard_step4_title = _text(driver, "yangdoWizardStepTitle")
+            wizard_progress_step4 = _text(driver, "yangdoWizardProgressLabel")
             structure_hint_text = _text(driver, "yangdoStructureHint")
+            wizard_next_action_step4 = _text(driver, "yangdoWizardNextActionText")
+            driver.execute_script(
+                """
+const btn = document.getElementById('yangdoWizardNextAction');
+if (btn) btn.click();
+                """
+            )
+            wait.until(
+                lambda d: bool(
+                    d.execute_script(
+                        "const el=document.activeElement;"
+                        " return !!el && String(el.getAttribute('data-reorg-choice') || '') === '포괄';"
+                    )
+                )
+            )
+            wizard_next_action_step4_focus = str(
+                driver.execute_script("const el=document.activeElement; return el ? (el.getAttribute('data-reorg-choice') || el.id || '') : '';")
+                or ""
+            ).strip()
             step4_next_label = str(
                 driver.execute_script(
                     "const btn=document.querySelector('[data-yangdo-wizard-next=\"3\"]'); return btn ? String(btn.textContent || '') : '';"
@@ -625,6 +794,7 @@ if (btn && !btn.disabled) btn.click();
             )
             wait.until(lambda d: "재무·회사 선택 정보" in _text(d, "yangdoWizardStepTitle"))
             wizard_step5_title = _text(driver, "yangdoWizardStepTitle")
+            wizard_progress_step5 = _text(driver, "yangdoWizardProgressLabel")
             company_hint_text = _text(driver, "yangdoCompanyHint")
             wizard_optional_state = "선택" in wizard_step5_title
 
@@ -668,6 +838,10 @@ if (btn && !btn.disabled) btn.click();
                 driver.execute_script("const el=document.getElementById('result-brief'); return el ? (el.value || '') : '';")
                 or ""
             ).strip()
+            recommended_listings_text = str(
+                driver.execute_script("const el=document.getElementById('recommended-listings'); return el ? (el.innerText || '') : '';")
+                or ""
+            ).strip()
             selected_scenario_text = str(
                 driver.execute_script(
                     "const el=document.querySelector('#settlement-scenarios .settlement-scenario.is-selected');"
@@ -675,6 +849,17 @@ if (btn && !btn.disabled) btn.click();
                 )
                 or ""
             ).strip()
+            publication_chip_ok = any(
+                token in result_reason_chips_text
+                for token in (
+                    "기준가 바로 보기",
+                    "편차가 커 범위만 안내",
+                    "범위 먼저 안내",
+                    "면허부터 확인",
+                    "자세히 확인 후 안내",
+                )
+            )
+            settlement_chip_ok = "정산" in result_reason_chips_text
             share_visible_after_result = bool(
                 driver.execute_script(
                     "const el=document.getElementById('result-share-actions');"
@@ -813,19 +998,45 @@ if (btn) btn.click();
                 "wizard_exists": wizard_exists,
                 "wizard_step_count": wizard_step_count,
                 "wizard_initial_title": wizard_initial_title,
+                "wizard_progress_initial": wizard_progress_initial,
+                "wizard_progress_meta_initial": wizard_progress_meta_initial,
+                "wizard_next_action_initial": wizard_next_action_initial,
+                "wizard_action_reason_initial": wizard_action_reason_initial,
+                "wizard_action_reason_initial_focus": wizard_action_reason_initial_focus,
+                "wizard_action_reason_initial_highlight": wizard_action_reason_initial_highlight,
+                "wizard_action_reason_initial_helper": wizard_action_reason_initial_helper,
+                "wizard_next_action_initial_focus": wizard_next_action_initial_focus,
+                "wizard_next_action_initial_highlight": wizard_next_action_initial_highlight,
+                "wizard_mobile_sticky_visible": wizard_mobile_sticky_visible,
+                "wizard_mobile_sticky_label": wizard_mobile_sticky_label,
+                "wizard_mobile_sticky_action": wizard_mobile_sticky_action,
+                "wizard_mobile_sticky_compact": wizard_mobile_sticky_compact,
+                "wizard_mobile_sticky_reason": wizard_mobile_sticky_reason,
+                "wizard_mobile_sticky_focus": wizard_mobile_sticky_focus,
+                "wizard_mobile_sticky_highlight": wizard_mobile_sticky_highlight,
+                "wizard_mobile_sticky_helper": wizard_mobile_sticky_helper,
+                "wizard_mobile_sticky_level": wizard_mobile_sticky_level,
                 "wizard_step1_visible": wizard_step1_visible,
                 "wizard_summary_initial": wizard_summary_initial,
                 "wizard_blocker_initial": wizard_blocker_initial,
                 "wizard_summary_after_license": wizard_summary_after_license,
                 "wizard_blocker_after_license": wizard_blocker_after_license,
+                "wizard_next_action_after_license": wizard_next_action_after_license,
+                "wizard_action_reason_after_license": wizard_action_reason_after_license,
+                "wizard_next_action_after_license_focus": wizard_next_action_after_license_focus,
+                "wizard_next_action_after_license_highlight": wizard_next_action_after_license_highlight,
                 "wizard_summary_after_scale": wizard_summary_after_scale,
                 "wizard_step2_title": wizard_step2_title,
+                "wizard_progress_step2": wizard_progress_step2,
                 "wizard_step3_title": wizard_step3_title,
                 "critical_hint_text": critical_hint_text,
                 "wizard_blocker_step3": wizard_blocker_step3,
                 "step3_next_label": step3_next_label,
                 "wizard_step4_title": wizard_step4_title,
+                "wizard_progress_step4": wizard_progress_step4,
                 "structure_hint_text": structure_hint_text,
+                "wizard_next_action_step4": wizard_next_action_step4,
+                "wizard_next_action_step4_focus": wizard_next_action_step4_focus,
                 "step4_next_label": step4_next_label,
                 "step4_alert_active": step4_alert_active,
                 "reorg_choice_labels": reorg_choice_labels,
@@ -834,6 +1045,7 @@ if (btn) btn.click();
                 "reorg_compare_active": reorg_compare_active,
                 "reorg_compare_note": reorg_compare_note,
                 "wizard_step5_title": wizard_step5_title,
+                "wizard_progress_step5": wizard_progress_step5,
                 "company_hint_text": company_hint_text,
                 "wizard_optional_state": wizard_optional_state,
                 "initial_share_hidden": initial_share_hidden,
@@ -856,6 +1068,7 @@ if (btn) btn.click();
                 "settlement_scenario_count": settlement_scenario_count,
                 "settlement_scenarios_text": settlement_scenarios_text,
                 "result_brief_text": result_brief_text,
+                "recommended_listings_text": recommended_listings_text,
                 "selected_scenario_text": selected_scenario_text,
                 "publication_hidden": publication_hidden,
                 "synthetic_followup_available": bool(synthetic_followup_output.get("available")),
@@ -880,6 +1093,23 @@ if (btn) btn.click();
                 wizard_exists
                 and wizard_step_count >= 5
                 and "STEP 1" in wizard_initial_title
+                and wizard_progress_initial == "현재 1/5 단계"
+                and "업종부터 입력하면 자동 제안이 시작됩니다." in wizard_progress_meta_initial
+                and wizard_next_action_initial == "면허/업종부터 선택하세요."
+                and "통상 자본금" in wizard_action_reason_initial
+                and wizard_action_reason_initial_focus == "in-license"
+                and wizard_action_reason_initial_highlight
+                and "자동 기준" in wizard_action_reason_initial_helper
+                and wizard_next_action_initial_focus == "in-license"
+                and wizard_next_action_initial_highlight
+                and wizard_mobile_sticky_visible
+                and wizard_mobile_sticky_label == "현재 1/5 단계"
+                and "면허/업종" in wizard_mobile_sticky_action
+                and wizard_mobile_sticky_compact == "업종 선택 후 자동 기준 시작"
+                and wizard_mobile_sticky_focus == "in-license"
+                and wizard_mobile_sticky_highlight
+                and "지금은 업종만" in wizard_mobile_sticky_helper
+                and wizard_mobile_sticky_level == "sticky"
                 and wizard_step1_visible
                 and bool(wizard_summary_initial)
                 and "핵심 입력 준비 전" in wizard_summary_initial
@@ -887,8 +1117,13 @@ if (btn) btn.click();
                 and str(case.get("license") or "") in wizard_summary_after_license
                 and "검색 기준 먼저 입력" in wizard_summary_after_license
                 and "시평 또는 실적" in wizard_blocker_after_license
+                and wizard_next_action_after_license == "시평 또는 실적 중 한 축을 먼저 입력하세요."
+                and "한 축만 입력" in wizard_action_reason_after_license
+                and wizard_next_action_after_license_focus in {"in-specialty", "in-y23", "in-sales3-total", "in-sales5-total"}
+                and wizard_next_action_after_license_highlight
                 and "실적" in wizard_summary_after_scale
                 and "검색 기준 입력" in wizard_step2_title
+                and wizard_progress_step2 == "현재 2/5 단계"
                 and "핵심 가격 영향 입력" in wizard_step3_title
                 and bool(critical_hint_text)
                 and (
@@ -898,9 +1133,12 @@ if (btn) btn.click();
                     or "분할/합병" in wizard_blocker_step3
                 )
                 and "구조·정산 정보" in wizard_step4_title
+                and wizard_progress_step4 == "현재 4/5 단계"
                 and "필수" in step3_next_label
                 and bool(structure_hint_text)
                 and ("구조" in structure_hint_text or "정산" in structure_hint_text)
+                and wizard_next_action_step4 == "포괄 또는 분할/합병 중 구조를 선택하세요."
+                and wizard_next_action_step4_focus == "포괄"
                 and step4_next_label == "양도 구조 먼저 선택"
                 and step4_alert_active
                 and len(reorg_choice_labels) >= 2
@@ -914,6 +1152,7 @@ if (btn) btn.click();
                 and bool(reorg_compare_note)
                 and ("구조" in reorg_compare_note or "전기" in reorg_compare_note or "정보통신" in reorg_compare_note or "소방" in reorg_compare_note)
                 and "재무·회사 선택 정보" in wizard_step5_title
+                and wizard_progress_step5 == "현재 5/5 단계"
                 and bool(company_hint_text)
                 and ("재무" in company_hint_text or "회사" in company_hint_text)
                 and wizard_optional_state
@@ -923,12 +1162,14 @@ if (btn) btn.click();
                 and share_visible_after_result
                 and bool(result_brief_text)
                 and str(case.get("license") or "") in result_brief_text
+                and "가격" not in recommended_listings_text
+                and "억" not in recommended_listings_text
                 and confidence_text not in {"", "-"}
                 and bool(neighbors_text)
                 and realizable_balance_text not in {"", "-"}
                 and bool(settlement_summary)
-                and "공개" in result_reason_chips_text
-                and "정산" in result_reason_chips_text
+                and publication_chip_ok
+                and settlement_chip_ok
                 and settlement_detail_ok
                 and bool(synthetic_followup_output.get("available"))
                 and "공제조합 잔액" in str(synthetic_followup_output.get("text") or "")
@@ -939,7 +1180,8 @@ if (btn) btn.click();
                 and str(synthetic_followup_output.get("secondary_kind") or "") == "capital"
                 and bool(synthetic_followup_output.get("primary_visible"))
                 and bool(synthetic_followup_output.get("secondary_visible"))
-                and "보강 버튼" in str(synthetic_followup_output.get("steps_text") or "")
+                and "추천 후보" in str(synthetic_followup_output.get("steps_text") or "")
+                and "공제조합 잔액" in str(synthetic_followup_output.get("steps_text") or "")
                 and "핵심 가격 영향 입력" in synthetic_primary_step_title
                 and "핵심 가격 영향 입력" in synthetic_secondary_step_title
                 and bool(draft_restore_note_text)
@@ -1104,6 +1346,9 @@ def _run_permit_precheck_smoke(page_url: str, headless: bool = True) -> Dict[str
             or 0
         )
         wizard_initial_title = _text(driver, "permitWizardStepTitle")
+        wizard_progress_initial = _text(driver, "permitWizardProgressLabel")
+        wizard_progress_meta_initial = _text(driver, "permitWizardProgressMeta")
+        wizard_next_action_initial = _text(driver, "permitWizardNextActionText")
         wizard_step1_visible = bool(
             driver.execute_script("const el=document.getElementById('permitWizardStep1'); return !!el && el.hidden === false;")
         )
@@ -1112,6 +1357,29 @@ def _run_permit_precheck_smoke(page_url: str, headless: bool = True) -> Dict[str
             or ""
         ).strip()
         wizard_blocker_initial = _text(driver, "permitWizardBlocker")
+        driver.execute_script(
+            """
+const btn = document.getElementById('permitWizardNextAction');
+if (btn) btn.click();
+            """
+        )
+        wait.until(
+            lambda d: str(
+                d.execute_script("const el=document.activeElement; return el ? (el.id || '') : '';")
+                or ""
+            ).strip() == "industrySearchInput"
+        )
+        wizard_next_action_initial_focus = str(
+            driver.execute_script("const el=document.activeElement; return el ? (el.id || '') : '';")
+            or ""
+        ).strip()
+        wizard_next_action_initial_highlight = bool(
+            driver.execute_script(
+                "const el=document.activeElement;"
+                " const box = el ? (el.closest('.guided-focus-target') || (el.classList && el.classList.contains('guided-focus-target') ? el : null)) : null;"
+                " return !!box;"
+            )
+        )
         mark("initial_state_captured")
 
         initial_actions_hidden = bool(
@@ -1182,6 +1450,7 @@ return String(option.textContent || '').trim();
 
         wait.until(lambda d: _text(d, "requiredCapital") not in {"", "-"})
         wizard_step3_title = _text(driver, "permitWizardStepTitle")
+        wizard_progress_step3 = _text(driver, "permitWizardProgressLabel")
         mark("search_auto_selected")
         wait.until(
             lambda d: bool(
@@ -1209,11 +1478,102 @@ return option ? String(option.textContent || '').trim() : '';
             )
             or ""
         ).strip()
+        industry_auto_reason = str(
+            driver.execute_script("const el=document.getElementById('industryAutoReason'); return el ? (el.textContent || '') : '';")
+            or ""
+        ).strip()
+        industry_auto_reason_kind = str(
+            driver.execute_script("const el=document.getElementById('industryAutoReason'); return el ? (el.getAttribute('data-reason-kind') || '') : '';")
+            or ""
+        ).strip()
+        industry_auto_reason_tone = str(
+            driver.execute_script("const el=document.getElementById('industryAutoReason'); return el ? (el.getAttribute('data-reason-tone') || '') : '';")
+            or ""
+        ).strip()
+        industry_auto_reason_icon = str(
+            driver.execute_script("const el=document.getElementById('industryAutoReason'); return el ? (el.getAttribute('data-reason-icon') || '') : '';")
+            or ""
+        ).strip()
+        industry_auto_reason_actionable = str(
+            driver.execute_script("const el=document.getElementById('industryAutoReason'); return el ? (el.getAttribute('data-actionable') || '') : '';")
+            or ""
+        ).strip()
+        industry_auto_reason_query = str(
+            driver.execute_script(
+                "const el=document.querySelector('#industryAutoReason .auto-selection-token');"
+                " return el ? (el.textContent || '') : '';"
+            )
+            or ""
+        ).strip()
+        industry_auto_reason_field = str(
+            driver.execute_script(
+                "const el=document.querySelector('#industryAutoReason .auto-selection-field');"
+                " return el ? (el.textContent || '') : '';"
+            )
+            or ""
+        ).strip()
+        driver.execute_script(
+            """
+const input = document.getElementById('capitalInput') || document.getElementById('categorySelect');
+if (input && typeof input.focus === 'function') input.focus();
+const note = document.getElementById('industryAutoReason');
+if (note) note.click();
+            """
+        )
+        wait.until(
+            lambda d: str(
+                d.execute_script("const el=document.activeElement; return el ? (el.id || '') : '';")
+                or ""
+            ).strip() == "industrySearchInput"
+        )
+        industry_auto_reason_refocus = str(
+            driver.execute_script("const el=document.activeElement; return el ? (el.id || '') : '';")
+            or ""
+        ).strip()
+        industry_auto_reason_refocus_highlight = bool(
+            driver.execute_script(
+                "const el=document.activeElement;"
+                " const box = el ? (el.closest('.guided-focus-target') || (el.classList && el.classList.contains('guided-focus-target') ? el : null)) : null;"
+                " return !!box;"
+            )
+        )
+        industry_auto_reason_refocus_helper = str(
+            driver.execute_script(
+                "const el=document.activeElement;"
+                " const box = el ? (el.closest('.guided-focus-target') || (el.classList && el.classList.contains('guided-focus-target') ? el : null)) : null;"
+                " return box ? (box.getAttribute('data-guided-focus-copy') || '') : '';"
+            )
+            or ""
+        ).strip()
         permit_summary_after_select = str(
             driver.execute_script("const el=document.getElementById('permitWizardSummary'); return el ? (el.innerText || '') : '';")
             or ""
         ).strip()
         permit_blocker_after_select = _text(driver, "permitWizardBlocker")
+        wizard_next_action_after_select = _text(driver, "permitWizardNextActionText")
+        driver.execute_script(
+            """
+const btn = document.getElementById('permitWizardNextAction');
+if (btn) btn.click();
+            """
+        )
+        wait.until(
+            lambda d: str(
+                d.execute_script("const el=document.activeElement; return el ? (el.id || '') : '';")
+                or ""
+            ).strip() in {"capitalInput", "technicianInput", "equipmentInput"}
+        )
+        wizard_next_action_after_select_focus = str(
+            driver.execute_script("const el=document.activeElement; return el ? (el.id || '') : '';")
+            or ""
+        ).strip()
+        wizard_next_action_after_select_highlight = bool(
+            driver.execute_script(
+                "const el=document.activeElement;"
+                " const box = el ? (el.closest('.guided-focus-target') || (el.classList && el.classList.contains('guided-focus-target') ? el : null)) : null;"
+                " return !!box;"
+            )
+        )
         search_auto_selected = bool(search_seed) and search_seed in auto_selected_option_text
         smart_profile_text = str(
             driver.execute_script("const el=document.getElementById('smartIndustryProfile'); return el ? (el.innerText || '') : '';")
@@ -1267,6 +1627,7 @@ if (btn && !btn.disabled) btn.click();
         )
         wait.until(lambda d: "선택 준비 상태" in _text(d, "permitWizardStepTitle"))
         wizard_optional_title = _text(driver, "permitWizardStepTitle")
+        wizard_progress_step4 = _text(driver, "permitWizardProgressLabel")
         wizard_optional_state = "선택" in wizard_optional_title
         optional_priority_hint = _text(driver, "optionalPriorityHint")
         optional_toggle_label_collapsed = _text(driver, "optionalChecklistToggle")
@@ -1376,11 +1737,36 @@ if (btn && !btn.disabled) btn.click();
         )
         wait.until(lambda d: _text(d, "capitalGapStatus") == "\uAE30\uC900 \uCDA9\uC871")
         wizard_post_fill_title = _text(driver, "permitWizardStepTitle")
+        wizard_progress_after_fill = _text(driver, "permitWizardProgressLabel")
         permit_summary_after_fill = str(
             driver.execute_script("const el=document.getElementById('permitWizardSummary'); return el ? (el.innerText || '') : '';")
             or ""
         ).strip()
         permit_blocker_after_fill = _text(driver, "permitWizardBlocker")
+        wizard_next_action_after_fill = _text(driver, "permitWizardNextActionText")
+        driver.execute_script(
+            """
+const btn = document.getElementById('permitWizardNextAction');
+if (btn) btn.click();
+            """
+        )
+        wait.until(
+            lambda d: str(
+                d.execute_script("const el=document.activeElement; return el ? (el.id || '') : '';")
+                or ""
+            ).strip() == "btnCopyResultBrief"
+        )
+        wizard_next_action_after_fill_focus = str(
+            driver.execute_script("const el=document.activeElement; return el ? (el.id || '') : '';")
+            or ""
+        ).strip()
+        wizard_next_action_after_fill_highlight = bool(
+            driver.execute_script(
+                "const el=document.activeElement;"
+                " const box = el ? (el.closest('.guided-focus-target') || (el.classList && el.classList.contains('guided-focus-target') ? el : null)) : null;"
+                " return !!box;"
+            )
+        )
         filled_capital_value = str(
             driver.execute_script("const el=document.getElementById('capitalInput'); return el ? (el.value || '') : '';")
             or ""
@@ -1418,6 +1804,57 @@ if (btn && !btn.disabled) btn.click();
         mobile_quick_title = _text(driver, "mobileQuickTitle")
         mobile_quick_meta = _text(driver, "mobileQuickMeta")
         mobile_quick_preset_label = _text(driver, "mobileQuickPresetButton")
+        permit_mobile_sticky_visible = bool(
+            driver.execute_script(
+                "const el=document.getElementById('permitWizardMobileSticky');"
+                " if (!el) return false;"
+                " const st=window.getComputedStyle(el);"
+                " return st.display !== 'none';"
+            )
+        )
+        permit_mobile_sticky_label = _text(driver, "permitWizardMobileStickyLabel")
+        permit_mobile_sticky_action = _text(driver, "permitWizardMobileStickyAction")
+        permit_mobile_sticky_compact = _text(driver, "permitWizardMobileStickyCompact")
+        driver.execute_script("if (document.activeElement && document.activeElement.blur) document.activeElement.blur();")
+        driver.execute_script(
+            """
+const btn = document.getElementById('permitWizardMobileSticky');
+if (btn) btn.click();
+                """
+        )
+        wait.until(
+            lambda d: str(
+                d.execute_script("const el=document.activeElement; return el ? (el.id || '') : '';")
+                or ""
+            ).strip() == "btnCopyResultBrief"
+        )
+        permit_mobile_sticky_focus = str(
+            driver.execute_script("const el=document.activeElement; return el ? (el.id || '') : '';")
+            or ""
+        ).strip()
+        permit_mobile_sticky_highlight = bool(
+            driver.execute_script(
+                "const el=document.activeElement;"
+                " const box = el ? (el.closest('.guided-focus-target') || (el.classList && el.classList.contains('guided-focus-target') ? el : null)) : null;"
+                " return !!box;"
+            )
+        )
+        permit_mobile_sticky_helper = str(
+            driver.execute_script(
+                "const el=document.activeElement;"
+                " const box = el ? (el.closest('.guided-focus-target') || (el.classList && el.classList.contains('guided-focus-target') ? el : null)) : null;"
+                " return box ? (box.getAttribute('data-guided-focus-copy') || '') : '';"
+            )
+            or ""
+        ).strip()
+        permit_mobile_sticky_level = str(
+            driver.execute_script(
+                "const el=document.activeElement;"
+                " const box = el ? (el.closest('.guided-focus-target') || (el.classList && el.classList.contains('guided-focus-target') ? el : null)) : null;"
+                " return box ? (box.getAttribute('data-guided-focus-level') || '') : '';"
+            )
+            or ""
+        ).strip()
         mobile_quick_result_enabled = bool(
             driver.execute_script(
                 "const btn=document.getElementById('mobileQuickResultButton'); return !!btn && btn.disabled === false;"
@@ -1502,7 +1939,7 @@ if (btn && !btn.disabled) btn.click();
                 "expected_requirements_tokens": ["기술인력 1명", "장비 1식", "예치 30일"],
                 "unexpected_requirements_tokens": [],
                 "expected_equipment_card_visible": True,
-                "expected_profile_tokens": ["필수 3개 업종", "장비/설비", "예치/보완 일정"],
+                "expected_profile_tokens": ["필수 3개만 확인", "장비/설비", "예치/보완 일정"],
                 "unexpected_profile_tokens": [],
                 "expected_fill_label": "필수 3개 채우기",
                 "expected_equipment_input_visible": True,
@@ -1523,7 +1960,7 @@ if (btn && !btn.disabled) btn.click();
                 "expected_requirements_tokens": ["기술인력 1명", "장비 1식", "예치 30일"],
                 "unexpected_requirements_tokens": [],
                 "expected_equipment_card_visible": True,
-                "expected_profile_tokens": ["필수 3개 업종", "장비/설비", "예치/보완 일정"],
+                "expected_profile_tokens": ["필수 3개만 확인", "장비/설비", "예치/보완 일정"],
                 "unexpected_profile_tokens": [],
                 "expected_fill_label": "필수 3개 채우기",
                 "expected_equipment_input_visible": True,
@@ -1544,7 +1981,7 @@ if (btn && !btn.disabled) btn.click();
                 "expected_requirements_tokens": ["기술인력 1명"],
                 "unexpected_requirements_tokens": ["장비", "예치"],
                 "expected_equipment_card_visible": False,
-                "expected_profile_tokens": ["필수 2개 업종"],
+                "expected_profile_tokens": ["필수 2개만 확인"],
                 "unexpected_profile_tokens": ["장비/설비", "예치/보완 일정"],
                 "expected_fill_label": "필수 2개 채우기",
                 "expected_equipment_input_visible": False,
@@ -1698,11 +2135,18 @@ if (btn && !btn.disabled) btn.click();
             "wizard_exists": wizard_exists,
             "wizard_step_count": wizard_step_count,
             "wizard_initial_title": wizard_initial_title,
+            "wizard_progress_initial": wizard_progress_initial,
+            "wizard_progress_meta_initial": wizard_progress_meta_initial,
+            "wizard_next_action_initial": wizard_next_action_initial,
+            "wizard_next_action_initial_focus": wizard_next_action_initial_focus,
+            "wizard_next_action_initial_highlight": wizard_next_action_initial_highlight,
             "wizard_step1_visible": wizard_step1_visible,
             "wizard_summary_initial": wizard_summary_initial,
             "wizard_blocker_initial": wizard_blocker_initial,
             "wizard_step3_title": wizard_step3_title,
+            "wizard_progress_step3": wizard_progress_step3,
             "wizard_optional_title": wizard_optional_title,
+            "wizard_progress_step4": wizard_progress_step4,
             "wizard_optional_state": wizard_optional_state,
             "optional_priority_hint": optional_priority_hint,
             "optional_toggle_label_collapsed": optional_toggle_label_collapsed,
@@ -1723,9 +2167,22 @@ if (btn && !btn.disabled) btn.click();
             "exact_search_top_option_text": exact_search_top_option_text,
             "focus_hint": focus_hint,
             "auto_selected_option_text": auto_selected_option_text,
+            "industry_auto_reason": industry_auto_reason,
+            "industry_auto_reason_kind": industry_auto_reason_kind,
+            "industry_auto_reason_tone": industry_auto_reason_tone,
+            "industry_auto_reason_icon": industry_auto_reason_icon,
+            "industry_auto_reason_actionable": industry_auto_reason_actionable,
+            "industry_auto_reason_query": industry_auto_reason_query,
+            "industry_auto_reason_field": industry_auto_reason_field,
+            "industry_auto_reason_refocus": industry_auto_reason_refocus,
+            "industry_auto_reason_refocus_highlight": industry_auto_reason_refocus_highlight,
+            "industry_auto_reason_refocus_helper": industry_auto_reason_refocus_helper,
             "search_auto_selected": search_auto_selected,
             "permit_summary_after_select": permit_summary_after_select,
             "permit_blocker_after_select": permit_blocker_after_select,
+            "wizard_next_action_after_select": wizard_next_action_after_select,
+            "wizard_next_action_after_select_focus": wizard_next_action_after_select_focus,
+            "wizard_next_action_after_select_highlight": wizard_next_action_after_select_highlight,
             "smart_profile_text": smart_profile_text,
             "holdings_priority_hint": holdings_priority_hint,
             "desktop_fill_label": desktop_fill_label,
@@ -1744,8 +2201,12 @@ if (btn && !btn.disabled) btn.click();
             "filled_technician_value": filled_technician_value,
             "filled_equipment_value": filled_equipment_value,
             "wizard_post_fill_title": wizard_post_fill_title,
+            "wizard_progress_after_fill": wizard_progress_after_fill,
             "permit_summary_after_fill": permit_summary_after_fill,
             "permit_blocker_after_fill": permit_blocker_after_fill,
+            "wizard_next_action_after_fill": wizard_next_action_after_fill,
+            "wizard_next_action_after_fill_focus": wizard_next_action_after_fill_focus,
+            "wizard_next_action_after_fill_highlight": wizard_next_action_after_fill_highlight,
             "post_fill_banner_title": post_fill_banner_title,
             "post_fill_capital_status": post_fill_capital_status,
             "post_fill_technician_status": post_fill_technician_status,
@@ -1756,6 +2217,14 @@ if (btn && !btn.disabled) btn.click();
             "mobile_quick_title": mobile_quick_title,
             "mobile_quick_meta": mobile_quick_meta,
             "mobile_quick_preset_label": mobile_quick_preset_label,
+            "permit_mobile_sticky_visible": permit_mobile_sticky_visible,
+            "permit_mobile_sticky_label": permit_mobile_sticky_label,
+            "permit_mobile_sticky_action": permit_mobile_sticky_action,
+            "permit_mobile_sticky_compact": permit_mobile_sticky_compact,
+            "permit_mobile_sticky_focus": permit_mobile_sticky_focus,
+            "permit_mobile_sticky_highlight": permit_mobile_sticky_highlight,
+            "permit_mobile_sticky_helper": permit_mobile_sticky_helper,
+            "permit_mobile_sticky_level": permit_mobile_sticky_level,
             "mobile_quick_result_enabled": mobile_quick_result_enabled,
             "mobile_quick_scroll_ok": mobile_quick_scroll_ok,
             "wizard_after_reset_title": wizard_after_reset_title,
@@ -1771,11 +2240,18 @@ if (btn && !btn.disabled) btn.click();
             wizard_exists
             and wizard_step_count >= 4
             and "STEP 1" in wizard_initial_title
+            and wizard_progress_initial == "현재 1/4 단계"
+            and wizard_progress_meta_initial == "필수 0/3 완료 · 업종 검색부터 시작합니다."
+            and wizard_next_action_initial == "업종명 검색이나 빠른 선택으로 시작하세요."
+            and wizard_next_action_initial_focus == "industrySearchInput"
+            and wizard_next_action_initial_highlight
             and wizard_step1_visible
             and bool(wizard_summary_initial)
             and "검색" in wizard_blocker_initial
             and "현재 보유 현황" in wizard_step3_title
+            and wizard_progress_step3 == "현재 3/4 단계"
             and "선택 준비 상태" in wizard_optional_title
+            and wizard_progress_step4 == "현재 4/4 단계"
             and wizard_optional_state
             and "안전" in optional_priority_hint
             and "시설" in optional_priority_hint
@@ -1809,11 +2285,29 @@ if (btn && !btn.disabled) btn.click();
             and (focus_hint in {"", "-"} or "업종명 우선" in focus_hint)
             and bool(auto_selected_option_text)
             and search_auto_selected
+            and "자동 선택" in industry_auto_reason
+            and search_seed in industry_auto_reason
+            and industry_auto_reason_tone in {"match", "search", "direct", "guide"}
+            and industry_auto_reason_icon in {"=", "~", ">", "i"}
+            and (industry_auto_reason_tone != "search" or industry_auto_reason_icon == "~")
+            and industry_auto_reason_actionable == "1"
+            and industry_auto_reason_query == search_seed
+            and industry_auto_reason_kind in {"정확 일치", "접두 일치", "관련도 최고", "검색 1건", "선택 1건", "자동 선택"}
+            and (
+                industry_auto_reason_kind not in {"정확 일치", "접두 일치", "관련도 최고"}
+                or bool(industry_auto_reason_field)
+            )
+            and industry_auto_reason_refocus == "industrySearchInput"
+            and industry_auto_reason_refocus_highlight
+            and "다시 정렬" in industry_auto_reason_refocus_helper
             and bool(permit_summary_after_select)
             and search_seed in permit_summary_after_select
             and ("자본금" in permit_blocker_after_select or "기술자" in permit_blocker_after_select)
+            and wizard_next_action_after_select == "자본금, 기술자, 장비를 순서대로 입력하세요."
+            and wizard_next_action_after_select_focus in {"capitalInput", "technicianInput", "equipmentInput"}
+            and wizard_next_action_after_select_highlight
             and bool(smart_profile_text)
-            and "필수 3개 업종" in smart_profile_text
+            and "필수 3개만 확인" in smart_profile_text
             and search_seed in holdings_priority_hint
             and desktop_fill_label == "\uD544\uC218 3\uAC1C \uCC44\uC6B0\uAE30"
             and bool(capital_placeholder)
@@ -1832,8 +2326,12 @@ if (btn && !btn.disabled) btn.click();
             and filled_technician_value not in {"", "-"}
             and filled_equipment_value not in {"", "-"}
             and "선택 준비 상태" in wizard_post_fill_title
+            and wizard_progress_after_fill == "현재 4/4 단계"
             and "현재 보유 3/3 입력" in permit_summary_after_fill
             and "필수 입력은 끝났습니다." in permit_blocker_after_fill
+            and wizard_next_action_after_fill == "전달 브리프를 복사해 바로 전달하세요."
+            and wizard_next_action_after_fill_focus == "btnCopyResultBrief"
+            and wizard_next_action_after_fill_highlight
             and "\uCDA9\uC871 \uAC00\uB2A5\uC131" in post_fill_banner_title
             and post_fill_capital_status == "\uAE30\uC900 \uCDA9\uC871"
             and post_fill_technician_status == "\uAE30\uC900 \uCDA9\uC871"
@@ -1844,6 +2342,14 @@ if (btn && !btn.disabled) btn.click();
             and bool(mobile_quick_title)
             and bool(mobile_quick_meta)
             and mobile_quick_preset_label == "\uC785\uB825 \uCD08\uAE30\uD654"
+            and permit_mobile_sticky_visible
+            and permit_mobile_sticky_label == "현재 4/4 단계"
+            and "전달 브리프" in permit_mobile_sticky_action
+            and permit_mobile_sticky_compact == "브리프 복사 후 전달"
+            and permit_mobile_sticky_focus == "btnCopyResultBrief"
+            and permit_mobile_sticky_highlight
+            and "지금은 브리프만" in permit_mobile_sticky_helper
+            and permit_mobile_sticky_level == "sticky"
             and mobile_quick_result_enabled
             and mobile_quick_scroll_ok
             and "현재 보유 현황" in wizard_after_reset_title

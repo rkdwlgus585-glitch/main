@@ -16,6 +16,7 @@ DEFAULT_REPORT = LOG_DIR / "ai_platform_publish_latest.json"
 PRIVATE_REPORT = LOG_DIR / "wp_private_ai_pages_latest.json"
 PUBLIC_REPORT = LOG_DIR / "yangdo_kr_bridge_latest.json"
 PUBLIC_VERIFY_REPORT = LOG_DIR / "public_calculator_post_publish_verify_latest.json"
+PUBLIC_SUMMARY_REPORT = LOG_DIR / "public_calculator_publish_summary_latest.json"
 
 
 def _now() -> str:
@@ -85,6 +86,7 @@ def main() -> int:
         "private": {},
         "public": {},
         "public_verify": {},
+        "public_summary": {},
         "brainstorming": {
             "goal": "public/private calculator deploy를 단일 진입점으로 묶고, live 반영 뒤에는 바로 public 검증까지 닫는다",
             "design": [
@@ -160,6 +162,11 @@ def main() -> int:
                     "ok": bool(public_verify_run.get("ok")) and bool(public_verify_report.get("ok")),
                     "stdout_preview": _trim(str(public_verify_run.get("stdout") or "")),
                     "stderr_preview": _trim(str(public_verify_run.get("stderr") or "")),
+                }
+                report["public_summary"] = {
+                    "path": str(PUBLIC_SUMMARY_REPORT),
+                    "report": _load_json(PUBLIC_SUMMARY_REPORT),
+                    "ok": bool((_load_json(PUBLIC_SUMMARY_REPORT)).get("ok")),
                 }
                 if not report["public_verify"]["ok"]:
                     report["blocking_issues"].append("public_post_publish_verify_failed")

@@ -184,6 +184,7 @@ def _execution_checklist(primary: Dict[str, Any], secondary: Dict[str, Any]) -> 
     if lane_id == "single_recommendation_autoloop":
         checklist = [
             "Instrument zero/one-recommendation states with ranked fallback CTAs instead of a single generic recovery button.",
+            "Do not expose price or price-band hints inside recommendation cards; keep the recommendation surface focused on industry, performance, and fit signals.",
             "Verify each fallback CTA lands on the intended wizard step, field focus target, and visible highlight state.",
             "Lock one-or-less recommendation behavior in smoke/runtime tests before expanding copy or layout polish.",
         ]
@@ -212,6 +213,8 @@ def _shipping_gates(primary: Dict[str, Any], secondary: Dict[str, Any]) -> List[
         f"Primary lane success metric must show movement: {_safe_str(primary.get('success_metric')) or 'metric not declared'}.",
         "Browser smoke and targeted regression tests must pass on the changed path before the lane can be considered closed.",
     ]
+    if _safe_str(primary.get("id")) == "single_recommendation_autoloop":
+        gates.append("Recommendation cards must not expose price figures or price-band wording.")
     if secondary:
         gates.append(
             f"Do not switch focus to `{_safe_str(secondary.get('id'))}` unless `{_safe_str(primary.get('id'))}` is green or demonstrably blocked."

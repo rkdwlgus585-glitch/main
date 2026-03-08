@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_MASTER_INPUT = ROOT / "logs" / "permit_master_catalog_latest.json"
 DEFAULT_PROVENANCE_INPUT = ROOT / "logs" / "permit_provenance_audit_latest.json"
 DEFAULT_FOCUS_INPUT = ROOT / "logs" / "permit_focus_priority_latest.json"
+DEFAULT_CAPITAL_REGISTRATION_LOGIC_PACKET_INPUT = ROOT / "logs" / "permit_capital_registration_logic_packet_latest.json"
 DEFAULT_BACKLOG_INPUT = ROOT / "logs" / "permit_source_upgrade_backlog_latest.json"
 DEFAULT_PATENT_INPUT = ROOT / "logs" / "permit_patent_evidence_bundle_latest.json"
 DEFAULT_GOLDSET_INPUT = ROOT / "logs" / "permit_family_case_goldset_latest.json"
@@ -24,6 +25,15 @@ DEFAULT_REVIEW_CASE_PRESETS_INPUT = ROOT / "logs" / "permit_review_case_presets_
 DEFAULT_CASE_STORY_SURFACE_INPUT = ROOT / "logs" / "permit_case_story_surface_latest.json"
 DEFAULT_PRESET_STORY_GUARD_INPUT = ROOT / "logs" / "permit_preset_story_release_guard_latest.json"
 DEFAULT_OPERATOR_DEMO_PACKET_INPUT = ROOT / "logs" / "permit_operator_demo_packet_latest.json"
+DEFAULT_REVIEW_REASON_DECISION_LADDER_INPUT = ROOT / "logs" / "permit_review_reason_decision_ladder_latest.json"
+DEFAULT_THINKING_PROMPT_BUNDLE_INPUT = ROOT / "logs" / "permit_thinking_prompt_bundle_packet_latest.json"
+DEFAULT_PARTNER_BINDING_OBSERVABILITY_INPUT = ROOT / "logs" / "permit_partner_binding_observability_latest.json"
+DEFAULT_PARTNER_GAP_PREVIEW_DIGEST_INPUT = ROOT / "logs" / "permit_partner_gap_preview_digest_latest.json"
+DEFAULT_DEMO_SURFACE_OBSERVABILITY_INPUT = ROOT / "logs" / "permit_demo_surface_observability_latest.json"
+DEFAULT_SURFACE_DRIFT_DIGEST_INPUT = ROOT / "logs" / "permit_surface_drift_digest_latest.json"
+DEFAULT_RUNTIME_REASONING_GUARD_INPUT = ROOT / "logs" / "permit_runtime_reasoning_guard_latest.json"
+DEFAULT_CLOSED_LANE_STALE_AUDIT_INPUT = ROOT / "logs" / "permit_closed_lane_stale_audit_latest.json"
+DEFAULT_OPERATOR_DEMO_PACKET_MD_INPUT = ROOT / "logs" / "permit_operator_demo_packet_latest.md"
 DEFAULT_RELEASE_BUNDLE_INPUT = ROOT / "logs" / "permit_release_bundle_latest.json"
 DEFAULT_UI_INPUT = ROOT / "output" / "ai_permit_precheck.html"
 DEFAULT_PROMPT_DOC_INPUT = ROOT / "docs" / "permit_critical_thinking_prompt.md"
@@ -132,6 +142,42 @@ def _runtime_operator_demo_surface_ready(html: str) -> bool:
     return all(marker in text for marker in required_markers)
 
 
+def _runtime_critical_prompt_surface_ready(html: str) -> bool:
+    text = _expand_runtime_html_text(html)
+    required_markers = (
+        'id="operatorDemoBox"',
+        "const renderOperatorDemoSurface = (industry) => {",
+        "runtime_critical_prompt_excerpt",
+    )
+    return all(marker in text for marker in required_markers)
+
+
+def _runtime_prompt_case_binding_surface_ready(html: str) -> bool:
+    text = _expand_runtime_html_text(html)
+    required_markers = (
+        'id="operatorDemoBox"',
+        "const renderOperatorDemoSurface = (industry) => {",
+        "prompt_case_binding",
+        "data-prompt-preset-id",
+    )
+    return all(marker in text for marker in required_markers)
+
+
+def _runtime_reasoning_card_surface_ready(html: str) -> bool:
+    text = _expand_runtime_html_text(html)
+    required_markers = (
+        'id="runtimeReasoningCardBox"',
+        "const renderRuntimeReasoningCard = (industry, typedEval, context = {}) => {",
+        "data-runtime-preset-id",
+        "runtime_reasoning_ladder_map",
+    )
+    return all(marker in text for marker in required_markers)
+
+
+def _normalize_prompt_text(text: str) -> str:
+    return str(text or "").replace("\\n", "\n").strip()
+
+
 def _doc_excerpt(prompt_doc: str, limit: int = 8) -> str:
     lines = [line.rstrip() for line in str(prompt_doc or "").splitlines() if line.strip()]
     return "\n".join(lines[:limit])
@@ -146,7 +192,7 @@ def _build_execution_prompt(
     claim_packet_complete_family_total: int,
     runtime_failed_case_total: int,
 ) -> str:
-    return "\\n".join(
+    return "\n".join(
         [
             "You are the improvement owner for the SeoulMNA permit precheck platform.",
             f"The current execution lane is '{primary_title}'.",
@@ -166,7 +212,7 @@ def _build_execution_prompt(
 
 
 def _build_parallel_brainstorm_prompt(primary_title: str, parallel_title: str) -> str:
-    return "\\n".join(
+    return "\n".join(
         [
             f"The active execution lane is '{primary_title}', and the parallel brainstorm lane is '{parallel_title}'.",
             "Brainstorming is not idea collection. It is a filter for the next batch candidate set.",
@@ -181,7 +227,7 @@ def _build_parallel_brainstorm_prompt(primary_title: str, parallel_title: str) -
 
 
 def _build_first_principles_prompt(primary_title: str) -> str:
-    return "\\n".join(
+    return "\n".join(
         [
             f"Do not treat '{primary_title}' as a routine task. Break it back down to first principles.",
             "Separate fact, inference, and presentation layer.",
@@ -356,6 +402,27 @@ def _apply_item_text_overrides(items: List[Dict[str, Any]]) -> List[Dict[str, An
             "proposed_next_step": "Lock the current bottleneck prompt block directly into operator and release surfaces.",
             "success_metric": "Critical prompt blocks are embedded in the operating artifacts.",
         },
+        "runtime_reasoning_guard": {
+            "title": "runtime reasoning guard",
+            "current_gap": "The runtime reasoning card is live, but its binding to prompt ladders, preset jumps, and release observability still needs a hard guard.",
+            "why_now": "Once reasoning moves into the live runtime surface, silent drift becomes more expensive than missing UI.",
+            "proposed_next_step": "Lock the runtime reasoning card into release, parity, and regression guard surfaces.",
+            "success_metric": "Reasoning-card regressions are caught before release without opening raw HTML.",
+        },
+        "thinking_prompt_successor_alignment": {
+            "title": "thinking prompt successor alignment",
+            "current_gap": "The runtime reasoning guard is already green, but downstream prompt packets can still keep the closed lane as the active bottleneck.",
+            "why_now": "Once the reasoning guard is closed, stale successor logic wastes the next batch on solved work.",
+            "proposed_next_step": "Align prompt-bundle and founder-chain successor rules so post-guard lanes become the only active next move.",
+            "success_metric": "No permit packet keeps runtime_reasoning_guard as the active lane after the guard is green.",
+        },
+        "closed_lane_stale_audit": {
+            "title": "closed-lane stale audit",
+            "current_gap": "A green runtime reasoning guard can still leave stale lane ids and outdated gap text in release, operator, or partner packets.",
+            "why_now": "If stale closed-lane references survive, autonomous iteration will misread the true bottleneck again.",
+            "proposed_next_step": "Add a compact stale-lane audit that compares closed-lane ids and gap text across brainstorm, release, operator, and prompt packets.",
+            "success_metric": "Closed-lane references are visible in one digest instead of silently leaking into the next batch.",
+        },
         "demo_surface_observability": {
             "title": "demo surface observability",
             "current_gap": "There is still no compact view that shows operator and partner demo readiness together.",
@@ -435,6 +502,7 @@ def build_brainstorm(
     master_catalog: Dict[str, Any],
     provenance_audit: Dict[str, Any],
     focus_report: Dict[str, Any],
+    permit_capital_registration_logic_packet: Dict[str, Any] | None = None,
     source_upgrade_backlog: Dict[str, Any],
     permit_patent_evidence_bundle: Dict[str, Any] | None = None,
     permit_family_case_goldset: Dict[str, Any] | None = None,
@@ -446,6 +514,14 @@ def build_brainstorm(
     permit_case_story_surface: Dict[str, Any] | None = None,
     permit_preset_story_release_guard: Dict[str, Any] | None = None,
     permit_operator_demo_packet: Dict[str, Any] | None = None,
+    permit_review_reason_decision_ladder: Dict[str, Any] | None = None,
+    permit_thinking_prompt_bundle_packet: Dict[str, Any] | None = None,
+    permit_partner_binding_observability: Dict[str, Any] | None = None,
+    permit_partner_gap_preview_digest: Dict[str, Any] | None = None,
+    permit_demo_surface_observability: Dict[str, Any] | None = None,
+    permit_surface_drift_digest: Dict[str, Any] | None = None,
+    permit_runtime_reasoning_guard: Dict[str, Any] | None = None,
+    permit_closed_lane_stale_audit: Dict[str, Any] | None = None,
     permit_release_bundle: Dict[str, Any] | None = None,
     runtime_html: str | None = None,
     prompt_doc: str = "",
@@ -453,6 +529,11 @@ def build_brainstorm(
     master_summary = dict(master_catalog.get("summary") or {})
     provenance_summary = dict(provenance_audit.get("summary") or {})
     focus_summary = dict(focus_report.get("summary") or {})
+    capital_registration_logic_packet_summary = (
+        dict((permit_capital_registration_logic_packet or {}).get("summary") or {})
+        if isinstance(permit_capital_registration_logic_packet, dict)
+        else {}
+    )
     backlog_summary = dict(source_upgrade_backlog.get("summary") or {})
     patent_summary = (
         dict((permit_patent_evidence_bundle or {}).get("summary") or {})
@@ -497,6 +578,46 @@ def build_brainstorm(
     operator_demo_summary = (
         dict((permit_operator_demo_packet or {}).get("summary") or {})
         if isinstance(permit_operator_demo_packet, dict)
+        else {}
+    )
+    review_reason_decision_ladder_summary = (
+        dict((permit_review_reason_decision_ladder or {}).get("summary") or {})
+        if isinstance(permit_review_reason_decision_ladder, dict)
+        else {}
+    )
+    thinking_prompt_bundle_summary = (
+        dict((permit_thinking_prompt_bundle_packet or {}).get("summary") or {})
+        if isinstance(permit_thinking_prompt_bundle_packet, dict)
+        else {}
+    )
+    partner_binding_observability_summary = (
+        dict((permit_partner_binding_observability or {}).get("summary") or {})
+        if isinstance(permit_partner_binding_observability, dict)
+        else {}
+    )
+    partner_gap_preview_digest_summary = (
+        dict((permit_partner_gap_preview_digest or {}).get("summary") or {})
+        if isinstance(permit_partner_gap_preview_digest, dict)
+        else {}
+    )
+    demo_surface_observability_summary = (
+        dict((permit_demo_surface_observability or {}).get("summary") or {})
+        if isinstance(permit_demo_surface_observability, dict)
+        else {}
+    )
+    surface_drift_digest_summary = (
+        dict((permit_surface_drift_digest or {}).get("summary") or {})
+        if isinstance(permit_surface_drift_digest, dict)
+        else {}
+    )
+    runtime_reasoning_guard_summary = (
+        dict((permit_runtime_reasoning_guard or {}).get("summary") or {})
+        if isinstance(permit_runtime_reasoning_guard, dict)
+        else {}
+    )
+    closed_lane_stale_audit_summary = (
+        dict((permit_closed_lane_stale_audit or {}).get("summary") or {})
+        if isinstance(permit_closed_lane_stale_audit, dict)
         else {}
     )
     release_bundle_summary = (
@@ -589,13 +710,228 @@ def build_brainstorm(
     operator_demo_packet_ready = bool(operator_demo_summary.get("operator_demo_ready", False))
     operator_demo_family_total = _safe_int(operator_demo_summary.get("family_total"))
     operator_demo_case_total = _safe_int(operator_demo_summary.get("demo_case_total"))
+    prompt_case_binding_total = _safe_int(operator_demo_summary.get("prompt_case_binding_total"))
     runtime_operator_demo_surface_ready = _runtime_operator_demo_surface_ready(runtime_html)
+    runtime_critical_prompt_surface_ready = _runtime_critical_prompt_surface_ready(runtime_html)
+    runtime_prompt_case_binding_surface_ready = _runtime_prompt_case_binding_surface_ready(runtime_html)
     operator_demo_release_surface_ready = bool(
         release_bundle_summary.get("operator_demo_release_surface_ready", False)
+    ) or bool(
+        operator_demo_packet_ready
+        and runtime_operator_demo_surface_ready
+        and DEFAULT_OPERATOR_DEMO_PACKET_MD_INPUT.exists()
     )
     widget_partner_demo_surface_ready = bool(widget_summary.get("permit_partner_demo_surface_ready", False))
+    widget_partner_binding_sample_total = _safe_int(widget_summary.get("permit_partner_binding_sample_total"))
+    widget_partner_binding_surface_ready = bool(widget_summary.get("permit_partner_binding_surface_ready", False))
     api_partner_demo_surface_ready = bool(api_contract_master_summary.get("partner_demo_surface_ready", False))
+    api_partner_binding_sample_total = _safe_int(api_contract_master_summary.get("partner_binding_sample_total"))
+    api_partner_binding_surface_ready = bool(api_contract_master_summary.get("partner_binding_surface_ready", False))
     partner_demo_surface_ready = widget_partner_demo_surface_ready and api_partner_demo_surface_ready
+    partner_binding_surface_ready = widget_partner_binding_surface_ready and api_partner_binding_surface_ready
+    thinking_prompt_bundle_ready = bool(thinking_prompt_bundle_summary.get("packet_ready", False))
+    thinking_prompt_bundle_prompt_section_total = _safe_int(thinking_prompt_bundle_summary.get("prompt_section_total"))
+    thinking_prompt_bundle_operator_jump_case_total = _safe_int(
+        thinking_prompt_bundle_summary.get("operator_jump_case_total")
+    )
+    thinking_prompt_bundle_decision_ladder_row_total = _safe_int(
+        thinking_prompt_bundle_summary.get("decision_ladder_row_total")
+    )
+    thinking_prompt_bundle_runtime_target_ready = bool(
+        thinking_prompt_bundle_summary.get("runtime_target_ready", False)
+    )
+    thinking_prompt_bundle_release_target_ready = bool(
+        thinking_prompt_bundle_summary.get("release_target_ready", False)
+    )
+    thinking_prompt_bundle_operator_target_ready = bool(
+        thinking_prompt_bundle_summary.get("operator_target_ready", False)
+    )
+    partner_binding_observability_ready = bool(
+        partner_binding_observability_summary.get("observability_ready", False)
+    )
+    partner_binding_expected_family_total = _safe_int(
+        partner_binding_observability_summary.get("expected_family_total")
+    )
+    partner_binding_widget_family_total = _safe_int(
+        partner_binding_observability_summary.get("widget_binding_family_total")
+    )
+    partner_binding_api_family_total = _safe_int(
+        partner_binding_observability_summary.get("api_binding_family_total")
+    )
+    partner_binding_widget_missing_total = _safe_int(
+        partner_binding_observability_summary.get("widget_missing_family_total")
+    )
+    partner_binding_api_missing_total = _safe_int(
+        partner_binding_observability_summary.get("api_missing_family_total")
+    )
+    partner_gap_preview_digest_ready = bool(
+        partner_gap_preview_digest_summary.get(
+            "digest_ready",
+            release_bundle_summary.get("partner_gap_preview_digest_ready", False),
+        )
+    )
+    partner_gap_preview_blank_binding_preset_total = _safe_int(
+        partner_gap_preview_digest_summary.get(
+            "blank_binding_preset_total",
+            release_bundle_summary.get("partner_gap_preview_blank_binding_preset_total"),
+        )
+    )
+    partner_gap_preview_widget_preset_mismatch_total = _safe_int(
+        partner_gap_preview_digest_summary.get(
+            "widget_preset_mismatch_total",
+            release_bundle_summary.get("partner_gap_preview_widget_preset_mismatch_total"),
+        )
+    )
+    partner_gap_preview_api_preset_mismatch_total = _safe_int(
+        partner_gap_preview_digest_summary.get(
+            "api_preset_mismatch_total",
+            release_bundle_summary.get("partner_gap_preview_api_preset_mismatch_total"),
+        )
+    )
+    capital_registration_logic_packet_ready = bool(
+        capital_registration_logic_packet_summary.get("packet_ready", False)
+    )
+    capital_registration_focus_total = _safe_int(
+        capital_registration_logic_packet_summary.get("focus_target_total")
+    )
+    capital_registration_family_total = _safe_int(
+        capital_registration_logic_packet_summary.get("family_total")
+    )
+    capital_evidence_missing_total = _safe_int(
+        capital_registration_logic_packet_summary.get("capital_evidence_missing_total")
+    )
+    technical_evidence_missing_total = _safe_int(
+        capital_registration_logic_packet_summary.get("technical_evidence_missing_total")
+    )
+    other_evidence_missing_total = _safe_int(
+        capital_registration_logic_packet_summary.get("other_evidence_missing_total")
+    )
+    capital_registration_primary_gap_id = _safe_str(
+        capital_registration_logic_packet_summary.get("primary_gap_id")
+    )
+    capital_registration_brainstorm_candidate_total = _safe_int(
+        capital_registration_logic_packet_summary.get("brainstorm_candidate_total")
+    )
+    threshold_spread_top_service_code = _safe_str(
+        capital_registration_logic_packet_summary.get("threshold_spread_top_service_code")
+    )
+    review_reason_total = _safe_int(review_reason_decision_ladder_summary.get("review_reason_total"))
+    review_reason_manual_review_gate_total = _safe_int(
+        review_reason_decision_ladder_summary.get("manual_review_gate_total")
+    )
+    review_reason_prompt_bound_total = _safe_int(
+        review_reason_decision_ladder_summary.get("prompt_bound_reason_total")
+    )
+    review_reason_decision_ladder_ready = bool(
+        review_reason_decision_ladder_summary.get("decision_ladder_ready", False)
+    )
+    demo_surface_observability_ready = bool(
+        demo_surface_observability_summary.get("observability_ready", False)
+    )
+    critical_prompt_compact_lens_ready = bool(
+        demo_surface_observability_summary.get("critical_prompt_compact_lens_ready", False)
+    )
+    critical_prompt_runtime_contract_ready = bool(
+        demo_surface_observability_summary.get("critical_prompt_runtime_contract_ready", False)
+    )
+    critical_prompt_release_contract_ready = bool(
+        demo_surface_observability_summary.get("critical_prompt_release_contract_ready", False)
+    )
+    critical_prompt_operator_contract_ready = bool(
+        demo_surface_observability_summary.get("critical_prompt_operator_contract_ready", False)
+    )
+    surface_health_digest_ready = bool(
+        demo_surface_observability_summary.get("surface_health_digest_ready", False)
+    )
+    surface_health_digest_total = _safe_int(
+        demo_surface_observability_summary.get("surface_health_digest_total")
+    )
+    runtime_reasoning_card_surface_ready = _runtime_reasoning_card_surface_ready(runtime_html)
+    surface_drift_digest_ready = bool(surface_drift_digest_summary.get("digest_ready", False))
+    surface_drift_delta_ready = bool(surface_drift_digest_summary.get("delta_ready", False))
+    runtime_reasoning_guard_ready = bool(
+        runtime_reasoning_guard_summary.get(
+            "guard_ready",
+            release_bundle_summary.get("runtime_reasoning_guard_ready", False),
+        )
+    )
+    runtime_reasoning_binding_gap_total = _safe_int(
+        runtime_reasoning_guard_summary.get(
+            "binding_gap_total",
+            release_bundle_summary.get("runtime_reasoning_binding_gap_total"),
+        )
+    )
+    runtime_reasoning_missing_binding_reason_total = _safe_int(
+        runtime_reasoning_guard_summary.get(
+            "missing_binding_reason_total",
+            runtime_reasoning_binding_gap_total,
+        )
+    )
+    surface_drift_reasoning_changed_surface_total = _safe_int(
+        surface_drift_digest_summary.get(
+            "reasoning_changed_surface_total",
+            release_bundle_summary.get("surface_drift_reasoning_changed_surface_total"),
+        )
+    )
+    surface_drift_reasoning_regression_total = _safe_int(
+        surface_drift_digest_summary.get(
+            "reasoning_regression_total",
+            release_bundle_summary.get("surface_drift_reasoning_regression_total"),
+        )
+    )
+    runtime_reasoning_guard_exit_ready = all(
+        [
+            runtime_reasoning_guard_ready,
+            runtime_reasoning_binding_gap_total == 0,
+            runtime_reasoning_missing_binding_reason_total == 0,
+            surface_drift_digest_ready,
+            surface_drift_delta_ready,
+            surface_drift_reasoning_changed_surface_total == 0,
+            surface_drift_reasoning_regression_total == 0,
+        ]
+    )
+    closed_lane_stale_audit_ready = bool(
+        closed_lane_stale_audit_summary.get(
+            "audit_ready",
+            release_bundle_summary.get("closed_lane_stale_audit_ready", False),
+        )
+    )
+    closed_lane_id = _safe_str(
+        closed_lane_stale_audit_summary.get(
+            "closed_lane_id",
+            release_bundle_summary.get("closed_lane_id"),
+        )
+    )
+    closed_lane_stale_reference_total = _safe_int(
+        closed_lane_stale_audit_summary.get(
+            "stale_reference_total",
+            release_bundle_summary.get("closed_lane_stale_reference_total"),
+        )
+    )
+    closed_lane_stale_artifact_total = _safe_int(
+        closed_lane_stale_audit_summary.get(
+            "stale_artifact_total",
+            release_bundle_summary.get("closed_lane_stale_artifact_total"),
+        )
+    )
+    closed_lane_stale_primary_lane_total = _safe_int(
+        closed_lane_stale_audit_summary.get(
+            "stale_primary_lane_total",
+            release_bundle_summary.get("closed_lane_stale_primary_lane_total"),
+        )
+    )
+    closed_lane_stale_system_bottleneck_total = _safe_int(
+        closed_lane_stale_audit_summary.get(
+            "stale_system_bottleneck_total",
+            release_bundle_summary.get("closed_lane_stale_system_bottleneck_total"),
+        )
+    )
+    closed_lane_stale_prompt_bundle_lane_total = _safe_int(
+        closed_lane_stale_audit_summary.get(
+            "stale_prompt_bundle_lane_total",
+            release_bundle_summary.get("closed_lane_stale_prompt_bundle_lane_total"),
+        )
+    )
     story_contract_surface_ready = story_contract_surface_ready or any(
         (
             preset_story_guard_ready,
@@ -621,6 +957,16 @@ def build_brainstorm(
     encoding_noise_total = _count_encoding_noise(master_rows)
     prompt_doc_ready = bool(str(prompt_doc or "").strip())
     prompt_doc_excerpt = _doc_excerpt(prompt_doc)
+    prompt_case_binding_ready = bool(
+        prompt_case_binding_total
+        and runtime_prompt_case_binding_surface_ready
+    )
+    partner_binding_parity_ready = bool(
+        partner_demo_surface_ready
+        and partner_binding_surface_ready
+        and widget_partner_binding_sample_total >= prompt_case_binding_total
+        and api_partner_binding_sample_total >= prompt_case_binding_total
+    )
 
     brainstorm_items: List[Dict[str, Any]] = []
     if focus_seed_total:
@@ -1219,7 +1565,7 @@ def build_brainstorm(
                     "parallelizable_with": ["partner_demo_surface"],
                 }
             )
-        else:
+        elif not runtime_critical_prompt_surface_ready or not prompt_doc_ready:
             brainstorm_items.append(
                 {
                     "id": "critical_prompt_surface_lock",
@@ -1246,6 +1592,422 @@ def build_brainstorm(
                     "parallelizable_with": ["critical_prompt_surface_lock"],
                 }
             )
+        elif not demo_surface_observability_ready:
+            brainstorm_items.append(
+                {
+                    "id": "demo_surface_observability",
+                    "priority": "P1",
+                    "track": "execution",
+                    "title": "demo surface observability",
+                    "current_gap": "Critical prompt blocks are now embedded, but there is still no single compact matrix for operator and partner demo surface health.",
+                    "why_now": "Once both prompt and demo surfaces are visible, the next regression risk is silent readiness drift across runtime, widget, API, and guards.",
+                    "proposed_next_step": "Generate and publish a compact observability report that summarizes operator demo, critical prompt, partner demo, and parity locks in one packet.",
+                    "success_metric": "operators can confirm demo-surface readiness from one observability report",
+                    "parallelizable_with": ["prompt_case_binding"],
+                }
+            )
+            brainstorm_items.append(
+                {
+                    "id": "prompt_case_binding",
+                    "priority": "P2",
+                    "track": "research",
+                    "title": "prompt-case binding",
+                    "current_gap": "Critical prompts exist, but they are not yet bound to representative family cases and demo presets.",
+                    "why_now": "Binding prompts to concrete cases is the shortest path to better operator judgment and patent-ready explanation consistency.",
+                    "proposed_next_step": "Map each active prompt block to representative family cases, preset ids, and expected statuses so operators can move from reasoning to reproduction without searching.",
+                    "success_metric": "each focus family can jump from critical prompt to at least one representative preset or case",
+                    "parallelizable_with": ["demo_surface_observability"],
+                }
+            )
+        elif not prompt_case_binding_ready:
+            brainstorm_items.append(
+                {
+                    "id": "prompt_case_binding",
+                    "priority": "P1",
+                    "track": "execution",
+                    "title": "prompt-case binding",
+                    "current_gap": "Critical prompts and observability are in place, but operators still need to mentally bridge founder-mode questions to representative cases.",
+                    "why_now": "The current bottleneck is no longer missing proof. It is the time spent translating reasoning into the right preset, case, and explanation path.",
+                    "proposed_next_step": "Bind the critical prompt block to representative family cases, preset ids, and expected result states directly in operator-facing surfaces.",
+                    "success_metric": "operators can jump from prompt lens to the right family case without extra lookup",
+                    "parallelizable_with": ["surface_drift_digest"],
+                }
+            )
+            brainstorm_items.append(
+                {
+                    "id": "surface_drift_digest",
+                    "priority": "P2",
+                    "track": "research",
+                    "title": "surface drift digest",
+                    "current_gap": "Prompt binding is still missing on the operator-facing runtime surface, so changed-surface digest work would be measuring an incomplete state.",
+                    "why_now": "The right order is to lock operator action flow first, then add release-to-release drift comparison around that locked surface.",
+                    "proposed_next_step": "Prepare a release digest that compares readiness flips, sample-count shifts, and prompt-surface regressions once runtime prompt binding is green.",
+                    "success_metric": "the next release packet is ready to compare prompt-bound surfaces between releases",
+                    "parallelizable_with": ["prompt_case_binding"],
+                }
+            )
+        elif not surface_drift_digest_ready:
+            brainstorm_items.append(
+                {
+                    "id": "surface_drift_digest",
+                    "priority": "P1",
+                    "track": "execution",
+                    "title": "surface drift digest",
+                    "current_gap": "Prompt-bound operator surfaces are live, but there is still no compact release-to-release digest for readiness flips and surface count drift.",
+                    "why_now": "Once the prompt lens is bound to cases, the next expensive failure mode is silent drift across release surfaces rather than missing features.",
+                    "proposed_next_step": "Generate a compact digest that compares current demo-surface state with the previous release and highlights readiness flips, sample-count shifts, and prompt regressions.",
+                    "success_metric": "each release packet includes a changed-surface digest instead of current-state-only observability",
+                    "parallelizable_with": ["partner_binding_parity"],
+                }
+            )
+            brainstorm_items.append(
+                {
+                    "id": "partner_binding_parity",
+                    "priority": "P2",
+                    "track": "research",
+                    "title": "partner binding parity",
+                    "current_gap": "Operator runtime can bind prompt lens to representative presets, but partner widget/API surfaces still stop at demo summaries.",
+                    "why_now": "If the internal decision shortcut works, the next leverage is carrying a safe version of it into rental onboarding and partner demos.",
+                    "proposed_next_step": "Define a partner-safe binding summary with family, expected status, and review reason without leaking internal-only notes or raw preset payloads.",
+                    "success_metric": "widget and API can expose partner-safe prompt-to-case bindings for every family",
+                    "parallelizable_with": ["surface_drift_digest"],
+                }
+            )
+        elif not partner_binding_parity_ready:
+            brainstorm_items.append(
+                {
+                    "id": "partner_binding_parity",
+                    "priority": "P1",
+                    "track": "execution",
+                    "title": "partner binding parity",
+                    "current_gap": "Operator runtime and release packet are prompt-bound, but partner widget/API surfaces still do not expose the same decision shortcut in a safe form.",
+                    "why_now": "The biggest remaining leverage is reducing onboarding time and explanation drift for external tenants without leaking operator-only detail.",
+                    "proposed_next_step": "Publish a partner-safe prompt-case binding surface with representative family, expected status, and review reason on widget and API contracts.",
+                    "success_metric": "partner surfaces show one prompt-bound case per family without opening operator artifacts",
+                    "parallelizable_with": ["review_reason_decision_ladder"],
+                }
+            )
+            brainstorm_items.append(
+                {
+                    "id": "review_reason_decision_ladder",
+                    "priority": "P2",
+                    "track": "research",
+                    "title": "review-reason decision ladder",
+                    "current_gap": "Review reasons are visible as labels, but there is still no compact ladder that tells operators what to inspect first across pass, shortfall, and manual-review paths.",
+                    "why_now": "Once prompt binding and drift digest are both locked, explanation precision becomes the next operator-cost bottleneck.",
+                    "proposed_next_step": "Compress review reasons into a short decision ladder tied to evidence, missing inputs, and expected next action.",
+                    "success_metric": "operators can move from review reason to next action without opening raw case JSON",
+                    "parallelizable_with": ["partner_binding_parity"],
+                }
+            )
+        elif not review_reason_decision_ladder_ready:
+            brainstorm_items.append(
+                {
+                    "id": "review_reason_decision_ladder",
+                    "priority": "P1",
+                    "track": "execution",
+                    "title": "review-reason decision ladder",
+                    "current_gap": "Partner-safe binding is live, but operators still cannot move from review reason to evidence-first next action in one compact ladder.",
+                    "why_now": "The next operating cost is not missing surface coverage. It is slow interpretation after shortfall or manual-review results appear.",
+                    "proposed_next_step": "Publish a compact ladder that maps each review reason to inspect-first evidence, missing inputs, and next action.",
+                    "success_metric": "every exposed review reason has one compact decision ladder row",
+                    "parallelizable_with": ["thinking_prompt_bundle_lock"],
+                }
+            )
+            brainstorm_items.append(
+                {
+                    "id": "thinking_prompt_bundle_lock",
+                    "priority": "P2",
+                    "track": "research",
+                    "title": "thinking prompt bundle lock",
+                    "current_gap": "Critical thinking, first-principles, and founder-mode prompts exist, but they are still split across docs, release summaries, and operator surfaces.",
+                    "why_now": "Once review reasons are compressed into ladders, the next leverage is turning that reasoning model into one reusable operating prompt bundle.",
+                    "proposed_next_step": "Compress critical thinking, first-principles, founder questions, anti-patterns, and decision-ladder hooks into one permit prompt bundle.",
+                    "success_metric": "operators can open one prompt bundle and see bottleneck lens, ladder, and next-batch filter together",
+                    "parallelizable_with": ["review_reason_decision_ladder"],
+                }
+            )
+        elif not thinking_prompt_bundle_ready:
+            brainstorm_items.append(
+                {
+                    "id": "thinking_prompt_bundle_lock",
+                    "priority": "P1",
+                    "track": "execution",
+                    "title": "thinking prompt bundle lock",
+                    "current_gap": "Decision ladders and partner bindings are green, but the actual reasoning framework is still fragmented across prompt docs and release packets.",
+                    "why_now": "At this stage the main risk is not missing data. It is degraded prioritization quality across repeated iterations.",
+                    "proposed_next_step": "Unify critical thinking, first-principles, founder-mode, anti-patterns, and review-reason ladders into one reusable permit prompt bundle.",
+                    "success_metric": "one canonical prompt bundle drives runtime, release, and operator prioritization",
+                    "parallelizable_with": ["partner_binding_observability"],
+                }
+            )
+            brainstorm_items.append(
+                {
+                    "id": "partner_binding_observability",
+                    "priority": "P2",
+                    "track": "research",
+                    "title": "partner binding observability",
+                    "current_gap": "Partner-safe binding samples exist, but release and contract surfaces do not yet make binding coverage readable at a glance.",
+                    "why_now": "Once partner parity is live, the next silent failure mode is binding coverage drift rather than surface absence.",
+                    "proposed_next_step": "Expose partner binding counts, readiness, and missing-family preview directly in release and partner QA snapshots.",
+                    "success_metric": "binding coverage can be judged without opening raw widget or API JSON",
+                    "parallelizable_with": ["thinking_prompt_bundle_lock"],
+                }
+            )
+        elif not partner_binding_observability_ready:
+            brainstorm_items.append(
+                {
+                    "id": "partner_binding_observability",
+                    "priority": "P1",
+                    "track": "execution",
+                    "title": "partner binding observability",
+                    "current_gap": "The prompt bundle is locked, but partner-safe binding coverage still cannot be judged from release and contract surfaces alone.",
+                    "why_now": "The next silent failure mode is not missing prompt logic. It is unnoticed family drift on widget and API partner bindings.",
+                    "proposed_next_step": "Publish partner binding coverage totals, missing-family preview, and extra-family preview directly into release and partner QA surfaces.",
+                    "success_metric": "binding coverage drift is visible without opening widget or API raw JSON",
+                    "parallelizable_with": ["runtime_reasoning_card"],
+                }
+            )
+            brainstorm_items.append(
+                {
+                    "id": "runtime_reasoning_card",
+                    "priority": "P2",
+                    "track": "research",
+                    "title": "runtime reasoning card",
+                    "current_gap": "The canonical prompt bundle exists, but live operator reasoning is still split across excerpt, ladder, proof, and preset panels.",
+                    "why_now": "Once the reasoning model is stable, the next leverage is compressing action latency on the live runtime surface.",
+                    "proposed_next_step": "Collapse bottleneck lens, inspect-first evidence, decision ladder, and preset jump into one runtime reasoning card.",
+                    "success_metric": "operators can act from one runtime card without opening separate logs",
+                    "parallelizable_with": ["partner_binding_observability"],
+                }
+            )
+        elif not partner_gap_preview_digest_ready:
+            brainstorm_items.append(
+                {
+                    "id": "partner_gap_preview_digest",
+                    "priority": "P1",
+                    "track": "execution",
+                    "title": "partner gap preview digest",
+                    "current_gap": "Binding coverage is visible, but release and partner QA still lack one compact digest for blank preset bindings, missing families, and preset mismatches.",
+                    "why_now": "Once partner binding observability is green, the next silent failure is family-level drift that still hides in raw JSON.",
+                    "proposed_next_step": "Publish blank preset, missing-family, and preset-mismatch previews directly into release and partner QA surfaces.",
+                    "success_metric": "partner binding drift is readable without opening raw widget or API JSON",
+                    "parallelizable_with": ["runtime_reasoning_card"],
+                }
+            )
+            brainstorm_items.append(
+                {
+                    "id": "runtime_reasoning_card",
+                    "priority": "P2",
+                    "track": "research",
+                    "title": "runtime reasoning card",
+                    "current_gap": "The canonical prompt bundle exists, but live operator reasoning is still split across excerpt, ladder, proof, and preset panels.",
+                    "why_now": "Once partner-safe binding drift is readable, the next leverage is compressing operator action latency on the live runtime surface.",
+                    "proposed_next_step": "Collapse bottleneck lens, inspect-first evidence, decision ladder, and preset jump into one runtime reasoning card.",
+                    "success_metric": "operators can act from one runtime card without opening separate logs",
+                    "parallelizable_with": ["partner_gap_preview_digest"],
+                }
+            )
+        elif not runtime_reasoning_card_surface_ready:
+            brainstorm_items.append(
+                {
+                    "id": "runtime_reasoning_card",
+                    "priority": "P1",
+                    "track": "execution",
+                    "title": "runtime reasoning card",
+                    "current_gap": "Prompt bundle and partner binding observability are green, but operators still have to scan multiple boxes before choosing the next action.",
+                    "why_now": "The current bottleneck is interaction cost on live shortfall/manual-review decisions, not missing artifacts.",
+                    "proposed_next_step": "Build one compact runtime reasoning card that combines bottleneck, inspect-first evidence, next action, and preset jump.",
+                    "success_metric": "one runtime card is enough to move from result to operator action",
+                    "parallelizable_with": ["demo_surface_observability"],
+                }
+            )
+            brainstorm_items.append(
+                {
+                    "id": "demo_surface_observability",
+                    "priority": "P2",
+                    "track": "research",
+                    "title": "demo surface observability",
+                    "current_gap": "The reasoning card is being added, but there is still no compact matrix proving which runtime and demo surfaces stayed aligned after the new card lands.",
+                    "why_now": "Once operator reasoning moves into one card, the next expensive failure is silent readiness drift across runtime, release, and partner demos.",
+                    "proposed_next_step": "Expose reasoning-card readiness in the demo observability surface and keep its parity readable in one matrix.",
+                    "success_metric": "reasoning-card readiness is visible without opening raw HTML",
+                    "parallelizable_with": ["runtime_reasoning_card"],
+                }
+            )
+        else:
+            if runtime_reasoning_guard_exit_ready:
+                if not closed_lane_stale_audit_ready:
+                    brainstorm_items.append(
+                        {
+                            "id": "thinking_prompt_successor_alignment",
+                            "priority": "P1",
+                            "track": "execution",
+                            "title": "thinking prompt successor alignment",
+                            "current_gap": "The runtime reasoning guard is already green, but downstream prompt packets can still keep the closed lane as the active bottleneck.",
+                            "why_now": "Once the reasoning guard is closed, stale successor logic wastes the next batch on solved work and corrupts autonomous prioritization.",
+                            "proposed_next_step": "Align prompt-bundle, founder, and brainstorm successor rules so post-guard lanes become the only active next move.",
+                            "success_metric": "no packet keeps runtime_reasoning_guard as the active lane after the guard is green",
+                            "parallelizable_with": ["closed_lane_stale_audit"],
+                        }
+                    )
+                    brainstorm_items.append(
+                        {
+                            "id": "closed_lane_stale_audit",
+                            "priority": "P2",
+                            "track": "research",
+                            "title": "closed-lane stale audit",
+                            "current_gap": "A green runtime reasoning guard can still leave stale lane ids and outdated gap text in release, operator, or partner packets.",
+                            "why_now": "If closed-lane leakage survives the green guard, the next batch can still optimize the wrong problem.",
+                            "proposed_next_step": "Add a compact stale-lane audit that compares closed-lane ids and gap text across brainstorm, release, operator, and prompt packets.",
+                            "success_metric": "closed-lane references surface in one digest instead of silently leaking into the next batch",
+                            "parallelizable_with": ["thinking_prompt_successor_alignment"],
+                        }
+                    )
+                else:
+                    if (
+                        critical_prompt_compact_lens_ready
+                        and critical_prompt_runtime_contract_ready
+                        and critical_prompt_release_contract_ready
+                        and critical_prompt_operator_contract_ready
+                        and surface_health_digest_ready
+                        and demo_surface_observability_ready
+                        and capital_registration_logic_packet_ready
+                        and (
+                            capital_evidence_missing_total > 0
+                            or technical_evidence_missing_total > 0
+                            or other_evidence_missing_total > 0
+                            or capital_registration_brainstorm_candidate_total > 0
+                        )
+                    ):
+                        lane_current_gap = "Focus industries still have open capital-and-registration logic candidates."
+                        lane_why_now = (
+                            "Prompt and demo surfaces are already green. The next expensive failure is weak logic explainability or an over-restrictive boundary branch."
+                        )
+                        lane_next_step = (
+                            "Use the capital-registration logic packet as the canonical audit and close the highest-impact remaining candidate."
+                        )
+                        lane_success_metric = (
+                            "the primary capital-registration gap closes without breaking the family logic packet"
+                        )
+                        if capital_registration_primary_gap_id == "capital_evidence_backfill":
+                            lane_current_gap = "Focus industries expose capital thresholds, but many rows still lack explicit capital-evidence lines."
+                            lane_why_now = "Prompt and demo surfaces are already green. The next expensive failure is a correct verdict with weak legal explainability."
+                            lane_next_step = "Backfill capital evidence into the capital-registration logic packet and bind it as the canonical logic audit."
+                            lane_success_metric = "capital evidence-missing totals move down while the family logic packet stays green"
+                        elif capital_registration_primary_gap_id == "technical_evidence_backfill":
+                            lane_current_gap = "Some focus industries still expose technician counts without the underlying technician evidence lines."
+                            lane_why_now = "Once capital proof is visible, technician-proof gaps become the next source of operator review drag."
+                            lane_next_step = "Backfill technician evidence into the capital-registration logic packet and keep it visible in runtime reasoning."
+                            lane_success_metric = "technical evidence-missing totals move down without widening manual review"
+                        elif capital_registration_primary_gap_id == "other_requirement_evidence_backfill":
+                            lane_current_gap = "Some focus industries still have extra registration requirements without explicit supporting evidence lines."
+                            lane_why_now = "When capital and technician lines are visible, missing extra-requirement evidence becomes the next false-positive source."
+                            lane_next_step = "Backfill extra requirement evidence for equipment, deposit, office, and facility conditions into the canonical logic packet."
+                            lane_success_metric = "other requirement evidence gaps fall to zero while manual-review branching stays stable"
+                        elif capital_registration_primary_gap_id == "core_only_boundary_guard":
+                            lane_current_gap = "The remaining core-only focus row must stay separate from the heavier with-other checklist path."
+                            lane_why_now = "Once evidence backfill is green, the next risk is over-restrictive branching on the only core-only row."
+                            lane_next_step = "Add a dedicated boundary assertion and surface copy for the core-only focus row so it cannot inherit with-other requirements."
+                            lane_success_metric = "the core-only row keeps its lighter branch in runtime, presets, and release guards"
+                        elif capital_registration_primary_gap_id == "family_threshold_formula_guard":
+                            lane_current_gap = "Some focus families contain multiple subtypes with different capital or technician thresholds, so the family-level reasoning surface can still collapse distinct subtype boundaries."
+                            lane_why_now = "Now that evidence lines are green, the next expensive permit failure is not missing proof but wrong subtype math at the family boundary."
+                            lane_next_step = "Add subtype-aware threshold guard rows for the spread families and bind those boundary scenarios into runtime reasoning, presets, and release assertions."
+                            if threshold_spread_top_service_code:
+                                lane_next_step += f" Start with {threshold_spread_top_service_code}."
+                            lane_success_metric = "spread families keep the correct subtype-specific capital and technician boundary in runtime, presets, and release guards"
+                        brainstorm_parallel_gap = "There is no ranked shortlist for which logic hardening reduces both wrong-verdict risk and operator review time first."
+                        brainstorm_parallel_why = "Once the prompt surfaces are stable, the next high-leverage move is to rank evidence backfill by legal risk and operator cost."
+                        brainstorm_parallel_next = "Rank capital evidence backfill, technician evidence backfill, other-requirement evidence hardening, and core-only boundary guard by impact."
+                        brainstorm_parallel_success = "the next candidate set is ordered by evidence gap and operator cost"
+                        if capital_registration_primary_gap_id == "family_threshold_formula_guard":
+                            brainstorm_parallel_gap = "There is no ranked shortlist for which subtype-spread family should receive threshold hardening first."
+                            brainstorm_parallel_why = "When evidence lines are already green, the next operator-cost spike comes from families whose subtypes share one simplified reasoning surface."
+                            brainstorm_parallel_next = "Rank threshold-spread families by row count, capital spread, technician spread, and review-branch complexity, then pick the first subtype guard family."
+                            if threshold_spread_top_service_code:
+                                brainstorm_parallel_next += f" Candidate zero starts at {threshold_spread_top_service_code}."
+                            brainstorm_parallel_success = "the next family-threshold hardening batch is ordered by subtype spread and runtime decision cost"
+                        brainstorm_items.append(
+                            {
+                                "id": "capital_registration_logic_lock",
+                                "priority": "P1",
+                                "track": "execution",
+                                "title": "capital and registration logic lock",
+                                "current_gap": lane_current_gap,
+                                "why_now": lane_why_now,
+                                "proposed_next_step": lane_next_step,
+                                "success_metric": lane_success_metric,
+                                "parallelizable_with": ["capital_registration_logic_brainstorm"],
+                            }
+                        )
+                        brainstorm_items.append(
+                            {
+                                "id": "capital_registration_logic_brainstorm",
+                                "priority": "P2",
+                                "track": "research",
+                                "title": "capital and registration logic brainstorm",
+                                "current_gap": brainstorm_parallel_gap,
+                                "why_now": brainstorm_parallel_why,
+                                "proposed_next_step": brainstorm_parallel_next,
+                                "success_metric": brainstorm_parallel_success,
+                                "parallelizable_with": ["capital_registration_logic_lock"],
+                            }
+                        )
+                    else:
+                        brainstorm_items.append(
+                            {
+                                "id": "critical_prompt_surface_lock",
+                                "priority": "P1",
+                                "track": "execution",
+                                "title": "critical prompt surface lock",
+                                "current_gap": "The successor chain is now clean, but operators still need a shorter reusable critical-thinking block on live surfaces.",
+                                "why_now": "Once closed-lane leakage is gone, the next bottleneck is applying first-principles prioritization without opening raw docs.",
+                                "proposed_next_step": "Lock a compact first-principles and founder-mode block into runtime, release, and operator surfaces using the current active lane evidence.",
+                                "success_metric": "release and operator surfaces expose a reusable critical-thinking lens tied to the active lane",
+                                "parallelizable_with": ["demo_surface_observability"],
+                            }
+                        )
+                        brainstorm_items.append(
+                            {
+                                "id": "demo_surface_observability",
+                                "priority": "P2",
+                                "track": "research",
+                                "title": "demo surface observability",
+                                "current_gap": "Critical prompt blocks are now the next operating lens, but there is still no single compact matrix for demo and reasoning-surface health.",
+                                "why_now": "After the stale successor chain is removed, the next silent regression risk is surface drift across runtime, release, widget, and API.",
+                                "proposed_next_step": "Publish a compact demo observability report that includes operator demo, critical prompt, reasoning card, and partner-demo parity in one packet.",
+                                "success_metric": "operators can confirm prompt and demo surface readiness from one observability report",
+                                "parallelizable_with": ["critical_prompt_surface_lock"],
+                            }
+                        )
+            else:
+                brainstorm_items.append(
+                    {
+                        "id": "runtime_reasoning_guard",
+                        "priority": "P1",
+                        "track": "execution",
+                        "title": "runtime reasoning guard",
+                        "current_gap": "The runtime reasoning card is live, but its contract with ladders, preset jumps, and release surfaces is not yet guarded tightly enough.",
+                        "why_now": "Now that the reasoning card is visible, the next costly failure mode is silent drift rather than missing UI.",
+                        "proposed_next_step": "Bind the runtime reasoning card to release, parity, and regression guard surfaces so it cannot drift quietly.",
+                        "success_metric": "reasoning-card regressions are caught before release without opening raw HTML",
+                        "parallelizable_with": ["surface_drift_digest"],
+                    }
+                )
+                brainstorm_items.append(
+                    {
+                        "id": "surface_drift_digest",
+                        "priority": "P2",
+                        "track": "research",
+                        "title": "surface drift digest",
+                        "current_gap": "The runtime reasoning card is live, but the drift digest still focuses on broad surface readiness rather than reasoning-card specific regressions.",
+                        "why_now": "Once the reasoning card exists, the next high-leverage move is proving that release drift detection sees it immediately.",
+                        "proposed_next_step": "Extend the drift digest so reasoning-card markers, preset jumps, and ladder bindings are part of the compact diff.",
+                        "success_metric": "any reasoning-card drift appears in one release digest section",
+                        "parallelizable_with": ["runtime_reasoning_guard"],
+                    }
+                )
     if absorbed_total:
         top_group = _safe_str(absorbed_groups[0].get("group_key")) if absorbed_groups else "top absorbed family"
         brainstorm_items.append(
@@ -1416,12 +2178,77 @@ def build_brainstorm(
             "operator_demo_packet_ready": operator_demo_packet_ready,
             "operator_demo_family_total": operator_demo_family_total,
             "operator_demo_case_total": operator_demo_case_total,
+            "prompt_case_binding_total": prompt_case_binding_total,
             "runtime_operator_demo_surface_ready": runtime_operator_demo_surface_ready,
+            "runtime_critical_prompt_surface_ready": runtime_critical_prompt_surface_ready,
+            "runtime_prompt_case_binding_surface_ready": runtime_prompt_case_binding_surface_ready,
             "operator_demo_release_surface_ready": operator_demo_release_surface_ready,
             "widget_partner_demo_surface_ready": widget_partner_demo_surface_ready,
             "api_partner_demo_surface_ready": api_partner_demo_surface_ready,
             "partner_demo_surface_ready": partner_demo_surface_ready,
+            "widget_partner_binding_sample_total": widget_partner_binding_sample_total,
+            "api_partner_binding_sample_total": api_partner_binding_sample_total,
+            "widget_partner_binding_surface_ready": widget_partner_binding_surface_ready,
+            "api_partner_binding_surface_ready": api_partner_binding_surface_ready,
+            "partner_binding_surface_ready": partner_binding_surface_ready,
+            "partner_binding_parity_ready": partner_binding_parity_ready,
+            "thinking_prompt_bundle_ready": thinking_prompt_bundle_ready,
+            "thinking_prompt_bundle_prompt_section_total": thinking_prompt_bundle_prompt_section_total,
+            "thinking_prompt_bundle_operator_jump_case_total": thinking_prompt_bundle_operator_jump_case_total,
+            "thinking_prompt_bundle_decision_ladder_row_total": thinking_prompt_bundle_decision_ladder_row_total,
+            "thinking_prompt_bundle_runtime_target_ready": thinking_prompt_bundle_runtime_target_ready,
+            "thinking_prompt_bundle_release_target_ready": thinking_prompt_bundle_release_target_ready,
+            "thinking_prompt_bundle_operator_target_ready": thinking_prompt_bundle_operator_target_ready,
+            "partner_binding_observability_ready": partner_binding_observability_ready,
+            "partner_binding_expected_family_total": partner_binding_expected_family_total,
+            "partner_binding_widget_family_total": partner_binding_widget_family_total,
+            "partner_binding_api_family_total": partner_binding_api_family_total,
+            "partner_binding_widget_missing_total": partner_binding_widget_missing_total,
+            "partner_binding_api_missing_total": partner_binding_api_missing_total,
+            "partner_gap_preview_digest_ready": partner_gap_preview_digest_ready,
+            "partner_gap_preview_blank_binding_preset_total": partner_gap_preview_blank_binding_preset_total,
+            "partner_gap_preview_widget_preset_mismatch_total": partner_gap_preview_widget_preset_mismatch_total,
+            "partner_gap_preview_api_preset_mismatch_total": partner_gap_preview_api_preset_mismatch_total,
+            "capital_registration_logic_packet_ready": capital_registration_logic_packet_ready,
+            "capital_registration_focus_total": capital_registration_focus_total,
+            "capital_registration_family_total": capital_registration_family_total,
+            "capital_registration_brainstorm_candidate_total": capital_registration_brainstorm_candidate_total,
+            "capital_evidence_missing_total": capital_evidence_missing_total,
+            "technical_evidence_missing_total": technical_evidence_missing_total,
+            "other_evidence_missing_total": other_evidence_missing_total,
+            "capital_registration_primary_gap_id": capital_registration_primary_gap_id,
+            "review_reason_total": review_reason_total,
+            "review_reason_manual_review_gate_total": review_reason_manual_review_gate_total,
+            "review_reason_prompt_bound_total": review_reason_prompt_bound_total,
+            "review_reason_decision_ladder_ready": review_reason_decision_ladder_ready,
+            "runtime_reasoning_card_surface_ready": runtime_reasoning_card_surface_ready,
+            "runtime_reasoning_guard_ready": runtime_reasoning_guard_ready,
+            "runtime_reasoning_guard_exit_ready": runtime_reasoning_guard_exit_ready,
+            "runtime_reasoning_binding_gap_total": runtime_reasoning_binding_gap_total,
+            "runtime_reasoning_missing_binding_reason_total": runtime_reasoning_missing_binding_reason_total,
+            "closed_lane_stale_audit_ready": closed_lane_stale_audit_ready,
+            "closed_lane_id": closed_lane_id,
+            "closed_lane_stale_reference_total": closed_lane_stale_reference_total,
+            "closed_lane_stale_artifact_total": closed_lane_stale_artifact_total,
+            "closed_lane_stale_primary_lane_total": closed_lane_stale_primary_lane_total,
+            "closed_lane_stale_system_bottleneck_total": closed_lane_stale_system_bottleneck_total,
+            "closed_lane_stale_prompt_bundle_lane_total": closed_lane_stale_prompt_bundle_lane_total,
+            "demo_surface_observability_ready": demo_surface_observability_ready,
+            "critical_prompt_compact_lens_ready": critical_prompt_compact_lens_ready,
+            "critical_prompt_runtime_contract_ready": critical_prompt_runtime_contract_ready,
+            "critical_prompt_release_contract_ready": critical_prompt_release_contract_ready,
+            "critical_prompt_operator_contract_ready": critical_prompt_operator_contract_ready,
+            "surface_health_digest_ready": surface_health_digest_ready,
+            "surface_health_digest_total": surface_health_digest_total,
+            "surface_drift_digest_ready": surface_drift_digest_ready,
+            "surface_drift_delta_ready": surface_drift_delta_ready,
+            "surface_drift_changed_surface_total": _safe_int(surface_drift_digest_summary.get("changed_surface_total")),
+            "surface_drift_readiness_flip_total": _safe_int(surface_drift_digest_summary.get("readiness_flip_total")),
+            "surface_drift_reasoning_changed_surface_total": surface_drift_reasoning_changed_surface_total,
+            "surface_drift_reasoning_regression_total": surface_drift_reasoning_regression_total,
             "prompt_doc_ready": prompt_doc_ready,
+            "execution_lane": _safe_str(primary_execution.get("id")),
+            "parallel_lane": _safe_str(primary_parallel.get("id")),
         },
         "current_execution_lane": primary_execution,
         "parallel_brainstorm_lane": primary_parallel,
@@ -1487,11 +2314,74 @@ def render_markdown(report: Dict[str, Any]) -> str:
         f"- operator_demo_packet_ready: `{summary.get('operator_demo_packet_ready', False)}`",
         f"- operator_demo_family_total: `{summary.get('operator_demo_family_total', 0)}`",
         f"- operator_demo_case_total: `{summary.get('operator_demo_case_total', 0)}`",
+        f"- prompt_case_binding_total: `{summary.get('prompt_case_binding_total', 0)}`",
         f"- runtime_operator_demo_surface_ready: `{summary.get('runtime_operator_demo_surface_ready', False)}`",
+        f"- runtime_critical_prompt_surface_ready: `{summary.get('runtime_critical_prompt_surface_ready', False)}`",
+        f"- runtime_prompt_case_binding_surface_ready: `{summary.get('runtime_prompt_case_binding_surface_ready', False)}`",
         f"- operator_demo_release_surface_ready: `{summary.get('operator_demo_release_surface_ready', False)}`",
         f"- widget_partner_demo_surface_ready: `{summary.get('widget_partner_demo_surface_ready', False)}`",
         f"- api_partner_demo_surface_ready: `{summary.get('api_partner_demo_surface_ready', False)}`",
         f"- partner_demo_surface_ready: `{summary.get('partner_demo_surface_ready', False)}`",
+        f"- widget_partner_binding_sample_total: `{summary.get('widget_partner_binding_sample_total', 0)}`",
+        f"- api_partner_binding_sample_total: `{summary.get('api_partner_binding_sample_total', 0)}`",
+        f"- widget_partner_binding_surface_ready: `{summary.get('widget_partner_binding_surface_ready', False)}`",
+        f"- api_partner_binding_surface_ready: `{summary.get('api_partner_binding_surface_ready', False)}`",
+        f"- partner_binding_surface_ready: `{summary.get('partner_binding_surface_ready', False)}`",
+        f"- partner_binding_parity_ready: `{summary.get('partner_binding_parity_ready', False)}`",
+        f"- thinking_prompt_bundle_ready: `{summary.get('thinking_prompt_bundle_ready', False)}`",
+        f"- thinking_prompt_bundle_prompt_section_total: `{summary.get('thinking_prompt_bundle_prompt_section_total', 0)}`",
+        f"- thinking_prompt_bundle_operator_jump_case_total: `{summary.get('thinking_prompt_bundle_operator_jump_case_total', 0)}`",
+        f"- thinking_prompt_bundle_decision_ladder_row_total: `{summary.get('thinking_prompt_bundle_decision_ladder_row_total', 0)}`",
+        f"- thinking_prompt_bundle_runtime_target_ready: `{summary.get('thinking_prompt_bundle_runtime_target_ready', False)}`",
+        f"- thinking_prompt_bundle_release_target_ready: `{summary.get('thinking_prompt_bundle_release_target_ready', False)}`",
+        f"- thinking_prompt_bundle_operator_target_ready: `{summary.get('thinking_prompt_bundle_operator_target_ready', False)}`",
+        f"- partner_binding_observability_ready: `{summary.get('partner_binding_observability_ready', False)}`",
+        f"- partner_binding_expected_family_total: `{summary.get('partner_binding_expected_family_total', 0)}`",
+        f"- partner_binding_widget_family_total: `{summary.get('partner_binding_widget_family_total', 0)}`",
+        f"- partner_binding_api_family_total: `{summary.get('partner_binding_api_family_total', 0)}`",
+        f"- partner_binding_widget_missing_total: `{summary.get('partner_binding_widget_missing_total', 0)}`",
+        f"- partner_binding_api_missing_total: `{summary.get('partner_binding_api_missing_total', 0)}`",
+        f"- partner_gap_preview_digest_ready: `{summary.get('partner_gap_preview_digest_ready', False)}`",
+        f"- partner_gap_preview_blank_binding_preset_total: `{summary.get('partner_gap_preview_blank_binding_preset_total', 0)}`",
+        f"- partner_gap_preview_widget_preset_mismatch_total: `{summary.get('partner_gap_preview_widget_preset_mismatch_total', 0)}`",
+        f"- partner_gap_preview_api_preset_mismatch_total: `{summary.get('partner_gap_preview_api_preset_mismatch_total', 0)}`",
+        f"- capital_registration_logic_packet_ready: `{summary.get('capital_registration_logic_packet_ready', False)}`",
+        f"- capital_registration_focus_total: `{summary.get('capital_registration_focus_total', 0)}`",
+        f"- capital_registration_family_total: `{summary.get('capital_registration_family_total', 0)}`",
+        f"- capital_registration_brainstorm_candidate_total: `{summary.get('capital_registration_brainstorm_candidate_total', 0)}`",
+        f"- capital_evidence_missing_total: `{summary.get('capital_evidence_missing_total', 0)}`",
+        f"- technical_evidence_missing_total: `{summary.get('technical_evidence_missing_total', 0)}`",
+        f"- other_evidence_missing_total: `{summary.get('other_evidence_missing_total', 0)}`",
+        f"- capital_registration_primary_gap_id: `{summary.get('capital_registration_primary_gap_id', '')}`",
+        f"- review_reason_total: `{summary.get('review_reason_total', 0)}`",
+        f"- review_reason_manual_review_gate_total: `{summary.get('review_reason_manual_review_gate_total', 0)}`",
+        f"- review_reason_prompt_bound_total: `{summary.get('review_reason_prompt_bound_total', 0)}`",
+        f"- review_reason_decision_ladder_ready: `{summary.get('review_reason_decision_ladder_ready', False)}`",
+        f"- runtime_reasoning_card_surface_ready: `{summary.get('runtime_reasoning_card_surface_ready', False)}`",
+        f"- runtime_reasoning_guard_ready: `{summary.get('runtime_reasoning_guard_ready', False)}`",
+        f"- runtime_reasoning_guard_exit_ready: `{summary.get('runtime_reasoning_guard_exit_ready', False)}`",
+        f"- runtime_reasoning_binding_gap_total: `{summary.get('runtime_reasoning_binding_gap_total', 0)}`",
+        f"- runtime_reasoning_missing_binding_reason_total: `{summary.get('runtime_reasoning_missing_binding_reason_total', 0)}`",
+        f"- closed_lane_stale_audit_ready: `{summary.get('closed_lane_stale_audit_ready', False)}`",
+        f"- closed_lane_id: `{summary.get('closed_lane_id', '')}`",
+        f"- closed_lane_stale_reference_total: `{summary.get('closed_lane_stale_reference_total', 0)}`",
+        f"- closed_lane_stale_artifact_total: `{summary.get('closed_lane_stale_artifact_total', 0)}`",
+        f"- closed_lane_stale_primary_lane_total: `{summary.get('closed_lane_stale_primary_lane_total', 0)}`",
+        f"- closed_lane_stale_system_bottleneck_total: `{summary.get('closed_lane_stale_system_bottleneck_total', 0)}`",
+        f"- closed_lane_stale_prompt_bundle_lane_total: `{summary.get('closed_lane_stale_prompt_bundle_lane_total', 0)}`",
+        f"- demo_surface_observability_ready: `{summary.get('demo_surface_observability_ready', False)}`",
+        f"- critical_prompt_compact_lens_ready: `{summary.get('critical_prompt_compact_lens_ready', False)}`",
+        f"- critical_prompt_runtime_contract_ready: `{summary.get('critical_prompt_runtime_contract_ready', False)}`",
+        f"- critical_prompt_release_contract_ready: `{summary.get('critical_prompt_release_contract_ready', False)}`",
+        f"- critical_prompt_operator_contract_ready: `{summary.get('critical_prompt_operator_contract_ready', False)}`",
+        f"- surface_health_digest_ready: `{summary.get('surface_health_digest_ready', False)}`",
+        f"- surface_health_digest_total: `{summary.get('surface_health_digest_total', 0)}`",
+        f"- surface_drift_digest_ready: `{summary.get('surface_drift_digest_ready', False)}`",
+        f"- surface_drift_delta_ready: `{summary.get('surface_drift_delta_ready', False)}`",
+        f"- surface_drift_changed_surface_total: `{summary.get('surface_drift_changed_surface_total', 0)}`",
+        f"- surface_drift_readiness_flip_total: `{summary.get('surface_drift_readiness_flip_total', 0)}`",
+        f"- surface_drift_reasoning_changed_surface_total: `{summary.get('surface_drift_reasoning_changed_surface_total', 0)}`",
+        f"- surface_drift_reasoning_regression_total: `{summary.get('surface_drift_reasoning_regression_total', 0)}`",
         f"- prompt_doc_ready: `{summary.get('prompt_doc_ready', False)}`",
         "",
         "## Active Execution Lane",
@@ -1528,17 +2418,17 @@ def render_markdown(report: Dict[str, Any]) -> str:
             "",
             "## Critical Prompt",
             "```text",
-            str(prompts.get("execution_prompt") or "").strip(),
+            _normalize_prompt_text(str(prompts.get("execution_prompt") or "")),
             "```",
             "",
             "## Parallel Brainstorm Prompt",
             "```text",
-            str(prompts.get("brainstorm_prompt") or "").strip(),
+            _normalize_prompt_text(str(prompts.get("brainstorm_prompt") or "")),
             "```",
             "",
             "## First-Principles Prompt",
             "```text",
-            str(prompts.get("first_principles_prompt") or "").strip(),
+            _normalize_prompt_text(str(prompts.get("first_principles_prompt") or "")),
             "```",
             "",
             "## Founder Mode Questions",
@@ -1574,6 +2464,7 @@ def main() -> int:
     parser.add_argument("--master-input", default=str(DEFAULT_MASTER_INPUT))
     parser.add_argument("--provenance-input", default=str(DEFAULT_PROVENANCE_INPUT))
     parser.add_argument("--focus-input", default=str(DEFAULT_FOCUS_INPUT))
+    parser.add_argument("--capital-registration-logic-packet-input", default=str(DEFAULT_CAPITAL_REGISTRATION_LOGIC_PACKET_INPUT))
     parser.add_argument("--backlog-input", default=str(DEFAULT_BACKLOG_INPUT))
     parser.add_argument("--patent-input", default=str(DEFAULT_PATENT_INPUT))
     parser.add_argument("--goldset-input", default=str(DEFAULT_GOLDSET_INPUT))
@@ -1585,6 +2476,14 @@ def main() -> int:
     parser.add_argument("--case-story-surface-input", default=str(DEFAULT_CASE_STORY_SURFACE_INPUT))
     parser.add_argument("--preset-story-guard-input", default=str(DEFAULT_PRESET_STORY_GUARD_INPUT))
     parser.add_argument("--operator-demo-packet-input", default=str(DEFAULT_OPERATOR_DEMO_PACKET_INPUT))
+    parser.add_argument("--review-reason-decision-ladder-input", default=str(DEFAULT_REVIEW_REASON_DECISION_LADDER_INPUT))
+    parser.add_argument("--thinking-prompt-bundle-input", default=str(DEFAULT_THINKING_PROMPT_BUNDLE_INPUT))
+    parser.add_argument("--partner-binding-observability-input", default=str(DEFAULT_PARTNER_BINDING_OBSERVABILITY_INPUT))
+    parser.add_argument("--partner-gap-preview-digest-input", default=str(DEFAULT_PARTNER_GAP_PREVIEW_DIGEST_INPUT))
+    parser.add_argument("--demo-surface-observability-input", default=str(DEFAULT_DEMO_SURFACE_OBSERVABILITY_INPUT))
+    parser.add_argument("--surface-drift-digest-input", default=str(DEFAULT_SURFACE_DRIFT_DIGEST_INPUT))
+    parser.add_argument("--runtime-reasoning-guard-input", default=str(DEFAULT_RUNTIME_REASONING_GUARD_INPUT))
+    parser.add_argument("--closed-lane-stale-audit-input", default=str(DEFAULT_CLOSED_LANE_STALE_AUDIT_INPUT))
     parser.add_argument("--release-bundle-input", default=str(DEFAULT_RELEASE_BUNDLE_INPUT))
     parser.add_argument("--ui-input", default=str(DEFAULT_UI_INPUT))
     parser.add_argument("--prompt-doc-input", default=str(DEFAULT_PROMPT_DOC_INPUT))
@@ -1595,6 +2494,7 @@ def main() -> int:
     master_input = Path(args.master_input).expanduser().resolve()
     provenance_input = Path(args.provenance_input).expanduser().resolve()
     focus_input = Path(args.focus_input).expanduser().resolve()
+    capital_registration_logic_packet_input = Path(args.capital_registration_logic_packet_input).expanduser().resolve()
     backlog_input = Path(args.backlog_input).expanduser().resolve()
     patent_input = Path(args.patent_input).expanduser().resolve()
     goldset_input = Path(args.goldset_input).expanduser().resolve()
@@ -1606,6 +2506,14 @@ def main() -> int:
     case_story_surface_input = Path(args.case_story_surface_input).expanduser().resolve()
     preset_story_guard_input = Path(args.preset_story_guard_input).expanduser().resolve()
     operator_demo_packet_input = Path(args.operator_demo_packet_input).expanduser().resolve()
+    review_reason_decision_ladder_input = Path(args.review_reason_decision_ladder_input).expanduser().resolve()
+    thinking_prompt_bundle_input = Path(args.thinking_prompt_bundle_input).expanduser().resolve()
+    partner_binding_observability_input = Path(args.partner_binding_observability_input).expanduser().resolve()
+    partner_gap_preview_digest_input = Path(args.partner_gap_preview_digest_input).expanduser().resolve()
+    demo_surface_observability_input = Path(args.demo_surface_observability_input).expanduser().resolve()
+    surface_drift_digest_input = Path(args.surface_drift_digest_input).expanduser().resolve()
+    runtime_reasoning_guard_input = Path(args.runtime_reasoning_guard_input).expanduser().resolve()
+    closed_lane_stale_audit_input = Path(args.closed_lane_stale_audit_input).expanduser().resolve()
     release_bundle_input = Path(args.release_bundle_input).expanduser().resolve()
     ui_input = Path(args.ui_input).expanduser().resolve()
     prompt_doc_input = Path(args.prompt_doc_input).expanduser().resolve()
@@ -1614,6 +2522,11 @@ def main() -> int:
         master_catalog=_load_json(master_input),
         provenance_audit=_load_json(provenance_input),
         focus_report=_load_json(focus_input),
+        permit_capital_registration_logic_packet=(
+            _load_json(capital_registration_logic_packet_input)
+            if capital_registration_logic_packet_input.exists()
+            else {}
+        ),
         source_upgrade_backlog=_load_json(backlog_input),
         permit_patent_evidence_bundle=_load_json(patent_input) if patent_input.exists() else {},
         permit_family_case_goldset=_load_json(goldset_input) if goldset_input.exists() else {},
@@ -1625,6 +2538,22 @@ def main() -> int:
         permit_case_story_surface=_load_json(case_story_surface_input) if case_story_surface_input.exists() else {},
         permit_preset_story_release_guard=_load_json(preset_story_guard_input) if preset_story_guard_input.exists() else {},
         permit_operator_demo_packet=_load_json(operator_demo_packet_input) if operator_demo_packet_input.exists() else {},
+        permit_review_reason_decision_ladder=(
+            _load_json(review_reason_decision_ladder_input) if review_reason_decision_ladder_input.exists() else {}
+        ),
+        permit_thinking_prompt_bundle_packet=(
+            _load_json(thinking_prompt_bundle_input) if thinking_prompt_bundle_input.exists() else {}
+        ),
+        permit_partner_binding_observability=(
+            _load_json(partner_binding_observability_input) if partner_binding_observability_input.exists() else {}
+        ),
+        permit_partner_gap_preview_digest=(
+            _load_json(partner_gap_preview_digest_input) if partner_gap_preview_digest_input.exists() else {}
+        ),
+        permit_demo_surface_observability=_load_json(demo_surface_observability_input) if demo_surface_observability_input.exists() else {},
+        permit_surface_drift_digest=_load_json(surface_drift_digest_input) if surface_drift_digest_input.exists() else {},
+        permit_runtime_reasoning_guard=_load_json(runtime_reasoning_guard_input) if runtime_reasoning_guard_input.exists() else {},
+        permit_closed_lane_stale_audit=_load_json(closed_lane_stale_audit_input) if closed_lane_stale_audit_input.exists() else {},
         permit_release_bundle=_load_json(release_bundle_input) if release_bundle_input.exists() else {},
         runtime_html=_load_text(ui_input),
         prompt_doc=_load_text(prompt_doc_input),

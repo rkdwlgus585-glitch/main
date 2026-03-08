@@ -96,6 +96,7 @@ def build_co_listing_live_injection_plan(
         if isinstance(row, dict)
     }
     ctas = policy.get("ctas") if isinstance(policy.get("ctas"), list) else []
+    operator_ready = bool((operator.get("summary") or {}).get("checklist_ready"))
 
     placements: List[Dict[str, Any]] = []
     for row in ctas:
@@ -120,6 +121,15 @@ def build_co_listing_live_injection_plan(
         )
 
     verified_count = len([row for row in placements if row.get("selector_verified")])
+    snippet_ready_count = len(
+        [
+            row
+            for row in placements
+            if str(row.get("snippet_file") or "").strip() and str(row.get("target_url") or "").strip()
+        ]
+    )
+    artifact_ready = bool(placements) and operator_ready and snippet_ready_count == len(placements)
+    strict_live_ready = artifact_ready and verified_count == len(placements)
     detail_sample_url = ""
     if "https://seoulmna.co.kr/mna/7768" in detail_html or 'id="bo_v"' in detail_html:
         detail_sample_url = "https://seoulmna.co.kr/mna/7768"
@@ -131,7 +141,11 @@ def build_co_listing_live_injection_plan(
             "platform_host": str((policy.get("summary") or {}).get("platform_host") or "seoulmna.kr"),
             "placement_count": len(placements),
             "selector_verified_count": verified_count,
-            "plan_ready": verified_count == len(placements) and bool((operator.get("summary") or {}).get("checklist_ready")),
+            "snippet_ready_count": snippet_ready_count,
+            "operator_ready": operator_ready,
+            "artifact_ready": artifact_ready,
+            "strict_live_ready": strict_live_ready,
+            "plan_ready": artifact_ready,
             "detail_sample_url": detail_sample_url,
         },
         "placements": placements,
@@ -145,6 +159,7 @@ def build_co_listing_live_injection_plan(
             "Match each verified selector to its placement-specific snippet or JS injection entry.",
             "Verify that every CTA points to the correct .kr URL with the required UTM parameters.",
             "Confirm that no /_calc iframe is created anywhere in the .co.kr DOM before publishing.",
+            "Treat selector verification as a strict live-apply gate, not a canonical artifact refresh blocker.",
         ],
     }
 
@@ -158,6 +173,10 @@ def _to_markdown(payload: Dict[str, Any]) -> str:
         f"- platform_host: {summary.get('platform_host') or '(none)'}",
         f"- placement_count: {summary.get('placement_count')}",
         f"- selector_verified_count: {summary.get('selector_verified_count')}",
+        f"- snippet_ready_count: {summary.get('snippet_ready_count')}",
+        f"- operator_ready: {summary.get('operator_ready')}",
+        f"- artifact_ready: {summary.get('artifact_ready')}",
+        f"- strict_live_ready: {summary.get('strict_live_ready')}",
         f"- plan_ready: {summary.get('plan_ready')}",
         f"- detail_sample_url: {summary.get('detail_sample_url') or '(none)'}",
         "",
@@ -181,6 +200,7 @@ def main() -> int:
     parser.add_argument("--detail-html", type=Path, default=DEFAULT_DETAIL_HTML)
     parser.add_argument("--json", type=Path, default=DEFAULT_JSON)
     parser.add_argument("--md", type=Path, default=DEFAULT_MD)
+    parser.add_argument("--strict", action="store_true", help="Fail unless all selectors are verified for live apply.")
     args = parser.parse_args()
 
     payload = build_co_listing_live_injection_plan(
@@ -197,7 +217,9 @@ def main() -> int:
     args.md.write_text(_to_markdown(payload), encoding="utf-8")
     print(f"[ok] wrote {args.json}")
     print(f"[ok] wrote {args.md}")
-    return 0 if bool((payload.get("summary") or {}).get("plan_ready")) else 1
+    summary = payload.get("summary") if isinstance(payload.get("summary"), dict) else {}
+    ready_flag = bool(summary.get("strict_live_ready")) if args.strict else bool(summary.get("plan_ready"))
+    return 0 if ready_flag else 1
 
 
 if __name__ == "__main__":

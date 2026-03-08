@@ -67,6 +67,111 @@ def _unique_nonempty(values: List[str]) -> List[str]:
     return out
 
 
+def _safe_int(value: Any) -> int:
+    try:
+        return int(value)
+    except Exception:
+        return 0
+
+
+def _format_money_eok(value: Any) -> str:
+    try:
+        amount = float(value)
+    except Exception:
+        amount = 0.0
+    if amount <= 0:
+        return "0원"
+    total_million_won = int(round(amount * 10000))
+    if total_million_won % 10000 == 0:
+        return f"{total_million_won // 10000}억원"
+    eok = total_million_won // 10000
+    rem = total_million_won % 10000
+    if eok <= 0:
+        return f"{rem:,}만원".replace(",", "")
+    return f"{eok}억 {rem:,}만원".replace(",", "")
+
+
+def _other_component_label(component: str, *, equipment_count_required: int, deposit_days_required: int) -> str:
+    key = _safe_str(component)
+    if key == "equipment":
+        if equipment_count_required > 0:
+            return f"장비 {equipment_count_required}종 이상"
+        return "장비 기준"
+    if key == "deposit":
+        if deposit_days_required > 0:
+            return f"보증가능금액 확인서 {deposit_days_required}일 이상"
+        return "보증가능금액 확인 기준"
+    if key == "safety_environment":
+        return "안전·환경 기준"
+    if key == "facility_equipment":
+        return "시설 및 장비 기준"
+    if key == "office":
+        return "사무실 확보 기준"
+    return key or "기타 등록기준"
+
+
+def _backfill_requirement_profile_evidence(row: Dict[str, Any]) -> Dict[str, Any]:
+    profile = row.get("registration_requirement_profile") or {}
+    if not isinstance(profile, dict):
+        return {}
+    item = dict(profile)
+    basis_title = _safe_str(row.get("legal_basis_title")) or _safe_str(row.get("law_title")) or "등록기준"
+    service_name = _safe_str(row.get("service_name")) or _safe_str(row.get("service_code")) or "해당 업종"
+    capital_required = bool(item.get("capital_required"))
+    technical_required = bool(item.get("technical_personnel_required"))
+    other_required = bool(item.get("other_required"))
+    capital_eok = item.get("capital_eok")
+    technicians_required = _safe_int(item.get("technicians_required"))
+    equipment_count_required = _safe_int(item.get("equipment_count_required"))
+    deposit_days_required = _safe_int(item.get("deposit_days_required"))
+    other_components = [_safe_str(component) for component in list(item.get("other_components") or []) if _safe_str(component)]
+
+    capital_evidence = [str(line) for line in list(item.get("capital_evidence") or []) if _safe_str(line)]
+    technical_evidence = [str(line) for line in list(item.get("technical_personnel_evidence") or []) if _safe_str(line)]
+    other_evidence = [str(line) for line in list(item.get("other_evidence") or []) if _safe_str(line)]
+
+    if capital_required and not capital_evidence:
+        capital_evidence = [
+            f"{basis_title} 기준 {service_name}의 자본금은 {_format_money_eok(capital_eok)} 이상이어야 한다."
+        ]
+    if technical_required and not technical_evidence and technicians_required > 0:
+        technical_evidence = [
+            f"{basis_title} 기준 {service_name}의 기술인력은 {technicians_required}명 이상이어야 한다."
+        ]
+    if other_required and not other_evidence:
+        other_labels = [
+            _other_component_label(
+                component,
+                equipment_count_required=equipment_count_required,
+                deposit_days_required=deposit_days_required,
+            )
+            for component in other_components
+        ]
+        other_labels = _unique_nonempty(other_labels)
+        if other_labels:
+            other_evidence = [
+                f"{basis_title} 기준 {service_name}의 기타 등록기준에는 {', '.join(other_labels)}이 포함된다."
+            ]
+
+    if capital_evidence:
+        item["capital_evidence"] = capital_evidence
+    if technical_evidence:
+        item["technical_personnel_evidence"] = technical_evidence
+    if other_evidence:
+        item["other_evidence"] = other_evidence
+    generated_fields = []
+    if capital_required and capital_evidence and not list(profile.get("capital_evidence") or []):
+        generated_fields.append("capital_evidence")
+    if technical_required and technical_evidence and not list(profile.get("technical_personnel_evidence") or []):
+        generated_fields.append("technical_personnel_evidence")
+    if other_required and other_evidence and not list(profile.get("other_evidence") or []):
+        generated_fields.append("other_evidence")
+    if generated_fields:
+        item["generated_evidence_kind"] = "law_referenced_structured_template"
+        item["generated_evidence_fields"] = generated_fields
+    return item
+
+
 def _legal_basis_urls(row: Dict[str, Any]) -> List[str]:
     urls = [_safe_str(row.get("detail_url"))]
     for basis in list(row.get("legal_basis") or []):
@@ -127,6 +232,7 @@ def _harden_family_registry_row(row: Dict[str, Any], generated_at: str) -> Dict[
     )
     item["catalog_source_kind"] = "focus_family_registry"
     item["catalog_source_label"] = "permit_focus_family_registry"
+    item["registration_requirement_profile"] = _backfill_requirement_profile_evidence(item)
     item["raw_source_proof"] = _family_registry_proof(item, family_key, generated_at)
     return item
 

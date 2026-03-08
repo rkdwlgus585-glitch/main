@@ -11,6 +11,7 @@ from typing import Any, Dict, List
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_FOCUS_SEED_INPUT = ROOT / "config" / "permit_focus_seed_catalog.json"
 DEFAULT_FOCUS_FAMILY_REGISTRY_INPUT = ROOT / "config" / "permit_focus_family_registry.json"
+DEFAULT_FOCUS_SCOPE_OVERRIDES_INPUT = ROOT / "config" / "permit_focus_scope_overrides.json"
 DEFAULT_MASTER_INPUT = ROOT / "logs" / "permit_master_catalog_latest.json"
 DEFAULT_FOCUS_REPORT_INPUT = ROOT / "logs" / "permit_focus_priority_latest.json"
 DEFAULT_JSON_OUTPUT = ROOT / "logs" / "permit_patent_evidence_bundle_latest.json"
@@ -26,6 +27,10 @@ def _load_json(path: Path) -> Dict[str, Any]:
 
 def _safe_str(value: Any) -> str:
     return str(value or "").strip()
+
+
+def _safe_dict(value: Any) -> Dict[str, Any]:
+    return value if isinstance(value, dict) else {}
 
 
 def _safe_float(value: Any) -> float:
@@ -62,6 +67,101 @@ def _unique_nonempty(values: List[str]) -> List[str]:
         seen.add(text)
         out.append(text)
     return out
+
+
+def _fallback_raw_source_proof(
+    *,
+    family_key: str,
+    service_code: str,
+    service_name: str,
+    legal_basis_title: str,
+    source_urls: List[str],
+    capital_eok: float,
+    technicians_required: int,
+) -> Dict[str, Any]:
+    proof_payload = {
+        "family_key": family_key,
+        "service_code": service_code,
+        "service_name": service_name,
+        "legal_basis_title": legal_basis_title,
+        "source_urls": source_urls,
+        "capital_eok": capital_eok,
+        "technicians_required": technicians_required,
+    }
+    checksum = hashlib.sha1(
+        json.dumps(proof_payload, ensure_ascii=False, sort_keys=True).encode("utf-8")
+    ).hexdigest()[:12]
+    return {
+        "proof_status": "manual_rule_group_fallback",
+        "official_snapshot_note": (
+            f"{family_key} / {legal_basis_title} 기준으로 {service_name} row를 "
+            "manual rule group fallback source로 고정"
+        ),
+        "source_urls": _unique_nonempty(source_urls),
+        "source_url_total": len(_unique_nonempty(source_urls)),
+        "source_checksum": checksum,
+        "capture_meta": {
+            "capture_kind": "manual_rule_group_fallback",
+            "family_key": family_key,
+            "catalog_source_kind": "focus_scope_override_manual_rule_group",
+        },
+    }
+
+
+def _manual_rule_group_fallback_rows(
+    *,
+    master_catalog: Dict[str, Any],
+    focus_scope_overrides: Dict[str, Any],
+    existing_service_codes: set[str],
+) -> List[Dict[str, Any]]:
+    master_rows = [row for row in list(master_catalog.get("industries") or []) if isinstance(row, dict)]
+    master_by_code = {
+        _safe_str(row.get("service_code")): row
+        for row in master_rows
+        if _safe_str(row.get("service_code"))
+    }
+    fallback_rows: List[Dict[str, Any]] = []
+    for group in [row for row in list(focus_scope_overrides.get("manual_rule_groups") or []) if isinstance(row, dict)]:
+        service_codes = [
+            _safe_str(code)
+            for code in list(group.get("service_codes") or [])
+            if _safe_str(code)
+        ]
+        legal_basis = [row for row in list(group.get("legal_basis") or []) if isinstance(row, dict)]
+        family_key = _safe_str(legal_basis[0].get("law_title")) if legal_basis else ""
+        article = _safe_str(legal_basis[0].get("article")) if legal_basis else ""
+        urls = _unique_nonempty(
+            [_safe_str(row.get("url")) for row in legal_basis if _safe_str(row.get("url"))]
+        )
+        for service_code in service_codes:
+            if not service_code or service_code in existing_service_codes:
+                continue
+            master_row = _safe_dict(master_by_code.get(service_code))
+            if not master_row:
+                continue
+            profile = _profile(master_row)
+            if not bool(profile.get("focus_target")):
+                continue
+            service_name = _safe_str(master_row.get("service_name")) or _safe_str(group.get("industry_name")) or service_code
+            family_name = family_key or _safe_str(master_row.get("law_title")) or service_name
+            legal_basis_title = article or _safe_str(master_row.get("legal_basis_title")) or service_name
+            item = dict(master_row)
+            item["law_title"] = family_name
+            item["legal_basis_title"] = legal_basis_title
+            item["catalog_source_kind"] = "focus_scope_override_manual_rule_group"
+            item["catalog_source_label"] = "permit_focus_scope_overrides"
+            item["raw_source_proof"] = _fallback_raw_source_proof(
+                family_key=family_name,
+                service_code=service_code,
+                service_name=service_name,
+                legal_basis_title=legal_basis_title,
+                source_urls=urls,
+                capital_eok=_safe_float(profile.get("capital_eok")),
+                technicians_required=_safe_int(profile.get("technicians_required")),
+            )
+            fallback_rows.append(item)
+            existing_service_codes.add(service_code)
+    return fallback_rows
 
 
 def _claim_id(family_key: str) -> str:
@@ -112,6 +212,13 @@ def _claim_packet(
     url_samples = _unique_nonempty(proof_urls)[:6]
     sample_names = [_safe_str(item.get("service_name")) for item in rows[:6]]
     basis_titles = _unique_nonempty([_safe_str(item.get("legal_basis_title")) for item in rows])[:4]
+    snapshot_notes = _unique_nonempty(
+        [
+            _safe_str(_raw_source_proof(item).get("official_snapshot_note"))
+            for item in rows
+            if _safe_str(_raw_source_proof(item).get("official_snapshot_note"))
+        ]
+    )
     other_components = _unique_nonempty(
         [
             _safe_str(component)
@@ -166,6 +273,11 @@ def _claim_packet(
             "checksum_samples": checksum_samples,
             "source_url_samples": url_samples,
         },
+        "official_snapshot_note": (
+            snapshot_notes[0]
+            if snapshot_notes
+            else f"{family_key} / {(basis_titles[0] if basis_titles else '등록기준')} 기준 패킷"
+        ),
         "selector_surface_summary": {
             "selector_alias_total": selector_alias_total,
             "sample_selector_codes": _unique_nonempty(sample_selector_codes)[:6],
@@ -189,6 +301,7 @@ def build_bundle(
     focus_family_registry: Dict[str, Any],
     master_catalog: Dict[str, Any],
     focus_report: Dict[str, Any],
+    focus_scope_overrides: Dict[str, Any] | None = None,
 ) -> Dict[str, Any]:
     seed_rows = [row for row in list(focus_seed_catalog.get("industries") or []) if isinstance(row, dict)]
     family_registry_rows = [
@@ -210,6 +323,18 @@ def build_bundle(
         for row in seed_rows
         if _safe_str(row.get("service_code")) not in family_registry_codes
     ]
+    focus_source_service_codes = {
+        _safe_str(row.get("service_code"))
+        for row in focus_source_rows
+        if _safe_str(row.get("service_code"))
+    }
+    focus_source_rows.extend(
+        _manual_rule_group_fallback_rows(
+            master_catalog=master_catalog,
+            focus_scope_overrides=_safe_dict(focus_scope_overrides),
+            existing_service_codes=focus_source_service_codes,
+        )
+    )
 
     families: Dict[str, List[Dict[str, Any]]] = {}
     for row in focus_source_rows:
@@ -341,6 +466,7 @@ def build_bundle(
             "focus_family_registry": str(DEFAULT_FOCUS_FAMILY_REGISTRY_INPUT),
             "master_catalog": str(DEFAULT_MASTER_INPUT),
             "focus_report": str(DEFAULT_FOCUS_REPORT_INPUT),
+            "focus_scope_overrides": str(DEFAULT_FOCUS_SCOPE_OVERRIDES_INPUT),
             "ui_output": str(ROOT / "output" / "ai_permit_precheck.html"),
             "widget_contract": str(ROOT / "logs" / "widget_rental_catalog_latest.json"),
             "api_contract_spec": str(ROOT / "logs" / "api_contract_spec_latest.json"),
@@ -427,6 +553,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Generate a permit patent evidence bundle for focus families.")
     parser.add_argument("--focus-seed-input", default=str(DEFAULT_FOCUS_SEED_INPUT))
     parser.add_argument("--focus-family-registry-input", default=str(DEFAULT_FOCUS_FAMILY_REGISTRY_INPUT))
+    parser.add_argument("--focus-scope-overrides-input", default=str(DEFAULT_FOCUS_SCOPE_OVERRIDES_INPUT))
     parser.add_argument("--master-input", default=str(DEFAULT_MASTER_INPUT))
     parser.add_argument("--focus-report-input", default=str(DEFAULT_FOCUS_REPORT_INPUT))
     parser.add_argument("--json-output", default=str(DEFAULT_JSON_OUTPUT))
@@ -438,6 +565,7 @@ def main() -> int:
         focus_family_registry=_load_json(Path(args.focus_family_registry_input).expanduser().resolve()),
         master_catalog=_load_json(Path(args.master_input).expanduser().resolve()),
         focus_report=_load_json(Path(args.focus_report_input).expanduser().resolve()),
+        focus_scope_overrides=_load_json(Path(args.focus_scope_overrides_input).expanduser().resolve()),
     )
 
     json_output = Path(args.json_output).expanduser().resolve()
