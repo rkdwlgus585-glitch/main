@@ -1,5 +1,5 @@
 <?php
-$siteRoot = "C:\\Users\\rkdwl\\Desktop\\auto\\workspace_partitions\\site_session\\wp_surface_lab\\runtime\\php_fallback\\site";
+$siteRoot = "H:\\auto\\workspace_partitions\\site_session\\wp_surface_lab\\runtime\\php_fallback\\site";
 if (!defined('ABSPATH')) {
     define('ABSPATH', $siteRoot . DIRECTORY_SEPARATOR);
 }
@@ -7,7 +7,7 @@ require_once $siteRoot . '/wp-load.php';
 
 $manifest = json_decode(<<<'JSON'
 {
-  "generated_at": "2026-03-08 02:16:23",
+  "generated_at": "2026-03-08 15:37:16",
   "theme_slug": "seoulmna-platform-child",
   "plugin_slug": "seoulmna-platform-bridge",
   "front_page_slug": "home",

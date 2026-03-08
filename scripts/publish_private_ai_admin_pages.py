@@ -22,7 +22,13 @@ SECURE_STATUS_PATH = ROOT / "logs" / "secure_api_status_latest.json"
 PERMIT_SANITY_PATH = ROOT / "logs" / "permit_wizard_sanity_latest.json"
 PERMIT_STEP_SMOKE_PATH = ROOT / "logs" / "permit_step_transition_smoke_latest.json"
 BROWSER_SMOKE_PATH = ROOT / "logs" / "calculator_browser_smoke_latest.json"
+PARTNER_API_SMOKE_PATH = ROOT / "logs" / "partner_api_contract_smoke_latest.json"
 HUB_DASHBOARD_PATH = ROOT / "logs" / "ai_admin_dashboard_latest.json"
+PLAYWRIGHT_ARTIFACT_DIR = ROOT / "output" / "playwright"
+PERMIT_STEP_FAIL_SCREENSHOT = PLAYWRIGHT_ARTIFACT_DIR / "permit_step_transition_failure_latest.png"
+PERMIT_STEP_FAIL_HTML = PLAYWRIGHT_ARTIFACT_DIR / "permit_step_transition_failure_latest.html"
+PERMIT_BROWSER_FAIL_SCREENSHOT = PLAYWRIGHT_ARTIFACT_DIR / "permit_browser_smoke_failure_latest.png"
+PERMIT_BROWSER_FAIL_HTML = PLAYWRIGHT_ARTIFACT_DIR / "permit_browser_smoke_failure_latest.html"
 
 OWNER_PAGE_ID = 1761
 PERMIT_PAGE_ID = 1762
@@ -177,11 +183,29 @@ def _join_or_dash(items: List[str]) -> str:
     return ", ".join(cleaned) if cleaned else "-"
 
 
+def _artifact_entry(label: str, kind: str, path: Path) -> Dict[str, Any]:
+    exists = path.exists()
+    updated_at = ""
+    if exists:
+        try:
+            updated_at = datetime.fromtimestamp(path.stat().st_mtime).strftime("%Y-%m-%d %H:%M:%S")
+        except Exception:
+            updated_at = ""
+    return {
+        "label": label,
+        "kind": kind,
+        "path": str(path),
+        "exists": bool(exists),
+        "updated_at": updated_at,
+    }
+
+
 def _build_dashboard_snapshot(*, regression_gate: Dict[str, Any], publish_generated_at: str) -> Dict[str, Any]:
     secure = _read_json_file(SECURE_STATUS_PATH)
     permit_sanity = _read_json_file(PERMIT_SANITY_PATH)
     permit_step_smoke = _read_json_file(PERMIT_STEP_SMOKE_PATH)
     browser_smoke = _read_json_file(BROWSER_SMOKE_PATH)
+    partner_api_smoke = _read_json_file(PARTNER_API_SMOKE_PATH)
     regression = _read_json_file(REGRESSION_REPORT_PATH)
     permit_checks = dict(permit_sanity.get("checks") or {})
     permit_integrity = dict(permit_checks.get("integrity") or {})
@@ -194,6 +218,7 @@ def _build_dashboard_snapshot(*, regression_gate: Dict[str, Any], publish_genera
         and bool(permit_integrity.get("ok", True))
         and bool(permit_step_smoke.get("ok"))
         and bool(browser_smoke.get("ok"))
+        and bool(partner_api_smoke.get("ok"))
         and bool(regression.get("ok"))
         and bool(regression_gate.get("ok"))
     )
@@ -229,6 +254,15 @@ def _build_dashboard_snapshot(*, regression_gate: Dict[str, Any], publish_genera
                 }
                 for row in permit_integrity_matches
             ],
+            "excerpts": [
+                {
+                    "name": str(row.get("name") or ""),
+                    "sample": str(sample or "").strip(),
+                }
+                for row in permit_integrity_matches
+                for sample in list(row.get("samples") or [])[:2]
+                if str(sample or "").strip()
+            ],
         },
         "permit_step_transition_smoke": {
             "generated_at": str(permit_step_smoke.get("generated_at") or ""),
@@ -242,6 +276,13 @@ def _build_dashboard_snapshot(*, regression_gate: Dict[str, Any], publish_genera
             "permit_ok": bool(((browser_smoke.get("checks") or {}).get("permit") or {}).get("ok")),
             "blocking_issues": [str(x) for x in list(browser_smoke.get("blocking_issues") or [])],
         },
+        "partner_api_contract_smoke": {
+            "generated_at": str(partner_api_smoke.get("generated_at") or ""),
+            "ok": bool(partner_api_smoke.get("ok")),
+            "live_blackbox_ok": bool((((partner_api_smoke.get("live_blackbox") or {}).get("ok")))),
+            "ephemeral_permit_ok": bool((((partner_api_smoke.get("ephemeral_permit") or {}).get("ok")))),
+            "blocking_issues": [str(x) for x in list(partner_api_smoke.get("blocking_issues") or [])],
+        },
         "regression": {
             "generated_at": str(regression.get("generated_at") or ""),
             "ok": bool(regression.get("ok")),
@@ -253,6 +294,14 @@ def _build_dashboard_snapshot(*, regression_gate: Dict[str, Any], publish_genera
         "publish": {
             "generated_at": publish_generated_at,
             "gate_ok": bool(regression_gate.get("ok")),
+        },
+        "permit_failure_artifacts": {
+            "items": [
+                _artifact_entry("permit step screenshot", "image", PERMIT_STEP_FAIL_SCREENSHOT),
+                _artifact_entry("permit step html", "html", PERMIT_STEP_FAIL_HTML),
+                _artifact_entry("permit browser screenshot", "image", PERMIT_BROWSER_FAIL_SCREENSHOT),
+                _artifact_entry("permit browser html", "html", PERMIT_BROWSER_FAIL_HTML),
+            ],
         },
     }
     snapshot["one_line_summary"] = {
@@ -268,6 +317,7 @@ def _build_dashboard_snapshot(*, regression_gate: Dict[str, Any], publish_genera
         + f" permitIntegrity={ 'ok' if bool(permit_integrity.get('ok', True)) else 'check' }"
         + f" permitStep={ 'ok' if bool(permit_step_smoke.get('ok')) else 'check' }"
         + f" browser={ 'ok' if bool(browser_smoke.get('ok')) else 'check' }"
+        + f" partnerApi={ 'ok' if bool(partner_api_smoke.get('ok')) else 'check' }"
         + f" regression={ 'ok' if bool(regression.get('ok')) else 'check' }"
         + f" publishGate={ 'ok' if bool(regression_gate.get('ok')) else 'check' }",
         "components": {
@@ -276,6 +326,7 @@ def _build_dashboard_snapshot(*, regression_gate: Dict[str, Any], publish_genera
             "permit_integrity": bool(permit_integrity.get("ok", True)),
             "permit_step_transition_smoke": bool(permit_step_smoke.get("ok")),
             "browser_smoke": bool(browser_smoke.get("ok")),
+            "partner_api_contract_smoke": bool(partner_api_smoke.get("ok")),
             "regression": bool(regression.get("ok")),
             "publish_gate": bool(regression_gate.get("ok")),
         },
@@ -289,11 +340,15 @@ def _hub_html(snapshot: Dict[str, Any]) -> str:
     permit_integrity = dict(snapshot.get("permit_integrity") or {})
     permit_step = dict(snapshot.get("permit_step_transition_smoke") or {})
     smoke = dict(snapshot.get("browser_smoke") or {})
+    partner_api = dict(snapshot.get("partner_api_contract_smoke") or {})
     regression = dict(snapshot.get("regression") or {})
     publish = dict(snapshot.get("publish") or {})
+    permit_failure_artifacts = dict(snapshot.get("permit_failure_artifacts") or {})
     one_line = dict(snapshot.get("one_line_summary") or {})
     secure_rows = [row for row in list(secure.get("rows") or []) if isinstance(row, dict)]
     integrity_matches = [row for row in list(permit_integrity.get("matches") or []) if isinstance(row, dict)]
+    integrity_excerpts = [row for row in list(permit_integrity.get("excerpts") or []) if isinstance(row, dict)]
+    failure_artifact_items = [row for row in list(permit_failure_artifacts.get("items") or []) if isinstance(row, dict)]
     secure_rows_html = "".join(
         (
             '<div style="display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-top:1px solid #e4ebf2;">'
@@ -309,7 +364,30 @@ def _hub_html(snapshot: Dict[str, Any]) -> str:
         _summary_line(str(row.get("name") or "-"), str(row.get("count") or 0))
         for row in integrity_matches
     )
+    integrity_excerpt_html = "".join(
+        (
+            '<div style="padding:10px 12px;border-top:1px solid #e4ebf2;">'
+            f'<div style="font-size:11px;font-weight:800;color:#8c6a3c;margin-bottom:6px;">{html.escape(str(row.get("name") or "-"))}</div>'
+            f'<pre style="margin:0;white-space:pre-wrap;word-break:break-word;font:12px/1.55 Consolas,monospace;color:#163047;background:#f8fafc;border:1px solid #dbe3ec;border-radius:10px;padding:10px;">{html.escape(str(row.get("sample") or "-"))}</pre>'
+            '</div>'
+        )
+        for row in integrity_excerpts[:4]
+    )
+    failure_artifact_rows_html = "".join(
+        (
+            '<div style="padding:10px 0;border-top:1px solid #e4ebf2;">'
+            f'<div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;">'
+            f'<strong style="font-size:13px;color:#163047;">{html.escape(str(row.get("label") or "-"))}</strong>'
+            f'{_status_badge(bool(row.get("exists")), "존재", "없음")}'
+            '</div>'
+            f'<div style="margin-top:6px;font-size:12px;color:#5c7085;">{html.escape(str(row.get("updated_at") or "-"))}</div>'
+            f'<div style="margin-top:6px;font:12px/1.55 Consolas,monospace;color:#163047;word-break:break-all;">{html.escape(str(row.get("path") or "-"))}</div>'
+            '</div>'
+        )
+        for row in failure_artifact_items
+    )
     smoke_blockers = _join_or_dash([str(x) for x in list(smoke.get("blocking_issues") or [])])
+    partner_api_blockers = _join_or_dash([str(x) for x in list(partner_api.get("blocking_issues") or [])])
     regression_blockers = _join_or_dash([str(x) for x in list(regression.get("blocking_issues") or [])])
     permit_integrity_issues = _join_or_dash([str(x) for x in list(permit_integrity.get("issues") or [])])
     return f"""
@@ -324,6 +402,7 @@ def _hub_html(snapshot: Dict[str, Any]) -> str:
       {_status_badge(bool(permit.get("ok")), "인허가 wizard sanity 정상", "인허가 wizard sanity 실패")}
       {_status_badge(bool(permit_integrity.get("ok", True)), "permit integrity 정상", "permit integrity 실패")}
       {_status_badge(bool(permit_step.get("ok")), "인허가 step smoke 정상", "인허가 step smoke 실패")}
+      {_status_badge(bool(partner_api.get("ok")), "partner contract smoke 정상", "partner contract smoke 실패")}
       {_status_badge(bool(secure.get("ok")), "secure stack 정상", "secure stack 확인 필요")}
     </div>
   <div style="margin:0 0 20px;padding:14px 16px;border-radius:14px;background:#0d2f4f;color:#f5f7fb;">
@@ -345,7 +424,17 @@ def _hub_html(snapshot: Dict[str, Any]) -> str:
       {_summary_line("permit wizard sanity", "정상" if bool(regression.get("permit_wizard_ok")) else "실패")}
       {_summary_line("permit step smoke", "정상" if bool(permit_step.get("ok")) else "실패")}
       {_summary_line("브라우저 smoke", "양도/인허가 모두 정상" if bool(smoke.get("yangdo_ok")) and bool(smoke.get("permit_ok")) else "확인 필요")}
+      {_summary_line("partner contract smoke", "live/emulated 모두 정상" if bool(partner_api.get("live_blackbox_ok")) and bool(partner_api.get("ephemeral_permit_ok")) else "확인 필요")}
       {_summary_line("회귀 blocking issues", regression_blockers)}
+    </div>
+    <div style="background:#ffffff;border:1px solid #d6e0ea;border-radius:16px;padding:18px 20px;box-shadow:0 10px 24px rgba(8,36,64,.06);">
+      <div style="font-size:12px;font-weight:800;color:#8c6a3c;margin-bottom:6px;">PARTNER API</div>
+      <div style="font-size:22px;font-weight:800;margin-bottom:10px;">Health Contract Smoke</div>
+      {_summary_line("상태", "정상" if bool(partner_api.get("ok")) else "확인 필요")}
+      {_summary_line("live blackbox", "정상" if bool(partner_api.get("live_blackbox_ok")) else "실패")}
+      {_summary_line("ephemeral permit", "정상" if bool(partner_api.get("ephemeral_permit_ok")) else "실패")}
+      {_summary_line("점검 시각", str(partner_api.get("generated_at") or "-"))}
+      {_summary_line("blocking issues", partner_api_blockers)}
     </div>
     <div style="background:#ffffff;border:1px solid #d6e0ea;border-radius:16px;padding:18px 20px;box-shadow:0 10px 24px rgba(8,36,64,.06);">
       <div style="font-size:12px;font-weight:800;color:#8c6a3c;margin-bottom:6px;">PERMIT INTEGRITY</div>
@@ -354,6 +443,7 @@ def _hub_html(snapshot: Dict[str, Any]) -> str:
       {_summary_line("이슈", permit_integrity_issues)}
       {_summary_line("점검 시각", str(permit_integrity.get("generated_at") or "-"))}
       {integrity_rows_html or _summary_line("패턴 카운트", "무결성 패턴 0건")}
+      {integrity_excerpt_html}
     </div>
     <div style="background:#ffffff;border:1px solid #d6e0ea;border-radius:16px;padding:18px 20px;box-shadow:0 10px 24px rgba(8,36,64,.06);">
       <div style="font-size:12px;font-weight:800;color:#8c6a3c;margin-bottom:6px;">PUBLISH</div>
@@ -364,6 +454,12 @@ def _hub_html(snapshot: Dict[str, Any]) -> str:
       {_summary_line("permit step smoke 시각", str(permit_step.get("generated_at") or "-"))}
       {_summary_line("browser smoke 시각", str(smoke.get("generated_at") or "-"))}
       {_summary_line("browser smoke issues", smoke_blockers)}
+    </div>
+    <div style="background:#ffffff;border:1px solid #d6e0ea;border-radius:16px;padding:18px 20px;box-shadow:0 10px 24px rgba(8,36,64,.06);">
+      <div style="font-size:12px;font-weight:800;color:#8c6a3c;margin-bottom:6px;">PERMIT ARTIFACTS</div>
+      <div style="font-size:22px;font-weight:800;margin-bottom:10px;">Latest Failure Files</div>
+      {_summary_line("설명", "최근 실패 screenshot/html 경로")}
+      {failure_artifact_rows_html or _summary_line("artifact", "저장된 실패 artifact 없음")}
     </div>
   </div>
   <div style="display:grid;grid-template-columns:1fr;gap:16px;">

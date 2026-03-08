@@ -215,7 +215,7 @@ def build_wp_surface_lab_php_runtime(
                     "$root = Split-Path -Parent $PSScriptRoot",
                     "$site = Join-Path $root 'site'",
                     f"$router = '{router_php.as_posix()}'",
-                    "$proc = Start-Process -FilePath $php -ArgumentList @('-c', $ini, '-S', '127.0.0.1:18081', $router) -WorkingDirectory $site -PassThru",
+                    "$proc = Start-Process -FilePath $php -ArgumentList @('-c', $ini, '-q', '-S', '127.0.0.1:18081', $router) -WorkingDirectory $site -PassThru",
                     "$proc.Id | Set-Content -Path (Join-Path $PSScriptRoot 'php-server.pid') -Encoding ASCII",
                     "Write-Output $proc.Id",
                     "",

@@ -1,9 +1,13 @@
 param(
-  [string]$SnapshotPath = "C:\Users\rkdwl\Desktop\auto\logs\pause_snapshot_latest.json"
+  [string]$SnapshotPath = ""
 )
 
 $ErrorActionPreference = "SilentlyContinue"
-Set-Location "C:\Users\rkdwl\Desktop\auto"
+$repoRoot = Split-Path -Parent $PSScriptRoot
+if ([string]::IsNullOrWhiteSpace($SnapshotPath)) {
+  $SnapshotPath = Join-Path $repoRoot "logs\pause_snapshot_latest.json"
+}
+Set-Location $repoRoot
 
 $taskNames = @(
   "Auto-Quality-Daily",

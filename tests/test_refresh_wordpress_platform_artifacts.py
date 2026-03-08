@@ -53,7 +53,7 @@ class RefreshWordpressPlatformArtifactsTests(unittest.TestCase):
 
         self.assertTrue(payload["ok"])
         self.assertEqual(
-            calls[-20:],
+            calls[-30:],
             [
                 "generate_yangdo_recommendation_diversity_audit.py",
                 "generate_yangdo_recommendation_contract_audit.py",
@@ -62,6 +62,10 @@ class RefreshWordpressPlatformArtifactsTests(unittest.TestCase):
                 "generate_yangdo_service_copy_packet.py",
                 "generate_permit_service_copy_packet.py",
                 "generate_permit_service_alignment_audit.py",
+                "generate_permit_rental_lane_packet.py",
+                "generate_permit_service_ux_packet.py",
+                "generate_permit_public_contract_audit.py",
+                "generate_partner_input_handoff_packet.py",
                 "scaffold_wp_platform_blueprints.py",
                 "apply_wp_surface_lab_blueprints.py",
                 "generate_wordpress_staging_apply_plan.py",
@@ -71,9 +75,15 @@ class RefreshWordpressPlatformArtifactsTests(unittest.TestCase):
                 "generate_wordpress_platform_ux_audit.py",
                 "generate_yangdo_recommendation_ux_packet.py",
                 "generate_yangdo_recommendation_alignment_audit.py",
+                "generate_yangdo_zero_display_recovery_audit.py",
                 "generate_kr_live_apply_packet.py",
                 "generate_kr_live_operator_checklist.py",
                 "generate_program_improvement_loop.py",
+                "generate_ai_platform_first_principles_review.py",
+                "generate_partner_input_operator_flow.py",
+                "generate_system_split_first_principles_packet.py",
+                "generate_next_batch_focus_packet.py",
+                "generate_next_execution_packet.py",
                 "generate_operations_packet.py",
             ],
         )

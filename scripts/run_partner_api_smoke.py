@@ -14,6 +14,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from scripts.widget_health_contract import load_widget_health_contract
+
 
 def _request(
     method: str,
@@ -71,10 +73,10 @@ def _build_payload(service: str, channel_id: str) -> Dict[str, object]:
     if service == "permit":
         return {
             "request": request_block,
-            "selector": {"service_code": "construction-general-geonchuk"},
+            "selector": {"service_code": "09_27_03_P"},
             "inputs": {
-                "capital_eok": 3.5,
-                "technicians_count": 2,
+                "capital_eok": 0.3,
+                "technicians_count": 1,
                 "office_secured": True,
             },
         }
@@ -100,12 +102,21 @@ def _check(name: str, ok: bool, details: str = "") -> Dict[str, object]:
 
 
 def _health_checks(status: int, headers: Dict[str, str], body: Dict[str, object]) -> List[Dict[str, object]]:
+    expected_contract = load_widget_health_contract()
+    health_contract = body.get("health_contract") if isinstance(body.get("health_contract"), dict) else {}
+    expected_text = str(expected_contract.get("text") or "").strip()
+    actual_text = str(health_contract.get("text") or "").strip()
+    components = health_contract.get("components") if isinstance(health_contract, dict) else {}
     return [
         _check("http_status_ok", 200 <= int(status) < 500, f"status={status}"),
         _check("json_body", bool(body)),
         _check("body_ok", bool(body.get("ok"))),
         _check("header_api_version", bool(headers.get("X-Api-Version"))),
         _check("header_request_id", bool(headers.get("X-Request-Id"))),
+        _check("health_contract_present", bool(health_contract)),
+        _check("health_contract_text", bool(actual_text)),
+        _check("health_contract_components", isinstance(components, dict) and bool(components)),
+        _check("health_contract_match_local", bool(expected_text) and actual_text == expected_text),
     ]
 
 
@@ -172,6 +183,7 @@ def run_smoke(
             "ok": health_ok,
             "service": health_json.get("service"),
             "request_id": health_json.get("request_id"),
+            "health_contract": health_json.get("health_contract"),
             "response_meta": health_json.get("response_meta"),
             "checks": health_checks,
             "headers": {

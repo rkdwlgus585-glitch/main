@@ -1,0 +1,26 @@
+﻿# ============================================
+#  건설업 수주역량 자동진단 설정파일
+#  행정사사무소 하랑 · 서울건설정보
+# ============================================
+#
+# ★ 공공데이터포털 마이페이지 > 인증키에서
+#   Encoding 키와 Decoding 키 둘 다 넣으세요
+#   (프로그램이 자동으로 맞는 키를 찾습니다)
+#
+
+ENCODING_KEY=nnBMVLgdCQKxlXaB9u8pCjRZTZsH%2By5j0slRP12dwQj0tgbaO%2F8fkVHl1JKxUVpbQyW8Oh3hSjxY5nEPxt5RWQ%3D%3D
+DECODING_KEY=nnBMVLgdCQKxlXaB9u8pCjRZTZsH+y5j0slRP12dwQj0tgbaO/8fkVHl1JKxUVpbQyW8Oh3hSjxY5nEPxt5RWQ==
+
+# ── 아래는 수정 안해도 됩니다 ──
+YEAR=2026
+DISC_LIMIT=20000
+SMALL_LIMIT=5000
+
+# ── 인큐베이팅 고객사 ──
+# 형식: 회사명:업종:법인등록번호
+# 법인등록번호가 있으면 재무정보를 자동 조회합니다
+# 법인등록번호가 없으면 :만 쓰거나 비워두세요
+#
+# 예시:
+# CLIENTS=하늘건설:일반건설:1101111234567,동방전기:전기공사:1301110001234,서울ICT:정보통신:
+CLIENTS=

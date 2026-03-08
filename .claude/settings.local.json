@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs ls -lh)",
+      "Bash(grep -l \"전기\\\\|소방\\\\|통신\" \"H:/auto/config\"/*.json)",
+      "Bash(python3 -c \"import json; d=json.load\\(open\\(''H:/auto/config/kr_permit_industries_localdata.json''\\)\\); cats=[c[''name''] for c in d.get\\(''major_categories'',[]\\)]; print\\(''\\\\n''.join\\(cats\\)\\)\")"
+    ]
+  }
+}

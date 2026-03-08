@@ -2,11 +2,13 @@ from __future__ import annotations
 
 import importlib.machinery
 import importlib.util
+import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from core_engine.yangdo_duplicate_cluster import collapse_duplicate_neighbors
 from core_engine.yangdo_listing_recommender import RecommendationOps, build_recommendation_bundle
+from scripts.widget_health_contract import load_widget_health_contract
 
 _BASE_PYC = Path(__file__).resolve().parent / "tmp" / "yangdo_blackbox_api_recovery.cpython-314.pyc"
 if not _BASE_PYC.exists():
@@ -19,6 +21,8 @@ if _SPEC is None:
 
 _BASE = importlib.util.module_from_spec(_SPEC)
 _LOADER.exec_module(_BASE)
+
+SERVICE_NAME = "yangdo_blackbox_api"
 
 for _name, _value in vars(_BASE).items():
     if _name in {"__name__", "__file__", "__package__", "__loader__", "__spec__", "__cached__"}:
@@ -67,6 +71,73 @@ _SPECIAL_BALANCE_AUTO_POLICIES: Dict[str, Dict[str, Any]] = {
         },
     },
 }
+
+
+def _partner_health_payload() -> Dict[str, Any]:
+    return {
+        "ok": True,
+        "service": SERVICE_NAME,
+        "message": "healthy",
+        "health_contract": load_widget_health_contract(),
+    }
+
+
+def _write_partner_health_json(handler: Any, status: int = 200) -> None:
+    request_id = ""
+    try:
+        request_id = str(handler._request_id() or "")
+    except Exception:
+        request_id = ""
+    if not request_id:
+        request_id = "health"
+    try:
+        channel_id = _compact(_channel_id_value(handler._channel_resolution()), 80)
+    except Exception:
+        channel_id = ""
+    try:
+        tenant_plan = _compact(_tenant_plan_key(handler._tenant_resolution()), 60)
+    except Exception:
+        tenant_plan = ""
+    response_payload = build_response_envelope(
+        _partner_health_payload(),
+        service=SERVICE_NAME,
+        api_version="v1",
+        request_id=request_id,
+        channel_id=channel_id,
+        tenant_plan=tenant_plan,
+        response_tier="health",
+    )
+    body = json.dumps(response_payload, ensure_ascii=False).encode("utf-8")
+    allow_origin = ""
+    try:
+        allow_origin = str(handler._allow_origin() or "")
+    except Exception:
+        allow_origin = ""
+    handler.send_response(int(status))
+    handler.send_header("Content-Type", "application/json; charset=utf-8")
+    handler.send_header("Content-Length", str(len(body)))
+    handler.send_header("Cache-Control", "no-store")
+    handler.send_header("X-Api-Version", "v1")
+    handler.send_header("X-Service-Name", SERVICE_NAME)
+    handler.send_header("X-Request-Id", request_id)
+    handler.send_header("X-Response-Tier", "health")
+    try:
+        for hk, hv in handler._channel_headers().items():
+            handler.send_header(str(hk), str(hv))
+    except Exception:
+        pass
+    for hk, hv in DEFAULT_SECURITY_HEADERS:
+        handler.send_header(hk, hv)
+    if allow_origin:
+        handler.send_header("Access-Control-Allow-Origin", allow_origin)
+        handler.send_header("Vary", "Origin")
+        handler.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        handler.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-API-Key, X-Request-Id, X-Correlation-Id, X-Channel-Id")
+    handler.end_headers()
+    try:
+        handler.wfile.write(body)
+    except Exception:
+        pass
 
 
 def _round4(value: Any) -> Optional[float]:
@@ -993,6 +1064,27 @@ class YangdoBlackboxEstimator(_BaseYangdoBlackboxEstimator):
         result["neighbors"] = [_clean_row_license_text(row, clean_license) for row in list(result.get("neighbors") or []) if isinstance(row, dict)]
         result["recommended_listings"] = [_clean_row_license_text(row, clean_license) for row in list(result.get("recommended_listings") or []) if isinstance(row, dict)]
         return result
+
+
+_ORIGINAL_HANDLER_DO_GET = getattr(Handler, "do_GET", None)
+
+
+def _patched_handler_do_get(self):  # noqa: ANN001
+    path = str(getattr(self, "path", "") or "").split("?", 1)[0]
+    if path in {"/health", "/v1/health"}:
+        if hasattr(self, "_allow_request") and not self._allow_request():
+            return
+        if hasattr(self, "_require_channel_ready") and not self._require_channel_ready():
+            return
+        _write_partner_health_json(self, 200)
+        return
+    if _ORIGINAL_HANDLER_DO_GET is None:
+        return None
+    return _ORIGINAL_HANDLER_DO_GET(self)
+
+
+if _ORIGINAL_HANDLER_DO_GET is not None:
+    Handler.do_GET = _patched_handler_do_get
 
 
 vars(_BASE).update(

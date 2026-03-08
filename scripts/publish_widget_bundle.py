@@ -14,6 +14,7 @@ if str(ROOT) not in sys.path:
 from scripts.generate_widget_snippet import build_widget_payload
 from scripts.plan_channel_embed import DEFAULT_CHANNELS, DEFAULT_ENV, DEFAULT_REGISTRY
 from scripts.validate_tenant_onboarding import _load_json
+from scripts.widget_health_contract import load_widget_health_contract
 
 DEFAULT_OUTPUT_DIR = ROOT / "output" / "widget" / "bundles"
 
@@ -86,6 +87,7 @@ def build_widget_bundle(
         "widgets": [],
         "activation_blockers": [],
         "output_dir": str(bundle_dir),
+        "health_contract": load_widget_health_contract(),
     }
 
     for widget in requested_widgets:

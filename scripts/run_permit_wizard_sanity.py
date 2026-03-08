@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import base64
 import json
 import re
 import sys
@@ -85,7 +86,22 @@ def _run_integrity_checks(html: str) -> Dict[str, Any]:
     }
 
 
+def _decode_wrapped_script_sources(html: str) -> List[str]:
+    decoded: List[str] = []
+    for match in re.finditer(r'const encoded="([A-Za-z0-9+/=]+)"', html):
+        payload = str(match.group(1) or "").strip()
+        if not payload:
+            continue
+        try:
+            decoded.append(base64.b64decode(payload).decode("utf-8"))
+        except Exception:
+            continue
+    return decoded
+
+
 def _run_sanity(html: str) -> Dict[str, Any]:
+    decoded_sources = _decode_wrapped_script_sources(html)
+    search_text = "\n".join([html, *decoded_sources])
     required_markers = [
         'wizardShell.id = "permitInputWizard"',
         'wizardRail.id = "permitWizardRail"',
@@ -97,19 +113,20 @@ def _run_sanity(html: str) -> Dict[str, Any]:
         'data-permit-wizard-track',
     ]
     counts = {
-        "wizard_meta_decl": html.count("const permitWizardStepsMeta = ["),
-        "apply_layout_decl": html.count("const applyExperienceLayout = () => {"),
-        "sync_wizard_decl": html.count("const syncPermitWizard = () => {"),
-        "set_wizard_decl": html.count("const setPermitWizardStep = ("),
+        "decoded_script_count": len(decoded_sources),
+        "wizard_meta_decl": search_text.count("const permitWizardStepsMeta = ["),
+        "apply_layout_decl": search_text.count("const applyExperienceLayout = () => {"),
+        "sync_wizard_decl": search_text.count("const syncPermitWizard = () => {"),
+        "set_wizard_decl": search_text.count("const setPermitWizardStep = ("),
     }
     indexes = {
-        "wizard_meta_decl": _find_index(html, "const permitWizardStepsMeta = ["),
-        "apply_layout_decl": _find_index(html, "const applyExperienceLayout = () => {"),
-        "sync_wizard_decl": _find_index(html, "const syncPermitWizard = () => {"),
-        "apply_layout_call": _find_index(html, "applyExperienceLayout();"),
-        "sync_experience_decl": _find_index(html, "const syncExperienceLayer = () => {"),
+        "wizard_meta_decl": _find_index(search_text, "const permitWizardStepsMeta = ["),
+        "apply_layout_decl": _find_index(search_text, "const applyExperienceLayout = () => {"),
+        "sync_wizard_decl": _find_index(search_text, "const syncPermitWizard = () => {"),
+        "apply_layout_call": _find_index(search_text, "applyExperienceLayout();"),
+        "sync_experience_decl": _find_index(search_text, "const syncExperienceLayer = () => {"),
     }
-    missing_markers = [needle for needle in required_markers if needle not in html]
+    missing_markers = [needle for needle in required_markers if needle not in search_text]
     issues: List[str] = []
     if counts["wizard_meta_decl"] != 1:
         issues.append("wizard_meta_decl_count_invalid")
@@ -141,6 +158,7 @@ def _run_sanity(html: str) -> Dict[str, Any]:
         "ok": not issues,
         "counts": counts,
         "indexes": indexes,
+        "decoded_script_count": len(decoded_sources),
         "missing_markers": missing_markers,
         "integrity": integrity,
         "issues": issues,

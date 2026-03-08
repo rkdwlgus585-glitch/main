@@ -19,6 +19,10 @@ DEFAULT_EXPANDED_CRITERIA_PATH = ROOT / "config" / "permit_registration_criteria
 DEFAULT_FOCUS_SCOPE_OVERRIDES_PATH = ROOT / "config" / "permit_focus_scope_overrides.json"
 DEFAULT_FOCUS_SEED_CATALOG_PATH = ROOT / "config" / "permit_focus_seed_catalog.json"
 DEFAULT_FOCUS_FAMILY_REGISTRY_PATH = ROOT / "config" / "permit_focus_family_registry.json"
+DEFAULT_PATENT_EVIDENCE_BUNDLE_PATH = ROOT / "logs" / "permit_patent_evidence_bundle_latest.json"
+DEFAULT_REVIEW_CASE_PRESETS_PATH = ROOT / "logs" / "permit_review_case_presets_latest.json"
+DEFAULT_CASE_STORY_SURFACE_PATH = ROOT / "logs" / "permit_case_story_surface_latest.json"
+DEFAULT_OPERATOR_DEMO_PACKET_PATH = ROOT / "logs" / "permit_operator_demo_packet_latest.json"
 RULES_ONLY_CATEGORY_CODE = "RG"
 RULES_ONLY_CATEGORY_NAME = "등록기준 업종군"
 OBJECTIVE_SOURCE_HOSTS = (
@@ -70,6 +74,35 @@ def _blank_focus_scope_overrides() -> dict:
     return {
         "manual_rule_groups": [],
         "profile_overrides": [],
+    }
+
+
+def _blank_patent_evidence_bundle() -> dict:
+    return {
+        "summary": {},
+        "families": [],
+    }
+
+
+def _blank_review_case_presets_report() -> dict:
+    return {
+        "summary": {},
+        "families": [],
+    }
+
+
+def _blank_case_story_surface_report() -> dict:
+    return {
+        "summary": {},
+        "families": [],
+    }
+
+
+def _blank_operator_demo_packet_report() -> dict:
+    return {
+        "summary": {},
+        "source_paths": {},
+        "families": [],
     }
 
 
@@ -245,6 +278,80 @@ def _load_focus_scope_overrides(path: Path) -> dict:
         base["manual_rule_groups"] = []
     if not isinstance(base.get("profile_overrides"), list):
         base["profile_overrides"] = []
+    return base
+
+
+def _load_patent_evidence_bundle(path: Path) -> dict:
+    if not path.exists():
+        return _blank_patent_evidence_bundle()
+    try:
+        loaded = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return _blank_patent_evidence_bundle()
+    if not isinstance(loaded, dict):
+        return _blank_patent_evidence_bundle()
+    base = _blank_patent_evidence_bundle()
+    base.update(loaded)
+    if not isinstance(base.get("summary"), dict):
+        base["summary"] = {}
+    if not isinstance(base.get("families"), list):
+        base["families"] = []
+    return base
+
+
+def _load_review_case_presets_report(path: Path) -> dict:
+    if not path.exists():
+        return _blank_review_case_presets_report()
+    try:
+        loaded = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return _blank_review_case_presets_report()
+    if not isinstance(loaded, dict):
+        return _blank_review_case_presets_report()
+    base = _blank_review_case_presets_report()
+    base.update(loaded)
+    if not isinstance(base.get("summary"), dict):
+        base["summary"] = {}
+    if not isinstance(base.get("families"), list):
+        base["families"] = []
+    return base
+
+
+def _load_case_story_surface_report(path: Path) -> dict:
+    if not path.exists():
+        return _blank_case_story_surface_report()
+    try:
+        loaded = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return _blank_case_story_surface_report()
+    if not isinstance(loaded, dict):
+        return _blank_case_story_surface_report()
+    base = _blank_case_story_surface_report()
+    base.update(loaded)
+    if not isinstance(base.get("summary"), dict):
+        base["summary"] = {}
+    if not isinstance(base.get("families"), list):
+        base["families"] = []
+    return base
+
+
+def _load_operator_demo_packet_report(path: Path) -> dict:
+    if not path.exists():
+        return _blank_operator_demo_packet_report()
+    try:
+        loaded = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return _blank_operator_demo_packet_report()
+    if not isinstance(loaded, dict):
+        return _blank_operator_demo_packet_report()
+    base = _blank_operator_demo_packet_report()
+    base.update(loaded)
+    if not isinstance(base.get("summary"), dict):
+        base["summary"] = {}
+    if not isinstance(base.get("source_paths"), dict):
+        base["source_paths"] = {}
+    if not isinstance(base.get("families"), list):
+        base["families"] = []
     return base
 
 
@@ -1126,6 +1233,319 @@ def _compact_raw_source_proof(proof: Any) -> dict:
     return {key: value for key, value in compact.items() if value not in ("", [], {})}
 
 
+def _build_claim_packet_lookup(bundle: dict) -> dict[str, dict]:
+    lookup: dict[str, dict] = {}
+    for family in list((bundle or {}).get("families") or []):
+        if not isinstance(family, dict):
+            continue
+        family_key = str(family.get("family_key", "") or "").strip()
+        claim_packet = family.get("claim_packet") or {}
+        if family_key and isinstance(claim_packet, dict) and claim_packet:
+            lookup[family_key] = claim_packet
+    return lookup
+
+
+def _row_claim_family_key(row: dict) -> str:
+    proof = row.get("raw_source_proof") or {}
+    capture_meta = proof.get("capture_meta") or {} if isinstance(proof, dict) else {}
+    candidates = (
+        capture_meta.get("family_key"),
+        row.get("law_title"),
+        row.get("seed_law_family"),
+    )
+    for value in candidates:
+        text = str(value or "").strip()
+        if text:
+            return text
+    return ""
+
+
+def _build_row_claim_packet_summary(row: dict, claim_packet_lookup: dict[str, dict]) -> dict:
+    family_key = _row_claim_family_key(row)
+    claim_packet = claim_packet_lookup.get(family_key) or {}
+    if not isinstance(claim_packet, dict) or not claim_packet:
+        return {}
+    source_proof_summary = claim_packet.get("source_proof_summary") or {}
+    raw_source_proof = _compact_raw_source_proof(row.get("raw_source_proof"))
+    checksum_samples = [
+        str(item or "").strip()
+        for item in list(source_proof_summary.get("checksum_samples") or [])
+        if str(item or "").strip()
+    ][:3]
+    source_url_samples = [
+        str(item or "").strip()
+        for item in list(source_proof_summary.get("source_url_samples") or [])
+        if str(item or "").strip()
+    ][:2]
+    required_input_domains = [
+        str(item or "").strip()
+        for item in list(claim_packet.get("required_input_domains") or [])
+        if str(item or "").strip()
+    ]
+    optional_input_domains = [
+        str(item or "").strip()
+        for item in list(claim_packet.get("optional_input_domains") or [])
+        if str(item or "").strip()
+    ]
+    compact = {
+        "family_key": family_key,
+        "claim_id": str(claim_packet.get("claim_id", "") or "").strip(),
+        "claim_title": str(claim_packet.get("claim_title", "") or "").strip(),
+        "claim_statement": str(claim_packet.get("claim_statement", "") or "").strip(),
+        "required_input_domains": required_input_domains,
+        "optional_input_domains": optional_input_domains,
+        "proof_coverage_ratio": str(source_proof_summary.get("proof_coverage_ratio", "") or "").strip(),
+        "checksum_sample_total": _coerce_non_negative_int(
+            source_proof_summary.get("checksum_sample_total", len(checksum_samples))
+        ),
+        "checksum_samples": checksum_samples,
+        "source_url_total": _coerce_non_negative_int(
+            source_proof_summary.get("source_url_total", len(source_url_samples))
+        ),
+        "source_url_samples": source_url_samples,
+        "official_snapshot_note": str(
+            raw_source_proof.get("official_snapshot_note", "") or ""
+        ).strip(),
+    }
+    return {key: value for key, value in compact.items() if value not in ("", [], {})}
+
+
+def _attach_claim_packet_summaries(rows: list[dict], patent_bundle: dict) -> list[dict]:
+    claim_packet_lookup = _build_claim_packet_lookup(patent_bundle)
+    if not claim_packet_lookup:
+        return [dict(row) for row in list(rows or []) if isinstance(row, dict)]
+    enriched_rows: list[dict] = []
+    for row in list(rows or []):
+        if not isinstance(row, dict):
+            continue
+        enriched = dict(row)
+        summary = _build_row_claim_packet_summary(enriched, claim_packet_lookup)
+        if summary:
+            enriched["claim_packet_summary"] = summary
+        enriched_rows.append(enriched)
+    return enriched_rows
+
+
+def _build_review_case_preset_lookup(report: dict) -> dict[str, dict]:
+    lookup: dict[str, dict] = {}
+    for family in list((report or {}).get("families") or []):
+        if not isinstance(family, dict):
+            continue
+        family_key = str(family.get("family_key", "") or "").strip()
+        if family_key:
+            lookup[family_key] = family
+    return lookup
+
+
+def _build_case_story_surface_lookup(report: dict) -> dict[str, dict]:
+    lookup: dict[str, dict] = {}
+    for family in list((report or {}).get("families") or []):
+        if not isinstance(family, dict):
+            continue
+        family_key = str(family.get("family_key", "") or "").strip()
+        if family_key:
+            lookup[family_key] = family
+    return lookup
+
+
+def _build_operator_demo_lookup(report: dict) -> dict[str, dict]:
+    lookup: dict[str, dict] = {}
+    for family in list((report or {}).get("families") or []):
+        if not isinstance(family, dict):
+            continue
+        family_key = str(family.get("family_key", "") or "").strip()
+        if family_key:
+            lookup[family_key] = family
+    return lookup
+
+
+def _compact_review_case_preset(preset: dict) -> dict:
+    input_payload = preset.get("input_payload") if isinstance(preset.get("input_payload"), dict) else {}
+    expected_outcome = preset.get("expected_outcome") if isinstance(preset.get("expected_outcome"), dict) else {}
+    compact = {
+        "preset_id": str(preset.get("preset_id", "") or "").strip(),
+        "case_id": str(preset.get("case_id", "") or "").strip(),
+        "case_kind": str(preset.get("case_kind", "") or "").strip(),
+        "preset_label": str(preset.get("preset_label", "") or "").strip(),
+        "service_code": str(preset.get("service_code", "") or "").strip(),
+        "service_name": str(preset.get("service_name", "") or "").strip(),
+        "legal_basis_title": str(preset.get("legal_basis_title", "") or "").strip(),
+        "operator_note": str(preset.get("operator_note", "") or "").strip(),
+        "input_payload": {
+            "industry_selector": str(input_payload.get("industry_selector", "") or "").strip(),
+            "capital_eok": round(_coerce_non_negative_float(input_payload.get("capital_eok", 0)), 2),
+            "technicians_count": _coerce_non_negative_int(input_payload.get("technicians_count", 0)),
+            "other_requirement_checklist": (
+                dict(input_payload.get("other_requirement_checklist"))
+                if isinstance(input_payload.get("other_requirement_checklist"), dict)
+                else {}
+            ),
+        },
+        "expected_outcome": {
+            "overall_status": str(expected_outcome.get("overall_status", "") or "").strip(),
+            "capital_gap_eok": round(_coerce_non_negative_float(expected_outcome.get("capital_gap_eok", 0)), 2),
+            "technicians_gap": _coerce_non_negative_int(expected_outcome.get("technicians_gap", 0)),
+            "review_reason": str(expected_outcome.get("review_reason", "") or "").strip(),
+            "manual_review_expected": bool(expected_outcome.get("manual_review_expected", False)),
+            "proof_coverage_ratio": str(expected_outcome.get("proof_coverage_ratio", "") or "").strip(),
+        },
+    }
+    return {
+        key: value
+        for key, value in compact.items()
+        if value not in ("", [], {}) and value is not None
+    }
+
+
+def _compact_case_story_surface(family: dict) -> dict:
+    representative_cases = []
+    review_reasons: list[str] = []
+    for item in list(family.get("representative_cases") or []):
+        if not isinstance(item, dict):
+            continue
+        review_reason = str(item.get("review_reason", "") or "").strip()
+        if review_reason and review_reason not in review_reasons:
+            review_reasons.append(review_reason)
+        representative_cases.append(
+            {
+                "preset_id": str(item.get("preset_id", "") or "").strip(),
+                "case_kind": str(item.get("case_kind", "") or "").strip(),
+                "service_code": str(item.get("service_code", "") or "").strip(),
+                "service_name": str(item.get("service_name", "") or "").strip(),
+                "expected_status": str(item.get("expected_status", "") or "").strip(),
+                "review_reason": review_reason,
+                "manual_review_expected": bool(item.get("manual_review_expected", False)),
+            }
+        )
+    compact = {
+        "family_key": str(family.get("family_key", "") or "").strip(),
+        "claim_id": str(family.get("claim_id", "") or "").strip(),
+        "preset_total": _coerce_non_negative_int(family.get("preset_total", 0)),
+        "manual_review_preset_total": _coerce_non_negative_int(family.get("manual_review_preset_total", 0)),
+        "review_reason_total": len(review_reasons),
+        "review_reasons": review_reasons,
+        "representative_cases": representative_cases[:3],
+        "operator_story_points": [
+            str(item or "").strip()
+            for item in list(family.get("operator_story_points") or [])
+            if str(item or "").strip()
+        ][:3],
+    }
+    return {
+        key: value
+        for key, value in compact.items()
+        if value not in ("", [], {}) and value is not None
+    }
+
+
+def _compact_operator_demo_family(family: dict) -> dict:
+    demo_cases = []
+    review_reasons: list[str] = []
+    representative_services: list[str] = []
+    manual_review_demo_total = 0
+    for item in list(family.get("demo_cases") or []):
+        if not isinstance(item, dict):
+            continue
+        review_reason = str(item.get("review_reason", "") or "").strip()
+        if review_reason and review_reason not in review_reasons:
+            review_reasons.append(review_reason)
+        service_name = str(item.get("service_name", "") or item.get("service_code", "") or "").strip()
+        if service_name and service_name not in representative_services:
+            representative_services.append(service_name)
+        manual_review_expected = bool(item.get("manual_review_expected", False))
+        if manual_review_expected:
+            manual_review_demo_total += 1
+        demo_cases.append(
+            {
+                "preset_id": str(item.get("preset_id", "") or "").strip(),
+                "case_kind": str(item.get("case_kind", "") or "").strip(),
+                "service_code": str(item.get("service_code", "") or "").strip(),
+                "service_name": str(item.get("service_name", "") or "").strip(),
+                "review_reason": review_reason,
+                "expected_status": str(item.get("expected_status", "") or "").strip(),
+                "manual_review_expected": manual_review_expected,
+                "proof_coverage_ratio": str(item.get("proof_coverage_ratio", "") or "").strip(),
+                "operator_note": str(item.get("operator_note", "") or "").strip(),
+            }
+        )
+    compact = {
+        "family_key": str(family.get("family_key", "") or "").strip(),
+        "claim_id": str(family.get("claim_id", "") or "").strip(),
+        "claim_title": str(family.get("claim_title", "") or "").strip(),
+        "proof_coverage_ratio": str(family.get("proof_coverage_ratio", "") or "").strip(),
+        "demo_case_total": len(demo_cases),
+        "manual_review_demo_total": manual_review_demo_total,
+        "review_reason_total": len(review_reasons),
+        "review_reasons": review_reasons,
+        "representative_services": representative_services[:3],
+        "operator_story_points": [
+            str(item or "").strip()
+            for item in list(family.get("operator_story_points") or [])
+            if str(item or "").strip()
+        ][:3],
+        "demo_cases": demo_cases[:3],
+    }
+    return {
+        key: value
+        for key, value in compact.items()
+        if value not in ("", [], {}) and value is not None
+    }
+
+
+def _attach_review_case_artifacts(
+    rows: list[dict],
+    review_case_presets_report: dict,
+    case_story_surface_report: dict,
+) -> list[dict]:
+    preset_lookup = _build_review_case_preset_lookup(review_case_presets_report)
+    story_lookup = _build_case_story_surface_lookup(case_story_surface_report)
+    if not preset_lookup and not story_lookup:
+        return [dict(row) for row in list(rows or []) if isinstance(row, dict)]
+
+    enriched_rows: list[dict] = []
+    for row in list(rows or []):
+        if not isinstance(row, dict):
+            continue
+        enriched = dict(row)
+        family_key = _row_claim_family_key(enriched)
+        if family_key:
+            preset_family = preset_lookup.get(family_key) or {}
+            story_family = story_lookup.get(family_key) or {}
+            compact_presets = [
+                _compact_review_case_preset(item)
+                for item in list(preset_family.get("presets") or [])
+                if isinstance(item, dict)
+            ]
+            compact_presets = [item for item in compact_presets if item]
+            if compact_presets:
+                enriched["review_case_presets"] = compact_presets
+            compact_story = _compact_case_story_surface(story_family) if isinstance(story_family, dict) else {}
+            if compact_story:
+                enriched["case_story_surface"] = compact_story
+        enriched_rows.append(enriched)
+    return enriched_rows
+
+
+def _attach_operator_demo_artifacts(rows: list[dict], operator_demo_packet_report: dict) -> list[dict]:
+    demo_lookup = _build_operator_demo_lookup(operator_demo_packet_report)
+    if not demo_lookup:
+        return [dict(row) for row in list(rows or []) if isinstance(row, dict)]
+
+    enriched_rows: list[dict] = []
+    for row in list(rows or []):
+        if not isinstance(row, dict):
+            continue
+        enriched = dict(row)
+        family_key = _row_claim_family_key(enriched)
+        if family_key:
+            demo_family = demo_lookup.get(family_key) or {}
+            compact_demo = _compact_operator_demo_family(demo_family) if isinstance(demo_family, dict) else {}
+            if compact_demo:
+                enriched["operator_demo_surface"] = compact_demo
+        enriched_rows.append(enriched)
+    return enriched_rows
+
+
 def _compact_industry_row_for_client(row: dict) -> dict:
     compact = {
         "service_code": str(row.get("service_code", "") or "").strip(),
@@ -1182,6 +1602,34 @@ def _compact_industry_row_for_client(row: dict) -> dict:
     raw_source_proof = _compact_raw_source_proof(row.get("raw_source_proof"))
     if raw_source_proof:
         compact["raw_source_proof"] = raw_source_proof
+    claim_packet_summary = row.get("claim_packet_summary") or {}
+    if isinstance(claim_packet_summary, dict) and claim_packet_summary:
+        compact["claim_packet_summary"] = {
+            key: value
+            for key, value in claim_packet_summary.items()
+            if value not in ("", [], {})
+        }
+    review_case_presets = [
+        item
+        for item in list(row.get("review_case_presets") or [])
+        if isinstance(item, dict) and item
+    ]
+    if review_case_presets:
+        compact["review_case_presets"] = review_case_presets
+    case_story_surface = row.get("case_story_surface") or {}
+    if isinstance(case_story_surface, dict) and case_story_surface:
+        compact["case_story_surface"] = {
+            key: value
+            for key, value in case_story_surface.items()
+            if value not in ("", [], {})
+        }
+    operator_demo_surface = row.get("operator_demo_surface") or {}
+    if isinstance(operator_demo_surface, dict) and operator_demo_surface:
+        compact["operator_demo_surface"] = {
+            key: value
+            for key, value in operator_demo_surface.items()
+            if value not in ("", [], {})
+        }
     return compact
 
 
@@ -1497,6 +1945,20 @@ def build_bootstrap_payload(catalog: dict, rule_catalog: dict) -> dict:
         for row in list(payload.get("industries") or [])
         if isinstance(row, dict) and _is_capital_technical_scope(row)
     ]
+    patent_bundle = _load_patent_evidence_bundle(DEFAULT_PATENT_EVIDENCE_BUNDLE_PATH)
+    review_case_presets_report = _load_review_case_presets_report(DEFAULT_REVIEW_CASE_PRESETS_PATH)
+    case_story_surface_report = _load_case_story_surface_report(DEFAULT_CASE_STORY_SURFACE_PATH)
+    operator_demo_packet_report = _load_operator_demo_packet_report(DEFAULT_OPERATOR_DEMO_PACKET_PATH)
+    review_case_presets_summary = dict(review_case_presets_report.get("summary") or {})
+    case_story_surface_summary = dict(case_story_surface_report.get("summary") or {})
+    operator_demo_summary = dict(operator_demo_packet_report.get("summary") or {})
+    scoped_source_rows = _attach_claim_packet_summaries(scoped_source_rows, patent_bundle)
+    scoped_source_rows = _attach_review_case_artifacts(
+        scoped_source_rows,
+        review_case_presets_report,
+        case_story_surface_report,
+    )
+    scoped_source_rows = _attach_operator_demo_artifacts(scoped_source_rows, operator_demo_packet_report)
     compact_rows = [
         _compact_industry_row_for_client(row)
         for row in scoped_source_rows
@@ -1546,6 +2008,37 @@ def build_bootstrap_payload(catalog: dict, rule_catalog: dict) -> dict:
     summary["candidate_criteria_total"] = sum(
         1 for row in compact_rows if int(row.get("candidate_criteria_count", 0) or 0) > 0
     )
+    summary["runtime_claim_packet_total"] = sum(
+        1 for row in compact_rows if isinstance(row.get("claim_packet_summary"), dict) and row.get("claim_packet_summary")
+    )
+    summary["runtime_raw_source_proof_total"] = sum(
+        1 for row in compact_rows if isinstance(row.get("raw_source_proof"), dict) and row.get("raw_source_proof")
+    )
+    summary["runtime_review_case_preset_total"] = int(
+        review_case_presets_summary.get("preset_total", 0) or 0
+    )
+    summary["runtime_review_case_family_total"] = int(
+        review_case_presets_summary.get("preset_family_total", 0) or 0
+    )
+    summary["runtime_case_story_family_total"] = int(
+        case_story_surface_summary.get("story_family_total", 0) or 0
+    )
+    summary["runtime_case_story_review_reason_total"] = int(
+        case_story_surface_summary.get("review_reason_total", 0) or 0
+    )
+    summary["runtime_operator_demo_family_total"] = int(
+        operator_demo_summary.get("family_total", 0) or 0
+    )
+    summary["runtime_operator_demo_case_total"] = int(
+        operator_demo_summary.get("demo_case_total", 0) or 0
+    )
+    summary["runtime_operator_demo_manual_review_total"] = int(
+        operator_demo_summary.get("manual_review_demo_total", 0) or 0
+    )
+    summary["runtime_operator_demo_ready"] = bool(
+        operator_demo_summary.get("operator_demo_ready", False)
+    )
+    summary["runtime_operator_demo_packet_path"] = str(DEFAULT_OPERATOR_DEMO_PACKET_PATH.resolve())
     summary["focus_target_total"] = len(scoped_focus_target_rows)
     summary["focus_target_with_other_total"] = len(scoped_focus_with_other_rows)
     summary["real_focus_target_total"] = sum(
@@ -2370,7 +2863,11 @@ def build_html(
       gap: 10px;
       grid-template-columns: 1fr;
     }
+    .check-grid.is-collapsed .check-item.is-secondary {
+      display: none;
+    }
     .check-item {
+      position: relative;
       display: flex;
       align-items: flex-start;
       gap: 10px;
@@ -2383,10 +2880,70 @@ def build_html(
       font-weight: 700;
       line-height: 1.45;
       color: #27465f;
+      transition: border-color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease, background 0.16s ease, opacity 0.16s ease;
+    }
+    .check-item.is-priority {
+      border-color: rgba(0, 55, 100, 0.26);
+      background: linear-gradient(180deg, rgba(238, 246, 252, 0.98) 0%, rgba(255, 255, 255, 0.98) 100%);
+      box-shadow: 0 16px 26px rgba(4, 36, 60, 0.08);
+      transform: translateY(-1px);
+    }
+    .check-item.is-priority::after {
+      content: attr(data-priority-badge);
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(0, 55, 100, 0.08);
+      border: 1px solid rgba(0, 55, 100, 0.14);
+      color: var(--navy);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .check-item.is-secondary {
+      opacity: 0.92;
+    }
+    .check-item.is-priority input {
+      accent-color: var(--navy);
     }
     .check-item input {
       margin-top: 2px;
       transform: scale(1.08);
+    }
+    .optional-toggle-wrap {
+      display: flex;
+      justify-content: flex-start;
+      margin-top: 10px;
+    }
+    .optional-toggle-btn {
+      appearance: none;
+      display: inline-flex;
+      align-items: center;
+      min-height: 38px;
+      padding: 9px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(15, 82, 127, 0.16);
+      background: rgba(255, 255, 255, 0.96);
+      color: var(--navy);
+      font-size: 13px;
+      line-height: 1.3;
+      font-weight: 800;
+      cursor: pointer;
+      transition: border-color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+    }
+    .optional-toggle-btn:hover {
+      border-color: rgba(15, 82, 127, 0.3);
+      box-shadow: 0 12px 22px rgba(4, 36, 60, 0.08);
+      transform: translateY(-1px);
+    }
+    .optional-toggle-btn[hidden] {
+      display: none;
     }
     .result-banner {
       display: grid;
@@ -2494,6 +3051,21 @@ def build_html(
     .law-box a {
       color: var(--info);
     }
+    .case-surface-card {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(15, 82, 127, 0.14);
+      background: rgba(255, 255, 255, 0.82);
+    }
+    .case-surface-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
+    }
     .result-actions-wrap {
       margin: 0 0 12px;
       padding: 14px;
@@ -2561,7 +3133,7 @@ def build_html(
       display: flex;
     }
     .result-actions-wrap.ready .result-actions-note {
-      display: none;
+      display: block;
     }
     .mobile-quick-bar {
       position: fixed;
@@ -2798,7 +3370,7 @@ def build_html(
         <h2 id="result-title">진단 결과</h2>
         <p class="metric-label">법정 최소 자본금</p>
         <p id="requiredCapital" class="metric-value">-</p>
-        <p class="metric-label">필수 기술자 수 / 필수 장비 수 / 예치기간</p>
+        <p class="metric-label">핵심 세부 요건</p>
         <p id="requirementsMeta" class="meta-box">-</p>
 
         <p class="metric-label">자본금 갭 진단</p>
@@ -2814,6 +3386,10 @@ def build_html(
         <div id="legalBasis" class="law-box" style="display:none"></div>
         <div id="focusProfileBox" class="law-box" style="display:none"></div>
         <div id="qualityFlagsBox" class="law-box" style="display:none"></div>
+        <div id="proofClaimBox" class="law-box" style="display:none"></div>
+        <div id="reviewPresetBox" class="law-box" style="display:none"></div>
+        <div id="caseStoryBox" class="law-box" style="display:none"></div>
+        <div id="operatorDemoBox" class="law-box" style="display:none"></div>
         <p id="coverageGuide" class="meta-box" style="display:none"></p>
         <div id="typedCriteriaBox" class="law-box" style="display:none"></div>
         <div id="evidenceChecklistBox" class="law-box" style="display:none"></div>
@@ -2828,7 +3404,7 @@ def build_html(
     </div>
   </main>
 
-  <script>
+<script nowprocket>
     const permitDataUrl = "__PERMIT_DATA_URL__";
     const permitDataEncoding = "__PERMIT_DATA_ENCODING__";
     const inlineBootstrap = __PERMIT_BOOTSTRAP_JSON__;
@@ -3181,6 +3757,10 @@ def build_html(
         optionalBlock.className = "section-block wizard-step-card optional-step";
         optionalBlock.setAttribute("data-step-index", "3");
         optionalBlock.innerHTML = '<p class="section-kicker">STEP 4 · 선택</p><h3 class="section-title">추가 준비 상태 <span class="step-choice-tag">선택</span></h3><p class="assist">결과 보정과 서류 준비도를 더 자세히 보려면 선택적으로 체크하세요. 입력하지 않아도 기본 진단은 가능합니다.</p>';
+        const optionalPriorityHint = document.createElement("div");
+        optionalPriorityHint.id = "optionalPriorityHint";
+        optionalPriorityHint.className = "wizard-priority-hint optional-priority-hint";
+        optionalPriorityHint.textContent = "업종을 고르면 마지막 단계에서 먼저 볼 선택 항목을 위로 정렬해 드립니다.";
         const optionalGrid = document.createElement("div");
         optionalGrid.id = "advancedInputs";
         optionalGrid.className = "check-grid";
@@ -3189,11 +3769,18 @@ def build_html(
           const labels = sourceBox ? Array.from(sourceBox.querySelectorAll("label")) : [];
           labels.forEach((label) => {
             label.className = "check-item";
+            const input = label.querySelector("input");
+            if (input && input.id) label.dataset.checklistId = input.id;
             optionalGrid.appendChild(label);
           });
           extraField.remove();
         }
+        optionalBlock.appendChild(optionalPriorityHint);
         optionalBlock.appendChild(optionalGrid);
+        const optionalToggleWrap = document.createElement("div");
+        optionalToggleWrap.className = "optional-toggle-wrap";
+        optionalToggleWrap.innerHTML = '<button type="button" id="optionalChecklistToggle" class="optional-toggle-btn" hidden>추가 준비 항목 더 보기</button>';
+        optionalBlock.appendChild(optionalToggleWrap);
         optionalBlock.appendChild(createPermitWizardNav(3, "선택 단계까지 확인했으면 결과 카드에서 부족 항목, 법령 근거, 다음 조치를 검토하세요."));
 
         wizardShell.appendChild(lookupBlock);
@@ -3357,6 +3944,9 @@ def build_html(
       insuranceSecuredInput: document.getElementById("insuranceSecuredInput"),
       safetySecuredInput: document.getElementById("safetySecuredInput"),
       documentReadyInput: document.getElementById("documentReadyInput"),
+      advancedInputs: document.getElementById("advancedInputs"),
+      optionalPriorityHint: document.getElementById("optionalPriorityHint"),
+      optionalChecklistToggle: document.getElementById("optionalChecklistToggle"),
       crossValidation: document.getElementById("crossValidation"),
       requiredCapital: document.getElementById("requiredCapital"),
       requirementsMeta: document.getElementById("requirementsMeta"),
@@ -3377,6 +3967,10 @@ def build_html(
       legalBasis: document.getElementById("legalBasis"),
       focusProfileBox: document.getElementById("focusProfileBox"),
       qualityFlagsBox: document.getElementById("qualityFlagsBox"),
+      proofClaimBox: document.getElementById("proofClaimBox"),
+      reviewPresetBox: document.getElementById("reviewPresetBox"),
+      caseStoryBox: document.getElementById("caseStoryBox"),
+      operatorDemoBox: document.getElementById("operatorDemoBox"),
       coverageGuide: document.getElementById("coverageGuide"),
       typedCriteriaBox: document.getElementById("typedCriteriaBox"),
       evidenceChecklistBox: document.getElementById("evidenceChecklistBox"),
@@ -3519,6 +4113,9 @@ def build_html(
     ui.mobileQuickMeta = document.getElementById("mobileQuickMeta");
     ui.mobileQuickPresetButton = document.getElementById("mobileQuickPresetButton");
     ui.mobileQuickResultButton = document.getElementById("mobileQuickResultButton");
+    ui.advancedInputs = document.getElementById("advancedInputs");
+    ui.optionalPriorityHint = document.getElementById("optionalPriorityHint");
+    ui.optionalChecklistToggle = document.getElementById("optionalChecklistToggle");
 
     const makeOption = (value, label) => {
       const opt = document.createElement("option");
@@ -3605,6 +4202,17 @@ def build_html(
       article_name_unmatched: "업종명 직접 불일치",
     };
 
+    const proofDomainLabels = {
+      industry_selector: "업종 선택",
+      capital_eok: "자본금",
+      technicians_count: "기술인력",
+      other_requirement_checklist: "기타 요건 체크리스트",
+      equipment_inventory: "장비 현황",
+      deposit_hold_days: "예치기간",
+      safety_environment: "안전·환경",
+      facility_equipment: "시설·장비",
+    };
+
     const otherRequirementLabels = {
       equipment: "장비",
       deposit: "예치",
@@ -3617,12 +4225,42 @@ def build_html(
       operations: "운영체계",
     };
 
+    const reviewReasonLabels = {
+      capital_shortfall_only: "자본금 부족",
+      technician_shortfall_only: "기술인력 부족",
+      other_requirement_documents_missing: "서류 보완 검토",
+    };
+
+    const reviewChecklistPresetMap = {
+      office: "officeSecuredInput",
+      facility_equipment: "facilitySecuredInput",
+      equipment: "facilitySecuredInput",
+      guarantee: "insuranceSecuredInput",
+      insurance: "insuranceSecuredInput",
+      safety_environment: "safetySecuredInput",
+      document: "documentReadyInput",
+    };
+
     const getRegistrationProfile = (row) => {
       if (!row || typeof row !== "object") return {};
       return row.registration_requirement_profile && typeof row.registration_requirement_profile === "object"
         ? row.registration_requirement_profile
         : {};
     };
+
+    const getReviewCasePresets = (row) => (
+      Array.isArray(row && row.review_case_presets) ? row.review_case_presets : []
+    );
+
+    const getCaseStorySurface = (row) => (
+      row && typeof row.case_story_surface === "object" ? row.case_story_surface : null
+    );
+
+    const getOperatorDemoSurface = (row) => (
+      row && typeof row.operator_demo_surface === "object" ? row.operator_demo_surface : null
+    );
+
+    const getReviewReasonLabel = (reason) => reviewReasonLabels[String(reason || "").trim()] || String(reason || "").trim();
 
     const normalizeSearchKey = (value) => String(value || "")
       .toLowerCase()
@@ -4155,6 +4793,8 @@ def build_html(
     };
 
     let permitWizardStepIndex = 0;
+    let optionalChecklistExpanded = false;
+    let optionalChecklistPlanKey = "";
     const getPermitCoreFieldPlan = () => {
       const selected = getSelectedIndustry();
       const rule = getSelectedRule(selected);
@@ -4500,7 +5140,7 @@ def build_html(
       if (ui.permitWizardStepNote) {
         let dynamicNote = currentMeta.note;
         if (currentMeta.optional) {
-          dynamicNote = "여기는 마지막 선택 단계입니다. 입력하지 않아도 기본 결과는 유지됩니다.";
+          dynamicNote = getOptionalChecklistPlan(getSelectedIndustry(), getSelectedRule(getSelectedIndustry())).hint;
         } else if (currentMeta.id === "permitWizardStep2") {
           dynamicNote = !coreGuide.isStructured
             ? "정량 기준이 없는 업종은 법령 근거와 준비 서류 위주로 먼저 확인합니다."
@@ -4623,6 +5263,39 @@ def build_html(
       return false;
     };
 
+    const applyReviewCasePreset = (preset) => {
+      if (!preset || typeof preset !== "object") return false;
+      const inputPayload = preset.input_payload && typeof preset.input_payload === "object"
+        ? preset.input_payload
+        : {};
+      const selectorCode = String(inputPayload.industry_selector || preset.service_code || "").trim();
+      if (selectorCode) {
+        applyIndustrySelection(selectorCode);
+      }
+      if (ui.capitalInput && Object.prototype.hasOwnProperty.call(inputPayload, "capital_eok")) {
+        ui.capitalInput.value = String(Core.toNum(inputPayload.capital_eok || 0));
+      }
+      if (ui.technicianInput && Object.prototype.hasOwnProperty.call(inputPayload, "technicians_count")) {
+        ui.technicianInput.value = String(Core.toInt(inputPayload.technicians_count || 0));
+      }
+      if (ui.equipmentInput && !String(ui.equipmentInput.value || "").trim()) {
+        ui.equipmentInput.value = "0";
+      }
+      const checklist = inputPayload.other_requirement_checklist && typeof inputPayload.other_requirement_checklist === "object"
+        ? inputPayload.other_requirement_checklist
+        : {};
+      OPTIONAL_CHECKLIST_IDS.forEach((id) => {
+        if (ui[id]) ui[id].checked = false;
+      });
+      Object.entries(checklist).forEach(([key, value]) => {
+        const inputId = reviewChecklistPresetMap[String(key || "").trim()];
+        if (inputId && ui[inputId]) ui[inputId].checked = !!value;
+      });
+      renderResult();
+      syncExperienceLayer();
+      return true;
+    };
+
     const getRequirementPresetSnapshot = () => {
       const selected = getSelectedIndustry();
       if (!selected) {
@@ -4659,9 +5332,15 @@ def build_html(
     const syncPresetActions = () => {
       const snapshot = getRequirementPresetSnapshot();
       const state = getPermitWizardState();
-      const hasInputs = [ui.capitalInput, ui.technicianInput, ui.equipmentInput]
+      const selected = getSelectedIndustry();
+      const rule = getSelectedRule(selected);
+      const visibleInputs = getVisibleHoldingsInputs(selected, rule);
+      const hasInputs = visibleInputs
         .some((node) => !!String((node && node.value) || "").trim());
-      if (ui.fillRequirementPreset) ui.fillRequirementPreset.disabled = !snapshot.ready;
+      if (ui.fillRequirementPreset) {
+        ui.fillRequirementPreset.disabled = !snapshot.ready;
+        ui.fillRequirementPreset.textContent = getFillPresetActionLabel(state);
+      }
       if (ui.resetHoldingsPreset) ui.resetHoldingsPreset.disabled = !hasInputs;
       if (!ui.presetActionHint) return;
       if (!snapshot.industryName) {
@@ -4700,9 +5379,11 @@ def build_html(
       const bannerMeta = String((ui.resultBannerMeta && ui.resultBannerMeta.textContent) || "").trim();
       const snapshot = getRequirementPresetSnapshot();
       const state = getPermitWizardState();
-      const hasInputs = [ui.capitalInput, ui.technicianInput, ui.equipmentInput]
+      const rule = getSelectedRule(selected);
+      const visibleInputs = getVisibleHoldingsInputs(selected, rule);
+      const hasInputs = visibleInputs
         .some((node) => !!String((node && node.value) || "").trim());
-      const allCoreOk = [ui.capitalGapStatus, ui.technicianGapStatus, ui.equipmentGapStatus]
+      const allCoreOk = getVisibleCoreStatusNodes(selected, rule)
         .every((node) => !!(node && node.classList.contains("ok")));
       ui.mobileQuickTitle.textContent = String(selected.service_name || "선택 업종");
       ui.mobileQuickMeta.textContent = allCoreOk
@@ -4713,7 +5394,7 @@ def build_html(
         ui.mobileQuickPresetButton.dataset.mode = useReset ? "reset" : "fill";
         ui.mobileQuickPresetButton.textContent = useReset
           ? "입력 초기화"
-          : (snapshot.ready ? "기준값 채우기" : (state.hasStructuredCore ? "기준값 채우기" : "법령 확인형"));
+          : (snapshot.ready ? getFillPresetActionLabel(state) : (state.hasStructuredCore ? getFillPresetActionLabel(state) : "법령 확인형"));
         ui.mobileQuickPresetButton.disabled = useReset ? !hasInputs : !snapshot.ready;
       }
       if (ui.mobileQuickResultButton) ui.mobileQuickResultButton.disabled = false;
@@ -4751,13 +5432,58 @@ def build_html(
         : (Number(selected.candidate_criteria_count || 0) > 0
           ? "법령 자동 추출"
           : ((Array.isArray(selected.auto_law_candidates) && selected.auto_law_candidates.length) ? "법령 후보" : "확인 필요"));
+      const corePlan = getPermitCoreFieldPlan();
+      const capitalSeedValue = rule
+        ? Number(req.capital_eok || 0)
+        : (profile.capital_required ? Number(profile.capital_eok || 0) : 0);
+      const technicianSeedValue = rule
+        ? Number(req.technicians || 0)
+        : (profile.technical_personnel_required ? Number(profile.technicians_required || 0) : 0);
+      const equipmentSeedValue = rule
+        ? Number(req.equipment_count || 0)
+        : (profile.other_required ? Number(profile.equipment_count_required || 0) : 0);
+      const depositSeedValue = rule ? Number(req.deposit_days || 0) : 0;
       const chips = [];
       if (profile.focus_target) chips.push("핵심 업종");
       else if (profile.inferred_focus_candidate) chips.push("추론 후보");
       if (selected.is_rules_only) chips.push("규칙 우선");
       if (selected.is_platform_row) chips.push("플랫폼 노출");
+      if (corePlan.hasStructuredCore && corePlan.requiredFieldCount > 0) {
+        chips.push(`필수 ${corePlan.requiredFieldCount}개 업종`);
+      } else {
+        chips.push("법령 확인형");
+      }
       if (Array.isArray(selected.platform_selector_aliases) && selected.platform_selector_aliases.length) {
         chips.push(`검색 별칭 ${selected.platform_selector_aliases.length}개`);
+      }
+      const smartProfileItems = [
+        {
+          label: "기준 자본금",
+          value: capitalValue,
+          visible: capitalSeedValue > 0,
+        },
+        {
+          label: "기준 기술자",
+          value: technicianValue,
+          visible: technicianSeedValue > 0,
+        },
+        {
+          label: "장비/설비",
+          value: equipmentValue,
+          visible: equipmentSeedValue > 0,
+        },
+        {
+          label: "예치/보완 일정",
+          value: depositValue,
+          visible: depositSeedValue > 0,
+        },
+      ].filter((item) => !!item.visible);
+      if (!smartProfileItems.length) {
+        smartProfileItems.push({
+          label: "법령 기준",
+          value: "결과 카드에서 확인",
+          visible: true,
+        });
       }
 
       ui.smartIndustryProfile.className = "smart-profile";
@@ -4767,70 +5493,357 @@ def build_html(
           <span class="smart-profile-tag">${esc(sourceLabel)}</span>
         </div>
         <div class="smart-profile-grid">
+          ${smartProfileItems.map((item) => `
           <div class="smart-profile-item">
-            <span class="smart-profile-label">기준 자본금</span>
-            <span class="smart-profile-value">${esc(capitalValue)}</span>
-          </div>
-          <div class="smart-profile-item">
-            <span class="smart-profile-label">기준 기술자</span>
-            <span class="smart-profile-value">${esc(technicianValue)}</span>
-          </div>
-          <div class="smart-profile-item">
-            <span class="smart-profile-label">장비/설비</span>
-            <span class="smart-profile-value">${esc(equipmentValue)}</span>
-          </div>
-          <div class="smart-profile-item">
-            <span class="smart-profile-label">예치/보완 일정</span>
-            <span class="smart-profile-value">${esc(depositValue)}</span>
-          </div>
+            <span class="smart-profile-label">${esc(item.label)}</span>
+            <span class="smart-profile-value">${esc(item.value)}</span>
+          </div>`).join("")}
         </div>
         <div class="smart-chip-row">${chips.map((item) => `<span class="smart-chip">${esc(item)}</span>`).join("")}</div>`;
 
-      if (ui.capitalInput && !String(ui.capitalInput.value || "").trim() && Number.isFinite(Number(req.capital_eok))) {
-        ui.capitalInput.placeholder = `예: ${String(Math.round(Number(req.capital_eok || 0) * 100) / 100)}`;
+      if (ui.capitalInput && !String(ui.capitalInput.value || "").trim()) {
+        ui.capitalInput.placeholder = capitalSeedValue > 0
+          ? `예: ${String(Math.round(capitalSeedValue * 100) / 100)}`
+          : "해당 시 입력";
       }
-      if (ui.technicianInput && !String(ui.technicianInput.value || "").trim() && Number.isFinite(Number(req.technicians))) {
-        ui.technicianInput.placeholder = `예: ${String(Core.toInt(req.technicians || 0))}`;
+      if (ui.technicianInput && !String(ui.technicianInput.value || "").trim()) {
+        ui.technicianInput.placeholder = technicianSeedValue > 0
+          ? `예: ${String(Core.toInt(technicianSeedValue))}`
+          : "해당 시 입력";
       }
-      if (ui.equipmentInput && !String(ui.equipmentInput.value || "").trim() && Number.isFinite(Number(req.equipment_count))) {
-        ui.equipmentInput.placeholder = `예: ${String(Core.toInt(req.equipment_count || 0))}`;
+      if (ui.equipmentInput && !String(ui.equipmentInput.value || "").trim()) {
+        ui.equipmentInput.placeholder = equipmentSeedValue > 0
+          ? `예: ${String(Core.toInt(equipmentSeedValue))}`
+          : "해당 시 입력";
       }
     };
 
     const summarizeStatusNode = (node, label) => {
+      const statusCard = node ? node.closest(".status-card") : null;
+      if (statusCard && statusCard.hidden) return "";
       const text = String((node && node.textContent) || "").trim();
       if (!text || text === "-") return "";
       return `${label} ${text}`;
     };
 
+    const getStructuredCoreVisibility = (selected = null, rule = null) => {
+      if (!selected) {
+        return {
+          capital: true,
+          technicians: true,
+          equipment: true,
+          deposit: true,
+        };
+      }
+      const profile = getRegistrationProfile(selected);
+      const req = rule && rule.requirements ? rule.requirements : {};
+      if (!rule) {
+        return {
+          capital: !!profile.capital_required,
+          technicians: !!profile.technical_personnel_required,
+          equipment: !!profile.other_required,
+          deposit: Number(profile.deposit_days_required || 0) > 0,
+        };
+      }
+      return {
+        capital: Number(req.capital_eok || 0) > 0,
+        technicians: Number(req.technicians || 0) > 0,
+        equipment: Number(req.equipment_count || 0) > 0,
+        deposit: Number(req.deposit_days || 0) > 0,
+      };
+    };
+
+    const getVisibleCoreStatusNodes = (selected = null, rule = null) => {
+      const visibility = getStructuredCoreVisibility(selected, rule);
+      return [
+        visibility.capital ? ui.capitalGapStatus : null,
+        visibility.technicians ? ui.technicianGapStatus : null,
+        visibility.equipment ? ui.equipmentGapStatus : null,
+      ].filter(Boolean);
+    };
+
+    const setStatusCardVisibility = (node, visible) => {
+      const statusCard = node ? node.closest(".status-card") : null;
+      if (!statusCard) return;
+      statusCard.hidden = !visible;
+    };
+
+    const syncCoreStatusCardVisibility = (selected = null, rule = null) => {
+      const visibility = getStructuredCoreVisibility(selected, rule);
+      setStatusCardVisibility(ui.capitalGapStatus, visibility.capital);
+      setStatusCardVisibility(ui.technicianGapStatus, visibility.technicians);
+      setStatusCardVisibility(ui.equipmentGapStatus, visibility.equipment);
+    };
+
+    const buildRequirementsMetaSummary = (selected = null, rule = null) => {
+      if (!selected || !rule) return "-";
+      const req = rule && rule.requirements ? rule.requirements : {};
+      const visibility = getStructuredCoreVisibility(selected, rule);
+      const parts = [];
+      if (visibility.technicians) parts.push(`기술인력 ${Core.toInt(req.technicians || 0)}명`);
+      if (visibility.equipment) parts.push(`장비 ${Core.toInt(req.equipment_count || 0)}식`);
+      if (visibility.deposit) parts.push(`예치 ${Core.toInt(req.deposit_days || 0)}일`);
+      return parts.length ? parts.join(" / ") : "결과 카드에서 확인";
+    };
+
+    const getVisibleHoldingsInputs = (selected = null, rule = null) => {
+      const visibility = getStructuredCoreVisibility(selected, rule);
+      return [
+        visibility.capital ? ui.capitalInput : null,
+        visibility.technicians ? ui.technicianInput : null,
+        visibility.equipment ? ui.equipmentInput : null,
+      ].filter(Boolean);
+    };
+
+    const getFillPresetActionLabel = (state = null) => {
+      const currentState = state || getPermitWizardState();
+      if (!currentState.hasStructuredCore || Number(currentState.requiredCoreCount || 0) <= 0) {
+        return "기준값 채우기";
+      }
+      return `필수 ${currentState.requiredCoreCount}개 채우기`;
+    };
+
+    const syncHoldingsInputVisibility = (selected = null, rule = null) => {
+      const visibility = getStructuredCoreVisibility(selected, rule);
+      [
+        { input: ui.capitalInput, visible: visibility.capital },
+        { input: ui.technicianInput, visible: visibility.technicians },
+        { input: ui.equipmentInput, visible: visibility.equipment },
+      ].forEach(({ input, visible }) => {
+        if (!input) return;
+        const field = input.closest(".field");
+        if (field) field.hidden = !visible;
+        input.disabled = !visible;
+        if (!visible) {
+          input.value = "";
+          input.placeholder = "해당 없음";
+        }
+      });
+    };
+
+    const OPTIONAL_CHECKLIST_IDS = [
+      "officeSecuredInput",
+      "facilitySecuredInput",
+      "qualificationSecuredInput",
+      "insuranceSecuredInput",
+      "safetySecuredInput",
+      "documentReadyInput",
+    ];
+
+    const OPTIONAL_CHECKLIST_LABELS = {
+      officeSecuredInput: "사무실",
+      facilitySecuredInput: "시설·장비",
+      qualificationSecuredInput: "자격·경력",
+      insuranceSecuredInput: "보험·보증",
+      safetySecuredInput: "안전·환경",
+      documentReadyInput: "제출서류",
+    };
+
+    const getOptionalChecklistPlan = (selected = null, rule = null) => {
+      const pushUnique = (target, value) => {
+        if (!value || target.includes(value)) return;
+        target.push(value);
+      };
+      const orderedIds = [];
+      if (!selected) {
+        OPTIONAL_CHECKLIST_IDS.forEach((id) => pushUnique(orderedIds, id));
+        return {
+          orderedIds,
+          primaryIds: orderedIds.slice(0, 3),
+          hint: "업종을 고르면 마지막 단계에서 먼저 볼 선택 항목을 위로 정렬해 드립니다.",
+        };
+      }
+
+      const industryName = String(selected.service_name || "선택 업종");
+      const visibility = getStructuredCoreVisibility(selected, rule);
+      const normalizedName = industryName.replace(/\\s+/g, "");
+      const isSafetyHeavy = /(전기|가스|소방|위험물|시설시공)/.test(normalizedName);
+      const isSecurityHeavy = /(경비|보안|호송)/.test(normalizedName);
+      const hasStructuredCore = getPermitWizardState().hasStructuredCore;
+
+      if (!hasStructuredCore) {
+        [
+          "documentReadyInput",
+          "qualificationSecuredInput",
+          "officeSecuredInput",
+        ].forEach((id) => pushUnique(orderedIds, id));
+      } else {
+        if (isSafetyHeavy) pushUnique(orderedIds, "safetySecuredInput");
+        if (isSecurityHeavy) pushUnique(orderedIds, "insuranceSecuredInput");
+        if (visibility.equipment) pushUnique(orderedIds, "facilitySecuredInput");
+        if (visibility.technicians) pushUnique(orderedIds, "qualificationSecuredInput");
+        if (visibility.capital) pushUnique(orderedIds, "officeSecuredInput");
+        pushUnique(orderedIds, "documentReadyInput");
+        if (!isSecurityHeavy) pushUnique(orderedIds, "insuranceSecuredInput");
+        if (!isSafetyHeavy) pushUnique(orderedIds, "safetySecuredInput");
+      }
+
+      OPTIONAL_CHECKLIST_IDS.forEach((id) => pushUnique(orderedIds, id));
+      const primaryIds = orderedIds.slice(0, 3);
+      const primaryLabels = primaryIds
+        .map((id) => OPTIONAL_CHECKLIST_LABELS[id] || "")
+        .filter(Boolean);
+      const hint = !hasStructuredCore
+        ? `${industryName}은 마지막 단계에서 ${primaryLabels.join(", ")}부터 확인하면 서류 전달 준비가 빠릅니다.`
+        : `${industryName}은 마지막 단계에서 ${primaryLabels.join(", ")}부터 체크하면 전달 준비가 빠릅니다.`;
+      return {
+        orderedIds,
+        primaryIds,
+        hint,
+      };
+    };
+
+    const syncOptionalChecklistLayout = () => {
+      const optionalGrid = ui.advancedInputs;
+      if (!optionalGrid) return;
+      const selected = getSelectedIndustry();
+      const rule = getSelectedRule(selected);
+      const plan = getOptionalChecklistPlan(selected, rule);
+      const planKey = selected
+        ? `${String(selected.service_code || selected.selected_display_service_code || selected.service_name || "")}:${plan.orderedIds.join(",")}`
+        : `blank:${plan.orderedIds.join(",")}`;
+      if (planKey !== optionalChecklistPlanKey) {
+        optionalChecklistPlanKey = planKey;
+        optionalChecklistExpanded = false;
+      }
+      const labelsById = new Map(
+        Array.from(optionalGrid.querySelectorAll(".check-item"))
+          .map((label) => {
+            const input = label.querySelector("input");
+            return [String((input && input.id) || label.dataset.checklistId || ""), label];
+          })
+          .filter(([id]) => !!id)
+      );
+      plan.orderedIds.forEach((id, index) => {
+        const label = labelsById.get(id);
+        if (!label) return;
+        label.dataset.priorityRank = String(index + 1);
+        const priorityIndex = plan.primaryIds.indexOf(id);
+        const isPriority = priorityIndex >= 0;
+        label.classList.toggle("is-priority", isPriority);
+        label.classList.toggle("is-secondary", !isPriority);
+        if (isPriority) {
+          label.dataset.priorityBadge = `우선 ${priorityIndex + 1}`;
+        } else {
+          label.removeAttribute("data-priority-badge");
+        }
+        optionalGrid.appendChild(label);
+      });
+      const secondaryCount = Math.max(0, plan.orderedIds.length - plan.primaryIds.length);
+      optionalGrid.classList.toggle("is-collapsed", secondaryCount > 0 && !optionalChecklistExpanded);
+      if (ui.optionalPriorityHint) {
+        ui.optionalPriorityHint.textContent = plan.hint;
+      }
+      if (ui.optionalChecklistToggle) {
+        ui.optionalChecklistToggle.hidden = secondaryCount <= 0;
+        ui.optionalChecklistToggle.textContent = optionalChecklistExpanded
+          ? "우선 항목만 보기"
+          : `추가 준비 항목 ${secondaryCount}개 더 보기`;
+        ui.optionalChecklistToggle.setAttribute("aria-expanded", optionalChecklistExpanded ? "true" : "false");
+      }
+    };
+    const clearOptionalChecklistSelections = () => {
+      optionalChecklistExpanded = false;
+      OPTIONAL_CHECKLIST_IDS.forEach((id) => {
+        if (ui[id]) ui[id].checked = false;
+      });
+    };
+    const buildPermitOptionalReadiness = (selected, rule) => {
+      const optionalPlan = getOptionalChecklistPlan(selected, rule);
+      const labels = optionalPlan.orderedIds
+        .filter((id) => !!(ui[id] && ui[id].checked))
+        .map((id) => OPTIONAL_CHECKLIST_LABELS[id] || "")
+        .filter(Boolean);
+      return {
+        count: labels.length,
+        labels,
+        summary: labels.length > 0
+          ? `선택 준비 ${labels.slice(0, 2).join(", ")}${labels.length > 2 ? ` 외 ${labels.length - 2}건` : ""}`
+          : "",
+      };
+    };
+    const getPermitDeliveryGuidance = (selected, rule, optionalReadiness, allCoreOk, fallbackText = "", hasWarn = false) => {
+      if (!selected) {
+        return {
+          actionNote: "업종을 선택하면 상담과 후속 안내 동선이 열립니다.",
+          briefMeta: "업종을 선택하면 대표가 바로 전달할 한 줄 요약을 자동 생성합니다.",
+          copyLabel: "한 줄 브리프 복사",
+        };
+      }
+      if (!rule && fallbackText) {
+        return {
+          actionNote: "법령 근거와 준비 서류 중심으로 먼저 공유하면 상담 범위를 빠르게 좁힐 수 있습니다.",
+          briefMeta: "법령 확인형 요약입니다. 담당자에게 바로 전달할 수 있습니다.",
+          copyLabel: "법령 요약 복사",
+        };
+      }
+      if (allCoreOk) {
+        if (optionalReadiness.count > 0) {
+          return {
+            actionNote: "핵심 기준과 선택 준비 체크까지 반영됐습니다. 지금 상태로 상담 전달을 시작해도 됩니다.",
+            briefMeta: "전달 준비까지 반영된 브리프입니다. 카카오톡, 문자, 내부 메신저에 바로 전달할 수 있습니다.",
+            copyLabel: "전달 브리프 복사",
+          };
+        }
+        return {
+          actionNote: "핵심 기준은 충족 상태입니다. 선택 준비를 더 체크하면 전달 문구를 더 구체화할 수 있습니다.",
+          briefMeta: "충족 상태 요약입니다. 선택 준비를 더 체크하면 전달 문구가 더 구체화됩니다.",
+          copyLabel: "충족 브리프 복사",
+        };
+      }
+      if (hasWarn) {
+        if (optionalReadiness.count > 0) {
+          return {
+            actionNote: "보완 항목과 선택 준비 상태를 함께 전달하면 상담 우선순위를 더 빨리 잡을 수 있습니다.",
+            briefMeta: "보완 포인트와 선택 준비 체크를 함께 정리한 브리프입니다.",
+            copyLabel: "보완 브리프 복사",
+          };
+        }
+        return {
+          actionNote: "부족한 항목부터 전달해 보완 상담을 시작하는 편이 빠릅니다.",
+          briefMeta: "부족 항목 중심 브리프입니다. 보완 상담용으로 바로 전달할 수 있습니다.",
+          copyLabel: "보완 브리프 복사",
+        };
+      }
+      return {
+        actionNote: "법령 및 준비 서류 확인 포인트를 먼저 공유하면 후속 상담이 빨라집니다.",
+        briefMeta: "확인 필요 항목 중심 요약입니다. 전달 전 검토 메모로도 사용할 수 있습니다.",
+        copyLabel: "검토 브리프 복사",
+      };
+    };
+
     const buildPermitResultBrief = () => {
       const selected = getSelectedIndustry();
       if (!selected) return "";
+      const rule = getSelectedRule(selected);
       const bannerTitle = String((ui.resultBannerTitle && ui.resultBannerTitle.textContent) || "").trim();
       const bannerMeta = String((ui.resultBannerMeta && ui.resultBannerMeta.textContent) || "").trim();
       const capitalSummary = summarizeStatusNode(ui.capitalGapStatus, "자본금");
       const technicianSummary = summarizeStatusNode(ui.technicianGapStatus, "기술자");
       const equipmentSummary = summarizeStatusNode(ui.equipmentGapStatus, "장비");
       const coreSummary = [capitalSummary, technicianSummary, equipmentSummary].filter(Boolean).join(", ");
-      const optionalReadyCount = [
-        ui.officeSecuredInput,
-        ui.facilitySecuredInput,
-        ui.qualificationSecuredInput,
-        ui.insuranceSecuredInput,
-        ui.safetySecuredInput,
-        ui.documentReadyInput,
-      ].filter((node) => !!(node && node.checked)).length;
+      const optionalReadiness = buildPermitOptionalReadiness(selected, rule);
       return [
         "인허가 사전검토",
         String(selected.service_name || "업종").trim(),
         bannerTitle || "상태 확인",
         coreSummary || bannerMeta || "핵심 기준 확인 중",
-        optionalReadyCount > 0 ? `선택 준비 ${optionalReadyCount}건 반영` : "",
+        optionalReadiness.summary,
       ].filter(Boolean).join(" | ");
     };
 
     const syncPermitResultBrief = () => {
       const brief = buildPermitResultBrief();
+      const selected = getSelectedIndustry();
+      const rule = getSelectedRule(selected);
+      const fallbackText = String((ui.fallbackGuide && ui.fallbackGuide.textContent) || "").trim();
+      const optionalReadiness = buildPermitOptionalReadiness(selected, rule);
+      const visibleCoreNodes = getVisibleCoreStatusNodes(selected, rule);
+      const allCoreOk = !!selected && visibleCoreNodes.length > 0
+        && visibleCoreNodes.every((node) => !!(node && node.classList.contains("ok")));
+      const hasWarn = [ui.capitalGapStatus, ui.technicianGapStatus, ui.equipmentGapStatus]
+        .some((node) => !!(node && node.classList.contains("warn")));
+      const guidance = getPermitDeliveryGuidance(selected, rule, optionalReadiness, allCoreOk, fallbackText, hasWarn);
       if (ui.resultBrief) {
         ui.resultBrief.value = brief;
       }
@@ -4838,9 +5851,11 @@ def build_html(
         ui.resultBriefMeta.textContent = brief
           ? "복사해서 카카오톡, 문자, 내부 메신저로 바로 전달할 수 있습니다."
           : "업종을 선택하면 대표가 바로 전달할 한 줄 요약을 자동 생성합니다.";
+        ui.resultBriefMeta.textContent = guidance.briefMeta;
       }
       if (ui.btnCopyResultBrief) {
         ui.btnCopyResultBrief.disabled = !brief;
+        ui.btnCopyResultBrief.textContent = guidance.copyLabel;
       }
     };
 
@@ -4870,8 +5885,16 @@ def build_html(
         summarizeStatusNode(ui.technicianGapStatus, "기술자"),
         summarizeStatusNode(ui.equipmentGapStatus, "장비"),
       ].filter(Boolean);
-      const allCoreOk = [ui.capitalGapStatus, ui.technicianGapStatus, ui.equipmentGapStatus]
-        .every((node) => !!(node && node.classList.contains("ok")));
+      const optionalReadiness = buildPermitOptionalReadiness(selected, rule);
+      const visibleCoreNodes = getVisibleCoreStatusNodes(selected, rule);
+      const allCoreOk = visibleCoreNodes.length > 0
+        && visibleCoreNodes.every((node) => !!(node && node.classList.contains("ok")));
+      const hasWarn = [ui.capitalGapStatus, ui.technicianGapStatus, ui.equipmentGapStatus]
+        .some((node) => !!(node && node.classList.contains("warn")));
+      const guidance = getPermitDeliveryGuidance(selected, rule, optionalReadiness, allCoreOk, fallbackText, hasWarn);
+      if (ui.resultActionNote) {
+        ui.resultActionNote.textContent = guidance.actionNote;
+      }
 
       if (!rule && fallbackText) {
         ui.resultBanner.className = "result-banner info";
@@ -4882,15 +5905,21 @@ def build_html(
 
       if (allCoreOk && !fallbackText) {
         ui.resultBanner.className = "result-banner ok";
-        ui.resultBannerTitle.textContent = "등록기준 충족 가능성이 높습니다.";
-        ui.resultBannerMeta.textContent = `${selected.service_name || "선택 업종"} 기준으로 핵심 등록요건이 충족됩니다. 추가 서류와 법령 해석만 확인하면 됩니다.`;
+        ui.resultBannerTitle.textContent = optionalReadiness.count > 0
+          ? "등록기준 충족 가능성이 높고 전달 준비도 진행 중입니다."
+          : "등록기준 충족 가능성이 높습니다.";
+        ui.resultBannerMeta.textContent = optionalReadiness.summary
+          ? `${selected.service_name || "선택 업종"} 기준으로 핵심 등록요건이 충족됩니다. ${optionalReadiness.summary} 확인까지 반영되어 바로 상담 전달 준비를 이어갈 수 있습니다.`
+          : `${selected.service_name || "선택 업종"} 기준으로 핵심 등록요건이 충족됩니다. 추가 서류와 법령 해석만 확인하면 됩니다.`;
         return;
       }
 
-      if ([ui.capitalGapStatus, ui.technicianGapStatus, ui.equipmentGapStatus].some((node) => !!(node && node.classList.contains("warn")))) {
+      if (hasWarn) {
         ui.resultBanner.className = "result-banner warn";
         ui.resultBannerTitle.textContent = "보완이 필요한 항목이 있습니다.";
-        ui.resultBannerMeta.textContent = statusSummaries.join(" / ") || "핵심 등록요건 중 부족한 항목을 먼저 보완해야 합니다.";
+        ui.resultBannerMeta.textContent = optionalReadiness.summary
+          ? `${statusSummaries.join(" / ") || "핵심 등록요건 중 부족한 항목을 먼저 보완해야 합니다."} / ${optionalReadiness.summary}`
+          : (statusSummaries.join(" / ") || "핵심 등록요건 중 부족한 항목을 먼저 보완해야 합니다.");
         return;
       }
 
@@ -4902,8 +5931,12 @@ def build_html(
     const syncExperienceLayer = () => {
       syncFocusModePills();
       syncFocusQuickSelectSelection();
-      syncPresetActions();
       renderSmartIndustryProfile();
+      const selected = getSelectedIndustry();
+      const rule = getSelectedRule(selected);
+      syncHoldingsInputVisibility(selected, rule);
+      syncOptionalChecklistLayout();
+      syncPresetActions();
       syncResultChrome();
       syncPermitResultBrief();
       syncMobileQuickBar();
@@ -4929,6 +5962,14 @@ def build_html(
       ui.focusProfileBox.innerHTML = "";
       ui.qualityFlagsBox.style.display = "none";
       ui.qualityFlagsBox.innerHTML = "";
+      ui.proofClaimBox.style.display = "none";
+      ui.proofClaimBox.innerHTML = "";
+      ui.reviewPresetBox.style.display = "none";
+      ui.reviewPresetBox.innerHTML = "";
+      ui.caseStoryBox.style.display = "none";
+      ui.caseStoryBox.innerHTML = "";
+      ui.operatorDemoBox.style.display = "none";
+      ui.operatorDemoBox.innerHTML = "";
       ui.coverageGuide.style.display = "none";
       ui.coverageGuide.textContent = "";
       ui.typedCriteriaBox.style.display = "none";
@@ -4937,6 +5978,7 @@ def build_html(
       ui.evidenceChecklistBox.innerHTML = "";
       ui.nextActionsBox.style.display = "none";
       ui.nextActionsBox.innerHTML = "";
+      syncCoreStatusCardVisibility(null, null);
       syncExperienceLayer();
     };
 
@@ -5017,6 +6059,173 @@ def build_html(
         .map((item) => `- ${esc(qualityFlagLabels[item] || item)}`)
         .join("<br>")}`;
       ui.qualityFlagsBox.style.display = "block";
+    };
+
+    const renderProofClaim = (industry) => {
+      const proof = industry && typeof industry.raw_source_proof === "object" ? industry.raw_source_proof : null;
+      const claim = industry && typeof industry.claim_packet_summary === "object" ? industry.claim_packet_summary : null;
+      if (!proof && !claim) {
+        ui.proofClaimBox.style.display = "none";
+        ui.proofClaimBox.innerHTML = "";
+        return;
+      }
+
+      const lines = ["<strong>법령군 증빙</strong>"];
+      if (claim) {
+        const badges = [];
+        if (claim.claim_id) badges.push(`claim ${esc(claim.claim_id)}`);
+        if (claim.family_key) badges.push(esc(claim.family_key));
+        if (claim.proof_coverage_ratio) badges.push(`proof ${esc(claim.proof_coverage_ratio)}`);
+        if (badges.length) {
+          lines.push(badges.map((item) => `[${item}]`).join(" "));
+        }
+        if (claim.claim_statement) {
+          lines.push(esc(claim.claim_statement));
+        }
+        const requiredDomains = Array.isArray(claim.required_input_domains) ? claim.required_input_domains : [];
+        const optionalDomains = Array.isArray(claim.optional_input_domains) ? claim.optional_input_domains : [];
+        if (requiredDomains.length) {
+          lines.push(`- 필수 입력: ${requiredDomains.map((item) => esc(proofDomainLabels[item] || item)).join(", ")}`);
+        }
+        if (optionalDomains.length) {
+          lines.push(`- 기타 입력: ${optionalDomains.map((item) => esc(proofDomainLabels[item] || item)).join(", ")}`);
+        }
+        if (Number(claim.checksum_sample_total || 0) > 0) {
+          lines.push(`- checksum sample ${Number(claim.checksum_sample_total || 0)}건`);
+        }
+        const checksumSamples = Array.isArray(claim.checksum_samples) ? claim.checksum_samples.slice(0, 3) : [];
+        if (checksumSamples.length) {
+          lines.push(`- sample: ${checksumSamples.map((item) => esc(item)).join(", ")}`);
+        }
+      }
+      if (proof && proof.official_snapshot_note) {
+        lines.push(`- snapshot: ${esc(proof.official_snapshot_note)}`);
+      }
+      const proofUrls = proof && Array.isArray(proof.source_urls) ? proof.source_urls.slice(0, 1) : [];
+      if (proofUrls.length) {
+        const url = esc(proofUrls[0]);
+        lines.push(`- source: <a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
+      }
+      ui.proofClaimBox.innerHTML = lines.join("<br>");
+      ui.proofClaimBox.style.display = "block";
+    };
+
+    const renderReviewCasePresets = (industry) => {
+      if (!ui.reviewPresetBox) return;
+      const presets = getReviewCasePresets(industry);
+      if (!presets.length) {
+        ui.reviewPresetBox.style.display = "none";
+        ui.reviewPresetBox.innerHTML = "";
+        return;
+      }
+      const cards = presets.map((preset) => {
+        const expected = preset.expected_outcome && typeof preset.expected_outcome === "object"
+          ? preset.expected_outcome
+          : {};
+        const badges = [];
+        if (expected.overall_status) badges.push(`예상 ${esc(expected.overall_status)}`);
+        if (expected.review_reason) badges.push(esc(getReviewReasonLabel(expected.review_reason)));
+        if (expected.manual_review_expected) badges.push("수동 검토");
+        if (expected.proof_coverage_ratio) badges.push(`proof ${esc(expected.proof_coverage_ratio)}`);
+        const serviceMeta = preset.service_name && industry && preset.service_name !== industry.service_name
+          ? `<div class="assist">대표 업종: ${esc(preset.service_name)}</div>`
+          : "";
+        return ''
+          + '<div class="case-surface-card">'
+          + `<div class="case-surface-head"><strong>${esc(preset.preset_label || preset.case_kind || "검토 프리셋")}</strong>`
+          + `<button type="button" class="preset-action" data-review-preset-id="${esc(preset.preset_id || "")}">이 시나리오 채우기</button></div>`
+          + (badges.length ? `<div class="assist">${badges.map((item) => `[${item}]`).join(" ")}</div>` : "")
+          + serviceMeta
+          + (preset.operator_note ? `<div class="assist">${esc(preset.operator_note)}</div>` : "")
+          + '</div>';
+      });
+      ui.reviewPresetBox.innerHTML = `<strong>검토 시나리오 프리셋</strong><br>${cards.join("")}`;
+      ui.reviewPresetBox.style.display = "block";
+      ui.reviewPresetBox.querySelectorAll("[data-review-preset-id]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const presetId = String(button.getAttribute("data-review-preset-id") || "");
+          const target = presets.find((item) => String(item.preset_id || "") === presetId);
+          if (target) applyReviewCasePreset(target);
+        });
+      });
+    };
+
+    const renderCaseStorySurface = (industry) => {
+      if (!ui.caseStoryBox) return;
+      const story = getCaseStorySurface(industry);
+      if (!story) {
+        ui.caseStoryBox.style.display = "none";
+        ui.caseStoryBox.innerHTML = "";
+        return;
+      }
+      const reasons = Array.isArray(story.review_reasons)
+        ? story.review_reasons.map((item) => getReviewReasonLabel(item)).filter(Boolean)
+        : [];
+      const storyPoints = Array.isArray(story.operator_story_points)
+        ? story.operator_story_points.filter(Boolean)
+        : [];
+      const representativeCases = Array.isArray(story.representative_cases)
+        ? story.representative_cases
+        : [];
+      const meta = [];
+      if (story.claim_id) meta.push(`claim ${esc(story.claim_id)}`);
+      if (Number(story.preset_total || 0) > 0) meta.push(`preset ${Number(story.preset_total || 0)}건`);
+      if (Number(story.manual_review_preset_total || 0) > 0) meta.push(`수동 검토 ${Number(story.manual_review_preset_total || 0)}건`);
+      if (reasons.length) meta.push(`사유 ${reasons.join(", ")}`);
+      const caseLines = representativeCases.slice(0, 3).map((item) => {
+        const parts = [esc(item.service_name || item.service_code || "")];
+        if (item.case_kind) parts.push(esc(item.case_kind));
+        if (item.review_reason) parts.push(esc(getReviewReasonLabel(item.review_reason)));
+        if (item.manual_review_expected) parts.push("수동 검토");
+        return `- ${parts.filter(Boolean).join(" / ")}`;
+      });
+      ui.caseStoryBox.innerHTML = ''
+        + '<strong>케이스 스토리 요약</strong><br>'
+        + (meta.length ? `${meta.map((item) => `[${item}]`).join(" ")}<br>` : "")
+        + (storyPoints.length ? `${storyPoints.map((item) => `- ${esc(item)}`).join("<br>")}<br>` : "")
+        + (caseLines.length ? `<span class="assist">대표 케이스</span><br>${caseLines.join("<br>")}` : "");
+      ui.caseStoryBox.style.display = "block";
+    };
+
+    const renderOperatorDemoSurface = (industry) => {
+      if (!ui.operatorDemoBox) return;
+      const demo = getOperatorDemoSurface(industry);
+      if (!demo) {
+        ui.operatorDemoBox.style.display = "none";
+        ui.operatorDemoBox.innerHTML = "";
+        return;
+      }
+      const meta = [];
+      if (demo.claim_id) meta.push(`claim ${esc(demo.claim_id)}`);
+      if (demo.family_key) meta.push(esc(demo.family_key));
+      if (demo.proof_coverage_ratio) meta.push(`proof ${esc(demo.proof_coverage_ratio)}`);
+      if (Number(demo.demo_case_total || 0) > 0) meta.push(`demo ${Number(demo.demo_case_total || 0)}건`);
+      if (Number(demo.manual_review_demo_total || 0) > 0) meta.push(`수동 검토 ${Number(demo.manual_review_demo_total || 0)}건`);
+      const reviewReasons = Array.isArray(demo.review_reasons)
+        ? demo.review_reasons.map((item) => getReviewReasonLabel(item)).filter(Boolean)
+        : [];
+      if (reviewReasons.length) meta.push(`사유 ${reviewReasons.join(", ")}`);
+      const storyPoints = Array.isArray(demo.operator_story_points)
+        ? demo.operator_story_points.filter(Boolean)
+        : [];
+      const caseLines = Array.isArray(demo.demo_cases)
+        ? demo.demo_cases.slice(0, 3).map((item) => {
+            const parts = [esc(item.service_name || item.service_code || "")];
+            if (item.case_kind) parts.push(esc(item.case_kind));
+            if (item.expected_status) parts.push(esc(item.expected_status));
+            if (item.review_reason) parts.push(esc(getReviewReasonLabel(item.review_reason)));
+            if (item.manual_review_expected) parts.push("수동 검토");
+            return `- ${parts.filter(Boolean).join(" / ")}`;
+          })
+        : [];
+      const packetPath = String((permitCatalog.summary && permitCatalog.summary.runtime_operator_demo_packet_path) || "").trim();
+      ui.operatorDemoBox.innerHTML = ''
+        + '<strong>운영 데모 패킷</strong><br>'
+        + (meta.length ? `${meta.map((item) => `[${item}]`).join(" ")}<br>` : "")
+        + (storyPoints.length ? `${storyPoints.map((item) => `- ${esc(item)}`).join("<br>")}<br>` : "")
+        + (caseLines.length ? `<span class="assist">대표 데모 케이스</span><br>${caseLines.join("<br>")}<br>` : "")
+        + (packetPath ? `<span class="assist">packet: ${esc(packetPath)}</span>` : "");
+      ui.operatorDemoBox.style.display = "block";
     };
 
     const renderCandidateFallback = (industry) => {
@@ -5213,16 +6422,20 @@ def build_html(
 
     const renderResult = () => {
       const selected = getSelectedIndustry();
+      const rule = getSelectedRule(selected);
+      syncHoldingsInputVisibility(selected, rule);
       if (!selected) {
         clearResult();
         return;
       }
 
       const industryName = String(selected.service_name || "");
-      const serviceCode = String(selected.service_code || "");
-      const rule = ruleLookup[serviceCode] || null;
       renderFocusProfile(selected);
       renderQualityFlags(selected);
+      renderProofClaim(selected);
+      renderReviewCasePresets(selected);
+      renderCaseStorySurface(selected);
+      renderOperatorDemoSurface(selected);
 
       const rawCapitalInput = String(ui.capitalInput.value || "").trim();
       const currentCapital = Core.toNum(rawCapitalInput);
@@ -5230,6 +6443,7 @@ def build_html(
       const currentEquipment = Core.toInt(ui.equipmentInput.value || 0);
 
       if (!rule) {
+        syncCoreStatusCardVisibility(selected, rule);
         const hasCandidateCriteria = Number(selected.candidate_criteria_count || 0) > 0;
         const hasCandidateLaw = Array.isArray(selected.auto_law_candidates) && selected.auto_law_candidates.length > 0;
         if (hasCandidateCriteria || hasCandidateLaw) {
@@ -5254,6 +6468,7 @@ def build_html(
       }
 
       const req = rule.requirements || {};
+      syncCoreStatusCardVisibility(selected, rule);
       const capitalGap = Core.computeGap(req.capital_eok, currentCapital);
       const technicianGap = Core.computeIntGap(req.technicians, currentTechnicians);
       const equipmentGap = Core.computeIntGap(req.equipment_count, currentEquipment);
@@ -5272,8 +6487,7 @@ def build_html(
       });
 
       ui.requiredCapital.textContent = Core.formatEok(req.capital_eok || 0);
-      ui.requirementsMeta.textContent =
-        `기술인력 ${Core.toInt(req.technicians)}명 / 장비 ${Core.toInt(req.equipment_count)}식 / 예치 ${Core.toInt(req.deposit_days)}일`;
+      ui.requirementsMeta.textContent = buildRequirementsMetaSummary(selected, rule);
 
       renderGapStatus(ui.capitalGapStatus, capitalGap, Core.formatEok, "기준 충족", "추가 확보 필요");
       renderGapStatus(
@@ -5290,6 +6504,10 @@ def build_html(
         "기준 충족",
         "추가 확보 필요",
       );
+      if (!getStructuredCoreVisibility(selected, rule).equipment) {
+        ui.equipmentGapStatus.textContent = "-";
+        ui.equipmentGapStatus.className = "status";
+      }
 
       ui.diagnosisDate.textContent = `${diagnosis.dateLabel} (D+${diagnosis.days})`;
 
@@ -5416,6 +6634,7 @@ def build_html(
           [ui.capitalInput, ui.technicianInput, ui.equipmentInput].forEach((node) => {
             if (node) node.value = "";
           });
+          clearOptionalChecklistSelections();
           renderWithExperience();
           setPermitWizardStep(findPermitWizardResumeStep(), { focus: true });
         });
@@ -5428,6 +6647,12 @@ def build_html(
             return;
           }
           if (ui.fillRequirementPreset && !ui.fillRequirementPreset.disabled) ui.fillRequirementPreset.click();
+        });
+      }
+      if (ui.optionalChecklistToggle) {
+        ui.optionalChecklistToggle.addEventListener("click", () => {
+          optionalChecklistExpanded = !optionalChecklistExpanded;
+          syncOptionalChecklistLayout();
         });
       }
       if (ui.mobileQuickResultButton) {
@@ -5532,6 +6757,7 @@ def build_html(
         .replace("__PERMIT_BOOTSTRAP_GZIP_BASE64__", inline_bootstrap_gzip_base64)
     )
     rendered_html = _repair_generated_permit_html(rendered_html)
+    rendered_html = _wrap_wordpress_safe_scripts(rendered_html)
     if fragment:
         return _build_wordpress_fragment(rendered_html)
     return rendered_html
@@ -5647,6 +6873,59 @@ def _repair_generated_permit_html(html: str) -> str:
         .map((item) => `- ${esc(qualityFlagLabels[item] || item)}`)
         .join("<br>")}`;
       ui.qualityFlagsBox.style.display = "block";
+    };
+''',
+    )
+    repaired = _replace_first_block(
+        repaired,
+        r'const renderProofClaim = \(industry\) => \{.*?\n    };\n',
+        '''const renderProofClaim = (industry) => {
+      const proof = industry && typeof industry.raw_source_proof === "object" ? industry.raw_source_proof : null;
+      const claim = industry && typeof industry.claim_packet_summary === "object" ? industry.claim_packet_summary : null;
+      if (!proof && !claim) {
+        ui.proofClaimBox.style.display = "none";
+        ui.proofClaimBox.innerHTML = "";
+        return;
+      }
+
+      const lines = ["<strong>법령군 증빙</strong>"];
+      if (claim) {
+        const badges = [];
+        if (claim.claim_id) badges.push(`claim ${esc(claim.claim_id)}`);
+        if (claim.family_key) badges.push(esc(claim.family_key));
+        if (claim.proof_coverage_ratio) badges.push(`proof ${esc(claim.proof_coverage_ratio)}`);
+        if (badges.length) {
+          lines.push(badges.map((item) => `[${item}]`).join(" "));
+        }
+        if (claim.claim_statement) {
+          lines.push(esc(claim.claim_statement));
+        }
+        const requiredDomains = Array.isArray(claim.required_input_domains) ? claim.required_input_domains : [];
+        const optionalDomains = Array.isArray(claim.optional_input_domains) ? claim.optional_input_domains : [];
+        if (requiredDomains.length) {
+          lines.push(`- 필수 입력: ${requiredDomains.map((item) => esc(proofDomainLabels[item] || item)).join(", ")}`);
+        }
+        if (optionalDomains.length) {
+          lines.push(`- 기타 입력: ${optionalDomains.map((item) => esc(proofDomainLabels[item] || item)).join(", ")}`);
+        }
+        if (Number(claim.checksum_sample_total || 0) > 0) {
+          lines.push(`- checksum sample ${Number(claim.checksum_sample_total || 0)}건`);
+        }
+        const checksumSamples = Array.isArray(claim.checksum_samples) ? claim.checksum_samples.slice(0, 3) : [];
+        if (checksumSamples.length) {
+          lines.push(`- sample: ${checksumSamples.map((item) => esc(item)).join(", ")}`);
+        }
+      }
+      if (proof && proof.official_snapshot_note) {
+        lines.push(`- snapshot: ${esc(proof.official_snapshot_note)}`);
+      }
+      const proofUrls = proof && Array.isArray(proof.source_urls) ? proof.source_urls.slice(0, 1) : [];
+      if (proofUrls.length) {
+        const url = esc(proofUrls[0]);
+        lines.push(`- source: <a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
+      }
+      ui.proofClaimBox.innerHTML = lines.join("<br>");
+      ui.proofClaimBox.style.display = "block";
     };
 ''',
     )
@@ -5850,16 +7129,20 @@ def _repair_generated_permit_html(html: str) -> str:
         r'const renderResult = \(\) => \{.*?\n    };\n',
         '''const renderResult = () => {
       const selected = getSelectedIndustry();
+      const rule = getSelectedRule(selected);
+      syncHoldingsInputVisibility(selected, rule);
       if (!selected) {
         clearResult();
         return;
       }
 
       const industryName = String(selected.service_name || "");
-      const serviceCode = String(selected.service_code || "");
-      const rule = ruleLookup[serviceCode] || null;
       renderFocusProfile(selected);
       renderQualityFlags(selected);
+      renderProofClaim(selected);
+      renderReviewCasePresets(selected);
+      renderCaseStorySurface(selected);
+      renderOperatorDemoSurface(selected);
 
       const rawCapitalInput = String(ui.capitalInput.value || "").trim();
       const currentCapital = Core.toNum(rawCapitalInput);
@@ -5867,6 +7150,7 @@ def _repair_generated_permit_html(html: str) -> str:
       const currentEquipment = Core.toInt(ui.equipmentInput.value || 0);
 
       if (!rule) {
+        syncCoreStatusCardVisibility(selected, rule);
         const hasCandidateCriteria = Number(selected.candidate_criteria_count || 0) > 0;
         const hasCandidateLaw = Array.isArray(selected.auto_law_candidates) && selected.auto_law_candidates.length > 0;
         if (hasCandidateCriteria || hasCandidateLaw) {
@@ -5891,6 +7175,7 @@ def _repair_generated_permit_html(html: str) -> str:
       }
 
       const req = rule.requirements || {};
+      syncCoreStatusCardVisibility(selected, rule);
       const capitalGap = Core.computeGap(req.capital_eok, currentCapital);
       const technicianGap = Core.computeIntGap(req.technicians, currentTechnicians);
       const equipmentGap = Core.computeIntGap(req.equipment_count, currentEquipment);
@@ -5909,8 +7194,7 @@ def _repair_generated_permit_html(html: str) -> str:
       });
 
       ui.requiredCapital.textContent = Core.formatEok(req.capital_eok || 0);
-      ui.requirementsMeta.textContent =
-        `기술인력 ${Core.toInt(req.technicians)}명 / 장비 ${Core.toInt(req.equipment_count)}식 / 예치 ${Core.toInt(req.deposit_days)}일`;
+      ui.requirementsMeta.textContent = buildRequirementsMetaSummary(selected, rule);
 
       renderGapStatus(ui.capitalGapStatus, capitalGap, Core.formatEok, "기준 충족", "추가 확보 필요");
       renderGapStatus(
@@ -5927,6 +7211,10 @@ def _repair_generated_permit_html(html: str) -> str:
         "기준 충족",
         "추가 확보 필요",
       );
+      if (!getStructuredCoreVisibility(selected, rule).equipment) {
+        ui.equipmentGapStatus.textContent = "-";
+        ui.equipmentGapStatus.className = "status";
+      }
 
       ui.diagnosisDate.textContent = `${diagnosis.dateLabel} (D+${diagnosis.days})`;
 
@@ -6043,6 +7331,28 @@ def _scope_embed_css(style_body: str, wrapper_selector: str) -> str:
     )
 
 
+def _wrap_wordpress_safe_scripts(html: str) -> str:
+    pattern = re.compile(r"<script(?P<attrs>[^>]*)\snowprocket(?:=\"\")?[^>]*>(?P<body>.*?)</script>", flags=re.S)
+
+    def repl(match: re.Match[str]) -> str:
+        body = str(match.group("body") or "").strip()
+        if not body:
+            return str(match.group(0) or "")
+        encoded = base64.b64encode(body.encode("utf-8")).decode("ascii")
+        return (
+            "<script nowprocket>"
+            "(()=>{"
+            f'const encoded="{encoded}";'
+            "const bytes=Uint8Array.from(atob(encoded),(ch)=>ch.charCodeAt(0));"
+            'const source=new TextDecoder("utf-8").decode(bytes);'
+            "(new Function(source))();"
+            "})();"
+            "</script>"
+        )
+
+    return pattern.sub(repl, html)
+
+
 def _build_wordpress_fragment(full_html: str) -> str:
     wrapper_selector = "#smna-permit-precheck"
     style_blocks = re.findall(r"<style>\s*(.*?)\s*</style>", full_html, flags=re.S)
@@ -6059,7 +7369,7 @@ def _build_wordpress_fragment(full_html: str) -> str:
     }}
   </style>
   {body_inner}
-  <script>
+  <script nowprocket>
     (() => {{
       const titleNode = document.querySelector(".entry-title, .page-title");
       if (titleNode) titleNode.style.display = "none";

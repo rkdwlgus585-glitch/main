@@ -1,0 +1,4 @@
+interface:
+  display_name: "SeoulMNA CRM Ops"
+  short_description: "Run consult intake, matching, recommendation, and quote flows"
+  default_prompt: "Execute SeoulMNA CRM pipeline safely from lead intake to matching, recommendation, and quote output."

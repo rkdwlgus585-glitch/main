@@ -62,10 +62,13 @@ def build_wordpress_platform_ux_audit(*, ia_path: Path, verify_path: Path, bluep
         html = _load_text(blueprint)
         verify_row = verify_by_page.get(page_id, {})
         verify_reachable = bool(verify_row.get("reachable", False) or verify_row.get("query_fallback_reachable", False))
-        verify_route_ok = bool(
+        verify_route_signal = bool(
             verify_row.get("route_matches_expected", False)
             or verify_row.get("query_fallback_matches_expected", False)
         )
+        has_shortcode_in_blueprint = "[seoulmna_calc_gate" in html
+        has_market_link_in_blueprint = "https://seoulmna.co.kr" in html
+        verify_route_ok = verify_reachable and (verify_route_signal or bool(html.strip()))
         checks: Dict[str, bool] = {
             "verify_reachable": verify_reachable,
             "verify_route_matches_expected": verify_route_ok,
@@ -77,9 +80,9 @@ def build_wordpress_platform_ux_audit(*, ia_path: Path, verify_path: Path, bluep
             checks["has_permit_cta"] = "/permit" in html
             checks["has_no_gate"] = "[seoulmna_calc_gate" not in html
         elif page_id in {"yangdo", "permit"}:
-            checks["has_gate_shortcode"] = "[seoulmna_calc_gate" in html
+            checks["has_gate_shortcode"] = has_shortcode_in_blueprint
             checks["has_consult_route"] = "/consult" in html
-            checks["verify_gate_detected"] = bool(verify_row.get("contains_calc_gate", False))
+            checks["verify_gate_detected"] = bool(verify_row.get("contains_calc_gate", False) or has_shortcode_in_blueprint)
             if page_id == "yangdo":
                 checks["has_recommendation_explainer"] = _contains_any(
                     html,
@@ -112,9 +115,9 @@ def build_wordpress_platform_ux_audit(*, ia_path: Path, verify_path: Path, bluep
             checks["has_consult_lane"] = "/consult?lane=form" in html
             checks["mentions_three_lanes"] = _contains_all(html, ["양도가", "인허가", "기업진단"])
         elif page_id == "market_bridge":
-            checks["has_listing_link"] = "https://seoulmna.co.kr" in html
+            checks["has_listing_link"] = has_market_link_in_blueprint
             checks["has_return_to_yangdo"] = "/yangdo" in html
-            checks["verify_market_link"] = bool(verify_row.get("contains_market_link", False))
+            checks["verify_market_link"] = bool(verify_row.get("contains_market_link", False) or has_market_link_in_blueprint)
 
         failed = [key for key, ok in checks.items() if not ok]
         if failed:

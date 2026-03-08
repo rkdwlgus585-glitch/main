@@ -1,0 +1,32 @@
+{
+  "generated_at": "2026-02-25T16:34:31",
+  "total_leads": 50,
+  "status_counts": {
+    "proposal": 1,
+    "new": 49
+  },
+  "rates": {
+    "contacted_rate": 0.02,
+    "meeting_rate": 0.0,
+    "proposal_rate": 0.0,
+    "close_rate": 0.0
+  },
+  "sample_sizes": {
+    "contacted_plus": 1,
+    "meeting_plus": 1,
+    "proposal_plus": 1
+  },
+  "pipeline": {
+    "expected_revenue_sum_krw": 10176000,
+    "weighted_pipeline_krw": 3540000,
+    "actual_closed_revenue_krw": 0
+  },
+  "owners": [
+    {
+      "owner": "owner_a",
+      "count": 1,
+      "proposal": 1,
+      "closed": 0
+    }
+  ]
+}

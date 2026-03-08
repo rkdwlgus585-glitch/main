@@ -140,10 +140,11 @@ require_once ABSPATH . 'wp-settings.php';
 
 def _build_db_dropin(plugin_root: Path) -> str:
     template = (plugin_root / "db.copy").read_text(encoding="utf-8")
-    return (
-        template.replace("{SQLITE_IMPLEMENTATION_FOLDER_PATH}", plugin_root.as_posix())
-        .replace("{SQLITE_PLUGIN}", "sqlite-database-integration/load.php")
+    template = template.replace(
+        "$sqlite_plugin_implementation_folder_path = '{SQLITE_IMPLEMENTATION_FOLDER_PATH}';",
+        "$sqlite_plugin_implementation_folder_path = realpath( __DIR__ . '/plugins/sqlite-database-integration' );",
     )
+    return template.replace("{SQLITE_PLUGIN}", "sqlite-database-integration/load.php")
 
 
 def build_wp_surface_lab_php_fallback(
@@ -164,7 +165,7 @@ def build_wp_surface_lab_php_fallback(
     php_runtime_root = Path(str(php_paths.get("runtime_root") or runtime_root))
     php_exe = Path(str(php_paths.get("php_executable") or php_runtime_root / "php" / "php.exe"))
     php_ini = Path(str(php_paths.get("php_ini") or php_runtime_root / "php" / "php.ini"))
-    router_path = site_root / "router.php"
+    router_path = runtime_root / "router.php"
     start_script = runtime_root / "start-wordpress-php-fallback.ps1"
     stop_script = runtime_root / "stop-wordpress-php-fallback.ps1"
     pid_file = runtime_root / "php-site.pid"
@@ -218,12 +219,13 @@ def build_wp_surface_lab_php_fallback(
         "\n".join(
             [
                 "$ErrorActionPreference = 'Stop'",
-                f"$php = '{php_exe.as_posix()}'",
-                f"$ini = '{php_ini.as_posix()}'",
-                f"$site = '{site_root.as_posix()}'",
-                f"$router = '{router_path.as_posix()}'",
-                f"$pidFile = '{pid_file.as_posix()}'",
-                "$proc = Start-Process -FilePath $php -ArgumentList @('-c', $ini, '-S', '127.0.0.1:18081', $router) -WorkingDirectory $site -PassThru",
+                "$base = $PSScriptRoot",
+                "$php = Join-Path $base 'php\\php.exe'",
+                "$ini = Join-Path $base 'php\\php.ini'",
+                "$site = Join-Path $base 'site'",
+                "$router = Join-Path $base 'router.php'",
+                "$pidFile = Join-Path $base 'php-site.pid'",
+                "$proc = Start-Process -FilePath $php -ArgumentList @('-c', $ini, '-q', '-S', '127.0.0.1:18081', $router) -WorkingDirectory $site -PassThru",
                 "$proc.Id | Set-Content -Path $pidFile -Encoding ASCII",
                 "Write-Output $proc.Id",
                 "",
@@ -235,7 +237,7 @@ def build_wp_surface_lab_php_fallback(
         "\n".join(
             [
                 "$ErrorActionPreference = 'SilentlyContinue'",
-                f"$pidFile = '{pid_file.as_posix()}'",
+                "$pidFile = Join-Path $PSScriptRoot 'php-site.pid'",
                 "if (Test-Path $pidFile) {",
                 "  $pid = Get-Content $pidFile -Raw",
                 "  if ($pid) { Stop-Process -Id ([int]$pid) -Force -ErrorAction SilentlyContinue }",

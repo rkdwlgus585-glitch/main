@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-03-08 02:13:49",
+  "generated_at": "2026-03-08 14:19:21",
   "source": {
-    "packet_input": "C:\\Users\\rkdwl\\Desktop\\auto\\logs\\permit_focus_source_upgrade_packet_latest.json",
-    "focus_seed_input": "C:\\Users\\rkdwl\\Desktop\\auto\\config\\permit_focus_seed_catalog.json",
+    "packet_input": "H:\\auto\\logs\\permit_focus_source_upgrade_packet_latest.json",
+    "focus_seed_input": "H:\\auto\\config\\permit_focus_seed_catalog.json",
     "scope_policy": "capital_and_technical_only",
     "row_policy": "focus_family_registry overrides focus_seed_catalog for matching service_code"
   },
@@ -103,7 +103,7 @@
         "source_url_total": 1,
         "source_checksum": "54c527efddeba12cbb027e6b10600106843e902120601146f9379080ec5420a9",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -180,7 +180,7 @@
         "source_url_total": 1,
         "source_checksum": "a26704c9d0849c57a270d6972e5b6282e32d100388654102a83a286572c0ffc8",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -257,7 +257,7 @@
         "source_url_total": 1,
         "source_checksum": "dce14570fab4e41d91fcf3f589edb30f6d40c5a6cb0d0097f6ea9f8ce8deb064",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -334,7 +334,7 @@
         "source_url_total": 1,
         "source_checksum": "2033b4ea64306d3685f6c975c831717755fc34e755191eab66468a0c9d5e4a12",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -411,7 +411,7 @@
         "source_url_total": 1,
         "source_checksum": "4b8964e26adf40baf05ad4ac1fa99f7f5fd2afdfb55605def8fa43f6ac4f80e8",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -488,7 +488,7 @@
         "source_url_total": 1,
         "source_checksum": "22b5236b7c502c9c59cecd8fc4e25b0ab89220b0b1bc71b7862d1ecd2dad8e54",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -565,7 +565,7 @@
         "source_url_total": 1,
         "source_checksum": "9d5fbdd6e3e6ee9034ccd24b98a6dcfd16ade6dfb83ff605d56b980496c1d9ae",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -642,7 +642,7 @@
         "source_url_total": 1,
         "source_checksum": "9e18eb764e33a05a1e0c8a22ac798d5cff72a0bbed74a50131efd9c9daa5c59c",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -719,7 +719,7 @@
         "source_url_total": 1,
         "source_checksum": "58889a2bc94e4b54914fdfd861903f0ba454caf5234f47b53c8a983a70f61da6",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -796,7 +796,7 @@
         "source_url_total": 1,
         "source_checksum": "90d9512253fb27bd5412e85a7ea41225452c4c0016922d77029c9b57031b162b",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -873,7 +873,7 @@
         "source_url_total": 1,
         "source_checksum": "d2621dde244d94477410cbda2509cf8efdecf1e16b924e3ebb70db501fbe90ef",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -950,7 +950,7 @@
         "source_url_total": 1,
         "source_checksum": "e9a77ec612516b90d67a66353e6a43b0e542a691fe5095f61245f459814d8ccf",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -1027,7 +1027,7 @@
         "source_url_total": 1,
         "source_checksum": "f3d0e75525743762d504a7b6b87c18d48ef6f2724a73774c230ef5f4a1d39310",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -1104,7 +1104,7 @@
         "source_url_total": 1,
         "source_checksum": "d5b12407d4d33587a96681960a3f6b20ce1ec27bea09e0234b96548aa9db35c6",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -1181,7 +1181,7 @@
         "source_url_total": 1,
         "source_checksum": "13834929cb65e73e14b035cc15f3a53b06fd6b51798d05257719d39afe0c1df6",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -1258,7 +1258,7 @@
         "source_url_total": 1,
         "source_checksum": "b1820b996cc1004da788945db6838c14da641970fac2bef39be3f9271ae41dc3",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -1335,7 +1335,7 @@
         "source_url_total": 1,
         "source_checksum": "6edfe0f5264e8dcb3265fa6fa5e735cf0c7804fb6eb432678597e9c96ff31095",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -1412,7 +1412,7 @@
         "source_url_total": 1,
         "source_checksum": "2071d18d8da80d266ad025a7c349db9bc4173632739e54226a350bdb0bf945c8",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -1489,7 +1489,7 @@
         "source_url_total": 1,
         "source_checksum": "c938cb11963526708030d7596ab7fb0d8f1fd0044021ccceaeccc787bd23e0e9",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -1566,7 +1566,7 @@
         "source_url_total": 1,
         "source_checksum": "1877b5f671f99297e6c6cad8d9141d8d55bf935f96ad83298015fc165d9fecae",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -1643,7 +1643,7 @@
         "source_url_total": 1,
         "source_checksum": "6d92902eb9692dec98030597962f35099007d0e61d9e07d355095fcf1400cab5",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -1720,7 +1720,7 @@
         "source_url_total": 1,
         "source_checksum": "bd843857776d56ed2c11169b4d282ecbd0dc53e6f5fa2e572cd302009b9d865a",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -1797,7 +1797,7 @@
         "source_url_total": 1,
         "source_checksum": "9ab418515bc96d2e8d237a3fa867665c462e35375a11f990f9346b492d1816e6",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -1874,7 +1874,7 @@
         "source_url_total": 1,
         "source_checksum": "04497b19c875f349eaf49c408ec914836f74792ae867e8da4a88ad0adb17732b",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -1951,7 +1951,7 @@
         "source_url_total": 1,
         "source_checksum": "bfb97fd9f67d6a55f44f5de56d0aa4b23abd66841d3b95ee46fc4eae9c4171d9",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -2028,7 +2028,7 @@
         "source_url_total": 1,
         "source_checksum": "ea1fde7c233693b04f6e43cd5a3c0fa36e95607d05443e547d3e0b28a1e575e0",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -2105,7 +2105,7 @@
         "source_url_total": 1,
         "source_checksum": "d361673d873992d0a5fa8ea1ec4f7c7f7b3fd6e174d84859642174a215ad9b9c",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -2182,7 +2182,7 @@
         "source_url_total": 1,
         "source_checksum": "2892d690957ee90d8b00b24930737c21a999b4dcf43991bc927ec2b1141a290b",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -2259,7 +2259,7 @@
         "source_url_total": 1,
         "source_checksum": "58803a4027c2a481a035767f8083f00526899ad59edcdafc61f4783145413f9d",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -2336,7 +2336,7 @@
         "source_url_total": 1,
         "source_checksum": "63460c202e7ff26696d4b620be70ebc61f50948e225a81193d5a40d6dd97a445",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -2413,7 +2413,7 @@
         "source_url_total": 1,
         "source_checksum": "b04ce24b890dacd3ed22e4fcd9f0dee77359883e92013fd4eb29feb7947025c4",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -2490,7 +2490,7 @@
         "source_url_total": 1,
         "source_checksum": "fa7d25cf9de34389adadcaab94e8d248c01bfc88be89e93699b8a73dc9916691",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -2567,7 +2567,7 @@
         "source_url_total": 1,
         "source_checksum": "5700df9ef5888e2d23b6b4ed339c4acda0324cfb58ce3a31460e6ee076227422",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -2644,7 +2644,7 @@
         "source_url_total": 1,
         "source_checksum": "29de6c7b3da8d117f452eef697d6bcb2bcbae63941c90198f5622ab0b4e40627",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -2721,7 +2721,7 @@
         "source_url_total": 1,
         "source_checksum": "7b73cff40be5332e3ff8abfa09c793b365cdf4ee87ed880b94042c1e0d8e7a8b",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -2798,7 +2798,7 @@
         "source_url_total": 1,
         "source_checksum": "fd336540ae5a3279181ac3c784139c84a04c49a84239c3b267525f62e26f7f5a",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -2875,7 +2875,7 @@
         "source_url_total": 1,
         "source_checksum": "dca1b2d17f1c4ffa90a412aa3e3bf0ed8f014d096b0cb1e78eae9e8ed4c4345c",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -2952,7 +2952,7 @@
         "source_url_total": 1,
         "source_checksum": "02952205d01dfff52decea6e8a0afef002d9d0b23f33779009fd00446033fdfd",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -3029,7 +3029,7 @@
         "source_url_total": 1,
         "source_checksum": "5850cc2b07425309a939c76a7d137ca1df01e61e58a50e1977b0bcceee02c397",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "건설산업기본법 시행령",
@@ -3101,7 +3101,7 @@
         "source_url_total": 1,
         "source_checksum": "251b752df590fad27fe575bb3235d7098407785758c900f070967c4c723cc047",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "전기공사업법 시행령",
@@ -3172,7 +3172,7 @@
         "source_url_total": 1,
         "source_checksum": "47002fd7797862af47195e3da866fbe441ff40181ebc262fd7b90cbb063ce46e",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "정보통신공사업법 시행령",
@@ -3247,7 +3247,7 @@
         "source_url_total": 1,
         "source_checksum": "626d5aa4483b232cee71b3fa2fb966e37ff1fe89009daff9d4cd48014212b588",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "소방시설공사업법 시행령",
@@ -3322,7 +3322,7 @@
         "source_url_total": 1,
         "source_checksum": "ba6aa99038ec613285e5db27c165d677d58699fbaaeba8360a8eb90e5d643990",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "소방시설공사업법 시행령",
@@ -3397,7 +3397,7 @@
         "source_url_total": 1,
         "source_checksum": "15b5de63dbe1f63f3763f199acb0c75f669dd42bbcc021adb41899963c2e9030",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "소방시설공사업법 시행령",
@@ -3470,7 +3470,7 @@
         "source_url_total": 1,
         "source_checksum": "61ca77b054b9b56983a3734b79759a688945a5318492c589406c2ef951c415c5",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "경비업법 시행령",
@@ -3543,7 +3543,7 @@
         "source_url_total": 1,
         "source_checksum": "1bb92c03b412c1f5c4a9939c1873aafadaaead8745a67d66a87ca641dcb785fc",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "경비업법 시행령",
@@ -3616,7 +3616,7 @@
         "source_url_total": 1,
         "source_checksum": "8918f7197a76f484f86bfea21140171035a9b07cf1a21eb5173eea3b95abe707",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "경비업법 시행령",
@@ -3689,7 +3689,7 @@
         "source_url_total": 1,
         "source_checksum": "e49af554dddd66437f2526537089ff45d0e7423368b36ee15486efe14952f36e",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "경비업법 시행령",
@@ -3768,7 +3768,7 @@
         "source_url_total": 1,
         "source_checksum": "045240355b253543aaca8588e0818c57915ccaa1b4d01f2a729e6ddbb82ebc38",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "액화석유가스의 안전관리 및 사업법 시행령",
@@ -3847,7 +3847,7 @@
         "source_url_total": 1,
         "source_checksum": "4591e1e9bc8c44f6e6ca9264df65b367ec1d7dcfbe47fcc2de16cf88bba74379",
         "capture_meta": {
-          "captured_at": "2026-03-08 02:13:49",
+          "captured_at": "2026-03-08 14:19:21",
           "capture_kind": "law_go_kr_curated_family_registry",
           "scope_policy": "capital_and_technical_only",
           "family_key": "액화석유가스의 안전관리 및 사업법 시행령",

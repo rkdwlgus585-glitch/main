@@ -1,0 +1,104 @@
+﻿[
+    {
+        "FullName":  "C:\\Users\\rkdwl\\Desktop\\g2b_v3\\logs",
+        "PSIsContainer":  true,
+        "Length":  null,
+        "LastWriteTime":  "\/Date(1771937368699)\/"
+    },
+    {
+        "FullName":  "C:\\Users\\rkdwl\\Desktop\\g2b_v3\\result",
+        "PSIsContainer":  true,
+        "Length":  null,
+        "LastWriteTime":  "\/Date(1770689310722)\/"
+    },
+    {
+        "FullName":  "C:\\Users\\rkdwl\\Desktop\\g2b_v3\\__pycache__",
+        "PSIsContainer":  true,
+        "Length":  null,
+        "LastWriteTime":  "\/Date(1771937363863)\/"
+    },
+    {
+        "FullName":  "C:\\Users\\rkdwl\\Desktop\\g2b_v3\\collect.py",
+        "PSIsContainer":  false,
+        "Length":  37243,
+        "LastWriteTime":  "\/Date(1771937306892)\/"
+    },
+    {
+        "FullName":  "C:\\Users\\rkdwl\\Desktop\\g2b_v3\\config.txt",
+        "PSIsContainer":  false,
+        "Length":  1081,
+        "LastWriteTime":  "\/Date(1770689399459)\/"
+    },
+    {
+        "FullName":  "C:\\Users\\rkdwl\\Desktop\\g2b_v3\\run.bat",
+        "PSIsContainer":  false,
+        "Length":  626,
+        "LastWriteTime":  "\/Date(1770690196521)\/"
+    },
+    {
+        "FullName":  "C:\\Users\\rkdwl\\Desktop\\g2b_v3\\schedule.bat",
+        "PSIsContainer":  false,
+        "Length":  663,
+        "LastWriteTime":  "\/Date(1771937314104)\/"
+    },
+    {
+        "FullName":  "C:\\Users\\rkdwl\\Desktop\\g2b_v3\\test_api.py",
+        "PSIsContainer":  false,
+        "Length":  4593,
+        "LastWriteTime":  "\/Date(1770705629063)\/"
+    },
+    {
+        "FullName":  "C:\\Users\\rkdwl\\Desktop\\g2b_v3\\사용법.md",
+        "PSIsContainer":  false,
+        "Length":  1375,
+        "LastWriteTime":  "\/Date(1771937350852)\/"
+    },
+    {
+        "FullName":  "C:\\Users\\rkdwl\\Desktop\\g2b_v3\\수집.py",
+        "PSIsContainer":  false,
+        "Length":  22047,
+        "LastWriteTime":  "\/Date(1770636418000)\/"
+    },
+    {
+        "FullName":  "C:\\Users\\rkdwl\\Desktop\\g2b_v3\\실행.bat",
+        "PSIsContainer":  false,
+        "Length":  186,
+        "LastWriteTime":  "\/Date(1771937323581)\/"
+    },
+    {
+        "FullName":  "C:\\Users\\rkdwl\\Desktop\\g2b_v3\\자동실행등록.bat",
+        "PSIsContainer":  false,
+        "Length":  201,
+        "LastWriteTime":  "\/Date(1771937337910)\/"
+    },
+    {
+        "FullName":  "C:\\Users\\rkdwl\\Desktop\\g2b_v3\\logs\\log_20260210.txt",
+        "PSIsContainer":  false,
+        "Length":  699,
+        "LastWriteTime":  "\/Date(1770724621259)\/"
+    },
+    {
+        "FullName":  "C:\\Users\\rkdwl\\Desktop\\g2b_v3\\logs\\log_20260224.txt",
+        "PSIsContainer":  false,
+        "Length":  908,
+        "LastWriteTime":  "\/Date(1771937370744)\/"
+    },
+    {
+        "FullName":  "C:\\Users\\rkdwl\\Desktop\\g2b_v3\\__pycache__\\collect.cpython-314.pyc",
+        "PSIsContainer":  false,
+        "Length":  48004,
+        "LastWriteTime":  "\/Date(1771937363863)\/"
+    },
+    {
+        "FullName":  "C:\\Users\\rkdwl\\Desktop\\g2b_v3\\__pycache__\\test_api.cpython-314.pyc",
+        "PSIsContainer":  false,
+        "Length":  8232,
+        "LastWriteTime":  "\/Date(1771936419222)\/"
+    },
+    {
+        "FullName":  "C:\\Users\\rkdwl\\Desktop\\g2b_v3\\__pycache__\\수집.cpython-314.pyc",
+        "PSIsContainer":  false,
+        "Length":  29063,
+        "LastWriteTime":  "\/Date(1771937363860)\/"
+    }
+]

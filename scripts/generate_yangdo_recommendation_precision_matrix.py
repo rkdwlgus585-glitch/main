@@ -118,6 +118,162 @@ def _detail_projection_explainable(est: Any) -> Dict[str, Any]:
     }
 
 
+def _special_sector_target(
+    est: Any,
+    *,
+    license_text: str,
+    reorg_mode: str,
+    specialty: float,
+    sales3_eok: float,
+    sales5_eok: float,
+    balance_eok: float,
+    capital_eok: float,
+) -> Dict[str, Any]:
+    return est._target_from_payload(
+        {
+            "license_text": license_text,
+            "reorg_mode": reorg_mode,
+            "specialty": specialty,
+            "sales3_eok": sales3_eok,
+            "sales5_eok": sales5_eok,
+            "balance_eok": balance_eok,
+            "capital_eok": capital_eok,
+            "company_type": "주식회사",
+        }
+    )
+
+
+def _special_sector_rows(est: Any, *, license_text: str) -> List[Dict[str, Any]]:
+    return [
+        qa_base._record(est, uid=9101, specialty=18.0, sales3=12.0, balance=0.4, price=2.22, license_text=license_text, row=1),
+        qa_base._record(est, uid=9102, specialty=18.5, sales3=12.4, balance=0.7, price=2.30, license_text=license_text, row=2),
+        qa_base._record(est, uid=9103, specialty=19.2, sales3=12.8, balance=1.1, price=2.36, license_text=license_text, row=3),
+    ]
+
+
+def _special_sector_scenario(
+    est: Any,
+    *,
+    scenario_id: str,
+    license_text: str,
+    reorg_mode: str,
+    expected_focus: str,
+    expected_mismatch_missing: str,
+    why: str,
+) -> Dict[str, Any]:
+    rows_data = _special_sector_rows(est, license_text=license_text)
+    qa_base._prime_estimator(est, rows_data)
+    target = _special_sector_target(
+        est,
+        license_text=license_text,
+        reorg_mode=reorg_mode,
+        specialty=18.2,
+        sales3_eok=12.45,
+        sales5_eok=15.5,
+        balance_eok=99.0,
+        capital_eok=3.0,
+    )
+    rows = [(98.5, rows_data[0]), (97.2, rows_data[1]), (96.7, rows_data[2])]
+    result = yangdo_blackbox_api._build_recommendation_result(
+        target=target,
+        rows=rows,
+        center=2.3,
+        low=2.2,
+        high=2.4,
+        limit=3,
+    )
+    top = dict((result.get("recommended_listings") or [{}])[0])
+    mismatch_flags = list(top.get("mismatch_flags") or [])
+    focus = str(top.get("recommendation_focus") or "")
+    ok = (
+        bool(target.get("balance_excluded"))
+        and bool(top)
+        and expected_focus in focus
+        and expected_mismatch_missing not in " ".join(mismatch_flags)
+    )
+    return {
+        "scenario_id": scenario_id,
+        "ok": ok,
+        "expected": {
+            "balance_excluded": True,
+            "focus_contains": expected_focus,
+            "mismatch_excludes": expected_mismatch_missing,
+            "reorg_mode": str(target.get("reorg_mode") or ""),
+        },
+        "observed": {
+            "license_text": license_text,
+            "reorg_mode": str(target.get("reorg_mode") or ""),
+            "split_optional_pricing": bool(target.get("split_optional_pricing")),
+            "balance_excluded": bool(target.get("balance_excluded")),
+            "top_seoul_no": int(top.get("seoul_no") or 0),
+            "recommendation_focus": focus,
+            "matched_axes": list(top.get("matched_axes") or []),
+            "mismatch_flags": mismatch_flags,
+        },
+        "why": why,
+    }
+
+
+def _special_sector_comprehensive_electric(est: Any) -> Dict[str, Any]:
+    return _special_sector_scenario(
+        est,
+        scenario_id="special_sector_comprehensive_uses_sales_and_scale_without_balance",
+        license_text="\uC804\uAE30",
+        reorg_mode="comprehensive",
+        expected_focus="시평 규모",
+        expected_mismatch_missing="공제잔액 차이",
+        why="전기 포괄은 공제잔액을 가격과 추천에서 빼되, 비교축은 실적과 시평 중심으로 유지되어야 합니다.",
+    )
+
+
+def _special_sector_split_electric(est: Any) -> Dict[str, Any]:
+    return _special_sector_scenario(
+        est,
+        scenario_id="special_sector_split_uses_sales_and_capital_without_balance",
+        license_text="\uC804\uAE30",
+        reorg_mode="split_merge",
+        expected_focus="자본금",
+        expected_mismatch_missing="공제잔액 차이",
+        why="전기 분할·합병은 공제잔액 대신 최근 3년 실적과 자본금이 추천 중심축으로 올라와야 합니다.",
+    )
+
+
+def _special_sector_comprehensive_telecom(est: Any) -> Dict[str, Any]:
+    return _special_sector_scenario(
+        est,
+        scenario_id="telecom_comprehensive_keeps_scale_focus_without_balance",
+        license_text="\uC815\uBCF4\uD1B5\uC2E0",
+        reorg_mode="comprehensive",
+        expected_focus="시평 규모",
+        expected_mismatch_missing="공제잔액 차이",
+        why="정보통신 포괄도 공제잔액은 배제하되 추천 설명은 시평·실적 중심으로 유지되어야 합니다.",
+    )
+
+
+def _special_sector_split_telecom(est: Any) -> Dict[str, Any]:
+    return _special_sector_scenario(
+        est,
+        scenario_id="telecom_split_moves_focus_to_sales_and_capital",
+        license_text="\uC815\uBCF4\uD1B5\uC2E0",
+        reorg_mode="split_merge",
+        expected_focus="자본금",
+        expected_mismatch_missing="공제잔액 차이",
+        why="정보통신 분할·합병은 추천 설명에서도 공제 대신 최근 3년 실적과 자본금이 먼저 보여야 합니다.",
+    )
+
+
+def _special_sector_split_fire(est: Any) -> Dict[str, Any]:
+    return _special_sector_scenario(
+        est,
+        scenario_id="fire_split_moves_focus_to_sales_and_capital",
+        license_text="\uC18C\uBC29",
+        reorg_mode="split_merge",
+        expected_focus="자본금",
+        expected_mismatch_missing="공제잔액 차이",
+        why="소방 분할·합병도 추천 비교축이 최근 3년 실적과 자본금으로 옮겨져야 운영 설명과 일치합니다.",
+    )
+
+
 def _scenario_specs(est: Any) -> List[Dict[str, Any]]:
     return [
         {
@@ -140,6 +296,41 @@ def _scenario_specs(est: Any) -> List[Dict[str, Any]]:
             "response_tier": "raw",
             "precision_target": "stable",
             "builder": qa_base._scenario_balance_excluded_stable,
+        },
+        {
+            "sector_group": "balance_excluded_sector",
+            "price_band": "mid_2_to_3_eok",
+            "response_tier": "raw",
+            "precision_target": "comprehensive_focus",
+            "builder": _special_sector_comprehensive_electric,
+        },
+        {
+            "sector_group": "balance_excluded_sector",
+            "price_band": "mid_2_to_3_eok",
+            "response_tier": "raw",
+            "precision_target": "split_focus",
+            "builder": _special_sector_split_electric,
+        },
+        {
+            "sector_group": "balance_excluded_sector",
+            "price_band": "mid_2_to_3_eok",
+            "response_tier": "raw",
+            "precision_target": "comprehensive_focus",
+            "builder": _special_sector_comprehensive_telecom,
+        },
+        {
+            "sector_group": "balance_excluded_sector",
+            "price_band": "mid_2_to_3_eok",
+            "response_tier": "raw",
+            "precision_target": "split_focus",
+            "builder": _special_sector_split_telecom,
+        },
+        {
+            "sector_group": "balance_excluded_sector",
+            "price_band": "mid_2_to_3_eok",
+            "response_tier": "raw",
+            "precision_target": "split_focus",
+            "builder": _special_sector_split_fire,
         },
         {
             "sector_group": "general",
@@ -211,17 +402,23 @@ def build_yangdo_recommendation_precision_matrix() -> Dict[str, Any]:
 
     passed = sum(1 for row in scenarios if bool(row.get("ok")))
     failed = len(scenarios) - passed
+    scenario_map = {str(row.get("scenario_id") or ""): bool(row.get("ok")) for row in scenarios}
     summary = {
         "scenario_count": len(scenarios),
         "passed_count": passed,
         "failed_count": failed,
         "precision_ok": failed == 0,
-        "high_precision_ok": bool(scenarios[0].get("ok")),
-        "fallback_precision_ok": bool(scenarios[1].get("ok")),
-        "balance_excluded_precision_ok": bool(scenarios[2].get("ok")),
-        "assist_precision_ok": bool(scenarios[3].get("ok")),
-        "summary_publication_ok": bool(scenarios[4].get("ok")),
-        "detail_explainability_ok": bool(scenarios[5].get("ok")),
+        "high_precision_ok": scenario_map.get("strict_profile_match_7000_band", False),
+        "fallback_precision_ok": scenario_map.get("fallback_when_hot_band_is_weak", False),
+        "balance_excluded_precision_ok": scenario_map.get("balance_excluded_sector_keeps_recommendation_stable", False),
+        "special_sector_comprehensive_ok": scenario_map.get("special_sector_comprehensive_uses_sales_and_scale_without_balance", False)
+        and scenario_map.get("telecom_comprehensive_keeps_scale_focus_without_balance", False),
+        "special_sector_split_ok": scenario_map.get("special_sector_split_uses_sales_and_capital_without_balance", False)
+        and scenario_map.get("telecom_split_moves_focus_to_sales_and_capital", False)
+        and scenario_map.get("fire_split_moves_focus_to_sales_and_capital", False),
+        "assist_precision_ok": scenario_map.get("sparse_profile_returns_assistive_recommendation", False),
+        "summary_publication_ok": scenario_map.get("summary_tier_keeps_safe_recommendation_fields_only", False),
+        "detail_explainability_ok": scenario_map.get("detail_tier_keeps_explainable_recommendation_fields", False),
         "sector_groups": _counts_by_axis(scenarios, "sector_group"),
         "price_bands": _counts_by_axis(scenarios, "price_band"),
         "response_tiers": _counts_by_axis(scenarios, "response_tier"),

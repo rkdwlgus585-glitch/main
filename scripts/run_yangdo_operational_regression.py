@@ -5,6 +5,7 @@ import json
 import os
 import subprocess
 import sys
+import time
 import urllib.error
 import urllib.request
 import uuid
@@ -23,6 +24,7 @@ STATUS_JSON = LOG_DIR / "secure_api_status_latest.json"
 SMOKE_JSON = LOG_DIR / "calculator_browser_smoke_latest.json"
 PERMIT_WIZARD_JSON = LOG_DIR / "permit_wizard_sanity_latest.json"
 PERMIT_STEP_SMOKE_JSON = LOG_DIR / "permit_step_transition_smoke_latest.json"
+PARTNER_API_SMOKE_JSON = LOG_DIR / "partner_api_contract_smoke_latest.json"
 ENV_PATH = ROOT / ".env"
 
 
@@ -33,6 +35,10 @@ def _now() -> str:
 def _save_json(path: Path, data: Dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def _elapsed_seconds(started_at: float) -> float:
+    return round(time.perf_counter() - started_at, 3)
 
 
 def _run_command(cmd: List[str], *, cwd: Path | None = None, timeout: int = 240) -> Dict[str, Any]:
@@ -368,7 +374,7 @@ def _to_float(value: Any) -> float | None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Run the Yangdo operational loop: restart, health, live estimate, combo sanity, browser smoke")
+    parser = argparse.ArgumentParser(description="Run the Yangdo operational loop: restart, health, live estimate, partner API contract smoke, combo sanity, browser smoke")
     parser.add_argument("--skip-restart", action="store_true", default=False)
     parser.add_argument("--skip-build", action="store_true", default=False)
     parser.add_argument("--headful", action="store_true", default=False)
@@ -379,31 +385,39 @@ def main() -> int:
         "generated_at": _now(),
         "ok": False,
         "blocking_issues": [],
+        "timings": {},
         "restart": {},
         "secure_status": {},
         "live_blackbox_smoke": {},
+        "partner_api_contract_smoke": {},
         "combo_sanity": {},
         "permit_wizard_sanity": {},
         "permit_step_transition_smoke": {},
         "browser_smoke": {},
         "brainstorming": {
-            "goal": "secure stack, permit wizard sanity, permit step smoke, live estimate, browser smoke를 한 루프로 묶어 반복 QA 시 회귀 지점을 즉시 식별",
+            "goal": "Keep the operational gate anchored on one loop: secure status, permit sanity, live estimate smoke, partner contract smoke, combo sanity, and browser smoke.",
             "design": [
-                "재기동/상태 확인은 PowerShell helper로 고정",
-                "permit wizard처럼 정적 HTML 스코프 회귀는 browser smoke 전에 더 가벼운 sanity로 차단",
-                "permit step transition smoke로 next/prev 흐름을 결과 계산 이전 단계에서 빠르게 분리",
-                "특수 업종 live estimate smoke는 전기/정보통신/소방 대표 시나리오를 사용",
-                "preview browser smoke와 combo sanity는 별도 층으로 유지하되 동일 리포트에 통합",
-            ],
+                "Use PowerShell helpers for secure stack state so worker and launcher drift is caught first.",
+                "Run permit sanity before browser smoke so broken generated HTML fails fast.",
+                "Run permit step smoke separately from full browser smoke to isolate wizard transition regressions.",
+                "Use special-sector live estimate cases for electric, telecom, and fire scenarios.",
+                "Keep partner contract smoke explicit because it validates headers and health contract parity not covered by browser smoke.",
+                "Record per-step timing so gate cost decisions are evidence-based.",
+            ]
         },
     }
 
     try:
+        total_started = time.perf_counter()
         if not args.skip_restart:
+            started = time.perf_counter()
             report["restart"] = _run_powershell(ROOT / "scripts" / "restart_secure_api_stack.ps1", "-Target", "all", timeout=240)
+            report["restart"]["duration_sec"] = _elapsed_seconds(started)
+            report["timings"]["restart_sec"] = report["restart"]["duration_sec"]
             if not report["restart"].get("ok"):
                 report["blocking_issues"].append("secure_restart_failed")
 
+        started = time.perf_counter()
         status_cmd = _run_powershell(
             ROOT / "scripts" / "show_secure_api_stack_status.ps1",
             "-JsonPath",
@@ -412,15 +426,39 @@ def main() -> int:
         )
         report["secure_status"]["command"] = status_cmd
         report["secure_status"]["snapshot"] = _load_json_retry(STATUS_JSON)
+        report["secure_status"]["duration_sec"] = _elapsed_seconds(started)
+        report["timings"]["secure_status_sec"] = report["secure_status"]["duration_sec"]
         rows = report["secure_status"]["snapshot"].get("rows") if isinstance(report["secure_status"]["snapshot"], dict) else []
         if not rows or any(str(row.get("Status") or "") != "OK" for row in rows if isinstance(row, dict)):
             report["blocking_issues"].append("secure_status_not_ok")
 
         blackbox_key = _read_env_value("YANGDO_BLACKBOX_API_KEY")
+        started = time.perf_counter()
         report["live_blackbox_smoke"] = _special_sector_live_smoke(api_base_url="http://127.0.0.1:8790", api_key=blackbox_key)
+        report["live_blackbox_smoke"]["duration_sec"] = _elapsed_seconds(started)
+        report["timings"]["live_blackbox_smoke_sec"] = report["live_blackbox_smoke"]["duration_sec"]
         if not report["live_blackbox_smoke"].get("ok"):
             report["blocking_issues"].append("live_blackbox_smoke_failed")
 
+        started = time.perf_counter()
+        partner_cmd = _run_command(
+            [
+                sys.executable,
+                str(ROOT / "scripts" / "run_partner_api_contract_smoke.py"),
+                "--report",
+                str(PARTNER_API_SMOKE_JSON),
+            ],
+            cwd=ROOT,
+            timeout=240,
+        )
+        report["partner_api_contract_smoke"]["command"] = partner_cmd
+        report["partner_api_contract_smoke"]["result"] = _load_json(PARTNER_API_SMOKE_JSON)
+        report["partner_api_contract_smoke"]["duration_sec"] = _elapsed_seconds(started)
+        report["timings"]["partner_api_contract_smoke_sec"] = report["partner_api_contract_smoke"]["duration_sec"]
+        if not partner_cmd.get("ok") or not bool((report["partner_api_contract_smoke"].get("result") or {}).get("ok")):
+            report["blocking_issues"].append("partner_api_contract_smoke_failed")
+
+        started = time.perf_counter()
         combo_cmd = _run_command(
             [sys.executable, str(ROOT / "scripts" / "run_calculator_combo_sanity.py"), "--acq-cases", "120", "--yangdo-cases", "200"],
             cwd=ROOT,
@@ -428,9 +466,12 @@ def main() -> int:
         )
         report["combo_sanity"]["command"] = combo_cmd
         report["combo_sanity"]["result"] = _safe_json(combo_cmd.get("stdout") or "")
+        report["combo_sanity"]["duration_sec"] = _elapsed_seconds(started)
+        report["timings"]["combo_sanity_sec"] = report["combo_sanity"]["duration_sec"]
         if not combo_cmd.get("ok"):
             report["blocking_issues"].append("combo_sanity_failed")
 
+        started = time.perf_counter()
         permit_cmd = _run_command(
             [
                 sys.executable,
@@ -444,9 +485,12 @@ def main() -> int:
         )
         report["permit_wizard_sanity"]["command"] = permit_cmd
         report["permit_wizard_sanity"]["result"] = _load_json(PERMIT_WIZARD_JSON)
+        report["permit_wizard_sanity"]["duration_sec"] = _elapsed_seconds(started)
+        report["timings"]["permit_wizard_sanity_sec"] = report["permit_wizard_sanity"]["duration_sec"]
         if not permit_cmd.get("ok") or not bool((report["permit_wizard_sanity"].get("result") or {}).get("ok")):
             report["blocking_issues"].append("permit_wizard_sanity_failed")
 
+        started = time.perf_counter()
         permit_step_cmd = _run_command(
             [
                 sys.executable,
@@ -461,9 +505,12 @@ def main() -> int:
         )
         report["permit_step_transition_smoke"]["command"] = permit_step_cmd
         report["permit_step_transition_smoke"]["result"] = _load_json(PERMIT_STEP_SMOKE_JSON)
+        report["permit_step_transition_smoke"]["duration_sec"] = _elapsed_seconds(started)
+        report["timings"]["permit_step_transition_smoke_sec"] = report["permit_step_transition_smoke"]["duration_sec"]
         if not permit_step_cmd.get("ok") or not bool((report["permit_step_transition_smoke"].get("result") or {}).get("ok")):
             report["blocking_issues"].append("permit_step_transition_smoke_failed")
 
+        started = time.perf_counter()
         browser_cmd = _run_command(
             [
                 sys.executable,
@@ -478,11 +525,16 @@ def main() -> int:
         )
         report["browser_smoke"]["command"] = browser_cmd
         report["browser_smoke"]["result"] = _load_json(SMOKE_JSON)
+        report["browser_smoke"]["duration_sec"] = _elapsed_seconds(started)
+        report["timings"]["browser_smoke_sec"] = report["browser_smoke"]["duration_sec"]
         if not browser_cmd.get("ok") or not bool((report["browser_smoke"].get("result") or {}).get("ok")):
             report["blocking_issues"].append("browser_smoke_failed")
 
+        report["total_duration_sec"] = _elapsed_seconds(total_started)
     except Exception as exc:  # noqa: BLE001
         report["blocking_issues"].append(str(exc))
+        if "total_started" in locals():
+            report["total_duration_sec"] = _elapsed_seconds(total_started)
 
     report["ok"] = not report["blocking_issues"]
     out_path = Path(str(args.report)).resolve()

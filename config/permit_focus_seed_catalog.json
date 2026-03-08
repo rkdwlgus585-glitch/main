@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-03-08 02:13:49",
+  "generated_at": "2026-03-08 14:19:21",
   "source": {
-    "base_catalog": "C:\\Users\\rkdwl\\Desktop\\auto\\config\\kr_permit_industries_localdata.json",
-    "rules_catalog": "C:\\Users\\rkdwl\\Desktop\\auto\\config\\permit_registration_rules_law.json",
+    "base_catalog": "H:\\auto\\config\\kr_permit_industries_localdata.json",
+    "rules_catalog": "H:\\auto\\config\\permit_registration_rules_law.json",
     "scope_policy": "capital_and_technical_only",
     "selection_origin": "permitCatalog.focus_entries (rule-only rows)"
   },

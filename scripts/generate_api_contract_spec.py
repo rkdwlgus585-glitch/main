@@ -20,6 +20,9 @@ DEFAULT_PERMIT_PLATFORM = ROOT / "logs" / "permit_platform_catalog_latest.json"
 DEFAULT_PERMIT_MASTER = ROOT / "logs" / "permit_master_catalog_latest.json"
 DEFAULT_PERMIT_PROVENANCE = ROOT / "logs" / "permit_provenance_audit_latest.json"
 DEFAULT_PERMIT_PATENT = ROOT / "logs" / "permit_patent_evidence_bundle_latest.json"
+DEFAULT_PERMIT_FAMILY_CASE_GOLDSET = ROOT / "logs" / "permit_family_case_goldset_latest.json"
+DEFAULT_PERMIT_CASE_STORY_SURFACE = ROOT / "logs" / "permit_case_story_surface_latest.json"
+DEFAULT_PERMIT_OPERATOR_DEMO_PACKET = ROOT / "logs" / "permit_operator_demo_packet_latest.json"
 DEFAULT_OUTPUT = ROOT / "logs" / "api_contract_spec_latest.json"
 
 
@@ -132,6 +135,117 @@ def _permit_family_checksum_samples(permit_patent_evidence_bundle: dict | None, 
     return samples
 
 
+def _permit_family_case_samples(permit_family_case_goldset: dict | None, limit: int = 120) -> list[dict]:
+    if not isinstance(permit_family_case_goldset, dict):
+        return []
+    families = [row for row in list(permit_family_case_goldset.get("families") or []) if isinstance(row, dict)]
+    samples: list[dict] = []
+    for family in families:
+        family_key = str(family.get("family_key") or "").strip()
+        claim_id = str(family.get("claim_id") or "").strip()
+        for case in list(family.get("cases") or []):
+            if not isinstance(case, dict):
+                continue
+            expected = case.get("expected") if isinstance(case.get("expected"), dict) else {}
+            sample = {
+                "family_key": family_key,
+                "claim_id": claim_id or str(case.get("claim_id") or "").strip(),
+                "case_id": str(case.get("case_id") or "").strip(),
+                "case_kind": str(case.get("case_kind") or "").strip(),
+                "service_code": str(case.get("service_code") or "").strip(),
+                "expected_status": str(expected.get("overall_status") or "").strip(),
+                "proof_coverage_ratio": str(expected.get("proof_coverage_ratio") or "").strip(),
+                "review_reason": str(expected.get("review_reason") or "").strip(),
+                "manual_review_expected": bool(expected.get("manual_review_expected", False)),
+            }
+            if not sample["case_id"] or not sample["family_key"]:
+                continue
+            samples.append(sample)
+            if len(samples) >= limit:
+                return samples
+    return samples
+
+
+def _permit_case_story_samples(permit_case_story_surface: dict | None, limit: int = 24) -> list[dict]:
+    if not isinstance(permit_case_story_surface, dict):
+        return []
+    families = [row for row in list(permit_case_story_surface.get("families") or []) if isinstance(row, dict)]
+    samples: list[dict] = []
+    for family in families:
+        review_reasons: list[str] = []
+        representative_preset_ids: list[str] = []
+        for case in list(family.get("representative_cases") or []):
+            if not isinstance(case, dict):
+                continue
+            reason = str(case.get("review_reason") or "").strip()
+            if reason and reason not in review_reasons:
+                review_reasons.append(reason)
+            preset_id = str(case.get("preset_id") or "").strip()
+            if preset_id and preset_id not in representative_preset_ids:
+                representative_preset_ids.append(preset_id)
+        sample = {
+            "family_key": str(family.get("family_key") or "").strip(),
+            "claim_id": str(family.get("claim_id") or "").strip(),
+            "preset_total": int(family.get("preset_total", 0) or 0),
+            "manual_review_preset_total": int(family.get("manual_review_preset_total", 0) or 0),
+            "review_reasons": review_reasons[:3],
+            "representative_preset_ids": representative_preset_ids[:3],
+            "operator_story_points": [
+                str(item or "").strip()
+                for item in list(family.get("operator_story_points") or [])
+                if str(item or "").strip()
+            ][:2],
+        }
+        if not sample["family_key"]:
+            continue
+        samples.append(sample)
+        if len(samples) >= limit:
+            break
+    return samples
+
+
+def _permit_partner_demo_samples(permit_operator_demo_packet: dict | None, limit: int = 24) -> list[dict]:
+    if not isinstance(permit_operator_demo_packet, dict):
+        return []
+    families = [row for row in list(permit_operator_demo_packet.get("families") or []) if isinstance(row, dict)]
+    samples: list[dict] = []
+    for family in families:
+        cases = [row for row in list(family.get("demo_cases") or []) if isinstance(row, dict)]
+        review_reasons: list[str] = []
+        representative_services: list[str] = []
+        representative_statuses: list[str] = []
+        manual_review_demo_total = 0
+        for case in cases:
+            reason = str(case.get("review_reason") or "").strip()
+            if reason and reason not in review_reasons:
+                review_reasons.append(reason)
+            service_name = str(case.get("service_name") or case.get("service_code") or "").strip()
+            if service_name and service_name not in representative_services:
+                representative_services.append(service_name)
+            expected_status = str(case.get("expected_status") or "").strip()
+            if expected_status and expected_status not in representative_statuses:
+                representative_statuses.append(expected_status)
+            if bool(case.get("manual_review_expected", False)):
+                manual_review_demo_total += 1
+        sample = {
+            "family_key": str(family.get("family_key") or "").strip(),
+            "claim_id": str(family.get("claim_id") or "").strip(),
+            "claim_title": str(family.get("claim_title") or "").strip(),
+            "proof_coverage_ratio": str(family.get("proof_coverage_ratio") or "").strip(),
+            "demo_case_total": len(cases),
+            "manual_review_demo_total": manual_review_demo_total,
+            "review_reasons": review_reasons[:3],
+            "representative_services": representative_services[:3],
+            "representative_statuses": representative_statuses[:3],
+        }
+        if not sample["family_key"] or not sample["claim_id"]:
+            continue
+        samples.append(sample)
+        if len(samples) >= limit:
+            break
+    return samples
+
+
 def build_contract_spec(
     registry: dict,
     thresholds: dict,
@@ -140,6 +254,9 @@ def build_contract_spec(
     permit_master_catalog: dict | None = None,
     permit_provenance_audit: dict | None = None,
     permit_patent_evidence_bundle: dict | None = None,
+    permit_family_case_goldset: dict | None = None,
+    permit_case_story_surface: dict | None = None,
+    permit_operator_demo_packet: dict | None = None,
 ) -> dict:
     plan_defaults = registry.get("plan_feature_defaults") if isinstance(registry, dict) else {}
     offering_templates = registry.get("offering_templates") if isinstance(registry, dict) else []
@@ -170,6 +287,25 @@ def build_contract_spec(
         else {}
     )
     permit_checksum_samples = _permit_family_checksum_samples(permit_patent_evidence_bundle)
+    permit_family_case_goldset_summary = (
+        permit_family_case_goldset.get("summary")
+        if isinstance(permit_family_case_goldset, dict) and isinstance(permit_family_case_goldset.get("summary"), dict)
+        else {}
+    )
+    permit_family_case_samples = _permit_family_case_samples(permit_family_case_goldset)
+    permit_case_story_surface_summary = (
+        permit_case_story_surface.get("summary")
+        if isinstance(permit_case_story_surface, dict) and isinstance(permit_case_story_surface.get("summary"), dict)
+        else {}
+    )
+    permit_case_story_samples = _permit_case_story_samples(permit_case_story_surface)
+    permit_operator_demo_summary = (
+        permit_operator_demo_packet.get("summary")
+        if isinstance(permit_operator_demo_packet, dict)
+        and isinstance(permit_operator_demo_packet.get("summary"), dict)
+        else {}
+    )
+    permit_partner_demo_samples = _permit_partner_demo_samples(permit_operator_demo_packet)
 
     spec = {
         "api_version": "v1",
@@ -326,6 +462,12 @@ def build_contract_spec(
                                 "claim_packet_complete_family_total",
                                 "checksum_sample_family_total",
                                 "checksum_sample_total",
+                                "family_case_goldset_family_total",
+                                "family_case_total",
+                                "family_case_sample_total",
+                                "edge_case_total",
+                                "edge_case_family_total",
+                                "manual_review_case_total",
                             ],
                             "row_fields": [
                                 "service_code",
@@ -389,9 +531,52 @@ def build_contract_spec(
                                     permit_patent_summary.get("checksum_sample_family_total", 0) or 0
                                 ),
                                 "checksum_sample_total": len(permit_checksum_samples),
+                                "family_case_goldset_family_total": int(
+                                    permit_family_case_goldset_summary.get("goldset_complete_family_total", 0) or 0
+                                ),
+                                "family_case_total": int(
+                                    permit_family_case_goldset_summary.get("case_total", 0) or 0
+                                ),
+                                "family_case_sample_total": len(permit_family_case_samples),
+                                "edge_case_total": int(permit_family_case_goldset_summary.get("edge_case_total", 0) or 0),
+                                "edge_case_family_total": int(
+                                    permit_family_case_goldset_summary.get("edge_case_family_total", 0) or 0
+                                ),
+                                "manual_review_case_total": int(
+                                    permit_family_case_goldset_summary.get("manual_review_case_total", 0) or 0
+                                ),
+                                "case_story_surface_family_total": int(
+                                    permit_case_story_surface_summary.get("story_family_total", 0) or 0
+                                ),
+                                "case_story_review_reason_total": int(
+                                    permit_case_story_surface_summary.get("review_reason_total", 0) or 0
+                                ),
+                                "case_story_manual_review_family_total": int(
+                                    permit_case_story_surface_summary.get("manual_review_family_total", 0) or 0
+                                ),
+                                "case_story_sample_total": len(permit_case_story_samples),
+                                "case_story_surface_ready": bool(
+                                    permit_case_story_surface_summary.get("story_ready", False)
+                                ),
+                                "partner_demo_family_total": int(
+                                    permit_operator_demo_summary.get("family_total", 0) or 0
+                                ),
+                                "partner_demo_case_total": int(
+                                    permit_operator_demo_summary.get("demo_case_total", 0) or 0
+                                ),
+                                "partner_demo_manual_review_total": int(
+                                    permit_operator_demo_summary.get("manual_review_demo_total", 0) or 0
+                                ),
+                                "partner_demo_sample_total": len(permit_partner_demo_samples),
+                                "partner_demo_surface_ready": bool(
+                                    permit_operator_demo_summary.get("operator_demo_ready", False)
+                                ) and bool(permit_partner_demo_samples),
                             },
                             "proof_surface_examples": {
                                 "family_checksum_samples": permit_checksum_samples,
+                                "family_case_samples": permit_family_case_samples,
+                                "case_story_samples": permit_case_story_samples,
+                                "partner_demo_samples": permit_partner_demo_samples,
                                 "claim_packet_fields": [
                                     "claim_id",
                                     "claim_statement",
@@ -399,6 +584,37 @@ def build_contract_spec(
                                     "calculation_steps",
                                     "ui_surfaces",
                                     "source_proof_summary",
+                                ],
+                                "family_case_fields": [
+                                    "family_key",
+                                    "claim_id",
+                                    "case_id",
+                                    "case_kind",
+                                    "service_code",
+                                    "expected_status",
+                                    "proof_coverage_ratio",
+                                    "review_reason",
+                                    "manual_review_expected",
+                                ],
+                                "case_story_fields": [
+                                    "family_key",
+                                    "claim_id",
+                                    "preset_total",
+                                    "manual_review_preset_total",
+                                    "review_reasons",
+                                    "representative_preset_ids",
+                                    "operator_story_points",
+                                ],
+                                "partner_demo_fields": [
+                                    "family_key",
+                                    "claim_id",
+                                    "claim_title",
+                                    "proof_coverage_ratio",
+                                    "demo_case_total",
+                                    "manual_review_demo_total",
+                                    "review_reasons",
+                                    "representative_services",
+                                    "representative_statuses",
                                 ],
                             },
                         },
@@ -522,6 +738,9 @@ def main() -> int:
     parser.add_argument("--permit-master", default=str(DEFAULT_PERMIT_MASTER))
     parser.add_argument("--permit-provenance", default=str(DEFAULT_PERMIT_PROVENANCE))
     parser.add_argument("--permit-patent", default=str(DEFAULT_PERMIT_PATENT))
+    parser.add_argument("--permit-family-case-goldset", default=str(DEFAULT_PERMIT_FAMILY_CASE_GOLDSET))
+    parser.add_argument("--permit-case-story-surface", default=str(DEFAULT_PERMIT_CASE_STORY_SURFACE))
+    parser.add_argument("--permit-operator-demo-packet", default=str(DEFAULT_PERMIT_OPERATOR_DEMO_PACKET))
     parser.add_argument("--output", default=str(DEFAULT_OUTPUT))
     args = parser.parse_args()
 
@@ -532,6 +751,9 @@ def main() -> int:
     permit_master_catalog = _load_json(Path(str(args.permit_master)).resolve())
     permit_provenance_audit = _load_json(Path(str(args.permit_provenance)).resolve())
     permit_patent_evidence_bundle = _load_json(Path(str(args.permit_patent)).resolve())
+    permit_family_case_goldset = _load_json(Path(str(args.permit_family_case_goldset)).resolve())
+    permit_case_story_surface = _load_json(Path(str(args.permit_case_story_surface)).resolve())
+    permit_operator_demo_packet = _load_json(Path(str(args.permit_operator_demo_packet)).resolve())
     spec = build_contract_spec(
         registry,
         thresholds,
@@ -540,6 +762,9 @@ def main() -> int:
         permit_master_catalog=permit_master_catalog,
         permit_provenance_audit=permit_provenance_audit,
         permit_patent_evidence_bundle=permit_patent_evidence_bundle,
+        permit_family_case_goldset=permit_family_case_goldset,
+        permit_case_story_surface=permit_case_story_surface,
+        permit_operator_demo_packet=permit_operator_demo_packet,
     )
 
     output_path = Path(str(args.output)).resolve()

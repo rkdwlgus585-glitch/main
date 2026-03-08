@@ -1,9 +1,12 @@
 param(
-  [string]$SnapshotPath = "C:\Users\rkdwl\Desktop\auto\logs\pause_snapshot_latest.json"
+  [string]$SnapshotPath = ""
 )
 
 $ErrorActionPreference = "Stop"
-$repoRoot = "C:\Users\rkdwl\Desktop\auto"
+$repoRoot = Split-Path -Parent $PSScriptRoot
+if ([string]::IsNullOrWhiteSpace($SnapshotPath)) {
+  $SnapshotPath = Join-Path $repoRoot "logs\pause_snapshot_latest.json"
+}
 Set-Location $repoRoot
 
 if (!(Test-Path $SnapshotPath)) {

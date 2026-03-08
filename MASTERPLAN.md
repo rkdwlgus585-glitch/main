@@ -14,6 +14,10 @@
 5. `seoulmna.kr` WordPress/Astra 기반 플랫폼 전면 개편
 6. `타 사이트 위젯/API 임대 구조` 완성
 7. `전기/소방/정보통신` 로직 정밀화와 운영 자동화, QA, UX, 트래픽 누수 차단의 지속 개선
+   - 전기: `minAutoBalanceShare`(0.10) / `minAutoBalanceEok`(0.05) / `reorgOverrides` 완료
+   - 정보통신: `reorgOverrides` / confidence cap(저실적·고분산) 완료
+   - 소방: confidence cap(저실적·고분산) 완료
+   - 인허가 typed_criteria: 전기(basis_refs), 정보통신(qualification 추가), 소방 3종(office blocking 추가) 완료
 
 ## Session Lock
 - 이번 세션의 최우선 과제는 `AI 양도가 산정 시스템`을 `가격 산정 + 유사매물 추천` 중심축으로 끌어올리고, `seoulmna.kr` 플랫폼 개편, `AI 인허가 사전검토` 병행 탑재, 임대형 위젯/API 상품화, 특허 근거 축적까지 한 흐름으로 밀어붙이는 것이다.
@@ -27,10 +31,13 @@
 1. 매 배치는 최소 2개 축 이상을 동시에 전진시킨다: `특허`, `플랫폼`, `임대`, `운영 안정성`, `QA/UX`.
 2. 긍정적 영향이 예상되면 사용자 지시가 없어도 반영한다.
 3. 문서로 끝내지 않고 가능하면 `script -> JSON/MD 산출물 -> operations packet`으로 자동화한다.
-4. 매 배치마다 다시 묻는다.
+4. 매 배치마다 `first-principles review`와 `next action brainstorm`을 같이 갱신해, 실행과 사고를 분리하지 않는다.
+5. 매 배치마다 다시 묻는다.
    - 지금 가장 큰 병목은 코드인가, 실데이터인가, 배포인가, 특허 문구인가.
    - `.kr` 플랫폼 / `.co.kr` 매물 / hidden engine 역할이 섞이고 있지 않은가.
    - 초기 렌더에서 트래픽 누수가 없는가.
+5. `양도가` 개선은 매 턴 `docs/yangdo_critical_thinking_prompt.md`의 반문 흐름을 따른다.
+6. `설명문 추가`보다 `입력 복귀`, `자동 포커스`, `추천 우선 배치` 같은 실제 동작 개선을 우선한다.
 
 ## Current Architecture
 ### Independent Systems
@@ -60,8 +67,8 @@
 ## Status
 | Axis | Status | Direction |
 |---|---:|---|
-| AI 양도가 산정/추천 | 99% | 코어/위젯/QA/게이트 구조 완료, 추천 정밀도·집중도 감사·공개계약·서비스-매물 브리지·서비스 카피·UX 정렬·임대 lane ladder까지 canonical화 |
-| AI 인허가 사전검토 | 94% | 독립 시스템 유지, 플랫폼/임대 공통축 병행 |
+| AI 양도가 산정/추천 | 99% | 코어/위젯/QA/게이트 구조 완료, 추천 정밀도·집중도 감사·공개계약·서비스-매물 브리지·서비스 카피·UX 정렬·임대 lane ladder까지 canonical화, 전기/정보통신/소방 정산정책·confidence cap·reorgOverrides 정밀화 |
+| AI 인허가 사전검토 | 96% | 독립 시스템 유지, 플랫폼/임대 공통축 병행, 전기/정보통신/소방 typed_criteria·basis_refs·blocking 보완 |
 | `.kr` 플랫폼화 | 99% | WordPress/Astra-first 경로로 IA/blueprint/apply/verify/operator checklist까지 완료 |
 | `.co.kr` 브리지 | 95% | 정책/CTA/UTM 계약 확정, 삽입용 bridge snippets 생성 |
 | 임대형 위젯/API | 99% | template -> scaffold -> validate -> activate 구조 완료 |
@@ -174,6 +181,12 @@
 5. 추천 결과를 `.kr` 서비스 해석 -> `.co.kr` 매물 확인 또는 상담형 상세로 분기하는 브리지 UX를 계속 유지
 6. `detail_explainable` lane을 실제 파트너 업셀 lane으로 더 선명하게 만든다
 7. `/yangdo` 서비스 페이지에서 추천 설명력을 `가격 계산`보다 `시장 적합도 해석`으로 더 이동시킨다
+8. partner 입력 handoff packet을 기준으로 `proof_url / api_key / approval` 전달 비용을 더 줄인다
+9. `permit` 공개계약 감사와 서비스 UX를 기준으로 상세 체크리스트/수동 검토 보조 lane 설명력을 더 정교화한다
+10. `ai_platform_first_principles_review_latest`를 기준으로 매 배치의 최우선 병목과 실험 순서를 다시 고정한다
+11. `partner_input_operator_flow_latest`를 기준으로 파트너 입력 주입을 `simulate -> dry-run -> apply` 단일 운영 경로로 고정한다
+12. `system_split_first_principles_packet_latest`를 기준으로 플랫폼/양도가/인허가의 사고 루프를 분리 유지한다
+13. `next_batch_focus_packet_latest`를 기준으로 외부 승인/실입력 blocker를 제외한 실제 코드 병목 1개만 먼저 친다
 
 ## Canonical Artifacts
 - operations packet: `logs/operations_packet_latest.json`, `logs/operations_packet_latest.md`
@@ -197,7 +210,18 @@
 - recommendation bridge packet: `logs/yangdo_recommendation_bridge_packet_latest.json`, `logs/yangdo_recommendation_bridge_packet_latest.md`
 - recommendation UX packet: `logs/yangdo_recommendation_ux_packet_latest.json`, `logs/yangdo_recommendation_ux_packet_latest.md`
 - recommendation alignment audit: `logs/yangdo_recommendation_alignment_audit_latest.json`, `logs/yangdo_recommendation_alignment_audit_latest.md`
+- next action brainstorm: `logs/yangdo_next_action_brainstorm_latest.json`, `logs/yangdo_next_action_brainstorm_latest.md`
 - service copy packet: `logs/yangdo_service_copy_packet_latest.json`, `logs/yangdo_service_copy_packet_latest.md`
+- permit service copy packet: `logs/permit_service_copy_packet_latest.json`, `logs/permit_service_copy_packet_latest.md`
+- permit service alignment audit: `logs/permit_service_alignment_audit_latest.json`, `logs/permit_service_alignment_audit_latest.md`
+- permit rental lane packet: `logs/permit_rental_lane_packet_latest.json`, `logs/permit_rental_lane_packet_latest.md`
+- permit service UX packet: `logs/permit_service_ux_packet_latest.json`, `logs/permit_service_ux_packet_latest.md`
+- permit public contract audit: `logs/permit_public_contract_audit_latest.json`, `logs/permit_public_contract_audit_latest.md`
+- partner input handoff packet: `logs/partner_input_handoff_packet_latest.json`, `logs/partner_input_handoff_packet_latest.md`
+- partner input operator flow: `logs/partner_input_operator_flow_latest.json`, `logs/partner_input_operator_flow_latest.md`
+- next batch focus packet: `logs/next_batch_focus_packet_latest.json`, `logs/next_batch_focus_packet_latest.md`
+- first-principles review: `logs/ai_platform_first_principles_review_latest.json`, `logs/ai_platform_first_principles_review_latest.md`
+- system split first-principles packet: `logs/system_split_first_principles_packet_latest.json`, `logs/system_split_first_principles_packet_latest.md`
 
 ## Concrete Output Path
 - planner: `scripts/plan_channel_embed.py`
@@ -218,6 +242,7 @@
 - kr proxy bundle: `scripts/generate_kr_proxy_server_bundle.py`
 - rental catalog: `scripts/generate_widget_rental_catalog.py`
 - recommendation bridge packet: `scripts/generate_yangdo_recommendation_bridge_packet.py`
+- next action brainstorm: `scripts/generate_yangdo_next_action_brainstorm.py`
 - partner flow: `scripts/run_partner_onboarding_flow.py`
 - partner simulation: `scripts/generate_partner_activation_simulation_matrix.py`
 - partner snapshot: `scripts/generate_partner_input_snapshot.py`

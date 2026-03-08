@@ -128,6 +128,7 @@ class GenerateYangdoServiceCopyPacketTests(unittest.TestCase):
             self.assertTrue(payload["summary"]["packet_ready"])
             self.assertTrue(payload["summary"]["service_copy_ready"])
             self.assertTrue(payload["summary"]["low_precision_consult_first_ready"])
+            self.assertTrue(payload["summary"]["zero_display_recovery_ready"])
             self.assertTrue(payload["summary"]["market_bridge_story_ready"])
             self.assertTrue(payload["summary"]["market_fit_interpretation_ready"])
             self.assertTrue(payload["summary"]["lane_stories_ready"])
@@ -143,6 +144,9 @@ class GenerateYangdoServiceCopyPacketTests(unittest.TestCase):
             self.assertEqual(payload["decision_paths"][1]["route"], "detail_explainable")
             self.assertEqual(payload["proof_points"]["precision_scenario_count"], 6)
             self.assertEqual(payload["proof_points"]["diversity_scenario_count"], 4)
+            self.assertTrue(payload["zero_display_recovery_policy"]["policy_ready"])
+            self.assertEqual(payload["zero_display_recovery_policy"]["first_action"]["label"], "입력 보강 후 다시 계산")
+            self.assertEqual(payload["zero_display_recovery_policy"]["second_action"]["target"], "/mna-market")
             self.assertIn("보조 검토는 시장 브리지보다 상담 CTA를 먼저 강조한다.", payload["copy_guardrails"])
 
 

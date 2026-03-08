@@ -132,6 +132,7 @@ def build_yangdo_service_copy_packet(
         bool(rental_lane_positioning.get(key))
         for key in ("summary_market_bridge", "detail_explainable", "consult_assist")
     )
+    zero_display_recovery_ready = bool(primary_target) and bool(secondary_target) and low_precision_consult_first_ready
 
     payload = {
         "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -143,6 +144,7 @@ def build_yangdo_service_copy_packet(
             "market_bridge_story_ready": market_bridge_story_ready,
             "market_fit_interpretation_ready": market_fit_interpretation_ready,
             "lane_stories_ready": lane_stories_ready,
+            "zero_display_recovery_ready": zero_display_recovery_ready,
             "service_slug": service_slug,
             "platform_host": platform_host,
             "listing_host": listing_host,
@@ -267,6 +269,29 @@ def build_yangdo_service_copy_packet(
                 "target": secondary_target,
                 "story": "추천 이유와 불일치 축이 더 중요하면 상담형 상세로 먼저 분기합니다.",
             },
+        },
+        "zero_display_recovery_policy": {
+            "trigger": "recommended_count == 0",
+            "policy_ready": zero_display_recovery_ready,
+            "first_action": {
+                "label": "입력 보강 후 다시 계산",
+                "reason": "비교 가능한 후보가 하나도 없을 때는 입력 축을 먼저 보강해야 잘못된 시장 해석을 줄일 수 있습니다.",
+            },
+            "second_action": {
+                "label": primary_cta,
+                "target": primary_target,
+                "reason": "핵심 입력은 유지한 채 시장 흐름을 먼저 확인해야 하는 경우를 위해 시장 브리지를 남깁니다.",
+            },
+            "third_action": {
+                "label": secondary_cta,
+                "target": secondary_target,
+                "reason": "특수 업종 또는 불일치 신호가 큰 경우에는 상담형 상세가 더 안전한 다음 행동입니다.",
+            },
+            "guardrails": [
+                "추천 0건에서는 매물 확정처럼 읽히는 표현을 금지합니다.",
+                "입력 보강, 시장 확인, 상담형 상세의 순서를 공개 계약으로 고정합니다.",
+                "보조 검토 또는 특수 업종 신호가 겹치면 상담형 상세를 더 앞세웁니다.",
+            ],
         },
         "public_detail_split": {
             "public_fields": _as_list(bridge_public.get("fields")),

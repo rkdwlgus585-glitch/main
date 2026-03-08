@@ -4,6 +4,7 @@ import os
 import shutil
 import subprocess
 import tempfile
+import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -13,6 +14,11 @@ import requests
 
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from scripts.widget_health_contract import load_widget_health_contract
+
 DEFAULT_BUNDLE_MANIFEST = ROOT / "output" / "widget" / "bundles" / "seoul_widget_internal" / "manifest.json"
 
 
@@ -176,6 +182,64 @@ def _load_widget_url(manifest_path: Path, widget: str) -> str:
     return ""
 
 
+def _set_value_js(driver, element_id: str, value: str) -> None:
+    driver.execute_script(
+        """
+const el = document.getElementById(arguments[0]);
+if (!el) { return false; }
+const val = String(arguments[1] ?? "");
+const tag = String(el.tagName || "").toLowerCase();
+if (tag === "select") {
+  el.value = val;
+  if (el.value !== val) {
+    for (const opt of Array.from(el.options || [])) {
+      if (String(opt.text || "").trim() === val) {
+        el.value = opt.value;
+        break;
+      }
+    }
+  }
+} else {
+  el.focus();
+  el.value = val;
+}
+el.dispatchEvent(new Event("input", { bubbles: true }));
+el.dispatchEvent(new Event("change", { bubbles: true }));
+return true;
+        """,
+        element_id,
+        value,
+    )
+
+
+def _text(driver, element_id: str) -> str:
+    try:
+        return str(driver.find_element("id", element_id).text or "").strip()
+    except Exception:
+        return ""
+
+
+def _permit_bootstrap_snapshot(driver) -> Dict[str, Any]:
+    return dict(
+        driver.execute_script(
+            """
+const count = (id) => {
+  const el = document.getElementById(id);
+  return el && el.options ? el.options.length : 0;
+};
+const stepTitle = document.getElementById('permitWizardStepTitle');
+return {
+  category_count: count('categorySelect'),
+  focus_quick_count: count('focusQuickSelect'),
+  industry_count: count('industrySelect'),
+  step_title: stepTitle ? String(stepTitle.textContent || '').trim() : '',
+};
+            """
+        )
+        or {}
+    )
+
+
 def _check_click_interaction(page_url: str, mode: str) -> Dict:
     out = {
         "kind": "interaction",
@@ -186,6 +250,7 @@ def _check_click_interaction(page_url: str, mode: str) -> Dict:
         "center_text": "",
         "range_text": "",
         "confidence_text": "",
+        "preflight": {},
     }
     try:
         from selenium import webdriver  # type: ignore
@@ -217,51 +282,218 @@ def _check_click_interaction(page_url: str, mode: str) -> Dict:
                 driver.switch_to.frame(frame)
 
             if mode == "customer":
-                pairs = {
-                    "in-license": "철콘",
-                    "in-specialty": "10",
-                    "in-y23": "5",
-                    "in-y24": "6",
-                    "in-y25": "7",
-                    "in-balance": "0.5",
-                    "in-capital": "2",
-                    "in-surplus": "1",
-                }
-                for fid, val in pairs.items():
-                    el = wait.until(EC.presence_of_element_located((By.ID, fid)))
-                    el.clear()
-                    el.send_keys(val)
-                wait.until(EC.element_to_be_clickable((By.ID, "btn-estimate"))).click()
-                wait.until(lambda d: d.find_element(By.ID, "out-center").text.strip() not in {"", "-"})
-                out["center_text"] = driver.find_element(By.ID, "out-center").text.strip()
-                out["range_text"] = driver.find_element(By.ID, "out-range").text.strip()
-                out["confidence_text"] = driver.find_element(By.ID, "out-confidence").text.strip()
+                wait.until(EC.presence_of_element_located((By.ID, "in-license")))
+                _set_value_js(driver, "in-license", "전기")
+                wait.until(
+                    lambda d: bool(
+                        d.execute_script(
+                            "const btn=document.querySelector('[data-yangdo-wizard-next=\"0\"]'); return !!btn && btn.disabled === false;"
+                        )
+                    )
+                )
+                driver.execute_script(
+                    """
+const btn = document.querySelector('[data-yangdo-wizard-next="0"]');
+if (btn && !btn.disabled) btn.click();
+                    """
+                )
+                wait.until(lambda d: "검색 기준 입력" in _text(d, "yangdoWizardStepTitle"))
+                driver.execute_script(
+                    """
+const btn = document.querySelector('[data-scale-mode="sales"]');
+if (btn) btn.click();
+                    """
+                )
+                _set_value_js(driver, "in-sales-input-mode", "최근 3년 실적 합계(억)")
+                _set_value_js(driver, "in-sales3-total", "12")
+                wait.until(
+                    lambda d: bool(
+                        d.execute_script(
+                            "const btn=document.querySelector('[data-yangdo-wizard-next=\"1\"]'); return !!btn && btn.disabled === false;"
+                        )
+                    )
+                )
+                driver.execute_script(
+                    """
+const btn = document.querySelector('[data-yangdo-wizard-next="1"]');
+if (btn && !btn.disabled) btn.click();
+                    """
+                )
+                wait.until(lambda d: "핵심 가격 영향 입력" in _text(d, "yangdoWizardStepTitle"))
+                _set_value_js(driver, "in-capital", "1.5")
+                _set_value_js(driver, "in-balance", "0.8")
+                wait.until(
+                    lambda d: bool(
+                        d.execute_script(
+                            "const btn=document.querySelector('[data-yangdo-wizard-next=\"2\"]'); return !!btn && btn.disabled === false;"
+                        )
+                    )
+                )
+                driver.execute_script(
+                    """
+const btn = document.querySelector('[data-yangdo-wizard-next="2"]');
+if (btn && !btn.disabled) btn.click();
+                    """
+                )
+                wait.until(lambda d: "구조·정산 정보" in _text(d, "yangdoWizardStepTitle"))
+                _set_value_js(driver, "in-reorg-mode", "포괄")
+                _set_value_js(driver, "in-balance-usage-mode", "credit_transfer")
+                wait.until(
+                    lambda d: bool(
+                        d.execute_script(
+                            "const btn=document.querySelector('[data-yangdo-wizard-next=\"3\"]'); return !!btn && btn.disabled === false;"
+                        )
+                    )
+                )
+                driver.execute_script(
+                    """
+const btn = document.querySelector('[data-yangdo-wizard-next="3"]');
+if (btn && !btn.disabled) btn.click();
+                    """
+                )
+                wait.until(lambda d: "재무·회사 선택 정보" in _text(d, "yangdoWizardStepTitle"))
+                driver.execute_script(
+                    """
+const btn = document.querySelector('[data-yangdo-wizard-next="4"]');
+if (btn && !btn.disabled) btn.click();
+                    """
+                )
+                wait.until(
+                    lambda d: (
+                        _text(d, "out-confidence") not in {"", "-"}
+                        or _text(d, "out-center") not in {"", "-"}
+                        or "상담 검증 후 안내" in _text(d, "out-center")
+                    )
+                )
+                out["center_text"] = _text(driver, "out-center")
+                out["range_text"] = _text(driver, "out-range") or _text(driver, "settlement-summary")
+                out["confidence_text"] = _text(driver, "out-confidence") or _text(driver, "risk-note")
                 out["ok"] = bool(out["center_text"]) and out["center_text"] != "-"
                 return out
 
             if mode == "acquisition":
-                # Minimal deterministic input set.
-                pairs = {
-                    "acq-license-type": "전기공사업",
-                    "acq-corp-state": "new",
-                    "acq-region-text": "서울 강남구",
-                    "acq-capital": "1.5",
-                    "acq-guarantee-jwasu": "200",
-                    "acq-guarantee": "0.6",
-                    "acq-engineer-count": "3",
+                wait.until(EC.presence_of_element_located((By.ID, "industrySearchInput")))
+                wait.until(
+                    lambda d: (
+                        (snap := _permit_bootstrap_snapshot(d))
+                        and int((snap.get("category_count") or 0)) > 0
+                        and int((snap.get("focus_quick_count") or 0)) > 0
+                        and bool(str(snap.get("step_title") or "").strip())
+                    )
+                )
+                preflight = _permit_bootstrap_snapshot(driver)
+                out["preflight"] = {
+                    "category_count": int(preflight.get("category_count") or 0),
+                    "focus_quick_count": int(preflight.get("focus_quick_count") or 0),
+                    "industry_count": int(preflight.get("industry_count") or 0),
+                    "step_title": str(preflight.get("step_title") or "").strip(),
                 }
-                for fid, val in pairs.items():
-                    el = wait.until(EC.presence_of_element_located((By.ID, fid)))
-                    tag = (el.tag_name or "").lower()
-                    if tag in {"input", "textarea"}:
-                        el.clear()
-                    el.send_keys(val)
-                wait.until(EC.element_to_be_clickable((By.ID, "acq-btn-calc"))).click()
-                wait.until(lambda d: d.find_element(By.ID, "acq-out-center").text.strip() not in {"", "-"})
-                out["center_text"] = driver.find_element(By.ID, "acq-out-center").text.strip()
-                out["range_text"] = driver.find_element(By.ID, "acq-out-range").text.strip()
-                out["confidence_text"] = driver.find_element(By.ID, "acq-out-confidence").text.strip()
-                out["ok"] = bool(out["center_text"]) and out["center_text"] != "-"
+                if (
+                    int(out["preflight"].get("category_count") or 0) <= 0
+                    or int(out["preflight"].get("focus_quick_count") or 0) <= 0
+                    or not str(out["preflight"].get("step_title") or "").strip()
+                ):
+                    out["error"] = "permit_bootstrap_preflight_failed"
+                    return out
+                driver.execute_script(
+                    """
+const btn = document.querySelector('[data-focus-mode="focus_only"]');
+if (btn) btn.click();
+                    """
+                )
+                _set_value_js(driver, "industrySearchInput", "전기공사업")
+                wait.until(
+                    lambda d: "전기공사업" in str(
+                        d.execute_script(
+                            """
+const el = document.getElementById('industrySelect');
+if (!el || el.selectedIndex < 0) return '';
+const option = el.options[el.selectedIndex];
+return option ? String(option.textContent || '').trim() : '';
+                            """
+                        )
+                        or ""
+                    )
+                )
+                wait.until(
+                    lambda d: _text(d, "requiredCapital") not in {
+                        "",
+                        "-",
+                        "확인 필요",
+                        "법령 후보 확인",
+                        "법령 추출본 확인",
+                    }
+                )
+                if "현재 보유 현황" not in _text(driver, "permitWizardStepTitle"):
+                    driver.execute_script(
+                        """
+const btn = document.querySelector('[data-permit-wizard-next="0"]');
+if (btn && !btn.disabled) btn.click();
+                        """
+                    )
+                    wait.until(
+                        lambda d: (
+                            "업종 확정" in _text(d, "permitWizardStepTitle")
+                            or "현재 보유 현황" in _text(d, "permitWizardStepTitle")
+                        )
+                    )
+                if "현재 보유 현황" not in _text(driver, "permitWizardStepTitle"):
+                    driver.execute_script(
+                        """
+const btn = document.querySelector('[data-permit-wizard-next="1"]');
+if (btn && !btn.disabled) btn.click();
+                        """
+                    )
+                    wait.until(lambda d: "현재 보유 현황" in _text(d, "permitWizardStepTitle"))
+
+                _set_value_js(driver, "capitalInput", "1.5")
+                _set_value_js(driver, "technicianInput", "3")
+                _set_value_js(driver, "equipmentInput", "1")
+                wait.until(
+                    lambda d: "3/3" in str(
+                        d.execute_script(
+                            "const el=document.getElementById('permitWizardSummary'); return el ? (el.innerText || '') : '';"
+                        )
+                        or ""
+                    )
+                )
+                wait.until(lambda d: _text(d, "resultBannerTitle") not in {"", "-"})
+                wait.until(
+                    lambda d: str(
+                        d.execute_script(
+                            "const el=document.getElementById('resultBrief'); return el ? (el.value || '') : '';"
+                        )
+                        or ""
+                    ).strip()
+                    not in {"", "-"}
+                )
+
+                out["center_text"] = _text(driver, "requiredCapital")
+                out["range_text"] = _text(driver, "resultBannerTitle") or _text(driver, "capitalGapStatus")
+                out["confidence_text"] = str(
+                    driver.execute_script(
+                        "const el=document.getElementById('resultBrief'); return el ? (el.value || '') : '';"
+                    )
+                    or ""
+                ).strip()
+                out["preflight"]["industry_count_after_search"] = int(
+                    driver.execute_script(
+                        """
+const el = document.getElementById('industrySelect');
+return el && el.options ? el.options.length : 0;
+                        """
+                    )
+                    or 0
+                )
+                out["ok"] = (
+                    bool(out["center_text"])
+                    and out["center_text"] != "-"
+                    and bool(out["range_text"])
+                    and out["range_text"] != "-"
+                    and bool(out["confidence_text"])
+                    and out["confidence_text"] != "-"
+                    and int(out["preflight"].get("industry_count_after_search") or 0) > 0
+                )
                 return out
 
             out["error"] = f"unknown interaction mode: {mode}"
@@ -301,6 +533,7 @@ def main() -> int:
         "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "ok": True,
         "kr_only_mode": bool(kr_only),
+        "health_contract": load_widget_health_contract(),
         "checks": [],
         "warnings": [],
         "blocking_issues": [],
@@ -347,7 +580,8 @@ def main() -> int:
     report["checks"].append(
         _check_static(
             str(args.kr_acquisition_url),
-            ["id=\"smna-acq-calculator\"", "id=\"acq-btn-calc\""],
+            ["id=\"industrySearchInput\"", "id=\"industrySelect\""],
+            require_any=["id=\"permitWizardSummary\"", "id=\"resultBannerTitle\"", "id=\"requiredCapital\""],
         )
     )
 
@@ -365,7 +599,13 @@ def main() -> int:
                 _check_runtime(
                     chrome_exe=chrome_exe,
                     url=str(args.kr_acquisition_url),
-                    required=["id=\"acq-btn-calc\"", "id=\"acq-out-center\""],
+                    required=[
+                        "id=\"industrySearchInput\"",
+                        "id=\"industrySelect\"",
+                        "id=\"permitWizardStepTitle\"",
+                        "id=\"requiredCapital\"",
+                        "id=\"resultBannerTitle\"",
+                    ],
                 )
             )
         else:

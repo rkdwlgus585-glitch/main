@@ -83,6 +83,65 @@ class GenerateApiContractSpecTests(unittest.TestCase):
                 }
             ],
         }
+        permit_family_case_goldset = {
+            "summary": {
+                "goldset_complete_family_total": 1,
+                "case_total": 2,
+            },
+            "families": [
+                {
+                    "family_key": "건설산업기본법 시행령",
+                    "claim_id": "permit-family-aaa111",
+                    "cases": [
+                        {
+                            "case_id": "permit-family-aaa111:boundary_pass:A001",
+                            "case_kind": "boundary_pass",
+                            "service_code": "A001",
+                            "expected": {
+                                "overall_status": "pass",
+                                "proof_coverage_ratio": "1/1",
+                                "review_reason": "",
+                                "manual_review_expected": False,
+                            },
+                        },
+                        {
+                            "case_id": "permit-family-aaa111:shortfall_fail:A001",
+                            "case_kind": "shortfall_fail",
+                            "service_code": "A001",
+                            "expected": {
+                                "overall_status": "shortfall",
+                                "proof_coverage_ratio": "1/1",
+                                "review_reason": "technician_shortfall_only",
+                                "manual_review_expected": False,
+                            },
+                        },
+                    ],
+                }
+            ],
+        }
+        permit_case_story_surface = {
+            "summary": {
+                "story_family_total": 1,
+                "review_reason_total": 1,
+                "manual_review_family_total": 1,
+                "story_ready": True,
+            },
+            "families": [
+                {
+                    "family_key": "건설산업기본법 시행령",
+                    "claim_id": "permit-family-aaa111",
+                    "preset_total": 3,
+                    "manual_review_preset_total": 1,
+                    "representative_cases": [
+                        {
+                            "preset_id": "permit-family-aaa111:document_missing_review:A001",
+                            "review_reason": "other_requirement_documents_missing",
+                        }
+                    ],
+                    "operator_story_points": ["서류 누락 시 수동 검토로 전환"],
+                }
+            ],
+        }
 
         spec = generate_api_contract_spec.build_contract_spec(
             registry,
@@ -92,6 +151,8 @@ class GenerateApiContractSpecTests(unittest.TestCase):
             permit_master_catalog=master_catalog,
             permit_provenance_audit=permit_provenance,
             permit_patent_evidence_bundle=permit_patent,
+            permit_family_case_goldset=permit_family_case_goldset,
+            permit_case_story_surface=permit_case_story_surface,
         )
 
         permit_service = spec["services"]["permit"]
@@ -180,12 +241,91 @@ class GenerateApiContractSpecTests(unittest.TestCase):
             1,
         )
         self.assertEqual(
+            catalog_contracts["master_catalog"]["current_summary"]["family_case_goldset_family_total"],
+            1,
+        )
+        self.assertEqual(
+            catalog_contracts["master_catalog"]["current_summary"]["family_case_total"],
+            2,
+        )
+        self.assertEqual(
+            catalog_contracts["master_catalog"]["current_summary"]["family_case_sample_total"],
+            2,
+        )
+        self.assertEqual(
+            catalog_contracts["master_catalog"]["current_summary"]["edge_case_total"],
+            0,
+        )
+        self.assertEqual(
+            catalog_contracts["master_catalog"]["current_summary"]["edge_case_family_total"],
+            0,
+        )
+        self.assertEqual(
+            catalog_contracts["master_catalog"]["current_summary"]["manual_review_case_total"],
+            0,
+        )
+        self.assertEqual(
+            catalog_contracts["master_catalog"]["current_summary"]["case_story_surface_family_total"],
+            1,
+        )
+        self.assertEqual(
+            catalog_contracts["master_catalog"]["current_summary"]["case_story_review_reason_total"],
+            1,
+        )
+        self.assertEqual(
+            catalog_contracts["master_catalog"]["current_summary"]["case_story_manual_review_family_total"],
+            1,
+        )
+        self.assertEqual(
+            catalog_contracts["master_catalog"]["current_summary"]["case_story_sample_total"],
+            1,
+        )
+        self.assertTrue(
+            catalog_contracts["master_catalog"]["current_summary"]["case_story_surface_ready"]
+        )
+        self.assertEqual(
             catalog_contracts["master_catalog"]["proof_surface_examples"]["family_checksum_samples"][0]["checksum"],
             "checksum-a",
         )
         self.assertIn(
             "claim_statement",
             catalog_contracts["master_catalog"]["proof_surface_examples"]["claim_packet_fields"],
+        )
+        self.assertEqual(
+            catalog_contracts["master_catalog"]["proof_surface_examples"]["family_case_samples"][0]["case_id"],
+            "permit-family-aaa111:boundary_pass:A001",
+        )
+        self.assertIn(
+            "expected_status",
+            catalog_contracts["master_catalog"]["proof_surface_examples"]["family_case_fields"],
+        )
+        self.assertIn(
+            "review_reason",
+            catalog_contracts["master_catalog"]["proof_surface_examples"]["family_case_fields"],
+        )
+        self.assertIn(
+            "manual_review_expected",
+            catalog_contracts["master_catalog"]["proof_surface_examples"]["family_case_fields"],
+        )
+        self.assertEqual(
+            catalog_contracts["master_catalog"]["proof_surface_examples"]["case_story_samples"][0]["claim_id"],
+            "permit-family-aaa111",
+        )
+        self.assertEqual(
+            catalog_contracts["master_catalog"]["proof_surface_examples"]["case_story_samples"][0]["representative_preset_ids"],
+            ["permit-family-aaa111:document_missing_review:A001"],
+        )
+        self.assertIn(
+            "review_reasons",
+            catalog_contracts["master_catalog"]["proof_surface_examples"]["case_story_fields"],
+        )
+        self.assertIn(
+            "representative_preset_ids",
+            catalog_contracts["master_catalog"]["proof_surface_examples"]["case_story_fields"],
+        )
+        self.assertIn(
+            "operator_story_points",
+            catalog_contracts["master_catalog"]["proof_surface_examples"]["case_story_fields"],
         )
 
 

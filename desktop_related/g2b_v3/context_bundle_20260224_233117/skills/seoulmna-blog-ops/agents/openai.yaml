@@ -1,0 +1,4 @@
+interface:
+  display_name: "SeoulMNA Blog Ops"
+  short_description: "Operate mnakr.py publishing, scheduler, and SEO loops"
+  default_prompt: "Run SeoulMNA blog operations with mnakr.py: schedule checks, one-shot publish, lifecycle and rewrite loops with config guards."

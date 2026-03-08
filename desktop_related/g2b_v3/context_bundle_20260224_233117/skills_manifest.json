@@ -1,0 +1,177 @@
+﻿[
+    {
+        "skill":  ".system/skill-creator",
+        "files":  10,
+        "path":  "c:\\Users\\rkdwl\\Desktop\\g2b_v3\\context_bundle_20260224_233117\\skills\\.system\\skill-creator"
+    },
+    {
+        "skill":  ".system/skill-installer",
+        "files":  9,
+        "path":  "c:\\Users\\rkdwl\\Desktop\\g2b_v3\\context_bundle_20260224_233117\\skills\\.system\\skill-installer"
+    },
+    {
+        "skill":  "cloudflare-deploy",
+        "files":  312,
+        "path":  "c:\\Users\\rkdwl\\Desktop\\g2b_v3\\context_bundle_20260224_233117\\skills\\cloudflare-deploy"
+    },
+    {
+        "skill":  "develop-web-game",
+        "files":  7,
+        "path":  "c:\\Users\\rkdwl\\Desktop\\g2b_v3\\context_bundle_20260224_233117\\skills\\develop-web-game"
+    },
+    {
+        "skill":  "doc",
+        "files":  6,
+        "path":  "c:\\Users\\rkdwl\\Desktop\\g2b_v3\\context_bundle_20260224_233117\\skills\\doc"
+    },
+    {
+        "skill":  "figma",
+        "files":  8,
+        "path":  "c:\\Users\\rkdwl\\Desktop\\g2b_v3\\context_bundle_20260224_233117\\skills\\figma"
+    },
+    {
+        "skill":  "figma-implement-design",
+        "files":  6,
+        "path":  "c:\\Users\\rkdwl\\Desktop\\g2b_v3\\context_bundle_20260224_233117\\skills\\figma-implement-design"
+    },
+    {
+        "skill":  "gh-address-comments",
+        "files":  6,
+        "path":  "c:\\Users\\rkdwl\\Desktop\\g2b_v3\\context_bundle_20260224_233117\\skills\\gh-address-comments"
+    },
+    {
+        "skill":  "gh-fix-ci",
+        "files":  6,
+        "path":  "c:\\Users\\rkdwl\\Desktop\\g2b_v3\\context_bundle_20260224_233117\\skills\\gh-fix-ci"
+    },
+    {
+        "skill":  "imagegen",
+        "files":  11,
+        "path":  "c:\\Users\\rkdwl\\Desktop\\g2b_v3\\context_bundle_20260224_233117\\skills\\imagegen"
+    },
+    {
+        "skill":  "jupyter-notebook",
+        "files":  12,
+        "path":  "c:\\Users\\rkdwl\\Desktop\\g2b_v3\\context_bundle_20260224_233117\\skills\\jupyter-notebook"
+    },
+    {
+        "skill":  "linear",
+        "files":  5,
+        "path":  "c:\\Users\\rkdwl\\Desktop\\g2b_v3\\context_bundle_20260224_233117\\skills\\linear"
+    },
+    {
+        "skill":  "netlify-deploy",
+        "files":  8,
+        "path":  "c:\\Users\\rkdwl\\Desktop\\g2b_v3\\context_bundle_20260224_233117\\skills\\netlify-deploy"
+    },
+    {
+        "skill":  "notion-knowledge-capture",
+        "files":  5,
+        "path":  "c:\\Users\\rkdwl\\Desktop\\g2b_v3\\context_bundle_20260224_233117\\skills\\notion-knowledge-capture"
+    },
+    {
+        "skill":  "notion-meeting-intelligence",
+        "files":  5,
+        "path":  "c:\\Users\\rkdwl\\Desktop\\g2b_v3\\context_bundle_20260224_233117\\skills\\notion-meeting-intelligence"
+    },
+    {
+        "skill":  "notion-research-documentation",
+        "files":  5,
+        "path":  "c:\\Users\\rkdwl\\Desktop\\g2b_v3\\context_bundle_20260224_233117\\skills\\notion-research-documentation"
+    },
+    {
+        "skill":  "notion-spec-to-implementation",
+        "files":  5,
+        "path":  "c:\\Users\\rkdwl\\Desktop\\g2b_v3\\context_bundle_20260224_233117\\skills\\notion-spec-to-implementation"
+    },
+    {
+        "skill":  "openai-docs",
+        "files":  5,
+        "path":  "c:\\Users\\rkdwl\\Desktop\\g2b_v3\\context_bundle_20260224_233117\\skills\\openai-docs"
+    },
+    {
+        "skill":  "pdf",
+        "files":  4,
+        "path":  "c:\\Users\\rkdwl\\Desktop\\g2b_v3\\context_bundle_20260224_233117\\skills\\pdf"
+    },
+    {
+        "skill":  "playwright",
+        "files":  8,
+        "path":  "c:\\Users\\rkdwl\\Desktop\\g2b_v3\\context_bundle_20260224_233117\\skills\\playwright"
+    },
+    {
+        "skill":  "render-deploy",
+        "files":  21,
+        "path":  "c:\\Users\\rkdwl\\Desktop\\g2b_v3\\context_bundle_20260224_233117\\skills\\render-deploy"
+    },
+    {
+        "skill":  "screenshot",
+        "files":  11,
+        "path":  "c:\\Users\\rkdwl\\Desktop\\g2b_v3\\context_bundle_20260224_233117\\skills\\screenshot"
+    },
+    {
+        "skill":  "security-best-practices",
+        "files":  13,
+        "path":  "c:\\Users\\rkdwl\\Desktop\\g2b_v3\\context_bundle_20260224_233117\\skills\\security-best-practices"
+    },
+    {
+        "skill":  "security-ownership-map",
+        "files":  8,
+        "path":  "c:\\Users\\rkdwl\\Desktop\\g2b_v3\\context_bundle_20260224_233117\\skills\\security-ownership-map"
+    },
+    {
+        "skill":  "security-threat-model",
+        "files":  5,
+        "path":  "c:\\Users\\rkdwl\\Desktop\\g2b_v3\\context_bundle_20260224_233117\\skills\\security-threat-model"
+    },
+    {
+        "skill":  "sentry",
+        "files":  6,
+        "path":  "c:\\Users\\rkdwl\\Desktop\\g2b_v3\\context_bundle_20260224_233117\\skills\\sentry"
+    },
+    {
+        "skill":  "seoulmna-blog-ops",
+        "files":  3,
+        "path":  "c:\\Users\\rkdwl\\Desktop\\g2b_v3\\context_bundle_20260224_233117\\skills\\seoulmna-blog-ops"
+    },
+    {
+        "skill":  "seoulmna-crm-ops",
+        "files":  3,
+        "path":  "c:\\Users\\rkdwl\\Desktop\\g2b_v3\\context_bundle_20260224_233117\\skills\\seoulmna-crm-ops"
+    },
+    {
+        "skill":  "seoulmna-listing-ops",
+        "files":  3,
+        "path":  "c:\\Users\\rkdwl\\Desktop\\g2b_v3\\context_bundle_20260224_233117\\skills\\seoulmna-listing-ops"
+    },
+    {
+        "skill":  "sora",
+        "files":  14,
+        "path":  "c:\\Users\\rkdwl\\Desktop\\g2b_v3\\context_bundle_20260224_233117\\skills\\sora"
+    },
+    {
+        "skill":  "speech",
+        "files":  16,
+        "path":  "c:\\Users\\rkdwl\\Desktop\\g2b_v3\\context_bundle_20260224_233117\\skills\\speech"
+    },
+    {
+        "skill":  "spreadsheet",
+        "files":  9,
+        "path":  "c:\\Users\\rkdwl\\Desktop\\g2b_v3\\context_bundle_20260224_233117\\skills\\spreadsheet"
+    },
+    {
+        "skill":  "transcribe",
+        "files":  7,
+        "path":  "c:\\Users\\rkdwl\\Desktop\\g2b_v3\\context_bundle_20260224_233117\\skills\\transcribe"
+    },
+    {
+        "skill":  "vercel-deploy",
+        "files":  6,
+        "path":  "c:\\Users\\rkdwl\\Desktop\\g2b_v3\\context_bundle_20260224_233117\\skills\\vercel-deploy"
+    },
+    {
+        "skill":  "yeet",
+        "files":  5,
+        "path":  "c:\\Users\\rkdwl\\Desktop\\g2b_v3\\context_bundle_20260224_233117\\skills\\yeet"
+    }
+]

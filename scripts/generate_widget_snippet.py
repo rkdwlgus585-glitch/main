@@ -14,6 +14,7 @@ if str(ROOT) not in sys.path:
 from core_engine.channel_branding import resolve_channel_branding
 from scripts.plan_channel_embed import DEFAULT_CHANNELS, DEFAULT_ENV, DEFAULT_REGISTRY, plan_embed
 from scripts.validate_tenant_onboarding import _load_json
+from scripts.widget_health_contract import load_widget_health_contract
 
 WIDGET_DEFAULTS = {
     "yangdo": {
@@ -171,6 +172,7 @@ def build_widget_payload(
         "brand_label": str(branding.get("brand_label") or ""),
         "note": str(plan.get("note") or "").strip(),
         "activation_blockers": list(plan.get("activation_blockers") or []),
+        "health_contract": load_widget_health_contract(),
         "snippet": snippet,
         "plan": plan,
     }
@@ -221,6 +223,7 @@ def main() -> int:
                 "tenant_id": payload["tenant_id"],
                 "widget_url": payload["widget_url"],
                 "activation_blockers": payload["activation_blockers"],
+                "health_contract": payload["health_contract"],
                 "note": payload["note"],
                 "output": str(Path(args.output).resolve()) if args.output else "",
             },

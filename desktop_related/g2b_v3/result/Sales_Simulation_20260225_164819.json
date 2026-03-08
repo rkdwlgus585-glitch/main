@@ -1,0 +1,173 @@
+{
+  "generated_at": "2026-02-25T16:48:18",
+  "runs": 2500,
+  "seed": 77,
+  "horizons_weeks": [
+    6,
+    8,
+    10
+  ],
+  "baseline": {
+    "closed_deals": 0,
+    "closed_revenue_krw": 0,
+    "active_leads": 50
+  },
+  "scenarios": {
+    "conservative": {
+      "params": {
+        "contact_rate": 0.35,
+        "meeting_rate": 0.45,
+        "proposal_rate": 0.45,
+        "close_rate": 0.22
+      },
+      "horizons": {
+        "6w": {
+          "revenue": {
+            "mean_krw": 6658560,
+            "p10_krw": 3600000,
+            "p50_krw": 6000000,
+            "p90_krw": 9600000
+          },
+          "deals": {
+            "mean": 5.55,
+            "p10": 3,
+            "p50": 5,
+            "p90": 8
+          }
+        },
+        "8w": {
+          "revenue": {
+            "mean_krw": 15478560,
+            "p10_krw": 10800000,
+            "p50_krw": 15600000,
+            "p90_krw": 20400000
+          },
+          "deals": {
+            "mean": 12.9,
+            "p10": 9,
+            "p50": 13,
+            "p90": 17
+          }
+        },
+        "10w": {
+          "revenue": {
+            "mean_krw": 24028800,
+            "p10_krw": 19200000,
+            "p50_krw": 24000000,
+            "p90_krw": 30000000
+          },
+          "deals": {
+            "mean": 20.02,
+            "p10": 16,
+            "p50": 20,
+            "p90": 25
+          }
+        }
+      }
+    },
+    "base": {
+      "params": {
+        "contact_rate": 0.45,
+        "meeting_rate": 0.5,
+        "proposal_rate": 0.475,
+        "close_rate": 0.28
+      },
+      "horizons": {
+        "6w": {
+          "revenue": {
+            "mean_krw": 11338560,
+            "p10_krw": 7200000,
+            "p50_krw": 10800000,
+            "p90_krw": 15600000
+          },
+          "deals": {
+            "mean": 9.45,
+            "p10": 6,
+            "p50": 9,
+            "p90": 13
+          }
+        },
+        "8w": {
+          "revenue": {
+            "mean_krw": 23172000,
+            "p10_krw": 18000000,
+            "p50_krw": 22800000,
+            "p90_krw": 28800000
+          },
+          "deals": {
+            "mean": 19.31,
+            "p10": 15,
+            "p50": 19,
+            "p90": 24
+          }
+        },
+        "10w": {
+          "revenue": {
+            "mean_krw": 32953440,
+            "p10_krw": 27600000,
+            "p50_krw": 32400000,
+            "p90_krw": 38400000
+          },
+          "deals": {
+            "mean": 27.46,
+            "p10": 23,
+            "p50": 27,
+            "p90": 32
+          }
+        }
+      }
+    },
+    "aggressive": {
+      "params": {
+        "contact_rate": 0.55,
+        "meeting_rate": 0.55,
+        "proposal_rate": 0.5,
+        "close_rate": 0.33
+      },
+      "horizons": {
+        "6w": {
+          "revenue": {
+            "mean_krw": 16407840,
+            "p10_krw": 10800000,
+            "p50_krw": 16800000,
+            "p90_krw": 21600000
+          },
+          "deals": {
+            "mean": 13.67,
+            "p10": 9,
+            "p50": 14,
+            "p90": 18
+          }
+        },
+        "8w": {
+          "revenue": {
+            "mean_krw": 30305280,
+            "p10_krw": 25200000,
+            "p50_krw": 30000000,
+            "p90_krw": 36000000
+          },
+          "deals": {
+            "mean": 25.25,
+            "p10": 21,
+            "p50": 25,
+            "p90": 30
+          }
+        },
+        "10w": {
+          "revenue": {
+            "mean_krw": 39662880,
+            "p10_krw": 34800000,
+            "p50_krw": 39600000,
+            "p90_krw": 44400000
+          },
+          "deals": {
+            "mean": 33.05,
+            "p10": 29,
+            "p50": 33,
+            "p90": 37
+          }
+        }
+      }
+    }
+  }
+}

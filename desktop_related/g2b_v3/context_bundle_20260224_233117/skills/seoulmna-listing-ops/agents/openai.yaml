@@ -1,0 +1,4 @@
+interface:
+  display_name: "SeoulMNA Listing Ops"
+  short_description: "Operate all.py listing collector, upload, and reconcile flows"
+  default_prompt: "Run the SeoulMNA listing pipeline safely: collect, reconcile, or recover with clear preflight checks and flags."

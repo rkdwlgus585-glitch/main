@@ -16,6 +16,9 @@ DEFAULT_PERMIT_PLATFORM = ROOT / "logs" / "permit_platform_catalog_latest.json"
 DEFAULT_PERMIT_MASTER = ROOT / "logs" / "permit_master_catalog_latest.json"
 DEFAULT_PERMIT_PROVENANCE = ROOT / "logs" / "permit_provenance_audit_latest.json"
 DEFAULT_PERMIT_PATENT = ROOT / "logs" / "permit_patent_evidence_bundle_latest.json"
+DEFAULT_PERMIT_FAMILY_CASE_GOLDSET = ROOT / "logs" / "permit_family_case_goldset_latest.json"
+DEFAULT_PERMIT_CASE_STORY_SURFACE = ROOT / "logs" / "permit_case_story_surface_latest.json"
+DEFAULT_PERMIT_OPERATOR_DEMO_PACKET = ROOT / "logs" / "permit_operator_demo_packet_latest.json"
 DEFAULT_YANGDO_PRECISION = ROOT / "logs" / "yangdo_recommendation_precision_matrix_latest.json"
 DEFAULT_YANGDO_CONTRACT = ROOT / "logs" / "yangdo_recommendation_contract_audit_latest.json"
 
@@ -65,6 +68,125 @@ def _permit_family_checksum_samples(permit_patent: Dict[str, Any], limit: int = 
                 "checksum": checksums[0],
             }
         )
+        if len(samples) >= limit:
+            break
+    return samples
+
+
+def _permit_family_case_samples(
+    permit_family_case_goldset: Dict[str, Any],
+    limit: int = 120,
+) -> List[Dict[str, str]]:
+    families = [row for row in list(permit_family_case_goldset.get("families") or []) if isinstance(row, dict)]
+    samples: List[Dict[str, str]] = []
+    for family in families:
+        family_key = str(family.get("family_key") or "").strip()
+        claim_id = str(family.get("claim_id") or "").strip()
+        for case in list(family.get("cases") or []):
+            if not isinstance(case, dict):
+                continue
+            expected = case.get("expected") if isinstance(case.get("expected"), dict) else {}
+            sample = {
+                "family_key": family_key,
+                "claim_id": claim_id or str(case.get("claim_id") or "").strip(),
+                "case_id": str(case.get("case_id") or "").strip(),
+                "case_kind": str(case.get("case_kind") or "").strip(),
+                "service_code": str(case.get("service_code") or "").strip(),
+                "expected_status": str(expected.get("overall_status") or "").strip(),
+                "proof_coverage_ratio": str(expected.get("proof_coverage_ratio") or "").strip(),
+                "review_reason": str(expected.get("review_reason") or "").strip(),
+                "manual_review_expected": bool(expected.get("manual_review_expected", False)),
+            }
+            if not sample["case_id"] or not sample["family_key"]:
+                continue
+            samples.append(sample)
+            if len(samples) >= limit:
+                return samples
+    return samples
+
+
+def _permit_case_story_samples(
+    permit_case_story_surface: Dict[str, Any],
+    limit: int = 24,
+) -> List[Dict[str, Any]]:
+    families = [row for row in list(permit_case_story_surface.get("families") or []) if isinstance(row, dict)]
+    samples: List[Dict[str, Any]] = []
+    for family in families:
+        review_reasons = [
+            str(item.get("review_reason") or "").strip()
+            for item in list(family.get("representative_cases") or [])
+            if isinstance(item, dict) and str(item.get("review_reason") or "").strip()
+        ]
+        unique_review_reasons: List[str] = []
+        for item in review_reasons:
+            if item not in unique_review_reasons:
+                unique_review_reasons.append(item)
+        representative_preset_ids: List[str] = []
+        for item in list(family.get("representative_cases") or []):
+            if not isinstance(item, dict):
+                continue
+            preset_id = str(item.get("preset_id") or "").strip()
+            if preset_id and preset_id not in representative_preset_ids:
+                representative_preset_ids.append(preset_id)
+        sample = {
+            "family_key": str(family.get("family_key") or "").strip(),
+            "claim_id": str(family.get("claim_id") or "").strip(),
+            "preset_total": int(family.get("preset_total", 0) or 0),
+            "manual_review_preset_total": int(family.get("manual_review_preset_total", 0) or 0),
+            "review_reasons": unique_review_reasons[:3],
+            "representative_preset_ids": representative_preset_ids[:3],
+            "operator_story_points": [
+                str(item or "").strip()
+                for item in list(family.get("operator_story_points") or [])
+                if str(item or "").strip()
+            ][:2],
+        }
+        if not sample["family_key"]:
+            continue
+        samples.append(sample)
+        if len(samples) >= limit:
+            break
+    return samples
+
+
+def _permit_partner_demo_samples(
+    permit_operator_demo_packet: Dict[str, Any],
+    limit: int = 24,
+) -> List[Dict[str, Any]]:
+    families = [row for row in list(permit_operator_demo_packet.get("families") or []) if isinstance(row, dict)]
+    samples: List[Dict[str, Any]] = []
+    for family in families:
+        cases = [row for row in list(family.get("demo_cases") or []) if isinstance(row, dict)]
+        review_reasons: List[str] = []
+        representative_services: List[str] = []
+        representative_statuses: List[str] = []
+        manual_review_demo_total = 0
+        for case in cases:
+            reason = str(case.get("review_reason") or "").strip()
+            if reason and reason not in review_reasons:
+                review_reasons.append(reason)
+            service_name = str(case.get("service_name") or case.get("service_code") or "").strip()
+            if service_name and service_name not in representative_services:
+                representative_services.append(service_name)
+            expected_status = str(case.get("expected_status") or "").strip()
+            if expected_status and expected_status not in representative_statuses:
+                representative_statuses.append(expected_status)
+            if bool(case.get("manual_review_expected", False)):
+                manual_review_demo_total += 1
+        sample = {
+            "family_key": str(family.get("family_key") or "").strip(),
+            "claim_id": str(family.get("claim_id") or "").strip(),
+            "claim_title": str(family.get("claim_title") or "").strip(),
+            "proof_coverage_ratio": str(family.get("proof_coverage_ratio") or "").strip(),
+            "demo_case_total": len(cases),
+            "manual_review_demo_total": manual_review_demo_total,
+            "review_reasons": review_reasons[:3],
+            "representative_services": representative_services[:3],
+            "representative_statuses": representative_statuses[:3],
+        }
+        if not sample["family_key"] or not sample["claim_id"]:
+            continue
+        samples.append(sample)
         if len(samples) >= limit:
             break
     return samples
@@ -205,6 +327,47 @@ def _recommendation_lane_positioning() -> Dict[str, Dict[str, Any]]:
     }
 
 
+def _permit_package_lane(*, permit_enabled: bool, plan: str, features: List[str], delivery_modes: List[str]) -> str:
+    if not permit_enabled:
+        return "not_applicable"
+    if plan == "pro_internal":
+        return "internal_full"
+    if plan == "standard":
+        return "summary_self_check"
+    if "consult" in features or "crm_webhook" in delivery_modes:
+        return "manual_review_assist"
+    return "detail_checklist"
+
+
+def _permit_lane_positioning() -> Dict[str, Dict[str, Any]]:
+    return {
+        "summary_self_check": {
+            "role": "public_self_check_lane",
+            "who_its_for": "Public widget users who need a fast permit precheck before escalating.",
+            "upgrade_target": "detail_checklist",
+            "cta_bias": "self_check_first",
+        },
+        "detail_checklist": {
+            "role": "explainable_checklist_lane",
+            "who_its_for": "Partners who need criterion-by-criterion checklist output without manual follow-up by default.",
+            "upgrade_target": "manual_review_assist",
+            "cta_bias": "checklist_first",
+        },
+        "manual_review_assist": {
+            "role": "manual_review_assist_lane",
+            "who_its_for": "Partners who need explainable checklist output plus manual-review or consultant follow-up for complex registrations.",
+            "upgrade_target": "internal_full",
+            "cta_bias": "manual_review_when_complex",
+        },
+        "internal_full": {
+            "role": "internal_registry_lane",
+            "who_its_for": "Internal tenants that can inspect pending criteria, mapping confidence, and QA-only registry details.",
+            "upgrade_target": "",
+            "cta_bias": "operator_only",
+        },
+    }
+
+
 def _build_offering_rows(
     *,
     registry: Dict[str, Any],
@@ -234,6 +397,13 @@ def _build_offering_rows(
             features=features,
             delivery_modes=delivery_modes,
         )
+        permit_enabled = "permit" in systems
+        permit_package_lane = _permit_package_lane(
+            permit_enabled=permit_enabled,
+            plan=plan,
+            features=features,
+            delivery_modes=delivery_modes,
+        )
         rows.append(
             {
                 "offering_id": offering_id,
@@ -250,6 +420,8 @@ def _build_offering_rows(
                 "recommendation_visibility": str(recommendation.get("visibility") or "not_applicable"),
                 "recommendation_package_lane": package_lane,
                 "recommendation_fields": recommendation,
+                "permit_enabled": permit_enabled,
+                "permit_package_lane": permit_package_lane,
                 "recommended_rental_position": (
                     "public_widget_standard"
                     if plan == "standard"
@@ -270,6 +442,9 @@ def build_widget_rental_catalog(
     permit_master_path: Path | None = None,
     permit_provenance_path: Path | None = None,
     permit_patent_path: Path | None = None,
+    permit_family_case_goldset_path: Path | None = None,
+    permit_case_story_surface_path: Path | None = None,
+    permit_operator_demo_packet_path: Path | None = None,
     yangdo_precision_path: Path | None = None,
     yangdo_contract_path: Path | None = None,
 ) -> Dict[str, Any]:
@@ -281,6 +456,9 @@ def build_widget_rental_catalog(
     permit_master = _load_json(permit_master_path or Path())
     permit_provenance = _load_json(permit_provenance_path or Path())
     permit_patent = _load_json(permit_patent_path or Path())
+    permit_family_case_goldset = _load_json(permit_family_case_goldset_path or Path())
+    permit_case_story_surface = _load_json(permit_case_story_surface_path or Path())
+    permit_operator_demo_packet = _load_json(permit_operator_demo_packet_path or Path())
     yangdo_precision = _load_json(yangdo_precision_path or Path())
     yangdo_contract = _load_json(yangdo_contract_path or Path())
 
@@ -327,6 +505,11 @@ def build_widget_rental_catalog(
     recommendation_consult_assist_rows = [
         row for row in recommendation_rows if row.get("recommendation_package_lane") == "consult_assist"
     ]
+    permit_rows = [row for row in offering_rows if bool(row.get("permit_enabled"))]
+    permit_standard_rows = [row for row in permit_rows if row.get("permit_package_lane") == "summary_self_check"]
+    permit_detail_rows = [row for row in permit_rows if row.get("permit_package_lane") == "detail_checklist"]
+    permit_assist_rows = [row for row in permit_rows if row.get("permit_package_lane") == "manual_review_assist"]
+    permit_internal_rows = [row for row in permit_rows if row.get("permit_package_lane") == "internal_full"]
     permit_selector_summary = permit_selector.get("summary") if isinstance(permit_selector.get("summary"), dict) else {}
     permit_platform_summary = permit_platform.get("summary") if isinstance(permit_platform.get("summary"), dict) else {}
     permit_master_summary = permit_master.get("summary") if isinstance(permit_master.get("summary"), dict) else {}
@@ -337,6 +520,31 @@ def build_widget_rental_catalog(
         permit_patent.get("summary") if isinstance(permit_patent.get("summary"), dict) else {}
     )
     permit_checksum_samples = _permit_family_checksum_samples(permit_patent)
+    permit_family_case_goldset_summary = (
+        permit_family_case_goldset.get("summary")
+        if isinstance(permit_family_case_goldset.get("summary"), dict)
+        else {}
+    )
+    permit_family_case_samples = _permit_family_case_samples(permit_family_case_goldset)
+    permit_case_story_surface_summary = (
+        permit_case_story_surface.get("summary")
+        if isinstance(permit_case_story_surface.get("summary"), dict)
+        else {}
+    )
+    permit_case_story_samples = _permit_case_story_samples(permit_case_story_surface)
+    permit_operator_demo_summary = (
+        permit_operator_demo_packet.get("summary")
+        if isinstance(permit_operator_demo_packet.get("summary"), dict)
+        else {}
+    )
+    permit_partner_demo_samples = _permit_partner_demo_samples(permit_operator_demo_packet)
+    permit_case_parity_family_total = len(
+        {
+            str(item.get("family_key") or "").strip()
+            for item in permit_family_case_samples
+            if str(item.get("family_key") or "").strip()
+        }
+    )
     yangdo_precision_summary = (
         yangdo_precision.get("summary") if isinstance(yangdo_precision.get("summary"), dict) else {}
     )
@@ -357,6 +565,11 @@ def build_widget_rental_catalog(
         "yangdo_recommendation_summary_bridge_count": len(recommendation_summary_bridge_rows),
         "yangdo_recommendation_detail_lane_count": len(recommendation_detail_explainable_rows),
         "yangdo_recommendation_consult_assist_count": len(recommendation_consult_assist_rows),
+        "permit_offering_count": len(permit_rows),
+        "permit_standard_count": len(permit_standard_rows),
+        "permit_detail_checklist_count": len(permit_detail_rows),
+        "permit_manual_review_assist_count": len(permit_assist_rows),
+        "permit_internal_count": len(permit_internal_rows),
         "internal_tenant_count": len(internal_tenants),
         "public_platform_host": str(topology.get("main_platform_host") or "seoulmna.kr"),
         "listing_market_host": str(topology.get("listing_market_host") or "seoulmna.co.kr"),
@@ -417,6 +630,41 @@ def build_widget_rental_catalog(
             permit_patent_summary.get("checksum_sample_family_total", 0) or 0
         ),
         "permit_checksum_sample_total": len(permit_checksum_samples),
+        "permit_family_case_goldset_family_total": int(
+            permit_family_case_goldset_summary.get("goldset_complete_family_total", 0) or 0
+        ),
+        "permit_family_case_total": int(permit_family_case_goldset_summary.get("case_total", 0) or 0),
+        "permit_family_case_sample_total": len(permit_family_case_samples),
+        "permit_edge_case_total": int(permit_family_case_goldset_summary.get("edge_case_total", 0) or 0),
+        "permit_edge_case_family_total": int(permit_family_case_goldset_summary.get("edge_case_family_total", 0) or 0),
+        "permit_manual_review_case_total": int(permit_family_case_goldset_summary.get("manual_review_case_total", 0) or 0),
+        "permit_widget_case_parity_family_total": permit_case_parity_family_total,
+        "permit_case_story_family_total": int(
+            permit_case_story_surface_summary.get("story_family_total", 0) or 0
+        ),
+        "permit_case_story_review_reason_total": int(
+            permit_case_story_surface_summary.get("review_reason_total", 0) or 0
+        ),
+        "permit_case_story_manual_review_family_total": int(
+            permit_case_story_surface_summary.get("manual_review_family_total", 0) or 0
+        ),
+        "permit_case_story_sample_total": len(permit_case_story_samples),
+        "permit_case_story_surface_ready": bool(
+            permit_case_story_surface_summary.get("story_ready", False)
+        ),
+        "permit_operator_demo_family_total": int(
+            permit_operator_demo_summary.get("family_total", 0) or 0
+        ),
+        "permit_operator_demo_case_total": int(
+            permit_operator_demo_summary.get("demo_case_total", 0) or 0
+        ),
+        "permit_operator_demo_manual_review_total": int(
+            permit_operator_demo_summary.get("manual_review_demo_total", 0) or 0
+        ),
+        "permit_partner_demo_sample_total": len(permit_partner_demo_samples),
+        "permit_partner_demo_surface_ready": bool(
+            permit_operator_demo_summary.get("operator_demo_ready", False)
+        ) and bool(permit_partner_demo_samples),
         "yangdo_recommendation_precision_scenario_count": int(
             yangdo_precision_summary.get("scenario_count", 0) or 0
         ),
@@ -501,12 +749,55 @@ def build_widget_rental_catalog(
                 "listing_runtime_policy": "never_embed_tools_on_listing_domain",
                 "supported_precision_labels": ["우선 추천", "조건 유사", "보조 검토"],
             },
+            "permit_precheck": {
+                "enabled_offerings": [row["offering_id"] for row in permit_rows],
+                "summary_offerings": [row["offering_id"] for row in permit_standard_rows],
+                "detail_offerings": [row["offering_id"] for row in permit_detail_rows],
+                "assist_offerings": [row["offering_id"] for row in permit_assist_rows],
+                "internal_offerings": [row["offering_id"] for row in permit_internal_rows],
+                "package_matrix": {
+                    "summary_self_check": {
+                        "offering_ids": [row["offering_id"] for row in permit_standard_rows],
+                        "policy": "Public-safe self-check summary with a lazy gate and checklist CTA.",
+                    },
+                    "detail_checklist": {
+                        "offering_ids": [row["offering_id"] for row in permit_detail_rows],
+                        "policy": "Criterion-by-criterion checklist output without manual follow-up.",
+                    },
+                    "manual_review_assist": {
+                        "offering_ids": [row["offering_id"] for row in permit_assist_rows],
+                        "policy": "Checklist output plus manual-review or consultant follow-up lane.",
+                    },
+                    "internal_full": {
+                        "offering_ids": [row["offering_id"] for row in permit_internal_rows],
+                        "policy": "Internal QA lane with raw registry mapping and pending-criteria context.",
+                    },
+                },
+                "lane_positioning": _permit_lane_positioning(),
+                "summary_policy": "Expose pass/fail summary, shortfall labels, and next-step CTA only.",
+                "detail_policy": "Expose criterion results, evidence checklist, and next actions without raw mapping internals.",
+                "assist_policy": "Expose detail checklist plus manual-review assist CTA and consult handoff lane.",
+                "internal_policy": "Internal tenants may inspect pending criteria, mapping confidence, and QA-only diagnostics.",
+                "public_story": "Start with a fast registration-basis self-check, then move to detail only when needed.",
+                "detail_story": "Show criterion-by-criterion checklist output before escalating into manual review.",
+                "assist_story": "Use manual-review assist when the basis is ambiguous or additional criteria require operator judgment.",
+                "listing_runtime_policy": "never_embed_tools_on_listing_domain",
+                "service_primary_cta": "사전검토 시작",
+                "service_secondary_cta": "수동 검토 요청",
+                "service_flow_policy": "public_summary_then_checklist_or_manual_review",
+            },
             "permit_widget_feeds": {
                 "selector_feed_path": str((permit_selector_path or Path()).resolve()) if permit_selector_path else "",
                 "platform_feed_path": str((permit_platform_path or Path()).resolve()) if permit_platform_path else "",
                 "master_feed_path": str((permit_master_path or Path()).resolve()) if permit_master_path else "",
                 "provenance_audit_path": str((permit_provenance_path or Path()).resolve()) if permit_provenance_path else "",
                 "patent_evidence_bundle_path": str((permit_patent_path or Path()).resolve()) if permit_patent_path else "",
+                "family_case_goldset_path": (
+                    str((permit_family_case_goldset_path or Path()).resolve()) if permit_family_case_goldset_path else ""
+                ),
+                "case_story_surface_path": (
+                    str((permit_case_story_surface_path or Path()).resolve()) if permit_case_story_surface_path else ""
+                ),
                 "selector_entry_total": summary["permit_selector_entry_total"],
                 "platform_industry_total": summary["permit_platform_industry_total"],
                 "platform_focus_registry_row_total": summary["permit_platform_focus_registry_row_total"],
@@ -529,7 +820,58 @@ def build_widget_rental_catalog(
                 "claim_packet_complete_family_total": summary["permit_claim_packet_complete_family_total"],
                 "checksum_sample_family_total": summary["permit_checksum_sample_family_total"],
                 "checksum_sample_total": summary["permit_checksum_sample_total"],
+                "family_case_goldset_family_total": summary["permit_family_case_goldset_family_total"],
+                "family_case_total": summary["permit_family_case_total"],
+                "family_case_sample_total": summary["permit_family_case_sample_total"],
+                "edge_case_total": summary["permit_edge_case_total"],
+                "edge_case_family_total": summary["permit_edge_case_family_total"],
+                "manual_review_case_total": summary["permit_manual_review_case_total"],
+                "widget_case_parity_family_total": summary["permit_widget_case_parity_family_total"],
+                "case_story_family_total": summary["permit_case_story_family_total"],
+                "case_story_review_reason_total": summary["permit_case_story_review_reason_total"],
+                "case_story_manual_review_family_total": summary["permit_case_story_manual_review_family_total"],
+                "case_story_sample_total": summary["permit_case_story_sample_total"],
+                "case_story_surface_ready": summary["permit_case_story_surface_ready"],
+                "operator_demo_family_total": summary["permit_operator_demo_family_total"],
+                "operator_demo_case_total": summary["permit_operator_demo_case_total"],
+                "operator_demo_manual_review_total": summary["permit_operator_demo_manual_review_total"],
+                "partner_demo_sample_total": summary["permit_partner_demo_sample_total"],
+                "partner_demo_surface_ready": summary["permit_partner_demo_surface_ready"],
                 "proof_checksum_samples": permit_checksum_samples,
+                "family_case_sample_fields": [
+                    "family_key",
+                    "claim_id",
+                    "case_id",
+                    "case_kind",
+                    "service_code",
+                    "expected_status",
+                    "proof_coverage_ratio",
+                    "review_reason",
+                    "manual_review_expected",
+                ],
+                "family_case_samples": permit_family_case_samples,
+                "case_story_sample_fields": [
+                    "family_key",
+                    "claim_id",
+                    "preset_total",
+                    "manual_review_preset_total",
+                    "review_reasons",
+                    "representative_preset_ids",
+                    "operator_story_points",
+                ],
+                "case_story_samples": permit_case_story_samples,
+                "partner_demo_fields": [
+                    "family_key",
+                    "claim_id",
+                    "claim_title",
+                    "proof_coverage_ratio",
+                    "demo_case_total",
+                    "manual_review_demo_total",
+                    "review_reasons",
+                    "representative_services",
+                    "representative_statuses",
+                ],
+                "partner_demo_samples": permit_partner_demo_samples,
                 "recommended_primary_feed": "master_catalog",
                 "recommended_overlay_feed": "selector_catalog",
             },
@@ -545,6 +887,7 @@ def build_widget_rental_catalog(
         "Keep SeoulMNA internal tenants on pro_internal so seoulmna.co.kr can consume unlimited internal widgets without partner throttling.",
         "Use the same A/B engine split in commercial packaging: yangdo-only, permit-only, combo.",
         "For permit widgets, use master_catalog as the primary industry feed and selector_catalog as the overlay feed for stable quick-select aliases.",
+        "Permit rental should ladder from summary_self_check to detail_checklist to manual_review_assist instead of collapsing every pro plan into one lane.",
         "Master catalog is now backed by direct focus-registry rows; keep the provenance audit attached until candidate-pack and inferred rows are materially reduced.",
     ]
 
@@ -559,6 +902,9 @@ def build_widget_rental_catalog(
             "permit_master_catalog": str((permit_master_path or Path()).resolve()) if permit_master_path else "",
             "permit_provenance_audit": str((permit_provenance_path or Path()).resolve()) if permit_provenance_path else "",
             "permit_patent_evidence_bundle": str((permit_patent_path or Path()).resolve()) if permit_patent_path else "",
+            "permit_family_case_goldset": (
+                str((permit_family_case_goldset_path or Path()).resolve()) if permit_family_case_goldset_path else ""
+            ),
             "yangdo_recommendation_precision_matrix": str((yangdo_precision_path or Path()).resolve()) if yangdo_precision_path else "",
             "yangdo_recommendation_contract_audit": str((yangdo_contract_path or Path()).resolve()) if yangdo_contract_path else "",
         },
@@ -611,6 +957,23 @@ def _to_markdown(payload: Dict[str, Any]) -> str:
         f"- permit_claim_packet_complete_family_total: {summary.get('permit_claim_packet_complete_family_total')}",
         f"- permit_checksum_sample_family_total: {summary.get('permit_checksum_sample_family_total')}",
         f"- permit_checksum_sample_total: {summary.get('permit_checksum_sample_total')}",
+        f"- permit_family_case_goldset_family_total: {summary.get('permit_family_case_goldset_family_total')}",
+        f"- permit_family_case_total: {summary.get('permit_family_case_total')}",
+        f"- permit_family_case_sample_total: {summary.get('permit_family_case_sample_total')}",
+        f"- permit_edge_case_total: {summary.get('permit_edge_case_total')}",
+        f"- permit_edge_case_family_total: {summary.get('permit_edge_case_family_total')}",
+        f"- permit_manual_review_case_total: {summary.get('permit_manual_review_case_total')}",
+        f"- permit_case_story_family_total: {summary.get('permit_case_story_family_total')}",
+        f"- permit_case_story_review_reason_total: {summary.get('permit_case_story_review_reason_total')}",
+        f"- permit_case_story_manual_review_family_total: {summary.get('permit_case_story_manual_review_family_total')}",
+        f"- permit_case_story_sample_total: {summary.get('permit_case_story_sample_total')}",
+        f"- permit_case_story_surface_ready: {summary.get('permit_case_story_surface_ready')}",
+        f"- permit_operator_demo_family_total: {summary.get('permit_operator_demo_family_total')}",
+        f"- permit_operator_demo_case_total: {summary.get('permit_operator_demo_case_total')}",
+        f"- permit_operator_demo_manual_review_total: {summary.get('permit_operator_demo_manual_review_total')}",
+        f"- permit_partner_demo_sample_total: {summary.get('permit_partner_demo_sample_total')}",
+        f"- permit_partner_demo_surface_ready: {summary.get('permit_partner_demo_surface_ready')}",
+        f"- permit_widget_case_parity_family_total: {summary.get('permit_widget_case_parity_family_total')}",
         "",
         "## Packaging",
         f"- public_platform: {(packaging.get('public_platform') or {}).get('calculator_policy')}",
@@ -624,6 +987,10 @@ def _to_markdown(payload: Dict[str, Any]) -> str:
         f"- yangdo_recommendation_public_story: {(((packaging.get('partner_rental') or {}).get('yangdo_recommendation') or {}).get('public_story'))}",
         f"- yangdo_recommendation_detail_story: {(((packaging.get('partner_rental') or {}).get('yangdo_recommendation') or {}).get('detail_story'))}",
         f"- permit_widget_primary_feed: {((packaging.get('partner_rental') or {}).get('permit_widget_feeds') or {}).get('recommended_primary_feed')}",
+        f"- permit_widget_case_parity_family_total: {((packaging.get('partner_rental') or {}).get('permit_widget_feeds') or {}).get('widget_case_parity_family_total')}",
+        f"- permit_summary_self_check: {', '.join((((((packaging.get('partner_rental') or {}).get('permit_precheck') or {}).get('package_matrix') or {}).get('summary_self_check') or {}).get('offering_ids') or [])) or '(none)'}",
+        f"- permit_detail_checklist: {', '.join((((((packaging.get('partner_rental') or {}).get('permit_precheck') or {}).get('package_matrix') or {}).get('detail_checklist') or {}).get('offering_ids') or [])) or '(none)'}",
+        f"- permit_manual_review_assist: {', '.join((((((packaging.get('partner_rental') or {}).get('permit_precheck') or {}).get('package_matrix') or {}).get('manual_review_assist') or {}).get('offering_ids') or [])) or '(none)'}",
         "",
         "## Offerings",
     ]
@@ -656,6 +1023,9 @@ def main() -> int:
     parser.add_argument("--permit-master", type=Path, default=DEFAULT_PERMIT_MASTER)
     parser.add_argument("--permit-provenance", type=Path, default=DEFAULT_PERMIT_PROVENANCE)
     parser.add_argument("--permit-patent", type=Path, default=DEFAULT_PERMIT_PATENT)
+    parser.add_argument("--permit-family-case-goldset", type=Path, default=DEFAULT_PERMIT_FAMILY_CASE_GOLDSET)
+    parser.add_argument("--permit-case-story-surface", type=Path, default=DEFAULT_PERMIT_CASE_STORY_SURFACE)
+    parser.add_argument("--permit-operator-demo-packet", type=Path, default=DEFAULT_PERMIT_OPERATOR_DEMO_PACKET)
     parser.add_argument("--yangdo-precision", type=Path, default=DEFAULT_YANGDO_PRECISION)
     parser.add_argument("--yangdo-contract", type=Path, default=DEFAULT_YANGDO_CONTRACT)
     parser.add_argument("--json", type=Path, default=ROOT / "logs" / "widget_rental_catalog_latest.json")
@@ -671,6 +1041,9 @@ def main() -> int:
         permit_master_path=args.permit_master,
         permit_provenance_path=args.permit_provenance,
         permit_patent_path=args.permit_patent,
+        permit_family_case_goldset_path=args.permit_family_case_goldset,
+        permit_case_story_surface_path=args.permit_case_story_surface,
+        permit_operator_demo_packet_path=args.permit_operator_demo_packet,
         yangdo_precision_path=args.yangdo_precision,
         yangdo_contract_path=args.yangdo_contract,
     )

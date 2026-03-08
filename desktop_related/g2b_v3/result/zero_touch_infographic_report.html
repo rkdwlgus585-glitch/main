@@ -1,0 +1,616 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Zero-Touch 수익모델 인포그래픽 보고서</title>
+  <style>
+    :root {
+      --ink: #10212b;
+      --ink-soft: #2e4652;
+      --bg: #f2f6f7;
+      --card: #ffffff;
+      --line: #d8e4e8;
+      --teal: #007a78;
+      --teal-2: #23a6a3;
+      --amber: #c98200;
+      --red: #a3362c;
+      --green: #2b7a45;
+      --navy: #1f3852;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Pretendard Variable", "SUIT", "IBM Plex Sans KR", "Noto Sans KR", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(900px 500px at -10% -10%, #d8ecef 0%, rgba(216,236,239,0) 70%),
+        radial-gradient(700px 500px at 110% -20%, #ffe9c4 0%, rgba(255,233,196,0) 65%),
+        linear-gradient(135deg, #f5f8f9 0%, #edf3f5 100%);
+      line-height: 1.45;
+    }
+
+    .wrap {
+      width: min(1180px, 94vw);
+      margin: 28px auto 56px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 14px 34px rgba(31,56,82,0.08);
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      animation: rise .75s ease both;
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1, h2, h3 { margin: 0; line-height: 1.2; }
+
+    .hero {
+      display: grid;
+      gap: 18px;
+      grid-template-columns: 1.2fr .8fr;
+      background: linear-gradient(120deg, #0f2735 0%, #1a4254 60%, #1f3852 100%);
+      color: #ecf6f9;
+      border: none;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 380px;
+      height: 380px;
+      right: -110px;
+      top: -160px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 40% 40%, rgba(35,166,163,.38), rgba(35,166,163,0));
+      pointer-events: none;
+    }
+
+    .kicker {
+      display: inline-flex;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      letter-spacing: .03em;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.22);
+      margin-bottom: 12px;
+    }
+
+    .hero h1 {
+      font-size: clamp(24px, 3vw, 40px);
+      margin-bottom: 10px;
+      letter-spacing: -0.02em;
+    }
+
+    .muted { color: #d3e4ea; font-size: 14px; }
+
+    .hero-meta {
+      display: grid;
+      gap: 10px;
+      align-content: center;
+    }
+
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px dashed rgba(255,255,255,.25);
+      padding-bottom: 6px;
+      font-size: 14px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      background: linear-gradient(180deg, #fff, #f7fbfc);
+      animation: rise .8s ease both;
+    }
+
+    .metric b {
+      display: block;
+      font-size: 26px;
+      margin-top: 4px;
+      letter-spacing: -0.02em;
+    }
+
+    .metric small { color: var(--ink-soft); font-size: 12px; }
+
+    .section-title {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .section-title h2 {
+      font-size: 22px;
+      letter-spacing: -0.01em;
+    }
+
+    .pill {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      border: 1px solid var(--line);
+      color: var(--ink-soft);
+      background: #f6fafb;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 14px;
+    }
+
+    .stack { display: grid; gap: 10px; }
+
+    .bar {
+      display: grid;
+      gap: 6px;
+    }
+
+    .bar-head {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+    }
+
+    .track {
+      width: 100%;
+      height: 12px;
+      border-radius: 999px;
+      background: #e6eff2;
+      overflow: hidden;
+    }
+
+    .fill {
+      height: 100%;
+      border-radius: inherit;
+      transform-origin: left;
+      animation: stretch 1.2s ease both;
+    }
+
+    @keyframes stretch {
+      from { transform: scaleX(0); }
+      to { transform: scaleX(1); }
+    }
+
+    .c-teal { background: linear-gradient(90deg, var(--teal), var(--teal-2)); }
+    .c-amber { background: linear-gradient(90deg, #d29a2f, #efc067); }
+    .c-navy { background: linear-gradient(90deg, #2a4b68, #4b6e8d); }
+    .c-red { background: linear-gradient(90deg, #b7473b, #d2736a); }
+
+    .funnel {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+
+    .stage {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fbfefe;
+      text-align: center;
+      position: relative;
+    }
+
+    .stage:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      right: -8px;
+      top: 50%;
+      width: 16px;
+      height: 2px;
+      background: #b7ccd4;
+    }
+
+    .stage h3 { font-size: 13px; color: var(--ink-soft); }
+    .stage b { font-size: 24px; display: block; margin-top: 6px; }
+
+    .cards-5 {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+
+    .pkg {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pkg::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 4px;
+      background: linear-gradient(90deg, #1f3852, #23a6a3);
+    }
+
+    .pkg h3 { font-size: 14px; margin-bottom: 8px; }
+    .pkg b { font-size: 24px; display: block; margin-bottom: 4px; }
+    .pkg small { color: var(--ink-soft); }
+
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .phase {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+      min-height: 180px;
+    }
+
+    .phase b {
+      display: inline-block;
+      font-size: 12px;
+      border-radius: 999px;
+      padding: 4px 8px;
+      color: #f0f7f9;
+      background: #1f5166;
+      margin-bottom: 8px;
+    }
+
+    .phase ul {
+      margin: 0;
+      padding-left: 16px;
+      font-size: 13px;
+      color: var(--ink-soft);
+      display: grid;
+      gap: 6px;
+    }
+
+    .risk {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .risk-item {
+      border: 1px solid #efd6d2;
+      background: #fff8f6;
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .risk-item b { color: var(--red); display: block; margin-bottom: 6px; }
+
+    .arch {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .node {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+      text-align: center;
+      position: relative;
+    }
+
+    .node:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      right: -8px;
+      top: 50%;
+      width: 16px;
+      height: 2px;
+      background: #9bb4be;
+    }
+
+    .foot {
+      font-size: 12px;
+      color: #4b6370;
+      padding: 14px;
+      border-top: 1px solid var(--line);
+      margin-top: 4px;
+    }
+
+    @media (max-width: 1040px) {
+      .grid-4 { grid-template-columns: repeat(2, 1fr); }
+      .cards-5 { grid-template-columns: repeat(2, 1fr); }
+      .timeline { grid-template-columns: repeat(2, 1fr); }
+      .funnel { grid-template-columns: repeat(3, 1fr); }
+      .arch { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 760px) {
+      .hero { grid-template-columns: 1fr; }
+      .two-col { grid-template-columns: 1fr; }
+      .risk { grid-template-columns: 1fr; }
+      .funnel { grid-template-columns: repeat(2, 1fr); }
+      .cards-5 { grid-template-columns: 1fr; }
+      .timeline { grid-template-columns: 1fr; }
+      .arch { grid-template-columns: 1fr; }
+      .stage:not(:last-child)::after,
+      .node:not(:last-child)::after { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="panel hero">
+      <div>
+        <span class="kicker">Zero-Touch Revenue Blueprint</span>
+        <h1>기획 → 영업 → 생산 → 수익
+          <br/>무개입 실행형 운영 보고서</h1>
+        <p class="muted">
+          월 목표 200,000원 기준으로 자동 수익 가능성은 충분하나, 스케일 업(월 2,000만원) 전환에는
+          고객사 DB 확충·고단가 믹스 개선·실행조직 고정이 필요합니다.
+        </p>
+      </div>
+      <div class="hero-meta">
+        <div class="meta-row"><span>기준 Run ID</span><strong>20260225_145020</strong></div>
+        <div class="meta-row"><span>데이터 품질</span><strong>FULL</strong></div>
+        <div class="meta-row"><span>분석 대상 공고</span><strong>920건</strong></div>
+        <div class="meta-row"><span>재량/소액 중심</span><strong>627건</strong></div>
+        <div class="meta-row"><span>보고서 생성 시각</span><strong>2026-02-25</strong></div>
+      </div>
+    </section>
+
+    <section class="panel grid-4">
+      <article class="metric">
+        <small>월 목표 (Floor)</small>
+        <b>200,000원</b>
+        <small>자동 판정 기준 목표치</small>
+      </article>
+      <article class="metric">
+        <small>시뮬레이션 월 P50</small>
+        <b>11,400,000원</b>
+        <small>8주 Base P50 ÷ 2</small>
+      </article>
+      <article class="metric">
+        <small>필요 최소 클로즈</small>
+        <b>월 1건</b>
+        <small>평균 제안단가 1,152,000원 기준</small>
+      </article>
+      <article class="metric">
+        <small>현재 접촉 전환율</small>
+        <b>40%</b>
+        <small>50건 중 20건 contacted 반영</small>
+      </article>
+    </section>
+
+    <section class="panel two-col">
+      <div>
+        <div class="section-title">
+          <h2>운영 성과 스냅샷</h2>
+          <span class="pill">실행 가능성: GO (목표 20만원)</span>
+        </div>
+        <div class="stack">
+          <div class="bar">
+            <div class="bar-head"><span>월 목표 대비 시뮬레이션 P10</span><strong>4,500%</strong></div>
+            <div class="track"><div class="fill c-teal" style="width:100%"></div></div>
+          </div>
+          <div class="bar">
+            <div class="bar-head"><span>월 목표 대비 시뮬레이션 P50</span><strong>5,700%</strong></div>
+            <div class="track"><div class="fill c-navy" style="width:100%"></div></div>
+          </div>
+          <div class="bar">
+            <div class="bar-head"><span>월 목표 대비 시뮬레이션 P90</span><strong>7,200%</strong></div>
+            <div class="track"><div class="fill c-amber" style="width:100%"></div></div>
+          </div>
+          <div class="bar">
+            <div class="bar-head"><span>Top 20 기대매출 합</span><strong>4,416,000원</strong></div>
+            <div class="track"><div class="fill c-teal" style="width:44%"></div></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="section-title">
+          <h2>퍼널 현황</h2>
+          <span class="pill">자동 아웃리치 반영 후</span>
+        </div>
+        <div class="funnel">
+          <div class="stage"><h3>New</h3><b>30</b></div>
+          <div class="stage"><h3>Contacted</h3><b>20</b></div>
+          <div class="stage"><h3>Meeting</h3><b>0</b></div>
+          <div class="stage"><h3>Proposal</h3><b>0</b></div>
+          <div class="stage"><h3>Closed</h3><b>0</b></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-title">
+        <h2>수익 모델 요약</h2>
+        <span class="pill">월 200,000원 목표 기준</span>
+      </div>
+      <div class="cards-5">
+        <article class="pkg">
+          <h3>Quick Win</h3>
+          <b>1,200,000원</b>
+          <small>필요 클로즈: 월 1건</small>
+        </article>
+        <article class="pkg">
+          <h3>Standard</h3>
+          <b>1,800,000원</b>
+          <small>필요 클로즈: 월 1건</small>
+        </article>
+        <article class="pkg">
+          <h3>Premium</h3>
+          <b>2,500,000원</b>
+          <small>필요 클로즈: 월 1건</small>
+        </article>
+        <article class="pkg">
+          <h3>Retainer Lite</h3>
+          <b>390,000원</b>
+          <small>필요 계약: 월 1건</small>
+        </article>
+        <article class="pkg">
+          <h3>Retainer Pro</h3>
+          <b>990,000원</b>
+          <small>필요 계약: 월 1건</small>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel two-col">
+      <div>
+        <div class="section-title">
+          <h2>오퍼 믹스 (현재)</h2>
+          <span class="pill">150개 리드 기준</span>
+        </div>
+        <div class="stack">
+          <div class="bar">
+            <div class="bar-head"><span>Quick Win</span><strong>120건 (80.0%)</strong></div>
+            <div class="track"><div class="fill c-teal" style="width:80%"></div></div>
+          </div>
+          <div class="bar">
+            <div class="bar-head"><span>Bid Monitor</span><strong>27건 (18.0%)</strong></div>
+            <div class="track"><div class="fill c-navy" style="width:18%"></div></div>
+          </div>
+          <div class="bar">
+            <div class="bar-head"><span>Enterprise</span><strong>3건 (2.0%)</strong></div>
+            <div class="track"><div class="fill c-amber" style="width:2%"></div></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="section-title">
+          <h2>시나리오 월 환산</h2>
+          <span class="pill">8주 P50 기준</span>
+        </div>
+        <div class="stack">
+          <div class="bar">
+            <div class="bar-head"><span>Conservative</span><strong>7,800,000원</strong></div>
+            <div class="track"><div class="fill c-navy" style="width:68%"></div></div>
+          </div>
+          <div class="bar">
+            <div class="bar-head"><span>Base</span><strong>11,400,000원</strong></div>
+            <div class="track"><div class="fill c-teal" style="width:100%"></div></div>
+          </div>
+          <div class="bar">
+            <div class="bar-head"><span>Aggressive</span><strong>15,000,000원</strong></div>
+            <div class="track"><div class="fill c-amber" style="width:100%"></div></div>
+          </div>
+          <div class="bar">
+            <div class="bar-head"><span>하방~상방 밴드 (Base)</span><strong>9,000,000 ~ 14,400,000원</strong></div>
+            <div class="track"><div class="fill c-teal" style="width:79%"></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-title">
+        <h2>12주 무개입 실행 로드맵</h2>
+        <span class="pill">Owner는 승인/예외처리만 수행</span>
+      </div>
+      <div class="timeline">
+        <article class="phase">
+          <b>Phase 0 · D+2</b>
+          <ul>
+            <li>운영대행 담당자 1인 지정</li>
+            <li>`clients.csv` 30개 이상 보강</li>
+            <li>owner 공란 리드 0%로 정리</li>
+            <li>SLA: new→contacted 48시간 고정</li>
+          </ul>
+        </article>
+        <article class="phase">
+          <b>Phase 1 · 주 1~2</b>
+          <ul>
+            <li>주 50건 초도 접촉</li>
+            <li>주 10건 미팅 확보</li>
+            <li>주 4건 제안서 발송</li>
+            <li>주 2건 클로즈 실증</li>
+          </ul>
+        </article>
+        <article class="phase">
+          <b>Phase 2 · 주 3~6</b>
+          <ul>
+            <li>업종별 스크립트 A/B 운영</li>
+            <li>반려사유 분류 자동화</li>
+            <li>제안-클로즈 구간 교정</li>
+            <li>고가 패키지 전환 실험</li>
+          </ul>
+        </article>
+        <article class="phase">
+          <b>Phase 3 · 주 7~12</b>
+          <ul>
+            <li>Standard/Premium 비중 확대</li>
+            <li>Retainer 전환 캠페인 고정</li>
+            <li>MRR 비중 30% 목표</li>
+            <li>월 2,000만원 스케일 재판정</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel two-col">
+      <div>
+        <div class="section-title">
+          <h2>무터치 운영 아키텍처</h2>
+          <span class="pill">자동 + 위임 실행</span>
+        </div>
+        <div class="arch">
+          <div class="node"><strong>Data Engine</strong><br/>collect/autopilot</div>
+          <div class="node"><strong>Revenue Engine</strong><br/>business_ops/zero_touch</div>
+          <div class="node"><strong>Execution Channel</strong><br/>Webhook · 대행조직</div>
+          <div class="node"><strong>Cashflow</strong><br/>계약 · 청구 · 입금</div>
+        </div>
+      </div>
+      <div>
+        <div class="section-title">
+          <h2>리스크 차단선</h2>
+          <span class="pill">미달 시 자동 경보</span>
+        </div>
+        <div class="risk">
+          <div class="risk-item">
+            <b>고객사 DB 부족</b>
+            `clients.csv` 30개 미만이면 확장 중지
+          </div>
+          <div class="risk-item">
+            <b>담당자 미배정</b>
+            owner 공란 10% 초과 시 신규 투입 중지
+          </div>
+          <div class="risk-item">
+            <b>저단가 편중</b>
+            Quick Win 비중 60% 초과 시 업셀 강제
+          </div>
+          <div class="risk-item">
+            <b>클로즈 정체</b>
+            2주 연속 closed=0이면 스프린트 발동
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel foot">
+      본 보고서는 현재 파일 기준 자동 산출 지표(`latest_summary`, `sales_simulation`, `revenue_floor`, `sales_activity`)를
+      기반으로 생성되었습니다. 월 200,000원 목표는 구조적으로 달성 가능하며,
+      월 2,000만원 이상 스케일은 실행조직 고정 및 상품 믹스 고도화 이후 단계에서 재판정해야 합니다.
+    </section>
+  </main>
+</body>
+</html>

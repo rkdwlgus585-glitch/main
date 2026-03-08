@@ -1,10 +1,26 @@
 ﻿import unittest
 from unittest.mock import patch
 
+import base64
+import re
 import permit_diagnosis_calculator
 
 
 class PermitDiagnosisCalculatorRulesTest(unittest.TestCase):
+    @staticmethod
+    def _expand_wrapped_scripts(html: str) -> str:
+        pattern = re.compile(
+            r'<script nowprocket>\(\(\)=>\{const encoded="(?P<encoded>[^"]+)";.*?\}\)\(\);</script>',
+            flags=re.S,
+        )
+
+        def repl(match: re.Match[str]) -> str:
+            encoded = str(match.group("encoded") or "")
+            decoded = base64.b64decode(encoded).decode("utf-8")
+            return f"<script>{decoded}</script>"
+
+        return pattern.sub(repl, html)
+
     def test_merge_manual_rule_groups_synthesizes_rule_seed_for_real_service_code(self):
         merged = permit_diagnosis_calculator._merge_manual_rule_groups(
             permit_diagnosis_calculator._blank_rule_catalog(),
@@ -129,12 +145,14 @@ class PermitDiagnosisCalculatorRulesTest(unittest.TestCase):
         )
 
     def test_build_html_contains_expanded_input_fields(self):
-        html = permit_diagnosis_calculator.build_html(
-            title="AI 인허가 사전검토 진단기(신규등록 전용)",
-            catalog=permit_diagnosis_calculator._blank_catalog(),
-            rule_catalog=permit_diagnosis_calculator._load_rule_catalog(
-                permit_diagnosis_calculator.DEFAULT_RULES_PATH
-            ),
+        html = self._expand_wrapped_scripts(
+            permit_diagnosis_calculator.build_html(
+                title="AI 인허가 사전검토 진단기(신규등록 전용)",
+                catalog=permit_diagnosis_calculator._blank_catalog(),
+                rule_catalog=permit_diagnosis_calculator._load_rule_catalog(
+                    permit_diagnosis_calculator.DEFAULT_RULES_PATH
+                ),
+            )
         )
         self.assertIn('id="focusModeSelect"', html)
         self.assertIn('id="focusQuickSelect"', html)
@@ -163,6 +181,9 @@ class PermitDiagnosisCalculatorRulesTest(unittest.TestCase):
         self.assertIn('id="legalBasis"', html)
         self.assertIn('id="focusProfileBox"', html)
         self.assertIn('id="qualityFlagsBox"', html)
+        self.assertIn('id="proofClaimBox"', html)
+        self.assertIn('id="reviewPresetBox"', html)
+        self.assertIn('id="caseStoryBox"', html)
         self.assertIn("focusModePills", html)
         self.assertIn("smartIndustryProfile", html)
         self.assertIn("resultBannerTitle", html)
@@ -186,6 +207,23 @@ class PermitDiagnosisCalculatorRulesTest(unittest.TestCase):
         self.assertIn("현재 보유 구조화 기준 없음", html)
         self.assertIn("정량 기준이 없는 업종은 법령 근거와 준비 서류 위주로 먼저 확인합니다.", html)
         self.assertIn("법령 확인형", html)
+        self.assertIn("필수 ${corePlan.requiredFieldCount}개 업종", html)
+        self.assertIn("결과 카드에서 확인", html)
+        self.assertIn("핵심 세부 요건", html)
+        self.assertIn("getFillPresetActionLabel", html)
+        self.assertIn("ui.fillRequirementPreset.textContent = getFillPresetActionLabel(state);", html)
+        self.assertIn("syncHoldingsInputVisibility(selected, rule);", html)
+        self.assertIn("optionalPriorityHint", html)
+        self.assertIn('id="optionalChecklistToggle"', html)
+        self.assertIn("getOptionalChecklistPlan", html)
+        self.assertIn("buildPermitOptionalReadiness", html)
+        self.assertIn("getPermitDeliveryGuidance", html)
+        self.assertIn("syncOptionalChecklistLayout", html)
+        self.assertIn("optionalChecklistExpanded", html)
+        self.assertIn(".check-item.is-priority", html)
+        self.assertIn('data-priority-badge', html)
+        self.assertIn(".check-grid.is-collapsed .check-item.is-secondary", html)
+        self.assertIn("전달 브리프 복사", html)
         self.assertIn("필수 등록요건과 법령 근거, 준비 상태를 한 번에 비교합니다.", html)
         self.assertIn("const permitCatalog", html)
         self.assertIn("const ruleLookup", html)
@@ -197,19 +235,27 @@ class PermitDiagnosisCalculatorRulesTest(unittest.TestCase):
         self.assertIn("const displayCatalog", html)
         self.assertIn("selectorEntriesByCode", html)
         self.assertIn("displayRowsByCode", html)
+        self.assertIn("const renderProofClaim = (industry) => {", html)
+        self.assertIn("const renderReviewCasePresets = (industry) => {", html)
+        self.assertIn("const renderCaseStorySurface = (industry) => {", html)
+        self.assertIn("const applyReviewCasePreset = (preset) => {", html)
+        self.assertIn("data-review-preset-id", html)
         self.assertNotIn("현재 보유 현황 3가지만 입력하면 됩니다.", html)
         self.assertNotIn("핵심 3요건만 먼저 넣고", html)
+        self.assertNotIn("필수 기술자 수 / 필수 장비 수 / 예치기간", html)
         self.assertNotIn("필수 3요건과 법령 근거, 준비 상태를 한 번에 비교합니다.", html)
         self.assertNotIn("핵심 3요건이 충족됩니다.", html)
         self.assertNotIn("핵심 3요건 중 부족한 항목을 먼저 보완해야 합니다.", html)
 
     def test_build_html_keeps_permit_wizard_meta_in_shared_scope(self):
-        html = permit_diagnosis_calculator.build_html(
-            title="AI 인허가 사전검토 진단기(신규등록 전용)",
-            catalog=permit_diagnosis_calculator._blank_catalog(),
-            rule_catalog=permit_diagnosis_calculator._load_rule_catalog(
-                permit_diagnosis_calculator.DEFAULT_RULES_PATH
-            ),
+        html = self._expand_wrapped_scripts(
+            permit_diagnosis_calculator.build_html(
+                title="AI 인허가 사전검토 진단기(신규등록 전용)",
+                catalog=permit_diagnosis_calculator._blank_catalog(),
+                rule_catalog=permit_diagnosis_calculator._load_rule_catalog(
+                    permit_diagnosis_calculator.DEFAULT_RULES_PATH
+                ),
+            )
         )
         wizard_meta_idx = html.index("const permitWizardStepsMeta = [")
         layout_idx = html.index("const applyExperienceLayout = () => {")
@@ -290,22 +336,170 @@ class PermitDiagnosisCalculatorRulesTest(unittest.TestCase):
         self.assertEqual(industry["raw_source_proof"]["source_checksum"], "proof-123")
         self.assertEqual(industry["raw_source_proof"]["source_url_total"], 1)
 
-    def test_build_html_supports_external_data_url(self):
-        html = permit_diagnosis_calculator.build_html(
-            title="AI 인허가 사전검토 진단기(신규등록 전용)",
+    @patch("permit_diagnosis_calculator._load_patent_evidence_bundle")
+    @patch("permit_diagnosis_calculator._load_case_story_surface_report")
+    @patch("permit_diagnosis_calculator._load_review_case_presets_report")
+    @patch("permit_diagnosis_calculator._prepare_ui_payload")
+    def test_build_bootstrap_payload_includes_claim_packet_summary_for_family_row(
+        self,
+        mock_prepare_payload,
+        mock_load_review_case_presets_report,
+        mock_load_case_story_surface_report,
+        mock_load_patent_evidence_bundle,
+    ):
+        mock_prepare_payload.return_value = {
+            "summary": {"industry_total": 1, "major_category_total": 1, "with_registration_rule_total": 1},
+            "major_categories": [{"major_code": "31", "major_name": "건설", "industry_count": 1}],
+            "industries": [
+                {
+                    "service_code": "FOCUS::construction-general-geonchuk",
+                    "service_name": "건축공사업(종합)",
+                    "major_code": "31",
+                    "major_name": "건설",
+                    "law_title": "건설산업기본법 시행령",
+                    "legal_basis_title": "별표 2 건설업 등록기준",
+                    "registration_requirement_profile": {
+                        "capital_required": True,
+                        "technical_personnel_required": True,
+                        "focus_target": True,
+                        "focus_target_with_other": False,
+                        "inferred_focus_candidate": False,
+                    },
+                    "raw_source_proof": {
+                        "proof_status": "raw_source_hardened",
+                        "official_snapshot_note": "law.go.kr curated snapshot",
+                        "source_urls": ["https://www.law.go.kr/법령/건설산업기본법시행령/별표2"],
+                        "capture_meta": {
+                            "family_key": "건설산업기본법 시행령",
+                        },
+                    },
+                }
+            ],
+            "rules_lookup": {"FOCUS::construction-general-geonchuk": {"rule_id": "r1"}},
+            "rule_catalog_meta": {"version": "v1", "effective_date": "2026-03-08", "source": {}},
+        }
+        mock_load_patent_evidence_bundle.return_value = {
+            "summary": {"claim_packet_complete_family_total": 1},
+            "families": [
+                {
+                    "family_key": "건설산업기본법 시행령",
+                    "claim_packet": {
+                        "claim_id": "permit-family-123",
+                        "claim_title": "건설업 등록기준 패킷",
+                        "claim_statement": "건설업 family proof",
+                        "required_input_domains": ["industry_selector", "capital_eok", "technicians_count"],
+                        "optional_input_domains": ["equipment_inventory"],
+                        "source_proof_summary": {
+                            "proof_coverage_ratio": "39/39",
+                            "checksum_sample_total": 6,
+                            "checksum_samples": ["aaa", "bbb", "ccc"],
+                            "source_url_total": 1,
+                            "source_url_samples": ["https://www.law.go.kr/법령/건설산업기본법시행령/별표2"],
+                        },
+                    },
+                }
+            ],
+        }
+        mock_load_review_case_presets_report.return_value = {
+            "summary": {"preset_total": 3, "preset_family_total": 1, "preset_ready": True},
+            "families": [
+                {
+                    "family_key": "건설산업기본법 시행령",
+                    "claim_id": "permit-family-123",
+                    "presets": [
+                        {
+                            "preset_id": "permit-family-123:capital_only_fail:R1",
+                            "case_id": "permit-family-123:capital_only_fail:R1",
+                            "case_kind": "capital_only_fail",
+                            "preset_label": "자본금 부족 프리셋",
+                            "service_code": "FOCUS::construction-general-geonchuk",
+                            "service_name": "건축공사업(종합)",
+                            "legal_basis_title": "별표 2 건설업 등록기준",
+                            "input_payload": {
+                                "industry_selector": "FOCUS::construction-general-geonchuk",
+                                "capital_eok": 4.9,
+                                "technicians_count": 5,
+                                "other_requirement_checklist": {"facility_equipment": True},
+                            },
+                            "expected_outcome": {
+                                "overall_status": "shortfall",
+                                "capital_gap_eok": 0.1,
+                                "technicians_gap": 0,
+                                "review_reason": "capital_shortfall_only",
+                                "manual_review_expected": False,
+                                "proof_coverage_ratio": "39/39",
+                            },
+                            "operator_note": "자본금만 부족한 상황을 즉시 재현하는 프리셋입니다.",
+                        }
+                    ],
+                }
+            ],
+        }
+        mock_load_case_story_surface_report.return_value = {
+            "summary": {"story_family_total": 1, "review_reason_total": 1, "story_ready": True},
+            "families": [
+                {
+                    "family_key": "건설산업기본법 시행령",
+                    "claim_id": "permit-family-123",
+                    "preset_total": 1,
+                    "manual_review_preset_total": 0,
+                    "representative_cases": [
+                        {
+                            "preset_id": "permit-family-123:capital_only_fail:R1",
+                            "case_kind": "capital_only_fail",
+                            "service_code": "FOCUS::construction-general-geonchuk",
+                            "service_name": "건축공사업(종합)",
+                            "expected_status": "shortfall",
+                            "review_reason": "capital_shortfall_only",
+                            "manual_review_expected": False,
+                        }
+                    ],
+                    "operator_story_points": ["자본금 부족과 기술인력 부족을 분리해서 설명합니다."],
+                }
+            ],
+        }
+
+        bundle = permit_diagnosis_calculator.build_bootstrap_payload(
             catalog=permit_diagnosis_calculator._blank_catalog(),
             rule_catalog=permit_diagnosis_calculator._blank_rule_catalog(),
-            bootstrap_payload={
-                "permitCatalog": {
-                    "major_categories": [],
-                    "industries": [{"service_code": "A001", "service_name": "테스트업", "major_code": "01"}],
-                    "summary": {"industry_total": 1, "major_category_total": 1, "with_registration_rule_total": 0},
+        )
+
+        industry = bundle["permitCatalog"]["industries"][0]
+        self.assertEqual(industry["claim_packet_summary"]["claim_id"], "permit-family-123")
+        self.assertEqual(industry["claim_packet_summary"]["family_key"], "건설산업기본법 시행령")
+        self.assertEqual(industry["claim_packet_summary"]["proof_coverage_ratio"], "39/39")
+        self.assertEqual(industry["claim_packet_summary"]["checksum_sample_total"], 6)
+        self.assertEqual(industry["claim_packet_summary"]["checksum_samples"], ["aaa", "bbb", "ccc"])
+        self.assertEqual(industry["claim_packet_summary"]["official_snapshot_note"], "law.go.kr curated snapshot")
+        self.assertEqual(industry["review_case_presets"][0]["preset_id"], "permit-family-123:capital_only_fail:R1")
+        self.assertEqual(industry["review_case_presets"][0]["expected_outcome"]["review_reason"], "capital_shortfall_only")
+        self.assertEqual(industry["case_story_surface"]["claim_id"], "permit-family-123")
+        self.assertEqual(industry["case_story_surface"]["review_reason_total"], 1)
+        self.assertEqual(bundle["permitCatalog"]["summary"]["runtime_claim_packet_total"], 1)
+        self.assertEqual(bundle["permitCatalog"]["summary"]["runtime_raw_source_proof_total"], 1)
+        self.assertEqual(bundle["permitCatalog"]["summary"]["runtime_review_case_preset_total"], 3)
+        self.assertEqual(bundle["permitCatalog"]["summary"]["runtime_review_case_family_total"], 1)
+        self.assertEqual(bundle["permitCatalog"]["summary"]["runtime_case_story_family_total"], 1)
+        self.assertEqual(bundle["permitCatalog"]["summary"]["runtime_case_story_review_reason_total"], 1)
+
+    def test_build_html_supports_external_data_url(self):
+        html = self._expand_wrapped_scripts(
+            permit_diagnosis_calculator.build_html(
+                title="AI 인허가 사전검토 진단기(신규등록 전용)",
+                catalog=permit_diagnosis_calculator._blank_catalog(),
+                rule_catalog=permit_diagnosis_calculator._blank_rule_catalog(),
+                bootstrap_payload={
+                    "permitCatalog": {
+                        "major_categories": [],
+                        "industries": [{"service_code": "A001", "service_name": "테스트업", "major_code": "01"}],
+                        "summary": {"industry_total": 1, "major_category_total": 1, "with_registration_rule_total": 0},
+                    },
+                    "ruleLookup": {},
+                    "ruleCatalogMeta": {"version": "v1", "effective_date": "2026-03-07", "source": {}},
                 },
-                "ruleLookup": {},
-                "ruleCatalogMeta": {"version": "v1", "effective_date": "2026-03-07", "source": {}},
-            },
-            data_url="https://example.com/permit-data.json",
-            data_encoding="gzip",
+                data_url="https://example.com/permit-data.json",
+                data_encoding="gzip",
+            )
         )
         self.assertIn('const permitDataUrl = "https://example.com/permit-data.json";', html)
         self.assertIn('const permitDataEncoding = "gzip";', html)
@@ -313,43 +507,49 @@ class PermitDiagnosisCalculatorRulesTest(unittest.TestCase):
         self.assertNotIn('"service_name":"테스트업"', html)
 
     def test_build_html_supports_payload_page_encoding(self):
-        html = permit_diagnosis_calculator.build_html(
-            title="AI 인허가 사전검토 진단기(신규등록 전용)",
-            catalog=permit_diagnosis_calculator._blank_catalog(),
-            rule_catalog=permit_diagnosis_calculator._blank_rule_catalog(),
-            bootstrap_payload={},
-            data_url="https://example.com/permit-data-page",
-            data_encoding="gzip-base64-html",
+        html = self._expand_wrapped_scripts(
+            permit_diagnosis_calculator.build_html(
+                title="AI 인허가 사전검토 진단기(신규등록 전용)",
+                catalog=permit_diagnosis_calculator._blank_catalog(),
+                rule_catalog=permit_diagnosis_calculator._blank_rule_catalog(),
+                bootstrap_payload={},
+                data_url="https://example.com/permit-data-page",
+                data_encoding="gzip-base64-html",
+            )
         )
         self.assertIn('const permitDataEncoding = "gzip-base64-html";', html)
         self.assertIn("const extractHtmlPayload = (htmlText) => {", html)
 
     def test_build_html_supports_payload_rest_rendered_encoding(self):
-        html = permit_diagnosis_calculator.build_html(
-            title="AI 인허가 사전검토 진단기(신규등록 전용)",
-            catalog=permit_diagnosis_calculator._blank_catalog(),
-            rule_catalog=permit_diagnosis_calculator._blank_rule_catalog(),
-            bootstrap_payload={},
-            data_url="https://seoulmna.kr/wp-json/wp/v2/pages/1810?_fields=content.rendered&context=view",
-            data_encoding="gzip-base64-rest-rendered",
+        html = self._expand_wrapped_scripts(
+            permit_diagnosis_calculator.build_html(
+                title="AI 인허가 사전검토 진단기(신규등록 전용)",
+                catalog=permit_diagnosis_calculator._blank_catalog(),
+                rule_catalog=permit_diagnosis_calculator._blank_rule_catalog(),
+                bootstrap_payload={},
+                data_url="https://seoulmna.kr/wp-json/wp/v2/pages/1810?_fields=content.rendered&context=view",
+                data_encoding="gzip-base64-rest-rendered",
+            )
         )
         self.assertIn('const permitDataEncoding = "gzip-base64-rest-rendered";', html)
         self.assertIn("const extractRenderedPayloadFromJson = async (res) => {", html)
 
     def test_build_html_uses_compressed_inline_bootstrap(self):
-        html = permit_diagnosis_calculator.build_html(
-            title="AI 인허가 사전검토 진단기(신규등록 전용)",
-            catalog=permit_diagnosis_calculator._blank_catalog(),
-            rule_catalog=permit_diagnosis_calculator._blank_rule_catalog(),
-            bootstrap_payload={
-                "permitCatalog": {
-                    "major_categories": [],
-                    "industries": [{"service_code": "A001", "service_name": "테스트업", "major_code": "01"}],
-                    "summary": {"industry_total": 1, "major_category_total": 1, "with_registration_rule_total": 0},
+        html = self._expand_wrapped_scripts(
+            permit_diagnosis_calculator.build_html(
+                title="AI 인허가 사전검토 진단기(신규등록 전용)",
+                catalog=permit_diagnosis_calculator._blank_catalog(),
+                rule_catalog=permit_diagnosis_calculator._blank_rule_catalog(),
+                bootstrap_payload={
+                    "permitCatalog": {
+                        "major_categories": [],
+                        "industries": [{"service_code": "A001", "service_name": "테스트업", "major_code": "01"}],
+                        "summary": {"industry_total": 1, "major_category_total": 1, "with_registration_rule_total": 0},
+                    },
+                    "ruleLookup": {},
+                    "ruleCatalogMeta": {"version": "v1", "effective_date": "2026-03-07", "source": {}},
                 },
-                "ruleLookup": {},
-                "ruleCatalogMeta": {"version": "v1", "effective_date": "2026-03-07", "source": {}},
-            },
+            )
         )
         self.assertIn('const permitDataUrl = "";', html)
         self.assertIn('const permitDataEncoding = "";', html)
@@ -358,14 +558,17 @@ class PermitDiagnosisCalculatorRulesTest(unittest.TestCase):
         self.assertNotIn('"service_name":"테스트업"', html)
 
     def test_build_html_repairs_visible_text_labels(self):
-        html = permit_diagnosis_calculator.build_html(
-            title="AI 인허가 사전검토 진단기(신규등록 전용)",
-            catalog=permit_diagnosis_calculator._blank_catalog(),
-            rule_catalog=permit_diagnosis_calculator._blank_rule_catalog(),
+        html = self._expand_wrapped_scripts(
+            permit_diagnosis_calculator.build_html(
+                title="AI 인허가 사전검토 진단기(신규등록 전용)",
+                catalog=permit_diagnosis_calculator._blank_catalog(),
+                rule_catalog=permit_diagnosis_calculator._blank_rule_catalog(),
+            )
         )
         self.assertIn("기타 준비 상태", html)
         self.assertIn("사무실/영업소 확보", html)
         self.assertIn("법령 근거", html)
+        self.assertIn("법령군 증빙", html)
         self.assertIn("자동 점검 결과", html)
         self.assertIn("준비 서류", html)
         self.assertIn("다음 단계", html)
@@ -373,11 +576,13 @@ class PermitDiagnosisCalculatorRulesTest(unittest.TestCase):
         self.assertNotIn("실��종", html)
 
     def test_build_html_fragment_mode_emits_wordpress_embed_section(self):
-        html = permit_diagnosis_calculator.build_html(
-            title="AI 인허가 사전검토 진단기(신규등록 전용)",
-            catalog=permit_diagnosis_calculator._blank_catalog(),
-            rule_catalog=permit_diagnosis_calculator._blank_rule_catalog(),
-            fragment=True,
+        html = self._expand_wrapped_scripts(
+            permit_diagnosis_calculator.build_html(
+                title="AI 인허가 사전검토 진단기(신규등록 전용)",
+                catalog=permit_diagnosis_calculator._blank_catalog(),
+                rule_catalog=permit_diagnosis_calculator._blank_rule_catalog(),
+                fragment=True,
+            )
         )
         self.assertTrue(html.startswith('<section id="smna-permit-precheck"'))
         self.assertNotIn("<!doctype html>", html.lower())

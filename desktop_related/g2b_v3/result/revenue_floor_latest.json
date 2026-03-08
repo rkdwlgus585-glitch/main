@@ -1,0 +1,23 @@
+{
+  "generated_at": "2026-02-25T17:07:23",
+  "monthly_goal_krw": 200000,
+  "queue_avg_offer_price_krw": 1152000,
+  "required_monthly_closes_by_avg_offer": 1,
+  "required_monthly_closes_by_package": {
+    "Quick Win": 1,
+    "Standard": 1,
+    "Premium": 1,
+    "Retainer Lite": 1,
+    "Retainer Pro": 1
+  },
+  "simulation_base_horizon": "8w",
+  "simulation_monthly_runrate_estimate": {
+    "p10_krw": 9000000,
+    "p50_krw": 11400000,
+    "p90_krw": 14400000
+  },
+  "goal_feasibility": {
+    "pass_on_p10": true,
+    "pass_on_p50": true
+  }
+}

@@ -1,0 +1,26 @@
+﻿[
+    {
+        "name":  "Cnstwk_no_key",
+        "status":  "401"
+    },
+    {
+        "name":  "Servc_no_key",
+        "status":  "401"
+    },
+    {
+        "name":  "Cnstwk_enc_key",
+        "status":  "404"
+    },
+    {
+        "name":  "Servc_enc_key",
+        "status":  "404"
+    },
+    {
+        "name":  "Cnstwk_dec_key",
+        "status":  "404"
+    },
+    {
+        "name":  "Servc_dec_key",
+        "status":  "404"
+    }
+]

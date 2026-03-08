@@ -4,6 +4,7 @@ import argparse
 import json
 import sys
 import threading
+import traceback
 from contextlib import contextmanager
 from datetime import datetime
 from functools import partial
@@ -350,6 +351,26 @@ def _text(driver, element_id: str) -> str:
         return ""
 
 
+def _text_fallback(driver, element_id: str) -> str:
+    direct = _text(driver, element_id)
+    if direct:
+        return direct
+    try:
+        return str(
+            driver.execute_script(
+                """
+const el = document.getElementById(arguments[0]);
+if (!el) return '';
+return String(el.innerText || el.textContent || '').trim();
+                """,
+                element_id,
+            )
+            or ""
+        ).strip()
+    except Exception:
+        return ""
+
+
 def _run_yangdo_smoke(page_url: str, headless: bool = True) -> Dict[str, Any]:
     from selenium.webdriver.common.by import By  # type: ignore
     from selenium.webdriver.support.ui import WebDriverWait  # type: ignore
@@ -390,6 +411,7 @@ def _run_yangdo_smoke(page_url: str, headless: bool = True) -> Dict[str, Any]:
         "subcases": [],
         "console_errors": [],
         "error": "",
+        "trace": [],
     }
     driver = _setup_driver(headless=headless)
     try:
@@ -494,6 +516,12 @@ if (btn && !btn.disabled) btn.click();
             if not auto_capital_seed:
                 _set_value_js(driver, "in-capital", "1.5")
             _set_value_js(driver, "in-balance", str(case.get("balance_eok") or ""))
+            step3_next_label = str(
+                driver.execute_script(
+                    "const btn=document.querySelector('[data-yangdo-wizard-next=\"2\"]'); return btn ? String(btn.textContent || '') : '';"
+                )
+                or ""
+            ).strip()
             wait.until(
                 lambda d: bool(
                     d.execute_script(
@@ -510,7 +538,76 @@ if (btn && !btn.disabled) btn.click();
             )
             wait.until(lambda d: "구조·정산 정보" in _text(d, "yangdoWizardStepTitle"))
             wizard_step4_title = _text(driver, "yangdoWizardStepTitle")
-            _set_value_js(driver, "in-reorg-mode", str(case.get("reorg_mode") or ""))
+            structure_hint_text = _text(driver, "yangdoStructureHint")
+            step4_next_label = str(
+                driver.execute_script(
+                    "const btn=document.querySelector('[data-yangdo-wizard-next=\"3\"]'); return btn ? String(btn.textContent || '') : '';"
+                )
+                or ""
+            ).strip()
+            step4_alert_active = bool(
+                driver.execute_script(
+                    "const chip=document.querySelector('[data-yangdo-wizard-track=\"3\"]');"
+                    "const step=document.getElementById('yangdoWizardStep4');"
+                    "return !!chip && chip.classList.contains('is-alert') && !!step && step.classList.contains('is-alert');"
+                )
+            )
+            reorg_choice_labels = list(
+                driver.execute_script(
+                    """
+return Array.from(document.querySelectorAll('[data-reorg-choice]'))
+  .map((el) => String(el.innerText || '').replace(/\\s+/g, ' ').trim());
+                    """
+                )
+                or []
+            )
+            driver.execute_script(
+                """
+const wanted = arguments[0];
+const btn = Array.from(document.querySelectorAll('[data-reorg-choice]'))
+  .find((el) => String(el.getAttribute('data-reorg-choice') || '').trim() === wanted);
+if (btn) btn.click();
+                """,
+                str(case.get("reorg_mode") or ""),
+            )
+            wait.until(
+                lambda d, expected=str(case.get("reorg_mode") or ""): str(
+                    d.execute_script("const el=document.getElementById('in-reorg-mode'); return el ? String(el.value || '') : '';")
+                    or ""
+                ).strip() == expected
+            )
+            reorg_choice_active = bool(
+                driver.execute_script(
+                    """
+const wanted = arguments[0];
+const btn = Array.from(document.querySelectorAll('[data-reorg-choice]'))
+  .find((el) => String(el.getAttribute('data-reorg-choice') || '').trim() === wanted);
+return !!btn && btn.classList.contains('is-active');
+                    """,
+                    str(case.get("reorg_mode") or ""),
+                )
+            )
+            reorg_compare_texts = list(
+                driver.execute_script(
+                    """
+return Array.from(document.querySelectorAll('[data-reorg-compare]'))
+  .map((el) => String(el.innerText || '').replace(/\\s+/g, ' ').trim());
+                    """
+                )
+                or []
+            )
+            reorg_compare_active = bool(
+                driver.execute_script(
+                    """
+const wanted = arguments[0];
+const card = Array.from(document.querySelectorAll('[data-reorg-compare]'))
+  .find((el) => String(el.getAttribute('data-reorg-compare') || '').trim() === wanted);
+return !!card && card.classList.contains('is-active');
+                    """,
+                    str(case.get("reorg_mode") or ""),
+                )
+            )
+            reorg_compare_note = _text(driver, "reorg-compare-note")
             _set_value_js(driver, "in-balance-usage-mode", str(case.get("balance_usage_mode") or ""))
             wait.until(
                 lambda d: bool(
@@ -528,6 +625,7 @@ if (btn && !btn.disabled) btn.click();
             )
             wait.until(lambda d: "재무·회사 선택 정보" in _text(d, "yangdoWizardStepTitle"))
             wizard_step5_title = _text(driver, "yangdoWizardStepTitle")
+            company_hint_text = _text(driver, "yangdoCompanyHint")
             wizard_optional_state = "선택" in wizard_step5_title
 
             driver.execute_script(
@@ -552,6 +650,10 @@ if (btn && !btn.disabled) btn.click();
             neighbors_text = _text(driver, "out-neighbors")
             source_tier_text = _text(driver, "out-source-tier")
             risk_note = _text(driver, "risk-note")
+            result_reason_chips_text = str(
+                driver.execute_script("const el=document.getElementById('result-reason-chips'); return el ? (el.innerText || '') : '';")
+                or ""
+            ).strip()
             settlement_summary = _text(driver, "settlement-summary")
             settlement_notes = _text(driver, "settlement-notes")
             settlement_scenario_count = int(
@@ -581,6 +683,80 @@ if (btn && !btn.disabled) btn.click();
                     " return st.display !== 'none';"
                 )
             )
+            synthetic_followup_output = dict(
+                driver.execute_script(
+                    """
+const syntheticTarget = {
+  scale_search_mode: "sales",
+  requested_scale_search_mode: "sales",
+  split_optional_pricing: false,
+  balance_excluded: false,
+};
+const hooks = window.__yangdoQaHooks || {};
+const available = typeof hooks.renderRecommendedListings === "function" && typeof hooks.renderActionSteps === "function";
+if (available) {
+  hooks.renderRecommendedListings([], {
+    target: syntheticTarget,
+    publicationMode: "consult_only",
+    priceSourceTier: "표본 적음",
+  });
+  hooks.renderActionSteps({ target: syntheticTarget, publicationMode: "consult_only", priceSourceTier: "표본 적음" });
+}
+const primary = document.getElementById("recommend-panel-followup-action");
+const secondary = document.getElementById("recommend-panel-followup-secondary-action");
+const note = document.getElementById("recommend-panel-followup-note");
+const text = document.getElementById("recommend-panel-followup-text");
+const steps = document.getElementById("recommend-actions");
+return {
+  available,
+  text: text ? String(text.innerText || "").trim() : "",
+  note: note ? String(note.innerText || "").trim() : "",
+  primary_text: primary ? String(primary.innerText || "").trim() : "",
+  secondary_text: secondary ? String(secondary.innerText || "").trim() : "",
+  primary_kind: primary ? String(primary.dataset.focusAction || "").trim() : "",
+  secondary_kind: secondary ? String(secondary.dataset.focusAction || "").trim() : "",
+  primary_visible: !!primary && window.getComputedStyle(primary).display !== "none",
+  secondary_visible: !!secondary && window.getComputedStyle(secondary).display !== "none",
+  steps_text: steps ? String(steps.innerText || "").replace(/\\s+/g, " ").trim() : "",
+};
+                    """
+                )
+                or {}
+            )
+            driver.execute_script(
+                """
+const hooks = window.__yangdoQaHooks || {};
+if (typeof hooks.focusRecommendBalanceRefinement === 'function') {
+  hooks.focusRecommendBalanceRefinement();
+}
+                """
+            )
+            wait.until(
+                lambda d: "핵심 가격 영향 입력" in _text(d, "yangdoWizardStepTitle")
+            )
+            synthetic_primary_step_title = _text(driver, "yangdoWizardStepTitle")
+            driver.execute_script(
+                """
+const hooks = window.__yangdoQaHooks || {};
+if (typeof hooks.renderRecommendedListings === 'function') hooks.renderRecommendedListings([], {
+  target: {
+    scale_search_mode: "sales",
+    requested_scale_search_mode: "sales",
+    split_optional_pricing: false,
+    balance_excluded: false,
+  },
+  publicationMode: "consult_only",
+  priceSourceTier: "표본 적음",
+});
+if (typeof hooks.focusRecommendCapitalRefinement === 'function') {
+  hooks.focusRecommendCapitalRefinement();
+}
+                """
+            )
+            wait.until(
+                lambda d: "핵심 가격 영향 입력" in _text(d, "yangdoWizardStepTitle")
+            )
+            synthetic_secondary_step_title = _text(driver, "yangdoWizardStepTitle")
             driver.get(page_url)
             wait.until(
                 lambda d: bool(
@@ -647,8 +823,18 @@ if (btn) btn.click();
                 "wizard_step3_title": wizard_step3_title,
                 "critical_hint_text": critical_hint_text,
                 "wizard_blocker_step3": wizard_blocker_step3,
+                "step3_next_label": step3_next_label,
                 "wizard_step4_title": wizard_step4_title,
+                "structure_hint_text": structure_hint_text,
+                "step4_next_label": step4_next_label,
+                "step4_alert_active": step4_alert_active,
+                "reorg_choice_labels": reorg_choice_labels,
+                "reorg_choice_active": reorg_choice_active,
+                "reorg_compare_texts": reorg_compare_texts,
+                "reorg_compare_active": reorg_compare_active,
+                "reorg_compare_note": reorg_compare_note,
                 "wizard_step5_title": wizard_step5_title,
+                "company_hint_text": company_hint_text,
                 "wizard_optional_state": wizard_optional_state,
                 "initial_share_hidden": initial_share_hidden,
                 "auto_balance_seed": auto_balance_seed,
@@ -664,6 +850,7 @@ if (btn) btn.click();
                 "neighbors_text": neighbors_text,
                 "source_tier_text": source_tier_text,
                 "risk_note": risk_note,
+                "result_reason_chips_text": result_reason_chips_text,
                 "settlement_summary": settlement_summary,
                 "settlement_notes": settlement_notes,
                 "settlement_scenario_count": settlement_scenario_count,
@@ -671,6 +858,18 @@ if (btn) btn.click();
                 "result_brief_text": result_brief_text,
                 "selected_scenario_text": selected_scenario_text,
                 "publication_hidden": publication_hidden,
+                "synthetic_followup_available": bool(synthetic_followup_output.get("available")),
+                "synthetic_followup_text": str(synthetic_followup_output.get("text") or "").strip(),
+                "synthetic_followup_note": str(synthetic_followup_output.get("note") or "").strip(),
+                "synthetic_followup_primary_text": str(synthetic_followup_output.get("primary_text") or "").strip(),
+                "synthetic_followup_secondary_text": str(synthetic_followup_output.get("secondary_text") or "").strip(),
+                "synthetic_followup_primary_kind": str(synthetic_followup_output.get("primary_kind") or "").strip(),
+                "synthetic_followup_secondary_kind": str(synthetic_followup_output.get("secondary_kind") or "").strip(),
+                "synthetic_followup_primary_visible": bool(synthetic_followup_output.get("primary_visible")),
+                "synthetic_followup_secondary_visible": bool(synthetic_followup_output.get("secondary_visible")),
+                "synthetic_followup_steps_text": str(synthetic_followup_output.get("steps_text") or "").strip(),
+                "synthetic_primary_step_title": synthetic_primary_step_title,
+                "synthetic_secondary_step_title": synthetic_secondary_step_title,
                 "draft_restore_note_text": draft_restore_note_text,
                 "draft_resume_title": draft_resume_title,
                 "draft_resume_summary": draft_resume_summary,
@@ -699,7 +898,24 @@ if (btn) btn.click();
                     or "분할/합병" in wizard_blocker_step3
                 )
                 and "구조·정산 정보" in wizard_step4_title
+                and "필수" in step3_next_label
+                and bool(structure_hint_text)
+                and ("구조" in structure_hint_text or "정산" in structure_hint_text)
+                and step4_next_label == "양도 구조 먼저 선택"
+                and step4_alert_active
+                and len(reorg_choice_labels) >= 2
+                and any("포괄" in label for label in reorg_choice_labels)
+                and any("분할/합병" in label for label in reorg_choice_labels)
+                and reorg_choice_active
+                and len(reorg_compare_texts) >= 2
+                and any(("시평" in text and "재무" in text) for text in reorg_compare_texts)
+                and any(("실적" in text and "자본금" in text) for text in reorg_compare_texts)
+                and reorg_compare_active
+                and bool(reorg_compare_note)
+                and ("구조" in reorg_compare_note or "전기" in reorg_compare_note or "정보통신" in reorg_compare_note or "소방" in reorg_compare_note)
                 and "재무·회사 선택 정보" in wizard_step5_title
+                and bool(company_hint_text)
+                and ("재무" in company_hint_text or "회사" in company_hint_text)
                 and wizard_optional_state
                 and initial_share_hidden
                 and balance_seed_or_not_needed
@@ -711,7 +927,21 @@ if (btn) btn.click();
                 and bool(neighbors_text)
                 and realizable_balance_text not in {"", "-"}
                 and bool(settlement_summary)
+                and "공개" in result_reason_chips_text
+                and "정산" in result_reason_chips_text
                 and settlement_detail_ok
+                and bool(synthetic_followup_output.get("available"))
+                and "공제조합 잔액" in str(synthetic_followup_output.get("text") or "")
+                and "1순위는 공제조합 잔액, 2순위는 자본금입니다." in str(synthetic_followup_output.get("note") or "")
+                and str(synthetic_followup_output.get("primary_text") or "").startswith("1순위 · 공제조합 잔액 보강")
+                and str(synthetic_followup_output.get("secondary_text") or "").startswith("2순위 · 자본금 보강")
+                and str(synthetic_followup_output.get("primary_kind") or "") == "balance"
+                and str(synthetic_followup_output.get("secondary_kind") or "") == "capital"
+                and bool(synthetic_followup_output.get("primary_visible"))
+                and bool(synthetic_followup_output.get("secondary_visible"))
+                and "보강 버튼" in str(synthetic_followup_output.get("steps_text") or "")
+                and "핵심 가격 영향 입력" in synthetic_primary_step_title
+                and "핵심 가격 영향 입력" in synthetic_secondary_step_title
                 and bool(draft_restore_note_text)
                 and (
                     "핵심 가격 영향 입력" in draft_resume_title
@@ -733,6 +963,7 @@ if (btn) btn.click();
             expected_selected_text = str(case.get("expected_selected_text") or "").strip()
             expected_note_tokens = [str(x).strip() for x in list(case.get("expected_note_tokens") or []) if str(x).strip()]
             expected_summary_text = str(case.get("expected_summary_text") or "").strip()
+            expect_optional_summary = str(case.get("balance_usage_mode") or "").strip() not in {"", "auto"}
             scenario_ok = True
             if expected_selected_text:
                 scenario_ok = scenario_ok and expected_selected_text in selected_scenario_text
@@ -740,6 +971,8 @@ if (btn) btn.click();
                 scenario_ok = scenario_ok and expected_summary_text in settlement_summary
             if expected_note_tokens:
                 scenario_ok = scenario_ok and all(token in settlement_notes for token in expected_note_tokens)
+            if expect_optional_summary:
+                scenario_ok = scenario_ok and "선택" in result_brief_text
 
             case_result = {
                 "name": str(case.get("name") or ""),
@@ -767,7 +1000,9 @@ if (btn) btn.click();
         return result
     except Exception as exc:  # noqa: BLE001
         result["console_errors"] = _browser_errors(driver)
-        result["error"] = str(exc)
+        error_text = str(exc).strip()
+        result["error"] = f"{type(exc).__name__}: {error_text}" if error_text else type(exc).__name__
+        result["trace"].append(traceback.format_exc())
         return result
     finally:
         driver.quit()
@@ -985,6 +1220,7 @@ return option ? String(option.textContent || '').trim() : '';
             or ""
         ).strip()
         holdings_priority_hint = _text(driver, "holdingsPriorityHint")
+        desktop_fill_label = _text(driver, "fillRequirementPreset")
         capital_placeholder = str(
             driver.execute_script("const el=document.getElementById('capitalInput'); return el ? (el.getAttribute('placeholder') || '') : '';")
             or ""
@@ -1032,6 +1268,98 @@ if (btn && !btn.disabled) btn.click();
         wait.until(lambda d: "선택 준비 상태" in _text(d, "permitWizardStepTitle"))
         wizard_optional_title = _text(driver, "permitWizardStepTitle")
         wizard_optional_state = "선택" in wizard_optional_title
+        optional_priority_hint = _text(driver, "optionalPriorityHint")
+        optional_toggle_label_collapsed = _text(driver, "optionalChecklistToggle")
+        optional_visible_count_collapsed = int(
+            driver.execute_script(
+                """
+return Array.from(document.querySelectorAll('#advancedInputs .check-item'))
+  .filter((el) => window.getComputedStyle(el).display !== 'none').length;
+                """
+            )
+            or 0
+        )
+        optional_priority_labels = list(
+            driver.execute_script(
+                """
+return Array.from(document.querySelectorAll('#advancedInputs .check-item'))
+  .slice(0, 3)
+  .map((el) => String(el.innerText || '').replace(/\\s+/g, ' ').trim());
+                """
+            )
+            or []
+        )
+        driver.execute_script(
+            """
+const btn = document.getElementById('optionalChecklistToggle');
+if (btn && !btn.hidden) btn.click();
+            """
+        )
+        wait.until(
+            lambda d: int(
+                d.execute_script(
+                    """
+return Array.from(document.querySelectorAll('#advancedInputs .check-item'))
+  .filter((el) => window.getComputedStyle(el).display !== 'none').length;
+                    """
+                )
+                or 0
+            ) > 3
+        )
+        optional_toggle_label_expanded = _text(driver, "optionalChecklistToggle")
+        optional_visible_count_expanded = int(
+            driver.execute_script(
+                """
+return Array.from(document.querySelectorAll('#advancedInputs .check-item'))
+  .filter((el) => window.getComputedStyle(el).display !== 'none').length;
+                """
+            )
+            or 0
+        )
+        optional_priority_badges = list(
+            driver.execute_script(
+                """
+return Array.from(document.querySelectorAll('#advancedInputs .check-item.is-priority'))
+  .slice(0, 3)
+  .map((el) => String(el.getAttribute('data-priority-badge') || '').trim());
+                """
+            )
+            or []
+        )
+        driver.execute_script(
+            """
+Array.from(document.querySelectorAll('#advancedInputs .check-item.is-priority input'))
+  .slice(0, 2)
+  .forEach((el) => {
+    if (!el.checked) el.click();
+  });
+            """
+        )
+        wait.until(
+            lambda d: "선택 준비" in str(
+                d.execute_script("const el=document.getElementById('resultBrief'); return el ? (el.value || '') : '';")
+                or ""
+            )
+        )
+        optional_checked_labels = list(
+            driver.execute_script(
+                """
+return Array.from(document.querySelectorAll('#advancedInputs .check-item input:checked'))
+  .map((el) => {
+    const row = el.closest('.check-item');
+    return String(row ? (row.innerText || '') : '').replace(/\\s+/g, ' ').trim();
+  });
+                """
+            )
+            or []
+        )
+        banner_meta_after_optional = _text(driver, "resultBannerMeta")
+        result_action_note_after_optional = _text_fallback(driver, "resultActionNote")
+        result_brief_after_optional = str(
+            driver.execute_script("const el=document.getElementById('resultBrief'); return el ? (el.value || '') : '';")
+            or ""
+        ).strip()
+        copy_result_brief_label_after_optional = _text(driver, "btnCopyResultBrief")
         mark("optional_step_reached")
         driver.execute_script(
             """
@@ -1073,6 +1401,8 @@ if (btn && !btn.disabled) btn.click();
             driver.execute_script("const el=document.getElementById('resultBrief'); return el ? (el.value || '') : '';")
             or ""
         ).strip()
+        result_brief_meta_after_fill = _text(driver, "resultBriefMeta")
+        copy_result_brief_label_after_fill = _text(driver, "btnCopyResultBrief")
         mark("preset_fill_completed")
         driver.set_window_size(430, 1600)
         wait.until(
@@ -1153,6 +1483,7 @@ if (btn && !btn.disabled) btn.click();
         ).strip()
         permit_blocker_after_reset = _text(driver, "permitWizardBlocker")
         mobile_quick_preset_label_after_reset = _text(driver, "mobileQuickPresetButton")
+        desktop_fill_label_after_reset = _text(driver, "fillRequirementPreset")
         mark("mobile_reset_completed")
         permit_family_cases = [
             {
@@ -1168,6 +1499,13 @@ if (btn && !btn.disabled) btn.click();
                 "expected_capital_value": "2",
                 "expected_technician_value": "1",
                 "expected_equipment_value": "1",
+                "expected_requirements_tokens": ["기술인력 1명", "장비 1식", "예치 30일"],
+                "unexpected_requirements_tokens": [],
+                "expected_equipment_card_visible": True,
+                "expected_profile_tokens": ["필수 3개 업종", "장비/설비", "예치/보완 일정"],
+                "unexpected_profile_tokens": [],
+                "expected_fill_label": "필수 3개 채우기",
+                "expected_equipment_input_visible": True,
             },
             {
                 "name": "gas_facility_family",
@@ -1182,6 +1520,13 @@ if (btn && !btn.disabled) btn.click();
                 "expected_capital_value": "1",
                 "expected_technician_value": "1",
                 "expected_equipment_value": "1",
+                "expected_requirements_tokens": ["기술인력 1명", "장비 1식", "예치 30일"],
+                "unexpected_requirements_tokens": [],
+                "expected_equipment_card_visible": True,
+                "expected_profile_tokens": ["필수 3개 업종", "장비/설비", "예치/보완 일정"],
+                "unexpected_profile_tokens": [],
+                "expected_fill_label": "필수 3개 채우기",
+                "expected_equipment_input_visible": True,
             },
             {
                 "name": "sawmill_two_core",
@@ -1196,6 +1541,13 @@ if (btn && !btn.disabled) btn.click();
                 "expected_capital_value": "0.3",
                 "expected_technician_value": "1",
                 "expected_equipment_value": "",
+                "expected_requirements_tokens": ["기술인력 1명"],
+                "unexpected_requirements_tokens": ["장비", "예치"],
+                "expected_equipment_card_visible": False,
+                "expected_profile_tokens": ["필수 2개 업종"],
+                "unexpected_profile_tokens": ["장비/설비", "예치/보완 일정"],
+                "expected_fill_label": "필수 2개 채우기",
+                "expected_equipment_input_visible": False,
             },
         ]
         permit_family_outputs = []
@@ -1247,6 +1599,31 @@ if (btn) btn.click();
             case_step_note = _text(driver, "permitWizardStepNote")
             case_blocker = _text(driver, "permitWizardBlocker")
             case_hint = _text(driver, "holdingsPriorityHint")
+            case_requirements_meta = _text(driver, "requirementsMeta")
+            case_equipment_status = _text(driver, "equipmentGapStatus")
+            case_equipment_card_visible = bool(
+                driver.execute_script(
+                    """
+const el = document.getElementById('equipmentGapStatus');
+const card = el ? el.closest('.status-card') : null;
+return !!card && !card.hidden;
+                    """
+                )
+            )
+            case_equipment_input_visible = bool(
+                driver.execute_script(
+                    """
+const el = document.getElementById('equipmentInput');
+const field = el ? el.closest('.field') : null;
+return !!field && !field.hidden;
+                    """
+                )
+            )
+            case_fill_label = _text(driver, "fillRequirementPreset")
+            case_smart_profile = str(
+                driver.execute_script("const el=document.getElementById('smartIndustryProfile'); return el ? (el.innerText || '') : '';")
+                or ""
+            ).strip()
             driver.execute_script(
                 """
 const btn = document.getElementById('fillRequirementPreset');
@@ -1285,6 +1662,13 @@ if (btn && !btn.disabled) btn.click();
                 and case_capital_value == str(coverage_case["expected_capital_value"])
                 and case_technician_value == str(coverage_case["expected_technician_value"])
                 and case_equipment_value == str(coverage_case["expected_equipment_value"])
+                and all(token in case_requirements_meta for token in coverage_case.get("expected_requirements_tokens", []))
+                and all(token not in case_requirements_meta for token in coverage_case.get("unexpected_requirements_tokens", []))
+                and case_equipment_card_visible is bool(coverage_case.get("expected_equipment_card_visible"))
+                and case_equipment_input_visible is bool(coverage_case.get("expected_equipment_input_visible"))
+                and all(token in case_smart_profile for token in coverage_case.get("expected_profile_tokens", []))
+                and all(token not in case_smart_profile for token in coverage_case.get("unexpected_profile_tokens", []))
+                and case_fill_label == str(coverage_case.get("expected_fill_label", ""))
             )
             permit_family_outputs.append(
                 {
@@ -1295,6 +1679,12 @@ if (btn && !btn.disabled) btn.click();
                     "step_note": case_step_note,
                     "blocker": case_blocker,
                     "hint": case_hint,
+                    "requirements_meta": case_requirements_meta,
+                    "equipment_status": case_equipment_status,
+                    "equipment_card_visible": case_equipment_card_visible,
+                    "equipment_input_visible": case_equipment_input_visible,
+                    "fill_label": case_fill_label,
+                    "smart_profile": case_smart_profile,
                     "summary_after_fill": case_summary_after_fill,
                     "capital_value": case_capital_value,
                     "technician_value": case_technician_value,
@@ -1314,6 +1704,18 @@ if (btn && !btn.disabled) btn.click();
             "wizard_step3_title": wizard_step3_title,
             "wizard_optional_title": wizard_optional_title,
             "wizard_optional_state": wizard_optional_state,
+            "optional_priority_hint": optional_priority_hint,
+            "optional_toggle_label_collapsed": optional_toggle_label_collapsed,
+            "optional_visible_count_collapsed": optional_visible_count_collapsed,
+            "optional_toggle_label_expanded": optional_toggle_label_expanded,
+            "optional_visible_count_expanded": optional_visible_count_expanded,
+            "optional_priority_labels": optional_priority_labels,
+            "optional_priority_badges": optional_priority_badges,
+            "optional_checked_labels": optional_checked_labels,
+            "banner_meta_after_optional": banner_meta_after_optional,
+            "result_action_note_after_optional": result_action_note_after_optional,
+            "result_brief_after_optional": result_brief_after_optional,
+            "copy_result_brief_label_after_optional": copy_result_brief_label_after_optional,
             "initial_actions_hidden": initial_actions_hidden,
             "mode_pill_sync": mode_pill_sync,
             "first_focus_option_text": first_focus_option_text,
@@ -1326,6 +1728,7 @@ if (btn && !btn.disabled) btn.click();
             "permit_blocker_after_select": permit_blocker_after_select,
             "smart_profile_text": smart_profile_text,
             "holdings_priority_hint": holdings_priority_hint,
+            "desktop_fill_label": desktop_fill_label,
             "capital_placeholder": capital_placeholder,
             "result_actions_ready": result_actions_ready,
             "result_brief_after_select": result_brief_after_select,
@@ -1348,6 +1751,8 @@ if (btn && !btn.disabled) btn.click();
             "post_fill_technician_status": post_fill_technician_status,
             "post_fill_equipment_status": post_fill_equipment_status,
             "result_brief_after_fill": result_brief_after_fill,
+            "result_brief_meta_after_fill": result_brief_meta_after_fill,
+            "copy_result_brief_label_after_fill": copy_result_brief_label_after_fill,
             "mobile_quick_title": mobile_quick_title,
             "mobile_quick_meta": mobile_quick_meta,
             "mobile_quick_preset_label": mobile_quick_preset_label,
@@ -1357,6 +1762,7 @@ if (btn && !btn.disabled) btn.click();
             "permit_summary_after_reset": permit_summary_after_reset,
             "permit_blocker_after_reset": permit_blocker_after_reset,
             "mobile_quick_preset_label_after_reset": mobile_quick_preset_label_after_reset,
+            "desktop_fill_label_after_reset": desktop_fill_label_after_reset,
             "permit_family_cases": permit_family_outputs,
         }
         mark("output_captured")
@@ -1371,6 +1777,30 @@ if (btn && !btn.disabled) btn.click();
             and "현재 보유 현황" in wizard_step3_title
             and "선택 준비 상태" in wizard_optional_title
             and wizard_optional_state
+            and "안전" in optional_priority_hint
+            and "시설" in optional_priority_hint
+            and "자격" in optional_priority_hint
+            and "더 보기" in optional_toggle_label_collapsed
+            and optional_visible_count_collapsed == 3
+            and "우선 항목만 보기" == optional_toggle_label_expanded
+            and optional_visible_count_expanded > optional_visible_count_collapsed
+            and len(optional_priority_labels) >= 3
+            and "안전" in optional_priority_labels[0]
+            and "시설" in optional_priority_labels[1]
+            and "자격" in optional_priority_labels[2]
+            and optional_priority_badges[:2] == ["우선 1", "우선 2"]
+            and len(optional_checked_labels) >= 2
+            and "선택 준비" in banner_meta_after_optional
+            and "안전" in banner_meta_after_optional
+            and (
+                "보완" in result_action_note_after_optional
+                or "선택 준비" in result_action_note_after_optional
+                or ("선택 준비" in result_brief_after_optional and copy_result_brief_label_after_optional == "보완 브리프 복사")
+            )
+            and "선택 준비" in result_brief_after_optional
+            and "안전" in result_brief_after_optional
+            and "시설" in result_brief_after_optional
+            and copy_result_brief_label_after_optional == "보완 브리프 복사"
             and initial_actions_hidden
             and mode_pill_sync
             and bool(first_focus_option_text)
@@ -1383,7 +1813,9 @@ if (btn && !btn.disabled) btn.click();
             and search_seed in permit_summary_after_select
             and ("자본금" in permit_blocker_after_select or "기술자" in permit_blocker_after_select)
             and bool(smart_profile_text)
+            and "필수 3개 업종" in smart_profile_text
             and search_seed in holdings_priority_hint
+            and desktop_fill_label == "\uD544\uC218 3\uAC1C \uCC44\uC6B0\uAE30"
             and bool(capital_placeholder)
             and result_actions_ready
             and bool(result_brief_after_select)
@@ -1407,6 +1839,8 @@ if (btn && !btn.disabled) btn.click();
             and post_fill_technician_status == "\uAE30\uC900 \uCDA9\uC871"
             and post_fill_equipment_status == "\uAE30\uC900 \uCDA9\uC871"
             and "\uAE30\uC900 \uCDA9\uC871" in result_brief_after_fill
+            and "전달 준비" in result_brief_meta_after_fill
+            and copy_result_brief_label_after_fill == "전달 브리프 복사"
             and bool(mobile_quick_title)
             and bool(mobile_quick_meta)
             and mobile_quick_preset_label == "\uC785\uB825 \uCD08\uAE30\uD654"
@@ -1414,8 +1848,10 @@ if (btn && !btn.disabled) btn.click();
             and mobile_quick_scroll_ok
             and "현재 보유 현황" in wizard_after_reset_title
             and "현재 보유 미입력" in permit_summary_after_reset
+            and "선택 정보는 마지막 단계" in permit_summary_after_reset
             and "자본금" in permit_blocker_after_reset
-            and mobile_quick_preset_label_after_reset == "\uAE30\uC900\uAC12 \uCC44\uC6B0\uAE30"
+            and mobile_quick_preset_label_after_reset == "\uD544\uC218 3\uAC1C \uCC44\uC6B0\uAE30"
+            and desktop_fill_label_after_reset == "\uD544\uC218 3\uAC1C \uCC44\uC6B0\uAE30"
             and permit_family_outputs
             and all(bool((row or {}).get("ok")) for row in permit_family_outputs)
             and not console_errors

@@ -18,6 +18,8 @@ class GenerateWidgetRentalCatalogTests(unittest.TestCase):
             permit_master = base / "permit_master.json"
             permit_provenance = base / "permit_provenance.json"
             permit_patent = base / "permit_patent.json"
+            permit_family_case_goldset = base / "permit_family_case_goldset.json"
+            permit_case_story_surface = base / "permit_case_story_surface.json"
             yangdo_precision = base / "yangdo_precision.json"
             yangdo_contract = base / "yangdo_contract.json"
 
@@ -55,6 +57,13 @@ class GenerateWidgetRentalCatalogTests(unittest.TestCase):
                                 "plan": "pro",
                                 "allowed_systems": ["permit"],
                                 "allowed_features": ["permit_precheck", "permit_precheck_detail", "meta"],
+                            },
+                            {
+                                "offering_id": "permit_pro_assist",
+                                "display_name": "Permit Pro Assist",
+                                "plan": "pro",
+                                "allowed_systems": ["permit"],
+                                "allowed_features": ["permit_precheck", "permit_precheck_detail", "consult", "meta"],
                             },
                             {
                                 "offering_id": "combo_pro",
@@ -183,6 +192,118 @@ class GenerateWidgetRentalCatalogTests(unittest.TestCase):
                 ),
                 encoding="utf-8",
             )
+            permit_family_case_goldset.write_text(
+                json.dumps(
+                    {
+                        "summary": {
+                            "goldset_complete_family_total": 2,
+                            "case_total": 4,
+                        },
+                        "families": [
+                            {
+                                "family_key": "건설산업기본법 시행령",
+                                "claim_id": "permit-family-aaa111",
+                                "cases": [
+                                    {
+                                        "case_id": "permit-family-aaa111:boundary_pass:A001",
+                                        "case_kind": "boundary_pass",
+                                        "service_code": "A001",
+                                        "expected": {
+                                            "overall_status": "pass",
+                                            "proof_coverage_ratio": "2/2",
+                                            "review_reason": "",
+                                            "manual_review_expected": False,
+                                        },
+                                    },
+                                    {
+                                        "case_id": "permit-family-aaa111:shortfall_fail:A001",
+                                        "case_kind": "shortfall_fail",
+                                        "service_code": "A001",
+                                        "expected": {
+                                            "overall_status": "shortfall",
+                                            "proof_coverage_ratio": "2/2",
+                                            "review_reason": "capital_shortfall_only",
+                                            "manual_review_expected": False,
+                                        },
+                                    },
+                                ],
+                            },
+                            {
+                                "family_key": "전기공사업법 시행령",
+                                "claim_id": "permit-family-bbb222",
+                                "cases": [
+                                    {
+                                        "case_id": "permit-family-bbb222:boundary_pass:B001",
+                                        "case_kind": "boundary_pass",
+                                        "service_code": "B001",
+                                        "expected": {
+                                            "overall_status": "pass",
+                                            "proof_coverage_ratio": "1/1",
+                                            "review_reason": "",
+                                            "manual_review_expected": False,
+                                        },
+                                    },
+                                    {
+                                        "case_id": "permit-family-bbb222:shortfall_fail:B001",
+                                        "case_kind": "shortfall_fail",
+                                        "service_code": "B001",
+                                        "expected": {
+                                            "overall_status": "shortfall",
+                                            "proof_coverage_ratio": "1/1",
+                                            "review_reason": "other_requirement_documents_missing",
+                                            "manual_review_expected": True,
+                                        },
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                    ensure_ascii=False,
+                ),
+                encoding="utf-8",
+            )
+            permit_case_story_surface.write_text(
+                json.dumps(
+                    {
+                        "summary": {
+                            "story_family_total": 2,
+                            "review_reason_total": 2,
+                            "manual_review_family_total": 1,
+                            "story_ready": True,
+                        },
+                        "families": [
+                            {
+                                "family_key": "건설산업기본법 시행령",
+                                "claim_id": "permit-family-aaa111",
+                                "preset_total": 3,
+                                "manual_review_preset_total": 1,
+                                "representative_cases": [
+                                    {
+                                        "preset_id": "permit-family-aaa111:document_missing_review:A001",
+                                        "review_reason": "other_requirement_documents_missing",
+                                    }
+                                ],
+                                "operator_story_points": ["서류 누락 시 수동 검토로 전환"],
+                            },
+                            {
+                                "family_key": "전기공사업법 시행령",
+                                "claim_id": "permit-family-bbb222",
+                                "preset_total": 3,
+                                "manual_review_preset_total": 0,
+                                "representative_cases": [
+                                    {
+                                        "preset_id": "permit-family-bbb222:technician_only_fail:B001",
+                                        "review_reason": "technician_shortfall_only",
+                                    }
+                                ],
+                                "operator_story_points": ["기술인력 부족 여부를 즉시 구분"],
+                            },
+                        ],
+                    },
+                    ensure_ascii=False,
+                ),
+                encoding="utf-8",
+            )
             yangdo_precision.write_text(
                 json.dumps(
                     {
@@ -212,13 +333,15 @@ class GenerateWidgetRentalCatalogTests(unittest.TestCase):
                 permit_master_path=permit_master,
                 permit_provenance_path=permit_provenance,
                 permit_patent_path=permit_patent,
+                permit_family_case_goldset_path=permit_family_case_goldset,
+                permit_case_story_surface_path=permit_case_story_surface,
                 yangdo_precision_path=yangdo_precision,
                 yangdo_contract_path=yangdo_contract,
             )
 
-            self.assertEqual(payload["summary"]["offering_count"], 3)
+            self.assertEqual(payload["summary"]["offering_count"], 4)
             self.assertEqual(payload["summary"]["standard_offering_count"], 1)
-            self.assertEqual(payload["summary"]["pro_offering_count"], 2)
+            self.assertEqual(payload["summary"]["pro_offering_count"], 3)
             self.assertEqual(payload["summary"]["yangdo_recommendation_offering_count"], 2)
             self.assertEqual(payload["summary"]["yangdo_recommendation_standard_count"], 1)
             self.assertEqual(payload["summary"]["yangdo_recommendation_detail_count"], 1)
@@ -244,10 +367,27 @@ class GenerateWidgetRentalCatalogTests(unittest.TestCase):
             self.assertEqual(payload["summary"]["permit_claim_packet_complete_family_total"], 6)
             self.assertEqual(payload["summary"]["permit_checksum_sample_family_total"], 6)
             self.assertEqual(payload["summary"]["permit_checksum_sample_total"], 2)
+            self.assertEqual(payload["summary"]["permit_family_case_goldset_family_total"], 2)
+            self.assertEqual(payload["summary"]["permit_family_case_total"], 4)
+            self.assertEqual(payload["summary"]["permit_family_case_sample_total"], 4)
+            self.assertEqual(payload["summary"]["permit_edge_case_total"], 0)
+            self.assertEqual(payload["summary"]["permit_edge_case_family_total"], 0)
+            self.assertEqual(payload["summary"]["permit_manual_review_case_total"], 0)
+            self.assertEqual(payload["summary"]["permit_widget_case_parity_family_total"], 2)
+            self.assertEqual(payload["summary"]["permit_case_story_family_total"], 2)
+            self.assertEqual(payload["summary"]["permit_case_story_review_reason_total"], 2)
+            self.assertEqual(payload["summary"]["permit_case_story_manual_review_family_total"], 1)
+            self.assertEqual(payload["summary"]["permit_case_story_sample_total"], 2)
+            self.assertTrue(payload["summary"]["permit_case_story_surface_ready"])
             self.assertEqual(payload["packaging"]["public_platform"]["host"], "seoulmna.kr")
             self.assertEqual(payload["packaging"]["listing_market"]["host"], "seoulmna.co.kr")
             self.assertIn("yangdo_standard", payload["packaging"]["partner_rental"]["widget_standard"])
             self.assertIn("permit_pro", payload["packaging"]["partner_rental"]["api_or_detail_pro"])
+
+            self.assertEqual(payload["summary"]["permit_offering_count"], 3)
+            self.assertEqual(payload["summary"]["permit_standard_count"], 0)
+            self.assertEqual(payload["summary"]["permit_detail_checklist_count"], 2)
+            self.assertEqual(payload["summary"]["permit_manual_review_assist_count"], 1)
 
             recommendation = payload["packaging"]["partner_rental"]["yangdo_recommendation"]
             self.assertIn("yangdo_standard", recommendation["summary_offerings"])
@@ -297,6 +437,72 @@ class GenerateWidgetRentalCatalogTests(unittest.TestCase):
                 payload["packaging"]["partner_rental"]["permit_widget_feeds"]["proof_checksum_samples"][0]["checksum"],
                 "checksum-a",
             )
+            self.assertEqual(
+                payload["packaging"]["partner_rental"]["permit_widget_feeds"]["family_case_goldset_family_total"],
+                2,
+            )
+            self.assertEqual(
+                payload["packaging"]["partner_rental"]["permit_widget_feeds"]["widget_case_parity_family_total"],
+                2,
+            )
+            self.assertEqual(
+                payload["packaging"]["partner_rental"]["permit_widget_feeds"]["case_story_family_total"],
+                2,
+            )
+            self.assertEqual(
+                payload["packaging"]["partner_rental"]["permit_widget_feeds"]["case_story_review_reason_total"],
+                2,
+            )
+            self.assertEqual(
+                payload["packaging"]["partner_rental"]["permit_widget_feeds"]["case_story_manual_review_family_total"],
+                1,
+            )
+            self.assertEqual(
+                payload["packaging"]["partner_rental"]["permit_widget_feeds"]["case_story_samples"][0]["claim_id"],
+                "permit-family-aaa111",
+            )
+            self.assertEqual(
+                payload["packaging"]["partner_rental"]["permit_widget_feeds"]["case_story_samples"][0]["representative_preset_ids"],
+                ["permit-family-aaa111:document_missing_review:A001"],
+            )
+            self.assertIn(
+                "review_reasons",
+                payload["packaging"]["partner_rental"]["permit_widget_feeds"]["case_story_sample_fields"],
+            )
+            self.assertIn(
+                "representative_preset_ids",
+                payload["packaging"]["partner_rental"]["permit_widget_feeds"]["case_story_sample_fields"],
+            )
+            self.assertIn(
+                "operator_story_points",
+                payload["packaging"]["partner_rental"]["permit_widget_feeds"]["case_story_sample_fields"],
+            )
+            self.assertEqual(
+                payload["packaging"]["partner_rental"]["permit_widget_feeds"]["family_case_samples"][0]["case_id"],
+                "permit-family-aaa111:boundary_pass:A001",
+            )
+            self.assertEqual(
+                payload["packaging"]["partner_rental"]["permit_widget_feeds"]["family_case_samples"][0]["expected_status"],
+                "pass",
+            )
+            self.assertIn(
+                "review_reason",
+                payload["packaging"]["partner_rental"]["permit_widget_feeds"]["family_case_sample_fields"],
+            )
+            self.assertIn(
+                "manual_review_expected",
+                payload["packaging"]["partner_rental"]["permit_widget_feeds"]["family_case_sample_fields"],
+            )
+            self.assertIn(
+                "manual_review_expected",
+                payload["packaging"]["partner_rental"]["permit_widget_feeds"]["family_case_samples"][0],
+            )
+
+            permit_precheck = payload["packaging"]["partner_rental"]["permit_precheck"]
+            self.assertEqual(permit_precheck["package_matrix"]["detail_checklist"]["offering_ids"], ["permit_pro", "combo_pro"])
+            self.assertEqual(permit_precheck["package_matrix"]["manual_review_assist"]["offering_ids"], ["permit_pro_assist"])
+            self.assertEqual(permit_precheck["lane_positioning"]["detail_checklist"]["upgrade_target"], "manual_review_assist")
+            self.assertEqual(permit_precheck["service_flow_policy"], "public_summary_then_checklist_or_manual_review")
 
             combo = next(row for row in payload["offerings"] if row["offering_id"] == "combo_pro")
             self.assertEqual(combo["response_tier"], "detail")

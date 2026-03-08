@@ -34,6 +34,7 @@ from security_http import (
     safe_client_ip,
 )
 from tenant_config.loader import load_channel_router, load_gateway
+from scripts.widget_health_contract import load_widget_health_contract
 from utils import load_config, setup_logger
 
 CONFIG = load_config(
@@ -59,6 +60,8 @@ CONFIG = load_config(
 )
 
 logger = setup_logger(name="permit_precheck_api")
+
+SERVICE_NAME = "permit_precheck_api"
 
 
 def _compact(value: Any, limit: int = 2000) -> str:
@@ -188,6 +191,15 @@ def _result_summary_payload(result: Dict[str, Any]) -> Dict[str, Any]:
         "unknown_blocking_count": _coerce_int_or_none(result.get("unknown_blocking_count")),
         "capital_input_suspicious": bool(result.get("capital_input_suspicious")),
         "next_actions": list(result.get("next_actions") or []),
+    }
+
+
+def _partner_health_payload() -> Dict[str, Any]:
+    return {
+        "ok": True,
+        "service": SERVICE_NAME,
+        "message": "healthy",
+        "health_contract": load_widget_health_contract(),
     }
 
 
@@ -1217,7 +1229,7 @@ class Handler(BaseHTTPRequestHandler):
             return
         path = self.path.split("?", 1)[0]
         if path in {"/health", "/v1/health"}:
-            self._write_json(200, {"ok": True, "service": "permit_precheck_api"})
+            self._write_json(200, _partner_health_payload())
             return
         if path in {"/meta", "/v1/permit/meta"}:
             if self.server.admin_api_keys and not self._require_api_key(admin=True):

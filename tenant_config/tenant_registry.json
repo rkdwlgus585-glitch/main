@@ -341,6 +341,21 @@
       ]
     },
     {
+      "offering_id": "permit_pro_assist",
+      "display_name": "Permit Pro Assist",
+      "plan": "pro",
+      "allowed_systems": [
+        "permit"
+      ],
+      "allowed_features": [
+        "permit_precheck",
+        "permit_precheck_detail",
+        "consult",
+        "usage",
+        "meta"
+      ]
+    },
+    {
       "offering_id": "combo_pro",
       "display_name": "Combo Pro",
       "plan": "pro",

@@ -15,6 +15,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from scripts.widget_health_contract import load_widget_health_contract
+
 
 def _py_cmd(args: List[str]) -> List[str]:
     if shutil.which("py"):
@@ -227,6 +229,7 @@ def _artifact_summary(*, artifact_paths: Dict[str, str], report: Dict[str, Any])
             "blocking_issues": [str(x) for x in (report.get("blocking_issues") or []) if str(x).strip()],
             "runtime_verified": bool(handoff.get("runtime_verified")),
         },
+        "health_contract": load_widget_health_contract(),
     }
 
 
