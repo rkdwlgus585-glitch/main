@@ -156,5 +156,62 @@ class GeneratePermitFocusFamilyRegistryTests(unittest.TestCase):
         )
 
 
+    def test_build_registry_backfills_structured_evidence_when_profile_lines_are_missing(self):
+        packet = {"target_family": {"family_key": "전기공사업법 시행령"}}
+        existing_registry = {"industries": []}
+        focus_seed_catalog = {
+            "industries": [
+                {
+                    "service_code": "FOCUS::electrical-construction",
+                    "service_name": "전기공사업",
+                    "major_code": "32",
+                    "major_name": "전기전자정보통신",
+                    "law_title": "전기공사업법 시행령",
+                    "legal_basis_title": "별표 1 전기공사업 등록기준",
+                    "group_name": "전기공사업 등록기준",
+                    "registration_requirement_profile": {
+                        "capital_required": True,
+                        "capital_eok": 1.5,
+                        "technical_personnel_required": True,
+                        "technicians_required": 3,
+                        "other_required": True,
+                        "other_components": ["equipment", "deposit", "office"],
+                        "equipment_count_required": 1,
+                        "deposit_days_required": 30,
+                        "capital_evidence": [],
+                        "technical_personnel_evidence": [],
+                        "other_evidence": [],
+                    },
+                }
+            ]
+        }
+
+        registry = generate_permit_focus_family_registry.build_registry(
+            packet=packet,
+            existing_registry=existing_registry,
+            focus_seed_catalog=focus_seed_catalog,
+            materialize_all_pending=True,
+        )
+
+        profile = registry["industries"][0]["registration_requirement_profile"]
+        self.assertEqual(
+            profile["capital_evidence"],
+            ["별표 1 전기공사업 등록기준 기준 전기공사업의 자본금은 1억 5000만원 이상이어야 한다."],
+        )
+        self.assertEqual(
+            profile["technical_personnel_evidence"],
+            ["별표 1 전기공사업 등록기준 기준 전기공사업의 기술인력은 3명 이상이어야 한다."],
+        )
+        self.assertEqual(
+            profile["other_evidence"],
+            ["별표 1 전기공사업 등록기준 기준 전기공사업의 기타 등록기준에는 장비 1종 이상, 보증가능금액 확인서 30일 이상, 사무실 확보 기준이 포함된다."],
+        )
+        self.assertEqual(
+            profile["generated_evidence_fields"],
+            ["capital_evidence", "technical_personnel_evidence", "other_evidence"],
+        )
+        self.assertEqual(profile["generated_evidence_kind"], "law_referenced_structured_template")
+
+
 if __name__ == "__main__":
     unittest.main()

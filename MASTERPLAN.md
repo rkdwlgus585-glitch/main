@@ -5,6 +5,7 @@
 - 사용자 확인을 기다리지 않는다. 단, 실운영 반영처럼 되돌리기 어려운 단계만 명시적 입력(`confirm_live_yes`)을 요구한다.
 - `양도양수(양도가 산정)`와 `인허가(사전검토)`는 특허도 분리, 시스템도 분리한다.
 - 공유하는 것은 플랫폼 레이어뿐이다: `tenant/channel/gating/usage/billing/activation/request-response contract`.
+- 첨부된 `txt` 지시 원본은 참고 문서가 아니라 우선 입력으로 취급하고, `logs/external_masterplan_alignment_latest.*` 기준으로 현재 `MASTERPLAN`과의 정합성을 계속 검증한다.
 
 ## Fixed Top Priorities
 1. `seoulmna.kr`에 `AI 인허가 사전검토`와 `AI 양도양수 계산기`를 `413 없는 플랫폼 구조`로 안정 탑재
@@ -18,6 +19,7 @@
    - 정보통신: `reorgOverrides` / confidence cap(저실적·고분산) 완료
    - 소방: confidence cap(저실적·고분산) 완료
    - 인허가 typed_criteria: 전기(basis_refs), 정보통신(qualification 추가), 소방 3종(office blocking 추가) 완료
+8. `AI 인허가 사전검토 시스템`의 관계 법령/특례/사례 데이터 수집과 등록기준 해석 근거를 계속 확장
 
 ## Session Lock
 - 이번 세션의 최우선 과제는 `AI 양도가 산정 시스템`을 `가격 산정 + 유사매물 추천` 중심축으로 끌어올리고, `seoulmna.kr` 플랫폼 개편, `AI 인허가 사전검토` 병행 탑재, 임대형 위젯/API 상품화, 특허 근거 축적까지 한 흐름으로 밀어붙이는 것이다.
@@ -32,12 +34,13 @@
 2. 긍정적 영향이 예상되면 사용자 지시가 없어도 반영한다.
 3. 문서로 끝내지 않고 가능하면 `script -> JSON/MD 산출물 -> operations packet`으로 자동화한다.
 4. 매 배치마다 `first-principles review`와 `next action brainstorm`을 같이 갱신해, 실행과 사고를 분리하지 않는다.
-5. 매 배치마다 다시 묻는다.
+5. `founder_mode_prompt_bundle_latest`의 `execution_checklist`와 `shipping_gates`는 `next_execution_packet`에 반영해 문서가 아니라 실행 계약으로 다룬다.
+6. 매 배치마다 다시 묻는다.
    - 지금 가장 큰 병목은 코드인가, 실데이터인가, 배포인가, 특허 문구인가.
    - `.kr` 플랫폼 / `.co.kr` 매물 / hidden engine 역할이 섞이고 있지 않은가.
    - 초기 렌더에서 트래픽 누수가 없는가.
-5. `양도가` 개선은 매 턴 `docs/yangdo_critical_thinking_prompt.md`의 반문 흐름을 따른다.
-6. `설명문 추가`보다 `입력 복귀`, `자동 포커스`, `추천 우선 배치` 같은 실제 동작 개선을 우선한다.
+7. `양도가` 개선은 매 턴 `docs/yangdo_critical_thinking_prompt.md`의 반문 흐름을 따른다.
+8. `설명문 추가`보다 `입력 복귀`, `자동 포커스`, `추천 우선 배치` 같은 실제 동작 개선을 우선한다.
 
 ## Current Architecture
 ### Independent Systems
@@ -91,11 +94,13 @@
 
 2-1. 양도가 추천 정책
 - 가격 산정과 함께 `유사매물 추천`을 제공
-- 추천은 `입력 프로필 적합도`, `가격대`, `실적 흐름`, `면허 정합도`를 함께 본다
+- 추천 랭킹은 내부적으로 `입력 프로필 적합도`, `가격 근접도`, `실적 흐름`, `면허 정합도`를 함께 본다
+- public 추천 카드와 추천 패널은 `가격 숫자`, `가격대`, `억 단위 힌트`를 노출하지 않고 `업종`, `실적`, `조건 적합`, `검토 우선순위`만 보여준다
 - public summary tier에는 안전한 추천 요약만 노출하고, 상세 점수/축 분해는 detail-owner tier에 남긴다
 - canonical QA는 `logs/yangdo_recommendation_qa_matrix_latest.*`, `logs/yangdo_recommendation_precision_matrix_latest.*`, `logs/yangdo_recommendation_contract_audit_latest.*` 3축으로 유지한다
 - 추천 다양성/편향 제어는 `logs/yangdo_recommendation_diversity_audit_latest.*`를 기준으로 감시한다
 - 추천 다양성/편향 감사는 `동일 cluster 과대표`, `가격대 편중`까지 포함한 6시나리오 기준으로 유지한다
+- 전기/정보통신/소방 특수 업종 정밀화는 `logs/yangdo_special_sector_packet_latest.*`를 canonical 기준으로 유지한다
 - 서비스/매물 브리지 정책은 `logs/yangdo_recommendation_bridge_packet_latest.*`를 기준으로 유지한다
 - 공개 요약/상담형 상세/임대형 노출 차등 UX는 `logs/yangdo_recommendation_ux_packet_latest.*`를 기준으로 유지한다
 - 브리지/UX/임대/특허 문구 정렬은 `logs/yangdo_recommendation_alignment_audit_latest.*`를 기준으로 감시한다
@@ -171,6 +176,7 @@
 - `.co.kr -> .kr` 브리지 자산을 실제 삽입 가능한 수준으로 계속 좁힌다.
 - 양도가 시스템은 실사용 UX/설명력/정산 로직과 `유사매물 추천 정밀도` 기준으로 계속 정밀화한다.
 - permit는 플랫폼/임대/특허 공통축을 유지하되 양도양수 우선순위를 침범하지 않게 병행한다.
+- 외부 지시 원본과 현재 `MASTERPLAN`의 정합성을 계속 감시하고, 누락 항목이 생기면 이 문서와 `operations packet`에 즉시 반영한다.
 
 ### Next Technical Bottlenecks
 1. `.kr` live 반영 전 서버 절차와 rollback을 더 구체화
@@ -183,10 +189,11 @@
 7. `/yangdo` 서비스 페이지에서 추천 설명력을 `가격 계산`보다 `시장 적합도 해석`으로 더 이동시킨다
 8. partner 입력 handoff packet을 기준으로 `proof_url / api_key / approval` 전달 비용을 더 줄인다
 9. `permit` 공개계약 감사와 서비스 UX를 기준으로 상세 체크리스트/수동 검토 보조 lane 설명력을 더 정교화한다
-10. `ai_platform_first_principles_review_latest`를 기준으로 매 배치의 최우선 병목과 실험 순서를 다시 고정한다
-11. `partner_input_operator_flow_latest`를 기준으로 파트너 입력 주입을 `simulate -> dry-run -> apply` 단일 운영 경로로 고정한다
-12. `system_split_first_principles_packet_latest`를 기준으로 플랫폼/양도가/인허가의 사고 루프를 분리 유지한다
-13. `next_batch_focus_packet_latest`를 기준으로 외부 승인/실입력 blocker를 제외한 실제 코드 병목 1개만 먼저 친다
+10. `permit runtime_reasoning_guard`가 서비스/운영/릴리즈 표면에서 같은 lane으로 유지되는지 계속 감시한다
+11. `ai_platform_first_principles_review_latest`를 기준으로 매 배치의 최우선 병목과 실험 순서를 다시 고정한다
+12. `partner_input_operator_flow_latest`를 기준으로 파트너 입력 주입을 `simulate -> dry-run -> apply` 단일 운영 경로로 고정한다
+13. `system_split_first_principles_packet_latest`를 기준으로 플랫폼/양도가/인허가의 사고 루프를 분리 유지한다
+14. `next_batch_focus_packet_latest`를 기준으로 외부 승인/실입력 blocker를 제외한 실제 코드 병목 1개만 먼저 친다
 
 ## Canonical Artifacts
 - operations packet: `logs/operations_packet_latest.json`, `logs/operations_packet_latest.md`
@@ -206,6 +213,7 @@
 - recommendation QA: `logs/yangdo_recommendation_qa_matrix_latest.json`
 - recommendation precision: `logs/yangdo_recommendation_precision_matrix_latest.json`
 - recommendation diversity: `logs/yangdo_recommendation_diversity_audit_latest.json`
+- special-sector packet: `logs/yangdo_special_sector_packet_latest.json`
 - recommendation contract: `logs/yangdo_recommendation_contract_audit_latest.json`
 - recommendation bridge packet: `logs/yangdo_recommendation_bridge_packet_latest.json`, `logs/yangdo_recommendation_bridge_packet_latest.md`
 - recommendation UX packet: `logs/yangdo_recommendation_ux_packet_latest.json`, `logs/yangdo_recommendation_ux_packet_latest.md`
@@ -217,11 +225,18 @@
 - permit rental lane packet: `logs/permit_rental_lane_packet_latest.json`, `logs/permit_rental_lane_packet_latest.md`
 - permit service UX packet: `logs/permit_service_ux_packet_latest.json`, `logs/permit_service_ux_packet_latest.md`
 - permit public contract audit: `logs/permit_public_contract_audit_latest.json`, `logs/permit_public_contract_audit_latest.md`
+- permit thinking prompt bundle packet: `logs/permit_thinking_prompt_bundle_packet_latest.json`, `logs/permit_thinking_prompt_bundle_packet_latest.md`
+- permit runtime reasoning binding audit: `logs/permit_runtime_reasoning_binding_audit_latest.json`, `logs/permit_runtime_reasoning_binding_audit_latest.md`
+- permit law/exception/case coverage packet: `logs/permit_law_case_coverage_packet_latest.json`, `logs/permit_law_case_coverage_packet_latest.md`
 - partner input handoff packet: `logs/partner_input_handoff_packet_latest.json`, `logs/partner_input_handoff_packet_latest.md`
 - partner input operator flow: `logs/partner_input_operator_flow_latest.json`, `logs/partner_input_operator_flow_latest.md`
 - next batch focus packet: `logs/next_batch_focus_packet_latest.json`, `logs/next_batch_focus_packet_latest.md`
+- founder mode prompt bundle: `logs/founder_mode_prompt_bundle_latest.json`, `logs/founder_mode_prompt_bundle_latest.md`
+- founder execution chain: `logs/founder_execution_chain_latest.json`, `logs/founder_execution_chain_latest.md`
+- next execution packet: `logs/next_execution_packet_latest.json`, `logs/next_execution_packet_latest.md`
 - first-principles review: `logs/ai_platform_first_principles_review_latest.json`, `logs/ai_platform_first_principles_review_latest.md`
 - system split first-principles packet: `logs/system_split_first_principles_packet_latest.json`, `logs/system_split_first_principles_packet_latest.md`
+- external masterplan alignment: `logs/external_masterplan_alignment_latest.json`, `logs/external_masterplan_alignment_latest.md`
 
 ## Concrete Output Path
 - planner: `scripts/plan_channel_embed.py`
@@ -243,6 +258,10 @@
 - rental catalog: `scripts/generate_widget_rental_catalog.py`
 - recommendation bridge packet: `scripts/generate_yangdo_recommendation_bridge_packet.py`
 - next action brainstorm: `scripts/generate_yangdo_next_action_brainstorm.py`
+- permit thinking prompt bundle packet: `scripts/generate_permit_thinking_prompt_bundle_packet.py`
+- founder execution chain: `scripts/generate_founder_execution_chain.py`
+- external directives alignment: `scripts/generate_external_masterplan_alignment.py`
+- permit law/exception/case coverage: `scripts/generate_permit_law_case_coverage_packet.py`
 - partner flow: `scripts/run_partner_onboarding_flow.py`
 - partner simulation: `scripts/generate_partner_activation_simulation_matrix.py`
 - partner snapshot: `scripts/generate_partner_input_snapshot.py`

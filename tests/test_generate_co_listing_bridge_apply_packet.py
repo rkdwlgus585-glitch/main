@@ -57,7 +57,7 @@ class GenerateCoListingBridgeApplyPacketTests(unittest.TestCase):
             plan.write_text(
                 json.dumps(
                     {
-                        "summary": {"plan_ready": True},
+                        "summary": {"plan_ready": True, "strict_live_ready": True},
                         "placements": [
                             {"placement": "listing_nav_service", "selector": "header#header ul.gnb", "selector_verified": True, "snippet_file": str(base / "listing_nav_service.html")},
                             {"placement": "listing_detail_primary", "selector": "article#bo_v .tbl_frm01.vtbl_wraps", "selector_verified": True, "snippet_file": str(base / "listing_detail_primary.html")},
@@ -90,7 +90,10 @@ class GenerateCoListingBridgeApplyPacketTests(unittest.TestCase):
             )
 
             self.assertTrue(payload["summary"]["apply_ready"])
+            self.assertTrue(payload["summary"]["artifact_ready"])
+            self.assertTrue(payload["summary"]["strict_live_ready"])
             self.assertEqual(payload["summary"]["placement_count"], 2)
+            self.assertEqual(payload["summary"]["placement_asset_ready_count"], 2)
             self.assertEqual(payload["summary"]["placement_ready_count"], 2)
             self.assertIn("bridge.js", payload["summary"]["bundle_script"])
             self.assertEqual(len(payload["apply_order"]), 5)

@@ -21,6 +21,7 @@ class GenerateAttorneyHandoffTests(unittest.TestCase):
         self.assertGreaterEqual(len(track_a["claim_sentence_draft"]["dependents"]), 3)
         self.assertTrue(any("요약 추천 필드" in item or "추천 요약 필드" in item for item in track_a["claim_sentence_draft"]["dependents"]))
         self.assertTrue(any("추천 정밀도 QA 매트릭스" == ev.get("label") for ev in track_a["evidence"]))
+        self.assertTrue(any("특수 업종 정밀화 packet" == ev.get("label") for ev in track_a["evidence"]))
         self.assertTrue(len(track_a["evidence"]) > 0)
 
     def test_cli_writes_files(self):

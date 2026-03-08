@@ -18,9 +18,9 @@ class GenerateOperationsPacketTests(unittest.TestCase):
                 'wp_apply', 'wp_strategy', 'astra_ref', 'kr_cutover', 'kr_traffic', 'kr_ready', 'kr_preview',
                 'onboarding', 'partner_flow', 'partner_preview', 'partner_alignment', 'partner_resolution',
                 'partner_snapshot', 'partner_simulation', 'yangdo_qa', 'yangdo_precision', 'yangdo_diversity',
-                'yangdo_contract', 'yangdo_bridge', 'yangdo_ux', 'yangdo_alignment', 'yangdo_zero_display', 'yangdo_service_copy',
+                'yangdo_special_sector', 'yangdo_contract', 'yangdo_bridge', 'yangdo_ux', 'yangdo_alignment', 'yangdo_zero_display', 'yangdo_service_copy',
                 'permit_service_copy', 'permit_service_alignment', 'permit_rental_lane', 'permit_service_ux',
-                'permit_public_contract', 'partner_input_handoff', 'partner_input_operator_flow', 'rental_catalog', 'improvement_loop', 'ai_first_principles', 'system_split_first_principles'
+                'permit_public_contract', 'permit_prompt_case_binding', 'permit_critical_prompt_surface', 'permit_partner_binding_parity', 'permit_partner_binding_observability', 'permit_thinking_prompt_bundle', 'permit_next_action_brainstorm', 'permit_runtime_reasoning_binding', 'permit_law_case_coverage', 'partner_input_handoff', 'partner_input_operator_flow', 'rental_catalog', 'improvement_loop', 'ai_first_principles', 'external_masterplan_alignment', 'system_split_first_principles', 'next_execution', 'yangdo_next_action_brainstorm', 'yangdo_public_language_audit', 'founder_execution_chain'
             ]}
 
             def write(name: str, payload: dict):
@@ -57,6 +57,7 @@ class GenerateOperationsPacketTests(unittest.TestCase):
             write('yangdo_qa', {'summary': {'qa_ok': True}})
             write('yangdo_precision', {'summary': {'precision_ok': True, 'detail_explainability_ok': True}})
             write('yangdo_diversity', {'summary': {'diversity_ok': True, 'cluster_concentration_ok': True, 'top_rank_signature_concentration_ok': True, 'price_band_concentration_ok': True}})
+            write('yangdo_special_sector', {'summary': {'packet_ready': True, 'special_sector_count': 3, 'sector_ready_count': 3, 'publication_safety_ok': True, 'pricing_watch_required': True, 'precision_green': True, 'diversity_green': True, 'contract_green': True, 'expansion_candidate_count': 1, 'expansion_candidates': [{'sector': '소방', 'reorg_mode': '포괄', 'reason': 'backlog'}]}})
             write('yangdo_contract', {'summary': {'contract_ok': True}})
             write('yangdo_bridge', {'summary': {'packet_ready': True, 'service_slug': '/yangdo', 'platform_host': 'seoulmna.kr', 'listing_host': 'seoulmna.co.kr'}, 'public_summary_contract': {'primary_cta': {'label': '추천 매물 흐름 보기'}, 'secondary_cta': {'label': '상담형 상세 요청'}}, 'detail_contract': {'fields': ['precision_tier'], 'operator_only_fields': ['recommendation_score']}, 'market_bridge_policy': {'service_flow_policy': 'public_summary_then_market_or_consult'}, 'rental_packaging': {'summary_offerings': ['yangdo_standard'], 'detail_offerings': ['yangdo_pro_detail'], 'summary_policy': 'safe-summary', 'detail_policy': 'detail-explainable', 'internal_policy': 'internal-full'}})
             write('yangdo_ux', {'summary': {'packet_ready': True, 'service_surface_ready': True, 'market_bridge_ready': True, 'rental_exposure_ready': True, 'service_flow_policy': 'public_summary_then_market_or_consult'}, 'public_summary_experience': {'allowed_offerings': ['yangdo_standard'], 'cta_primary_label': '추천 매물 흐름 보기'}, 'detail_explainable_experience': {'allowed_offerings': ['yangdo_pro_detail']}, 'consult_detail_experience': {'allowed_offerings': ['yangdo_pro']}})
@@ -68,12 +69,25 @@ class GenerateOperationsPacketTests(unittest.TestCase):
             write('permit_rental_lane', {'summary': {'packet_ready': True, 'commercial_story_ready': True, 'detail_checklist_lane_ready': True, 'manual_review_assist_lane_ready': True}, 'lane_matrix': {'summary_self_check': {'offerings': ['permit_standard']}, 'detail_checklist': {'offerings': ['permit_pro']}, 'manual_review_assist': {'offerings': ['permit_pro_assist']}}})
             write('permit_service_ux', {'summary': {'packet_ready': True, 'service_surface_ready': True, 'lane_exposure_ready': True, 'alignment_ready': True, 'service_flow_policy': 'public_summary_then_checklist_or_manual_review'}, 'public_summary_experience': {'allowed_offerings': ['permit_standard'], 'cta_primary_label': '사전검토 시작'}, 'detail_checklist_experience': {'allowed_offerings': ['permit_pro'], 'cta_primary_label': '상세 체크리스트 보기'}, 'manual_review_assist_experience': {'allowed_offerings': ['permit_pro_assist'], 'cta_primary_label': '수동 검토 요청'}})
             write('permit_public_contract', {'summary': {'contract_ok': True, 'public_summary_only_ok': True, 'detail_checklist_contract_ok': True, 'assist_contract_ok': True, 'internal_visibility_ok': True, 'offering_exposure_ok': True, 'patent_handoff_ok': True}})
+            write('permit_prompt_case_binding', {'summary': {'packet_ready': True, 'lane_id': 'prompt_case_binding', 'founder_lane_match': True, 'prompt_doc_ready': True, 'preset_ready': True, 'story_ready': True, 'operator_demo_ready': True, 'operator_jump_table_ready': True, 'representative_family_total': 2, 'representative_case_total': 4, 'manual_review_case_total': 1}})
+            write('permit_critical_prompt_surface', {'summary': {'packet_ready': True, 'lane_id': 'runtime_reasoning_guard', 'lane_title': 'runtime reasoning guard', 'operator_surface_ready': True, 'release_surface_ready': True, 'founder_lane_match': True, 'alignment_ok': True, 'service_copy_ready': True, 'service_ux_ready': True, 'prompt_case_binding_ready': True, 'operator_jump_table_ready': True}})
+            write('permit_partner_binding_parity', {'summary': {'packet_ready': True, 'family_total': 2, 'detail_checklist_family_total': 1, 'manual_review_family_total': 1, 'public_contract_ok': True, 'offering_exposure_ok': True, 'partner_surface_ready': True}})
+            write('permit_partner_binding_observability', {'summary': {'observability_ready': True, 'expected_family_total': 2, 'widget_binding_family_total': 2, 'api_binding_family_total': 2, 'partner_binding_surface_ready': True, 'widget_missing_family_total': 0, 'api_missing_family_total': 0, 'widget_extra_family_total': 0, 'api_extra_family_total': 0}})
+            write('permit_thinking_prompt_bundle', {'summary': {'packet_ready': True, 'lane_id': 'runtime_reasoning_guard', 'prompt_doc_ready': True, 'runtime_target_ready': True, 'release_target_ready': True, 'operator_target_ready': True, 'founder_transition_context_ready': True}})
+            write('permit_next_action_brainstorm', {'summary': {'execution_lane': 'runtime_reasoning_guard', 'parallel_lane': 'surface_drift_digest', 'prompt_doc_ready': True, 'review_reason_decision_ladder_ready': True, 'partner_binding_parity_ready': True, 'runtime_critical_prompt_surface_ready': True}, 'current_execution_lane': {'id': 'runtime_reasoning_guard'}, 'parallel_brainstorm_lane': {'id': 'surface_drift_digest'}})
+            write('permit_runtime_reasoning_binding', {'summary': {'packet_ready': True, 'lane_id': 'runtime_reasoning_guard', 'expected_lane_id': 'runtime_reasoning_guard', 'runtime_binding_ok': True, 'service_binding_ok': True, 'operator_binding_ok': True, 'release_binding_ok': True, 'cta_split_ok': True, 'offering_split_ok': True, 'issue_count': 0}})
+            write('permit_law_case_coverage', {'summary': {'packet_ready': True, 'law_basis_coverage_ok': True, 'criteria_coverage_ok': True, 'provenance_ok': True, 'exception_tracking_ready': True, 'case_goldset_ready': True, 'story_surface_ready': True, 'prompt_binding_ready': True, 'real_industry_total': 195, 'pending_industry_total': 0, 'manual_scope_override_total': 2, 'family_total': 6, 'case_total': 36, 'manual_review_case_total': 6, 'blocker_count': 0}})
             write('partner_input_handoff', {'summary': {'partner_count': 2, 'uniform_required_inputs': True, 'common_required_inputs': ['partner_proof_url', 'partner_api_key', 'partner_data_source_approval'], 'ready_after_recommended_injection': True, 'ready_after_recommended_injection_count': 2, 'copy_paste_ready': True}})
             write('partner_input_operator_flow', {'summary': {'packet_ready': True, 'partner_count': 2, 'copy_paste_ready': True, 'common_required_inputs': ['partner_proof_url', 'partner_api_key', 'partner_data_source_approval'], 'ready_after_recommended_injection': True, 'recommended_sequence': ['simulate_partner_input_injection', 'run_partner_onboarding_flow_dry_run', 'run_partner_onboarding_flow_apply']}})
             write('rental_catalog', {'summary': {'offering_count': 9, 'permit_offering_count': 6, 'public_platform_host': 'seoulmna.kr', 'listing_market_host': 'seoulmna.co.kr'}, 'packaging': {'partner_rental': {'widget_standard': ['yangdo_standard', 'permit_standard'], 'api_or_detail_pro': ['yangdo_pro_detail', 'yangdo_pro', 'permit_pro', 'permit_pro_assist'], 'yangdo_recommendation': {'summary_market_bridge': [], 'detail_explainable': [], 'consult_assist': []}}}})
             write('improvement_loop', {'summary': {'immediate_blocker_count': 3, 'top_action_count': 4}})
             write('ai_first_principles', {'summary': {'packet_ready': True, 'blocking_issue_count': 1, 'current_bottleneck': 'public/private publish 분기', 'next_experiment_count': 3}})
+            write('external_masterplan_alignment', {'summary': {'packet_ready': True, 'alignment_ok': True, 'source_directive_count': 10, 'missing_count': 0, 'missing_keys': []}})
             write('system_split_first_principles', {'summary': {'packet_ready': True, 'platform_ready': True, 'yangdo_ready': True, 'permit_ready': True, 'prompt_count': 3}})
+            write('next_execution', {'summary': {'packet_ready': True, 'selected_track': 'yangdo', 'selected_lane_id': 'zero_display_recovery_guard', 'execution_ready': True, 'founder_selected_matches_primary': False}, 'founder_mode': {'primary_system': 'permit', 'primary_lane_id': 'prompt_case_binding'}, 'selected_execution': {'bottleneck': '추천 0건 fallback 계약 고정', 'success_criteria': ['zero_display_guard_ok'], 'verification_commands': ['py -3 H:\\auto\\scripts\\generate_yangdo_zero_display_recovery_audit.py'], 'next_after_completion': ['detail lane 강화'], 'selected_focus': {'track': 'yangdo', 'lane_id': 'zero_display_recovery_guard'}}})
+            write('yangdo_next_action_brainstorm', {'summary': {'all_green': True, 'execution_lane': 'prompt_loop_operationalization', 'parallel_lane': '', 'autoloop_ready': True, 'zero_display_guard_ready': True, 'public_language_ready': True, 'public_language_remaining_phrase_count': 0}, 'current_execution_lane': {'id': 'prompt_loop_operationalization'}, 'parallel_brainstorm_lane': {}})
+            write('yangdo_public_language_audit', {'summary': {'packet_ready': True, 'public_language_ready': True, 'remaining_phrase_count': 0, 'jargon_total': 0}})
+            write('founder_execution_chain', {'summary': {'overall_ok': True, 'focus_matches_execution': True, 'founder_successor_transition': True, 'focus_selected_track': 'permit', 'focus_selected_lane_id': 'partner_binding_parity', 'execution_selected_track': 'permit', 'execution_selected_lane_id': 'partner_binding_parity'}})
 
             packet = build_operations_packet(
                 readiness_path=paths['readiness'],
@@ -107,6 +121,7 @@ class GenerateOperationsPacketTests(unittest.TestCase):
                 yangdo_recommendation_qa_path=paths['yangdo_qa'],
                 yangdo_recommendation_precision_matrix_path=paths['yangdo_precision'],
                 yangdo_recommendation_diversity_audit_path=paths['yangdo_diversity'],
+                yangdo_special_sector_packet_path=paths['yangdo_special_sector'],
                 yangdo_recommendation_contract_audit_path=paths['yangdo_contract'],
                 yangdo_recommendation_bridge_packet_path=paths['yangdo_bridge'],
                 yangdo_recommendation_ux_packet_path=paths['yangdo_ux'],
@@ -118,32 +133,99 @@ class GenerateOperationsPacketTests(unittest.TestCase):
                 permit_rental_lane_packet_path=paths['permit_rental_lane'],
                 permit_service_ux_packet_path=paths['permit_service_ux'],
                 permit_public_contract_audit_path=paths['permit_public_contract'],
+                permit_prompt_case_binding_packet_path=paths['permit_prompt_case_binding'],
+                permit_critical_prompt_surface_packet_path=paths['permit_critical_prompt_surface'],
+                permit_partner_binding_parity_packet_path=paths['permit_partner_binding_parity'],
+                permit_partner_binding_observability_path=paths['permit_partner_binding_observability'],
+                permit_thinking_prompt_bundle_packet_path=paths['permit_thinking_prompt_bundle'],
+                permit_next_action_brainstorm_path=paths['permit_next_action_brainstorm'],
+                permit_runtime_reasoning_binding_audit_path=paths['permit_runtime_reasoning_binding'],
+                permit_law_case_coverage_packet_path=paths['permit_law_case_coverage'],
                 partner_input_handoff_packet_path=paths['partner_input_handoff'],
                 partner_input_operator_flow_path=paths['partner_input_operator_flow'],
                 widget_rental_catalog_path=paths['rental_catalog'],
                 program_improvement_loop_path=paths['improvement_loop'],
                 ai_platform_first_principles_review_path=paths['ai_first_principles'],
+                external_masterplan_alignment_path=paths['external_masterplan_alignment'],
                 system_split_first_principles_packet_path=paths['system_split_first_principles'],
+                next_execution_packet_path=paths['next_execution'],
+                yangdo_next_action_brainstorm_path=paths['yangdo_next_action_brainstorm'],
+                yangdo_public_language_audit_path=paths['yangdo_public_language_audit'],
+                founder_execution_chain_path=paths['founder_execution_chain'],
             )
 
             self.assertTrue(packet['go_live']['quality_green'])
             self.assertEqual(packet['decisions']['permit_rental_lane_ready'], True)
             self.assertEqual(packet['decisions']['permit_service_ux_ready'], True)
             self.assertEqual(packet['decisions']['permit_public_contract_ok'], True)
+            self.assertEqual(packet['decisions']['permit_prompt_case_binding_ready'], True)
+            self.assertEqual(packet['decisions']['permit_critical_prompt_surface_ready'], True)
+            self.assertEqual(packet['decisions']['permit_partner_binding_parity_ready'], True)
+            self.assertEqual(packet['decisions']['permit_partner_binding_observability_ready'], True)
+            self.assertEqual(packet['decisions']['permit_thinking_prompt_bundle_ready'], True)
+            self.assertEqual(packet['decisions']['permit_runtime_reasoning_binding_ok'], True)
+            self.assertEqual(packet['decisions']['permit_law_case_coverage_ready'], True)
+            self.assertEqual(packet['decisions']['yangdo_special_sector_ready'], True)
+            self.assertEqual(packet['decisions']['yangdo_special_sector_publication_safe'], True)
+            self.assertEqual(packet['decisions']['permit_prompt_loop_execution_lane'], 'runtime_reasoning_guard')
+            self.assertEqual(packet['decisions']['permit_prompt_loop_parallel_lane'], 'surface_drift_digest')
             self.assertEqual(packet['decisions']['partner_input_handoff_ready'], True)
             self.assertEqual(packet['decisions']['partner_input_operator_flow_ready'], True)
             self.assertEqual(packet['decisions']['ai_platform_first_principles_ready'], True)
+            self.assertEqual(packet['decisions']['external_masterplan_alignment_ok'], True)
             self.assertEqual(packet['decisions']['system_split_first_principles_ready'], True)
             self.assertEqual(packet['decisions']['yangdo_zero_display_guard_ok'], True)
+            self.assertEqual(packet['decisions']['next_execution_packet_ready'], True)
+            self.assertEqual(packet['decisions']['next_execution_ready'], True)
+            self.assertEqual(packet['decisions']['yangdo_public_language_audit_ready'], True)
+            self.assertEqual(packet['decisions']['yangdo_public_language_ready'], True)
+            self.assertEqual(packet['decisions']['yangdo_prompt_loop_ready'], True)
+            self.assertEqual(packet['decisions']['yangdo_prompt_loop_execution_lane'], 'prompt_loop_operationalization')
+            self.assertEqual(packet['decisions']['founder_execution_chain_ready'], True)
+            self.assertEqual(packet['decisions']['founder_execution_chain_converged'], True)
             self.assertEqual(packet['summaries']['permit_rental_lane']['detail_checklist_offerings'], ['permit_pro'])
             self.assertEqual(packet['summaries']['permit_service_ux']['detail_allowed_offerings'], ['permit_pro'])
             self.assertEqual(packet['summaries']['permit_service_ux']['assist_cta'], '수동 검토 요청')
+            self.assertEqual(packet['summaries']['yangdo_special_sector_packet']['packet_ready'], True)
+            self.assertEqual(packet['summaries']['yangdo_special_sector_packet']['special_sector_count'], 3)
+            self.assertEqual(packet['summaries']['yangdo_special_sector_packet']['sector_ready_count'], 3)
+            self.assertEqual(packet['summaries']['yangdo_special_sector_packet']['publication_safety_ok'], True)
+            self.assertEqual(packet['summaries']['yangdo_special_sector_packet']['expansion_candidate_count'], 1)
             self.assertEqual(packet['summaries']['yangdo_zero_display_recovery_audit']['zero_display_total'], 3)
             self.assertTrue(packet['summaries']['yangdo_zero_display_recovery_audit']['market_bridge_route_ok'])
             self.assertEqual(packet['summaries']['permit_public_contract']['contract_ok'], True)
+            self.assertEqual(packet['summaries']['permit_prompt_case_binding']['packet_ready'], True)
+            self.assertEqual(packet['summaries']['permit_prompt_case_binding']['lane_id'], 'prompt_case_binding')
+            self.assertEqual(packet['summaries']['permit_critical_prompt_surface']['packet_ready'], True)
+            self.assertEqual(packet['summaries']['permit_critical_prompt_surface']['lane_id'], 'runtime_reasoning_guard')
+            self.assertEqual(packet['summaries']['permit_partner_binding_parity']['packet_ready'], True)
+            self.assertEqual(packet['summaries']['permit_partner_binding_parity']['family_total'], 2)
+            self.assertTrue(packet['summaries']['permit_partner_binding_parity']['partner_surface_ready'])
+            self.assertTrue(packet['summaries']['permit_partner_binding_observability']['observability_ready'])
+            self.assertEqual(packet['summaries']['permit_partner_binding_observability']['expected_family_total'], 2)
+            self.assertEqual(packet['summaries']['permit_thinking_prompt_bundle']['lane_id'], 'runtime_reasoning_guard')
+            self.assertTrue(packet['summaries']['permit_thinking_prompt_bundle']['runtime_target_ready'])
+            self.assertEqual(packet['summaries']['permit_next_action_brainstorm']['execution_lane'], 'runtime_reasoning_guard')
+            self.assertEqual(packet['summaries']['permit_next_action_brainstorm']['parallel_lane'], 'surface_drift_digest')
+            self.assertTrue(packet['summaries']['permit_next_action_brainstorm']['review_reason_decision_ladder_ready'])
+            self.assertEqual(packet['summaries']['permit_runtime_reasoning_binding']['packet_ready'], True)
+            self.assertEqual(packet['summaries']['permit_runtime_reasoning_binding']['lane_id'], 'runtime_reasoning_guard')
+            self.assertEqual(packet['summaries']['permit_law_case_coverage']['packet_ready'], True)
+            self.assertEqual(packet['summaries']['permit_law_case_coverage']['real_industry_total'], 195)
+            self.assertEqual(packet['summaries']['permit_law_case_coverage']['manual_scope_override_total'], 2)
+            self.assertEqual(packet['summaries']['permit_law_case_coverage']['case_total'], 36)
             self.assertEqual(packet['summaries']['partner_input_handoff']['common_required_inputs'], ['partner_proof_url', 'partner_api_key', 'partner_data_source_approval'])
             self.assertTrue(packet['summaries']['partner_input_handoff']['copy_paste_ready'])
             self.assertEqual(packet['summaries']['ai_platform_first_principles_review']['current_bottleneck'], 'public/private publish 분기')
+            self.assertEqual(packet['summaries']['external_masterplan_alignment']['alignment_ok'], True)
+            self.assertEqual(packet['summaries']['next_execution']['selected_lane_id'], 'zero_display_recovery_guard')
+            self.assertEqual(packet['summaries']['next_execution']['founder_selected_matches_primary'], False)
+            self.assertEqual(packet['summaries']['next_execution']['founder_primary_system'], 'permit')
+            self.assertEqual(packet['summaries']['next_execution']['founder_primary_lane_id'], 'prompt_case_binding')
+            self.assertEqual(packet['summaries']['next_execution']['verification_command_count'], 1)
+            self.assertEqual(packet['summaries']['yangdo_next_action_brainstorm']['execution_lane'], 'prompt_loop_operationalization')
+            self.assertEqual(packet['summaries']['yangdo_public_language_audit']['remaining_phrase_count'], 0)
+            self.assertTrue(packet['summaries']['founder_execution_chain']['focus_matches_execution'])
             self.assertEqual(packet['topology']['main_platform_host'], 'seoulmna.kr')
             self.assertIn('confirm_live_missing', packet['blockers'])
             self.assertIn('release_confirmation_required', packet['normalized_blockers'])

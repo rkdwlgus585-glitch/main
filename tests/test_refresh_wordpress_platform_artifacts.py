@@ -53,9 +53,13 @@ class RefreshWordpressPlatformArtifactsTests(unittest.TestCase):
 
         self.assertTrue(payload["ok"])
         self.assertEqual(
-            calls[-30:],
+            calls[-56:],
             [
+                "generate_yangdo_recommendation_qa_matrix.py",
+                "generate_yangdo_recommendation_precision_matrix.py",
                 "generate_yangdo_recommendation_diversity_audit.py",
+                "audit_special_sector_settlement_modes.py",
+                "generate_yangdo_special_sector_packet.py",
                 "generate_yangdo_recommendation_contract_audit.py",
                 "generate_widget_rental_catalog.py",
                 "generate_yangdo_recommendation_bridge_packet.py",
@@ -65,6 +69,26 @@ class RefreshWordpressPlatformArtifactsTests(unittest.TestCase):
                 "generate_permit_rental_lane_packet.py",
                 "generate_permit_service_ux_packet.py",
                 "generate_permit_public_contract_audit.py",
+                "generate_permit_review_case_presets.py",
+                "generate_permit_case_story_surface.py",
+                "generate_permit_case_release_guard.py",
+                "generate_permit_preset_story_release_guard.py",
+                "generate_permit_operator_demo_packet.py",
+                "generate_permit_review_reason_decision_ladder.py",
+                "generate_permit_prompt_case_binding_packet.py",
+                "generate_permit_critical_prompt_surface_packet.py",
+                "generate_permit_partner_binding_parity_packet.py",
+                "generate_permit_partner_binding_observability.py",
+                "generate_permit_release_bundle.py",
+                "generate_permit_demo_surface_observability.py",
+                "generate_permit_surface_drift_digest.py",
+                "generate_founder_mode_prompt_bundle.py",
+                "generate_system_split_first_principles_packet.py",
+                "generate_permit_thinking_prompt_bundle_packet.py",
+                "generate_permit_next_action_brainstorm.py",
+                "generate_permit_runtime_reasoning_binding_audit.py",
+                "generate_permit_law_case_coverage_packet.py",
+                "generate_yangdo_next_action_brainstorm.py",
                 "generate_partner_input_handoff_packet.py",
                 "scaffold_wp_platform_blueprints.py",
                 "apply_wp_surface_lab_blueprints.py",
@@ -80,14 +104,35 @@ class RefreshWordpressPlatformArtifactsTests(unittest.TestCase):
                 "generate_kr_live_operator_checklist.py",
                 "generate_program_improvement_loop.py",
                 "generate_ai_platform_first_principles_review.py",
+                "generate_external_masterplan_alignment.py",
                 "generate_partner_input_operator_flow.py",
-                "generate_system_split_first_principles_packet.py",
                 "generate_next_batch_focus_packet.py",
                 "generate_next_execution_packet.py",
+                "generate_founder_execution_chain.py",
+                "generate_founder_selection_consistency_audit.py",
                 "generate_operations_packet.py",
             ],
         )
         self.assertEqual(payload["step_count"], len(calls))
+
+    def test_refresh_treats_selected_legacy_guard_as_non_blocking(self):
+        calls = []
+
+        def fake_run(script):
+            name = Path(script).name
+            calls.append(name)
+            ok = name != "generate_permit_preset_story_release_guard.py"
+            return {"script": str(script), "ok": ok, "returncode": 0 if ok else 1, "stdout": "", "stderr": ""}
+
+        with patch("scripts.refresh_wordpress_platform_artifacts._run", side_effect=fake_run):
+            payload = refresh_wordpress_platform_artifacts()
+
+        self.assertTrue(payload["ok"])
+        failed = [row for row in payload["steps"] if row["script"].endswith("generate_permit_preset_story_release_guard.py")]
+        self.assertEqual(len(failed), 1)
+        self.assertEqual(failed[0]["ok"], False)
+        self.assertEqual(failed[0]["non_blocking"], True)
+        self.assertEqual(failed[0]["warning"], "non_blocking_artifact_failed")
 
 
 if __name__ == "__main__":

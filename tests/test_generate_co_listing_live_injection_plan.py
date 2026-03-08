@@ -63,8 +63,66 @@ class GenerateCoListingLiveInjectionPlanTests(unittest.TestCase):
             )
 
             self.assertTrue(payload["summary"]["plan_ready"])
+            self.assertTrue(payload["summary"]["artifact_ready"])
+            self.assertTrue(payload["summary"]["strict_live_ready"])
             self.assertEqual(payload["summary"]["selector_verified_count"], 5)
+            self.assertEqual(payload["summary"]["snippet_ready_count"], 5)
             self.assertEqual(len(payload["placements"]), 5)
+
+    def test_plan_can_be_artifact_ready_without_strict_selector_verification(self):
+        with tempfile.TemporaryDirectory() as td:
+            base = Path(td)
+            policy = base / "policy.json"
+            snippets = base / "snippets.json"
+            operator = base / "operator.json"
+            home = base / "home.html"
+            list_html = base / "list.html"
+            detail = base / "detail.html"
+
+            policy.write_text(
+                json.dumps(
+                    {
+                        "summary": {"listing_host": "seoulmna.co.kr", "platform_host": "seoulmna.kr"},
+                        "ctas": [
+                            {"placement": "listing_nav_service", "copy": "AI valuation", "target_url": "https://seoulmna.kr/yangdo"},
+                            {"placement": "listing_detail_primary", "copy": "Open valuation", "target_url": "https://seoulmna.kr/yangdo"},
+                        ],
+                    },
+                    ensure_ascii=False,
+                ),
+                encoding="utf-8",
+            )
+            snippets.write_text(
+                json.dumps(
+                    {
+                        "files": [
+                            {"placement": "listing_nav_service", "path": str(base / "listing_nav_service.html")},
+                            {"placement": "listing_detail_primary", "path": str(base / "listing_detail_primary.html")},
+                        ]
+                    },
+                    ensure_ascii=False,
+                ),
+                encoding="utf-8",
+            )
+            operator.write_text(json.dumps({"summary": {"checklist_ready": True}}, ensure_ascii=False), encoding="utf-8")
+            home.write_text("<header></header>", encoding="utf-8")
+            list_html.write_text("<div></div>", encoding="utf-8")
+            detail.write_text("<article></article>", encoding="utf-8")
+
+            payload = build_co_listing_live_injection_plan(
+                policy_path=policy,
+                snippets_path=snippets,
+                operator_path=operator,
+                home_html_path=home,
+                list_html_path=list_html,
+                detail_html_path=detail,
+            )
+
+            self.assertTrue(payload["summary"]["plan_ready"])
+            self.assertTrue(payload["summary"]["artifact_ready"])
+            self.assertFalse(payload["summary"]["strict_live_ready"])
+            self.assertEqual(payload["summary"]["selector_verified_count"], 0)
+            self.assertEqual(payload["summary"]["snippet_ready_count"], 2)
 
 
 if __name__ == "__main__":

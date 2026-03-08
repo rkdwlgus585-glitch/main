@@ -408,6 +408,42 @@ class BalanceExclusionBehaviorTest(unittest.TestCase):
 
         self.assertEqual(policy.get("publication_mode"), "consult_only")
 
+    def test_special_sector_publication_guard_downgrades_telecom_full_when_public_range_is_too_wide(self):
+        result = yangdo_blackbox_api._apply_special_sector_publication_guard(
+            {
+                "publication_mode": "full",
+                "publication_label": "기준가 안내",
+                "publication_reason": "",
+                "estimate_center_eok": 0.4423,
+                "estimate_low_eok": 0.05,
+                "estimate_high_eok": 1.1472,
+                "confidence_percent": 92,
+                "risk_notes": [],
+            },
+            {"license_text": "정보통신", "license_tokens": {"정보통신"}},
+        )
+
+        self.assertEqual(result.get("publication_mode"), "range_only")
+        self.assertEqual(result.get("publication_label"), "범위 먼저 안내")
+        self.assertIn("정보통신 업종은 공개 안전도 기준상", str(result.get("publication_reason") or ""))
+
+    def test_special_sector_publication_guard_keeps_telecom_full_when_range_is_tight_and_confident(self):
+        result = yangdo_blackbox_api._apply_special_sector_publication_guard(
+            {
+                "publication_mode": "full",
+                "publication_label": "기준가 안내",
+                "publication_reason": "",
+                "estimate_center_eok": 0.2799,
+                "estimate_low_eok": 0.2216,
+                "estimate_high_eok": 0.3409,
+                "confidence_percent": 94,
+                "risk_notes": [],
+            },
+            {"license_text": "정보통신", "license_tokens": {"정보통신"}},
+        )
+
+        self.assertEqual(result.get("publication_mode"), "full")
+
     def test_single_core_publication_cap_ranges_when_center_collapses(self):
         cap = yangdo_blackbox_api._single_core_publication_cap(
             center=0.48,

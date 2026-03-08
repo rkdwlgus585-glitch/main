@@ -142,6 +142,49 @@ class GenerateApiContractSpecTests(unittest.TestCase):
                 }
             ],
         }
+        permit_operator_demo_packet = {
+            "summary": {
+                "operator_demo_ready": True,
+                "family_total": 1,
+                "demo_case_total": 2,
+                "manual_review_demo_total": 1,
+                "prompt_case_binding_total": 1,
+            },
+            "families": [
+                {
+                    "family_key": "건설산업기본법 시행령",
+                    "claim_id": "permit-family-aaa111",
+                    "claim_title": "건설업 등록기준 패킷",
+                    "proof_coverage_ratio": "1/1",
+                    "prompt_case_binding": {
+                        "preset_id": "permit-family-aaa111:document_missing_review:A001",
+                        "service_code": "A001",
+                        "service_name": "build-demo-a",
+                        "expected_status": "review",
+                        "review_reason": "other_requirement_documents_missing",
+                        "binding_focus": "manual_review_gate",
+                        "binding_question": "서류 공백에서 자동판단을 멈췄는가.",
+                        "manual_review_expected": True,
+                    },
+                    "demo_cases": [
+                        {
+                            "service_code": "A001",
+                            "service_name": "건축공사업(종합)",
+                            "expected_status": "pass",
+                            "review_reason": "",
+                            "manual_review_expected": False,
+                        },
+                        {
+                            "service_code": "A001",
+                            "service_name": "건축공사업(종합)",
+                            "expected_status": "review",
+                            "review_reason": "other_requirement_documents_missing",
+                            "manual_review_expected": True,
+                        },
+                    ],
+                }
+            ],
+        }
 
         spec = generate_api_contract_spec.build_contract_spec(
             registry,
@@ -153,6 +196,7 @@ class GenerateApiContractSpecTests(unittest.TestCase):
             permit_patent_evidence_bundle=permit_patent,
             permit_family_case_goldset=permit_family_case_goldset,
             permit_case_story_surface=permit_case_story_surface,
+            permit_operator_demo_packet=permit_operator_demo_packet,
         )
 
         permit_service = spec["services"]["permit"]
@@ -284,6 +328,32 @@ class GenerateApiContractSpecTests(unittest.TestCase):
             catalog_contracts["master_catalog"]["current_summary"]["case_story_surface_ready"]
         )
         self.assertEqual(
+            catalog_contracts["master_catalog"]["current_summary"]["partner_demo_family_total"],
+            1,
+        )
+        self.assertEqual(
+            catalog_contracts["master_catalog"]["current_summary"]["partner_demo_case_total"],
+            2,
+        )
+        self.assertEqual(
+            catalog_contracts["master_catalog"]["current_summary"]["partner_demo_manual_review_total"],
+            1,
+        )
+        self.assertEqual(
+            catalog_contracts["master_catalog"]["current_summary"]["partner_demo_sample_total"],
+            1,
+        )
+        self.assertEqual(
+            catalog_contracts["master_catalog"]["current_summary"]["partner_binding_sample_total"],
+            1,
+        )
+        self.assertTrue(
+            catalog_contracts["master_catalog"]["current_summary"]["partner_demo_surface_ready"]
+        )
+        self.assertTrue(
+            catalog_contracts["master_catalog"]["current_summary"]["partner_binding_surface_ready"]
+        )
+        self.assertEqual(
             catalog_contracts["master_catalog"]["proof_surface_examples"]["family_checksum_samples"][0]["checksum"],
             "checksum-a",
         )
@@ -326,6 +396,26 @@ class GenerateApiContractSpecTests(unittest.TestCase):
         self.assertIn(
             "operator_story_points",
             catalog_contracts["master_catalog"]["proof_surface_examples"]["case_story_fields"],
+        )
+        self.assertEqual(
+            catalog_contracts["master_catalog"]["proof_surface_examples"]["partner_demo_samples"][0]["claim_id"],
+            "permit-family-aaa111",
+        )
+        self.assertEqual(
+            catalog_contracts["master_catalog"]["proof_surface_examples"]["partner_demo_samples"][0]["binding_preset_id"],
+            "permit-family-aaa111:document_missing_review:A001",
+        )
+        self.assertIn(
+            "other_requirement_documents_missing",
+            catalog_contracts["master_catalog"]["proof_surface_examples"]["partner_demo_samples"][0]["review_reasons"],
+        )
+        self.assertIn(
+            "representative_statuses",
+            catalog_contracts["master_catalog"]["proof_surface_examples"]["partner_demo_fields"],
+        )
+        self.assertIn(
+            "binding_preset_id",
+            catalog_contracts["master_catalog"]["proof_surface_examples"]["partner_demo_fields"],
         )
 
 

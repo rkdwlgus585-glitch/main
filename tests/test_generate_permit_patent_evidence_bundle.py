@@ -131,6 +131,65 @@ class GeneratePermitPatentEvidenceBundleTests(unittest.TestCase):
         self.assertIn("claim_statement:", markdown)
         self.assertIn("건설산업기본법 시행령", markdown)
 
+    def test_build_bundle_adds_manual_rule_group_fallback_for_real_focus_row(self):
+        bundle = generate_permit_patent_evidence_bundle.build_bundle(
+            focus_seed_catalog={"industries": []},
+            focus_family_registry={"industries": []},
+            master_catalog={
+                "industries": [
+                    {
+                        "service_code": "09_27_03_P",
+                        "service_name": "제재업",
+                        "law_title": "목재의 지속가능한 이용에 관한 법률 시행령",
+                        "legal_basis_title": "목재생산업의 종류별 등록기준(제24조제1항 관련)",
+                        "registration_requirement_profile": {
+                            "focus_target": True,
+                            "capital_eok": 0.3,
+                            "technicians_required": 1,
+                        },
+                        "platform_selector_aliases": [
+                            {"selector_code": "SEL::FOCUS::09_27_03_P"}
+                        ],
+                    }
+                ]
+            },
+            focus_report={"summary": {"real_focus_target_total": 1, "focus_core_only_total": 1}},
+            focus_scope_overrides={
+                "manual_rule_groups": [
+                    {
+                        "industry_name": "제재업",
+                        "service_codes": ["09_27_03_P"],
+                        "legal_basis": [
+                            {
+                                "law_title": "목재의 지속가능한 이용에 관한 법률 시행령",
+                                "article": "목재생산업의 종류별 등록기준(제24조제1항 관련)",
+                                "url": "https://www.law.go.kr/법령/목재의지속가능한이용에관한법률시행령",
+                            }
+                        ],
+                    }
+                ]
+            },
+        )
+
+        self.assertEqual(bundle["summary"]["focus_source_row_total"], 1)
+        self.assertEqual(bundle["summary"]["focus_source_family_total"], 1)
+        self.assertEqual(bundle["summary"]["raw_source_proof_row_total"], 1)
+        self.assertEqual(bundle["summary"]["raw_source_proof_family_total"], 1)
+        self.assertEqual(bundle["summary"]["claim_packet_complete_family_total"], 1)
+        family = bundle["families"][0]
+        self.assertEqual(family["family_key"], "목재의 지속가능한 이용에 관한 법률 시행령")
+        self.assertEqual(family["sample_service_codes"], ["09_27_03_P"])
+        self.assertEqual(family["raw_source_proof_row_total"], 1)
+        self.assertTrue(family["claim_packet_complete"])
+        self.assertEqual(
+            family["claim_packet"]["source_proof_summary"]["proof_coverage_ratio"],
+            "1/1",
+        )
+        self.assertEqual(
+            family["claim_packet"]["official_snapshot_note"],
+            "목재의 지속가능한 이용에 관한 법률 시행령 / 목재생산업의 종류별 등록기준(제24조제1항 관련) 기준으로 제재업 row를 manual rule group fallback source로 고정",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

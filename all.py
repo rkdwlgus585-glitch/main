@@ -5801,6 +5801,37 @@ def _save_admin_memo_fix_state(path, signature, processed_wr_ids, last_success_w
         pass
 
 
+def _save_admin_memo_fix_status(path, signature, note="", complete=False, scanned_pages=0, total_wr_ids=0, remaining=0, dry_run=False, stats=None, state_file=""):
+    target = str(path or "").strip()
+    if not target:
+        return
+    payload = {
+        "signature": str(signature or ""),
+        "note": str(note or "").strip(),
+        "mode": "dry-run" if dry_run else "apply",
+        "complete": bool(complete),
+        "scanned_pages": int(scanned_pages or 0),
+        "total_wr_ids": int(total_wr_ids or 0),
+        "remaining": max(0, int(remaining or 0)),
+        "state_file": str(state_file or "").strip(),
+        "updated_at": datetime.now().isoformat(timespec="seconds"),
+    }
+    if isinstance(stats, dict):
+        clean_stats = {}
+        for key, value in dict(stats).items():
+            try:
+                clean_stats[str(key)] = int(value or 0)
+            except Exception:
+                continue
+        payload["stats"] = clean_stats
+    try:
+        _ensure_parent_dir(target)
+        with open(target, "w", encoding="utf-8") as f:
+            json.dump(payload, f, ensure_ascii=False, indent=2)
+    except Exception:
+        pass
+
+
 def run_fix_admin_memo(
     max_pages=0,
     limit=0,
@@ -5829,6 +5860,24 @@ def run_fix_admin_memo(
         f"|togun_only={1 if togun_only else 0}"
         f"|license_filter={license_filter_norm}"
     )
+    status_dir = os.path.dirname(state_file) if state_file else "logs"
+    status_path = os.path.join(status_dir or "logs", "admin_memo_sync_status.json")
+
+    def _persist_status(note="", complete=False, scanned_pages=0, total_wr_ids=0, remaining=0, stats_payload=None):
+        _save_admin_memo_fix_status(
+            status_path,
+            state_signature,
+            note=note,
+            complete=complete,
+            scanned_pages=scanned_pages,
+            total_wr_ids=total_wr_ids,
+            remaining=remaining,
+            dry_run=dry_run,
+            stats=stats_payload,
+            state_file=state_file,
+        )
+
+    _persist_status(note="started", complete=False)
 
     probe = MnaBoardPublisher(SITE_URL, MNA_BOARD_SLUG, "", "")
     probe_limit_info = probe.daily_limit_summary()
@@ -5869,6 +5918,7 @@ def run_fix_admin_memo(
                 "⏸️ 관리자메모 교정 대기: 요청 상한 헤드룸 부족 "
                 f"(remaining={req_remaining}, need>{min_req_for_run})"
             )
+            _persist_status(note="request_headroom", complete=False)
             return
     if (not dry_run) and write_cap > 0:
         write_remaining = max(0, write_cap - write_used)
@@ -5878,12 +5928,14 @@ def run_fix_admin_memo(
                 "⏸️ 관리자메모 교정 대기: 수정 상한 헤드룸 부족 "
                 f"(remaining={write_remaining}, need>{min_write_for_run})"
             )
+            _persist_status(note="write_headroom", complete=False)
             return
 
     admin_id = str(CONFIG.get("ADMIN_ID", "")).strip()
     admin_pw = str(CONFIG.get("ADMIN_PW", "")).strip()
     if not admin_id or not admin_pw:
         print("❌ ADMIN_ID/ADMIN_PW 미설정: 관리자메모 교정을 실행할 수 없습니다.")
+        _persist_status(note="missing_admin_credentials", complete=False)
         return
 
     publisher = MnaBoardPublisher(SITE_URL, MNA_BOARD_SLUG, admin_id, admin_pw)
@@ -5891,6 +5943,7 @@ def run_fix_admin_memo(
         publisher.login()
     except Exception as e:
         print(f"❌ 사이트 로그인 실패: {e}")
+        _persist_status(note="login_failed", complete=False)
         return
     limit_info = publisher.daily_limit_summary()
     print(
@@ -5931,6 +5984,7 @@ def run_fix_admin_memo(
         print(f"   처리 순서: 최신 WR 우선 ({preview}{suffix})")
     if not wr_ids:
         print("✅ 교정 대상 게시글이 없습니다.")
+        _persist_status(note="no_targets", complete=True, scanned_pages=scanned_pages, total_wr_ids=0, remaining=0)
         return
 
     last_success_wr_id = int(resume_wr_id or 0)
@@ -5957,6 +6011,7 @@ def run_fix_admin_memo(
     )
     if use_state and not remaining_wr_ids:
         print("✅ 상태파일 기준 미처리 대상이 없습니다.")
+        _persist_status(note="no_remaining_targets", complete=True, scanned_pages=scanned_pages, total_wr_ids=len(wr_ids), remaining=0)
         return
 
     plan = _build_admin_memo_fix_traffic_plan(
@@ -5973,6 +6028,7 @@ def run_fix_admin_memo(
     safe_limit = int(plan.get("safe_limit", 0) or 0)
     if safe_limit <= 0:
         print("⚠️ 안전 상한이 0건입니다. 버퍼/일일상한 확인 후 재실행하세요.")
+        _persist_status(note="safe_limit_zero", complete=False, scanned_pages=scanned_pages, total_wr_ids=len(wr_ids), remaining=len(remaining_wr_ids))
         return
     if limit <= 0:
         limit = safe_limit
@@ -5985,6 +6041,7 @@ def run_fix_admin_memo(
         sheet_basis_map = _load_sheet_basis_map()
     except Exception as e:
         print(f"❌ 시트 로드 실패: {e}")
+        _persist_status(note="sheet_load_failed", complete=False, scanned_pages=scanned_pages, total_wr_ids=len(wr_ids), remaining=len(remaining_wr_ids))
         return
     print(f"   시트 기준값 매핑 {len(sheet_basis_map)}건")
     if togun_only:
@@ -6123,6 +6180,14 @@ def run_fix_admin_memo(
         print(
             f"🧾 상태파일: {state_file} (처리 {len(processed_wr_ids)}건, 잔여 {max(0, int(remain_count))}건)"
         )
+    _persist_status(
+        note="done",
+        complete=bool(int(remain_count or 0) <= 0),
+        scanned_pages=scanned_pages,
+        total_wr_ids=len(wr_ids),
+        remaining=remain_count,
+        stats_payload=stats,
+    )
 
 
 def run_fix_admin_memo_uid(

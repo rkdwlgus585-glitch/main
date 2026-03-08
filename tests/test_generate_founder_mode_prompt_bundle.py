@@ -85,6 +85,8 @@ class GenerateFounderModePromptBundleTests(unittest.TestCase):
         self.assertTrue(bundle["execution_checklist"])
         self.assertTrue(bundle["shipping_gates"])
         self.assertIn("ranked fallback CTAs", " ".join(bundle["execution_checklist"]))
+        self.assertIn("price-band", " ".join(bundle["execution_checklist"]))
+        self.assertIn("Recommendation cards must not expose price figures", " ".join(bundle["shipping_gates"]))
 
         markdown = generate_founder_mode_prompt_bundle.render_markdown(bundle)
         self.assertIn("Founder Mode Prompt Bundle", markdown)

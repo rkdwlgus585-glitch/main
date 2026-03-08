@@ -159,6 +159,16 @@ class PermitDiagnosisCalculatorRulesTest(unittest.TestCase):
         self.assertIn('id="industrySearchInput"', html)
         self.assertIn("permitInputWizard", html)
         self.assertIn("permitWizardRail", html)
+        self.assertIn("permitWizardProgress", html)
+        self.assertIn("permitWizardProgressLabel", html)
+        self.assertIn("permitWizardProgressFill", html)
+        self.assertIn("permitWizardMobileSticky", html)
+        self.assertIn("permitWizardMobileStickyAction", html)
+        self.assertIn("permitWizardMobileStickyCompact", html)
+        self.assertIn("permitWizardNextAction", html)
+        self.assertIn("permitWizardNextActionText", html)
+        self.assertIn("data-permit-next-action", html)
+        self.assertIn("guided-focus-target", html)
         self.assertIn("permitWizardStepTitle", html)
         self.assertIn("permitWizardSummary", html)
         self.assertIn("permitWizardBlocker", html)
@@ -169,6 +179,10 @@ class PermitDiagnosisCalculatorRulesTest(unittest.TestCase):
         self.assertIn('id="categorySelect"', html)
         self.assertIn('id="industrySelect"', html)
         self.assertIn('id="capitalInput"', html)
+        self.assertIn('id="industryAutoReason"', html)
+        self.assertIn('role="button"', html)
+        self.assertIn('aria-live="polite"', html)
+        self.assertIn("data-actionable", html)
         self.assertIn('id="technicianInput"', html)
         self.assertIn('id="equipmentInput"', html)
         self.assertIn('id="fillRequirementPreset"', html)
@@ -184,6 +198,8 @@ class PermitDiagnosisCalculatorRulesTest(unittest.TestCase):
         self.assertIn('id="proofClaimBox"', html)
         self.assertIn('id="reviewPresetBox"', html)
         self.assertIn('id="caseStoryBox"', html)
+        self.assertIn('id="operatorDemoBox"', html)
+        self.assertIn('id="runtimeReasoningCardBox"', html)
         self.assertIn("focusModePills", html)
         self.assertIn("smartIndustryProfile", html)
         self.assertIn("resultBannerTitle", html)
@@ -203,11 +219,27 @@ class PermitDiagnosisCalculatorRulesTest(unittest.TestCase):
         self.assertIn("filterAndSortRowsBySearch", html)
         self.assertIn("getVisibleCategoryRows", html)
         self.assertIn("getPermitCoreGuide", html)
+        self.assertIn("syncPermitWizardProgress", html)
+        self.assertIn("syncIndustryAutoReason", html)
+        self.assertIn("getSearchFieldTypeLabel", html)
+        self.assertIn("getIndustryAutoReasonTone", html)
+        self.assertIn("getIndustryAutoReasonIcon", html)
+        self.assertIn("getPermitGuidedFocusCopy", html)
+        self.assertIn("getPermitWizardMobileCompactCopy", html)
+        self.assertIn("setPermitAutoSelectionReasonState", html)
+        self.assertIn("clearPermitAutoSelectionReasonState", html)
+        self.assertIn("data-guided-focus-copy", html)
+        self.assertIn("data-guided-focus-level", html)
+        self.assertIn("data-reason-icon", html)
+        self.assertIn("auto-selection-token", html)
+        self.assertIn("auto-selection-field", html)
+        self.assertIn("getPermitWizardNextActionCopy", html)
+        self.assertIn("showPermitGuidedFocus", html)
         self.assertIn("syncPermitWizardNavCopies", html)
         self.assertIn("현재 보유 구조화 기준 없음", html)
         self.assertIn("정량 기준이 없는 업종은 법령 근거와 준비 서류 위주로 먼저 확인합니다.", html)
         self.assertIn("법령 확인형", html)
-        self.assertIn("필수 ${corePlan.requiredFieldCount}개 업종", html)
+        self.assertIn("필수 ${corePlan.requiredFieldCount}개만 확인", html)
         self.assertIn("결과 카드에서 확인", html)
         self.assertIn("핵심 세부 요건", html)
         self.assertIn("getFillPresetActionLabel", html)
@@ -238,8 +270,20 @@ class PermitDiagnosisCalculatorRulesTest(unittest.TestCase):
         self.assertIn("const renderProofClaim = (industry) => {", html)
         self.assertIn("const renderReviewCasePresets = (industry) => {", html)
         self.assertIn("const renderCaseStorySurface = (industry) => {", html)
+        self.assertIn("const getOperatorDemoSurface = (row) => (", html)
+        self.assertIn("const renderOperatorDemoSurface = (industry) => {", html)
+        self.assertIn("const renderRuntimeReasoningCard = (industry, typedEval, context = {}) => {", html)
+        self.assertIn("runtime_critical_prompt_excerpt", html)
+        self.assertIn("runtime_critical_prompt_lens", html)
+        self.assertIn("const getRuntimeCriticalPromptLens = () => (", html)
+        self.assertIn("runtime_reasoning_ladder_map", html)
+        self.assertIn("capital_and_technician_shortfall", html)
+        self.assertIn("capital_and_technician_gap_first", html)
+        self.assertIn("prompt_case_binding", html)
         self.assertIn("const applyReviewCasePreset = (preset) => {", html)
         self.assertIn("data-review-preset-id", html)
+        self.assertIn("data-prompt-preset-id", html)
+        self.assertIn("data-runtime-preset-id", html)
         self.assertNotIn("현재 보유 현황 3가지만 입력하면 됩니다.", html)
         self.assertNotIn("핵심 3요건만 먼저 넣고", html)
         self.assertNotIn("필수 기술자 수 / 필수 장비 수 / 예치기간", html)
@@ -336,6 +380,76 @@ class PermitDiagnosisCalculatorRulesTest(unittest.TestCase):
         self.assertEqual(industry["raw_source_proof"]["source_checksum"], "proof-123")
         self.assertEqual(industry["raw_source_proof"]["source_url_total"], 1)
 
+    @patch("permit_diagnosis_calculator._load_critical_prompt_surface_packet")
+    @patch("permit_diagnosis_calculator._prepare_ui_payload")
+    def test_build_bootstrap_payload_includes_compact_critical_prompt_lens(
+        self,
+        mock_prepare_payload,
+        mock_load_critical_prompt_surface_packet,
+    ):
+        mock_prepare_payload.return_value = {
+            "summary": {"industry_total": 1, "major_category_total": 1, "with_registration_rule_total": 0},
+            "major_categories": [{"major_code": "01", "major_name": "시설", "industry_count": 1}],
+            "industries": [
+                {
+                    "service_code": "A001",
+                    "service_name": "테스트업",
+                    "major_code": "01",
+                    "major_name": "시설",
+                    "registration_requirement_profile": {
+                        "capital_required": True,
+                        "technical_personnel_required": True,
+                        "focus_target": True,
+                        "focus_target_with_other": False,
+                        "inferred_focus_candidate": False,
+                    },
+                }
+            ],
+            "rules_lookup": {},
+            "rule_catalog_meta": {"version": "v1", "effective_date": "2026-03-07", "source": {}},
+        }
+        mock_load_critical_prompt_surface_packet.return_value = {
+            "summary": {
+                "packet_ready": True,
+                "lane_id": "critical_prompt_surface_lock",
+                "compact_lens_ready": True,
+                "runtime_surface_contract_ready": True,
+                "release_surface_contract_ready": True,
+                "operator_surface_contract_ready": True,
+            },
+            "compact_decision_lens": {
+                "lane_id": "critical_prompt_surface_lock",
+                "lane_title": "critical prompt surface lock",
+                "bottleneck_statement": "operators still need a reusable decision lens",
+                "inspect_first": "runtime critical prompt lens and operator jump targets",
+                "next_action": "keep the prompt lens visible on runtime and release surfaces",
+                "success_metric": "operators can act without opening raw markdown",
+                "falsification_test": "if operator and release surfaces diverge, this lane is not done",
+                "founder_questions": ["Does it cut operator decision time?"],
+                "anti_patterns": ["Do not hide the bottleneck in raw markdown"],
+                "evidence_first": ["runtime critical prompt lens"],
+            },
+        }
+
+        bundle = permit_diagnosis_calculator.build_bootstrap_payload(
+            catalog=permit_diagnosis_calculator._blank_catalog(),
+            rule_catalog=permit_diagnosis_calculator._blank_rule_catalog(),
+        )
+
+        summary = bundle["permitCatalog"]["summary"]
+        self.assertTrue(summary["runtime_critical_prompt_packet_ready"])
+        self.assertTrue(summary["runtime_critical_prompt_lens_ready"])
+        self.assertTrue(summary["runtime_critical_prompt_runtime_contract_ready"])
+        self.assertTrue(summary["runtime_critical_prompt_release_contract_ready"])
+        self.assertTrue(summary["runtime_critical_prompt_operator_contract_ready"])
+        self.assertEqual(summary["runtime_critical_prompt_lane_id"], "critical_prompt_surface_lock")
+        self.assertEqual(
+            summary["runtime_critical_prompt_lens"]["inspect_first"],
+            "runtime critical prompt lens and operator jump targets",
+        )
+
+    @patch("permit_diagnosis_calculator._load_review_reason_decision_ladder_report")
+    @patch("permit_diagnosis_calculator._load_operator_demo_packet_report")
     @patch("permit_diagnosis_calculator._load_patent_evidence_bundle")
     @patch("permit_diagnosis_calculator._load_case_story_surface_report")
     @patch("permit_diagnosis_calculator._load_review_case_presets_report")
@@ -346,6 +460,8 @@ class PermitDiagnosisCalculatorRulesTest(unittest.TestCase):
         mock_load_review_case_presets_report,
         mock_load_case_story_surface_report,
         mock_load_patent_evidence_bundle,
+        mock_load_operator_demo_packet_report,
+        mock_load_review_reason_decision_ladder_report,
     ):
         mock_prepare_payload.return_value = {
             "summary": {"industry_total": 1, "major_category_total": 1, "with_registration_rule_total": 1},
@@ -401,12 +517,36 @@ class PermitDiagnosisCalculatorRulesTest(unittest.TestCase):
             ],
         }
         mock_load_review_case_presets_report.return_value = {
-            "summary": {"preset_total": 3, "preset_family_total": 1, "preset_ready": True},
+            "summary": {"preset_total": 4, "preset_family_total": 1, "preset_ready": True},
             "families": [
                 {
                     "family_key": "건설산업기본법 시행령",
                     "claim_id": "permit-family-123",
                     "presets": [
+                        {
+                            "preset_id": "permit-family-123:shortfall_fail:R1",
+                            "case_id": "permit-family-123:shortfall_fail:R1",
+                            "case_kind": "shortfall_fail",
+                            "preset_label": "자본금·기술인력 동시 부족 프리셋",
+                            "service_code": "FOCUS::construction-general-geonchuk",
+                            "service_name": "건축공사업(종합)",
+                            "legal_basis_title": "별표 2 건설업 등록기준",
+                            "input_payload": {
+                                "industry_selector": "FOCUS::construction-general-geonchuk",
+                                "capital_eok": 4.9,
+                                "technicians_count": 4,
+                                "other_requirement_checklist": {"facility_equipment": True},
+                            },
+                            "expected_outcome": {
+                                "overall_status": "shortfall",
+                                "capital_gap_eok": 0.1,
+                                "technicians_gap": 1,
+                                "review_reason": "capital_and_technician_shortfall",
+                                "manual_review_expected": False,
+                                "proof_coverage_ratio": "39/39",
+                            },
+                            "operator_note": "자본금과 기술인력이 동시에 부족한 상황을 즉시 재현하는 프리셋입니다.",
+                        },
                         {
                             "preset_id": "permit-family-123:capital_only_fail:R1",
                             "case_id": "permit-family-123:capital_only_fail:R1",
@@ -430,20 +570,77 @@ class PermitDiagnosisCalculatorRulesTest(unittest.TestCase):
                                 "proof_coverage_ratio": "39/39",
                             },
                             "operator_note": "자본금만 부족한 상황을 즉시 재현하는 프리셋입니다.",
+                        },
+                        {
+                            "preset_id": "permit-family-123:technician_only_fail:R1",
+                            "case_id": "permit-family-123:technician_only_fail:R1",
+                            "case_kind": "technician_only_fail",
+                            "preset_label": "기술인력 부족 프리셋",
+                            "service_code": "FOCUS::construction-general-geonchuk",
+                            "service_name": "건축공사업(종합)",
+                            "legal_basis_title": "별표 2 건설업 등록기준",
+                            "input_payload": {
+                                "industry_selector": "FOCUS::construction-general-geonchuk",
+                                "capital_eok": 5.0,
+                                "technicians_count": 4,
+                                "other_requirement_checklist": {"facility_equipment": True},
+                            },
+                            "expected_outcome": {
+                                "overall_status": "shortfall",
+                                "capital_gap_eok": 0.0,
+                                "technicians_gap": 1,
+                                "review_reason": "technician_shortfall_only",
+                                "manual_review_expected": False,
+                                "proof_coverage_ratio": "39/39",
+                            },
+                            "operator_note": "기술인력만 부족한 상황을 즉시 재현하는 프리셋입니다.",
+                        },
+                        {
+                            "preset_id": "permit-family-123:document_missing_review:R1",
+                            "case_id": "permit-family-123:document_missing_review:R1",
+                            "case_kind": "document_missing_review",
+                            "preset_label": "서류 누락 검토 프리셋",
+                            "service_code": "FOCUS::construction-general-geonchuk",
+                            "service_name": "건축공사업(종합)",
+                            "legal_basis_title": "별표 2 건설업 등록기준",
+                            "input_payload": {
+                                "industry_selector": "FOCUS::construction-general-geonchuk",
+                                "capital_eok": 5.0,
+                                "technicians_count": 5,
+                                "other_requirement_checklist": {},
+                            },
+                            "expected_outcome": {
+                                "overall_status": "review",
+                                "capital_gap_eok": 0.0,
+                                "technicians_gap": 0,
+                                "review_reason": "other_requirement_documents_missing",
+                                "manual_review_expected": True,
+                                "proof_coverage_ratio": "39/39",
+                            },
+                            "operator_note": "기타 요건 증빙이 비어 수동 검토가 필요한 상황을 재현합니다.",
                         }
                     ],
                 }
             ],
         }
         mock_load_case_story_surface_report.return_value = {
-            "summary": {"story_family_total": 1, "review_reason_total": 1, "story_ready": True},
+            "summary": {"story_family_total": 1, "review_reason_total": 4, "story_ready": True},
             "families": [
                 {
                     "family_key": "건설산업기본법 시행령",
                     "claim_id": "permit-family-123",
-                    "preset_total": 1,
-                    "manual_review_preset_total": 0,
+                    "preset_total": 4,
+                    "manual_review_preset_total": 1,
                     "representative_cases": [
+                        {
+                            "preset_id": "permit-family-123:shortfall_fail:R1",
+                            "case_kind": "shortfall_fail",
+                            "service_code": "FOCUS::construction-general-geonchuk",
+                            "service_name": "건축공사업(종합)",
+                            "expected_status": "shortfall",
+                            "review_reason": "capital_and_technician_shortfall",
+                            "manual_review_expected": False,
+                        },
                         {
                             "preset_id": "permit-family-123:capital_only_fail:R1",
                             "case_kind": "capital_only_fail",
@@ -454,8 +651,114 @@ class PermitDiagnosisCalculatorRulesTest(unittest.TestCase):
                             "manual_review_expected": False,
                         }
                     ],
-                    "operator_story_points": ["자본금 부족과 기술인력 부족을 분리해서 설명합니다."],
+                    "operator_story_points": [
+                        "자본금과 기술인력이 동시에 부족한 경우를 별도 케이스로 분리해 핵심 shortfall을 즉시 고정합니다.",
+                        "자본금 부족과 기술인력 부족을 분리해서 설명합니다.",
+                    ],
                 }
+            ],
+        }
+        mock_load_operator_demo_packet_report.return_value = {
+            "summary": {
+                "operator_demo_ready": True,
+                "family_total": 1,
+                "demo_case_total": 4,
+                "manual_review_demo_total": 1,
+            },
+            "families": [
+                {
+                    "family_key": "건설산업기본법 시행령",
+                    "claim_id": "permit-family-123",
+                    "claim_title": "건설업 등록기준 패킷",
+                    "proof_coverage_ratio": "39/39",
+                    "operator_story_points": ["자본금 부족과 기술인력 부족을 분리해서 설명합니다."],
+                    "prompt_case_binding": {
+                        "preset_id": "permit-family-123:document_missing_review:R1",
+                        "service_code": "FOCUS::construction-general-geonchuk",
+                        "service_name": "건축공사업(종합)",
+                        "expected_status": "review",
+                        "review_reason": "other_requirement_documents_missing",
+                        "manual_review_expected": True,
+                        "binding_focus": "manual_review_gate",
+                        "binding_question": "자동 판단을 멈추고 수동 검토로 넘겨야 하는가.",
+                    },
+                    "demo_cases": [
+                        {
+                            "preset_id": "permit-family-123:shortfall_fail:R1",
+                            "case_kind": "shortfall_fail",
+                            "service_code": "FOCUS::construction-general-geonchuk",
+                            "service_name": "건축공사업(종합)",
+                            "review_reason": "capital_and_technician_shortfall",
+                            "expected_status": "shortfall",
+                            "manual_review_expected": False,
+                            "proof_coverage_ratio": "39/39",
+                            "operator_note": "동시 부족 재현",
+                        },
+                        {
+                            "preset_id": "permit-family-123:capital_only_fail:R1",
+                            "case_kind": "capital_only_fail",
+                            "service_code": "FOCUS::construction-general-geonchuk",
+                            "service_name": "건축공사업(종합)",
+                            "review_reason": "capital_shortfall_only",
+                            "expected_status": "shortfall",
+                            "manual_review_expected": False,
+                            "proof_coverage_ratio": "39/39",
+                            "operator_note": "자본금 부족만 재현",
+                        },
+                        {
+                            "preset_id": "permit-family-123:technician_only_fail:R1",
+                            "case_kind": "technician_only_fail",
+                            "service_code": "FOCUS::construction-general-geonchuk",
+                            "service_name": "건축공사업(종합)",
+                            "review_reason": "technician_shortfall_only",
+                            "expected_status": "shortfall",
+                            "manual_review_expected": False,
+                            "proof_coverage_ratio": "39/39",
+                            "operator_note": "기술인력 부족 재현",
+                        },
+                        {
+                            "preset_id": "permit-family-123:document_missing_review:R1",
+                            "case_kind": "document_missing_review",
+                            "service_code": "FOCUS::construction-general-geonchuk",
+                            "service_name": "건축공사업(종합)",
+                            "review_reason": "other_requirement_documents_missing",
+                            "expected_status": "review",
+                            "manual_review_expected": True,
+                            "proof_coverage_ratio": "39/39",
+                            "operator_note": "서류 누락 검토",
+                        },
+                    ],
+                }
+            ],
+        }
+        mock_load_review_reason_decision_ladder_report.return_value = {
+            "summary": {
+                "review_reason_total": 4,
+                "manual_review_gate_total": 1,
+                "prompt_bound_reason_total": 4,
+                "decision_ladder_ready": True,
+            },
+            "ladders": [
+                {
+                    "review_reason": "other_requirement_documents_missing",
+                    "next_action": "누락 서류를 우선 요청한다.",
+                    "manual_review_gate": True,
+                },
+                {
+                    "review_reason": "capital_and_technician_shortfall",
+                    "next_action": "자본금과 기술인력 증빙을 함께 다시 요청한다.",
+                    "manual_review_gate": False,
+                },
+                {
+                    "review_reason": "capital_shortfall_only",
+                    "next_action": "자본금 보완 증빙을 요청한다.",
+                    "manual_review_gate": False,
+                },
+                {
+                    "review_reason": "technician_shortfall_only",
+                    "next_action": "기술인력 자격 증빙을 요청한다.",
+                    "manual_review_gate": False,
+                },
             ],
         }
 
@@ -471,16 +774,54 @@ class PermitDiagnosisCalculatorRulesTest(unittest.TestCase):
         self.assertEqual(industry["claim_packet_summary"]["checksum_sample_total"], 6)
         self.assertEqual(industry["claim_packet_summary"]["checksum_samples"], ["aaa", "bbb", "ccc"])
         self.assertEqual(industry["claim_packet_summary"]["official_snapshot_note"], "law.go.kr curated snapshot")
-        self.assertEqual(industry["review_case_presets"][0]["preset_id"], "permit-family-123:capital_only_fail:R1")
-        self.assertEqual(industry["review_case_presets"][0]["expected_outcome"]["review_reason"], "capital_shortfall_only")
+        self.assertEqual(industry["review_case_presets"][0]["preset_id"], "permit-family-123:shortfall_fail:R1")
+        self.assertEqual(industry["review_case_presets"][0]["expected_outcome"]["review_reason"], "capital_and_technician_shortfall")
         self.assertEqual(industry["case_story_surface"]["claim_id"], "permit-family-123")
-        self.assertEqual(industry["case_story_surface"]["review_reason_total"], 1)
+        self.assertEqual(industry["case_story_surface"]["review_reason_total"], 2)
+        self.assertEqual(industry["operator_demo_surface"]["claim_id"], "permit-family-123")
+        self.assertEqual(industry["operator_demo_surface"]["demo_case_total"], 4)
+        self.assertEqual(industry["operator_demo_surface"]["manual_review_demo_total"], 1)
+        self.assertEqual(industry["operator_demo_surface"]["prompt_case_binding"]["preset_id"], "permit-family-123:document_missing_review:R1")
+        self.assertEqual(industry["operator_demo_surface"]["prompt_case_binding"]["binding_focus"], "manual_review_gate")
+        self.assertEqual(
+            industry["operator_demo_surface"]["demo_cases"][0]["review_reason"],
+            "capital_and_technician_shortfall",
+        )
         self.assertEqual(bundle["permitCatalog"]["summary"]["runtime_claim_packet_total"], 1)
         self.assertEqual(bundle["permitCatalog"]["summary"]["runtime_raw_source_proof_total"], 1)
-        self.assertEqual(bundle["permitCatalog"]["summary"]["runtime_review_case_preset_total"], 3)
+        self.assertEqual(bundle["permitCatalog"]["summary"]["runtime_review_case_preset_total"], 4)
         self.assertEqual(bundle["permitCatalog"]["summary"]["runtime_review_case_family_total"], 1)
         self.assertEqual(bundle["permitCatalog"]["summary"]["runtime_case_story_family_total"], 1)
-        self.assertEqual(bundle["permitCatalog"]["summary"]["runtime_case_story_review_reason_total"], 1)
+        self.assertEqual(bundle["permitCatalog"]["summary"]["runtime_case_story_review_reason_total"], 4)
+        self.assertEqual(bundle["permitCatalog"]["summary"]["runtime_operator_demo_family_total"], 1)
+        self.assertEqual(bundle["permitCatalog"]["summary"]["runtime_operator_demo_case_total"], 4)
+        self.assertEqual(bundle["permitCatalog"]["summary"]["runtime_operator_demo_manual_review_total"], 1)
+        self.assertEqual(bundle["permitCatalog"]["summary"]["runtime_prompt_case_binding_total"], 1)
+        self.assertEqual(bundle["permitCatalog"]["summary"]["runtime_review_reason_total"], 4)
+        self.assertTrue(bundle["permitCatalog"]["summary"]["runtime_review_reason_decision_ladder_ready"])
+        self.assertEqual(
+            bundle["permitCatalog"]["summary"]["runtime_review_reason_decision_ladder_path"],
+            str(permit_diagnosis_calculator.DEFAULT_REVIEW_REASON_DECISION_LADDER_PATH.resolve()),
+        )
+        self.assertIn(
+            "other_requirement_documents_missing",
+            bundle["permitCatalog"]["summary"]["runtime_reasoning_ladder_map"],
+        )
+        self.assertIn(
+            "capital_and_technician_shortfall",
+            bundle["permitCatalog"]["summary"]["runtime_reasoning_ladder_map"],
+        )
+        self.assertTrue(bundle["permitCatalog"]["summary"]["runtime_operator_demo_ready"])
+        self.assertEqual(
+            bundle["permitCatalog"]["summary"]["runtime_operator_demo_packet_path"],
+            str(permit_diagnosis_calculator.DEFAULT_OPERATOR_DEMO_PACKET_PATH.resolve()),
+        )
+        self.assertTrue(bundle["permitCatalog"]["summary"]["runtime_critical_prompt_doc_ready"])
+        self.assertEqual(
+            bundle["permitCatalog"]["summary"]["runtime_critical_prompt_doc_path"],
+            str(permit_diagnosis_calculator.DEFAULT_CRITICAL_PROMPT_DOC_PATH.resolve()),
+        )
+        self.assertTrue(bundle["permitCatalog"]["summary"]["runtime_critical_prompt_excerpt"])
 
     def test_build_html_supports_external_data_url(self):
         html = self._expand_wrapped_scripts(
@@ -519,6 +860,39 @@ class PermitDiagnosisCalculatorRulesTest(unittest.TestCase):
         )
         self.assertIn('const permitDataEncoding = "gzip-base64-html";', html)
         self.assertIn("const extractHtmlPayload = (htmlText) => {", html)
+
+    def test_build_row_claim_packet_summary_uses_claim_note_when_row_proof_missing(self):
+        summary = permit_diagnosis_calculator._build_row_claim_packet_summary(
+            {
+                "service_code": "09_27_03_P",
+                "service_name": "제재업",
+                "law_title": "목재의 지속가능한 이용에 관한 법률 시행령",
+            },
+            {
+                "목재의 지속가능한 이용에 관한 법률 시행령": {
+                    "claim_id": "permit-family-wood",
+                    "claim_title": "목재 시행령 등록기준 패킷",
+                    "claim_statement": "목재 family claim",
+                    "required_input_domains": ["industry_selector", "capital_eok", "technicians_count"],
+                    "optional_input_domains": [],
+                    "official_snapshot_note": "manual fallback snapshot",
+                    "source_proof_summary": {
+                        "proof_coverage_ratio": "1/1",
+                        "checksum_sample_total": 1,
+                        "checksum_samples": ["wood123"],
+                        "source_url_total": 1,
+                        "source_url_samples": ["https://www.law.go.kr/법령/목재의지속가능한이용에관한법률시행령"],
+                    },
+                }
+            },
+        )
+
+        self.assertEqual(summary["claim_id"], "permit-family-wood")
+        self.assertEqual(summary["official_snapshot_note"], "manual fallback snapshot")
+        self.assertEqual(
+            summary["source_url_samples"],
+            ["https://www.law.go.kr/법령/목재의지속가능한이용에관한법률시행령"],
+        )
 
     def test_build_html_supports_payload_rest_rendered_encoding(self):
         html = self._expand_wrapped_scripts(
