@@ -7,7 +7,7 @@ require_once $siteRoot . '/wp-load.php';
 
 $manifest = json_decode(<<<'JSON'
 {
-  "generated_at": "2026-03-08 15:39:24",
+  "generated_at": "2026-03-08 22:27:55",
   "theme_slug": "seoulmna-platform-child",
   "plugin_slug": "seoulmna-platform-bridge",
   "front_page_slug": "home",
