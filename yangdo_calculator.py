@@ -2079,6 +2079,247 @@ def build_page_html(
       line-height: 1.5;
       font-weight: 700;
     }}
+    #seoulmna-yangdo-calculator .wizard-progress {{
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-top: 14px;
+      padding: 14px 15px;
+      border-radius: 18px;
+      border: 1px solid rgba(0, 55, 100, 0.08);
+      background: linear-gradient(180deg, rgba(244, 248, 252, 0.98), rgba(255,255,255,0.99));
+      box-shadow: 0 12px 24px rgba(8, 28, 49, 0.06);
+    }}
+    #seoulmna-yangdo-calculator .wizard-progress-copy {{
+      flex: 1 1 220px;
+      min-width: 0;
+    }}
+    #seoulmna-yangdo-calculator .wizard-progress-label {{
+      color: #173652;
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1.4;
+    }}
+    #seoulmna-yangdo-calculator .wizard-progress-track {{
+      position: relative;
+      width: 100%;
+      height: 8px;
+      margin: 9px 0 8px;
+      border-radius: 999px;
+      background: rgba(0, 55, 100, 0.10);
+      overflow: hidden;
+    }}
+    #seoulmna-yangdo-calculator .wizard-progress-fill {{
+      display: block;
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #0f5f75 0%, #003764 100%);
+      transition: width 0.22s ease;
+    }}
+    #seoulmna-yangdo-calculator .wizard-progress-meta {{
+      color: #5a7186;
+      font-size: 12px;
+      line-height: 1.5;
+      font-weight: 700;
+    }}
+    #seoulmna-yangdo-calculator .wizard-progress-action {{
+      appearance: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-start;
+      flex-wrap: wrap;
+      gap: 7px;
+      width: 100%;
+      margin-top: 10px;
+      padding: 8px 11px;
+      border-radius: 14px;
+      background: rgba(0, 55, 100, 0.06);
+      border: 1px solid rgba(0, 55, 100, 0.08);
+      cursor: pointer;
+      text-align: left;
+    }}
+    #seoulmna-yangdo-calculator .wizard-progress-action-label {{
+      color: #003764;
+      font-size: 11px;
+      line-height: 1.3;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }}
+      #seoulmna-yangdo-calculator .wizard-progress-action-text {{
+        color: #173652;
+        font-size: 12px;
+        line-height: 1.5;
+        font-weight: 800;
+      }}
+      #seoulmna-yangdo-calculator .wizard-progress-support {{
+        margin-top: 8px;
+        color: #4f6679;
+        font-size: 12px;
+        line-height: 1.56;
+        font-weight: 700;
+      }}
+      #seoulmna-yangdo-calculator .wizard-progress-support[data-actionable="1"] {{
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        padding: 8px 10px;
+        border-radius: 14px;
+        cursor: pointer;
+        transition: background 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+      }}
+      #seoulmna-yangdo-calculator .wizard-progress-support[data-actionable="1"]::after {{
+        content: "눌러서 바로 이동";
+        display: inline-flex;
+        align-items: center;
+        min-height: 22px;
+        padding: 0 8px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.94);
+        border: 1px solid rgba(0, 55, 100, 0.12);
+        color: #46627a;
+        font-size: 11px;
+        line-height: 1;
+        font-weight: 900;
+        letter-spacing: 0.02em;
+      }}
+      #seoulmna-yangdo-calculator .wizard-progress-support[data-actionable="1"]:hover,
+      #seoulmna-yangdo-calculator .wizard-progress-support[data-actionable="1"]:focus-visible {{
+        outline: none;
+        transform: translateY(-1px);
+        background: rgba(0, 55, 100, 0.04);
+        box-shadow: 0 0 0 3px rgba(0, 55, 100, 0.08);
+      }}
+      #seoulmna-yangdo-calculator .guided-focus-target {{
+        position: relative;
+        box-shadow: 0 0 0 3px rgba(0, 55, 100, 0.16), 0 18px 34px rgba(0, 55, 100, 0.14);
+        border-color: #1f6aa5 !important;
+        animation: yangdoGuidedFocusPulse 0.9s ease-out 1;
+      }}
+      #seoulmna-yangdo-calculator .guided-focus-target[data-guided-focus-copy]::after {{
+        content: attr(data-guided-focus-copy);
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        max-width: min(240px, calc(100% - 20px));
+        padding: 7px 10px;
+        border-radius: 999px;
+        background: rgba(0, 55, 100, 0.92);
+        color: #f8fbff;
+        font-size: 11px;
+        line-height: 1.35;
+        font-weight: 900;
+        letter-spacing: -0.01em;
+        box-shadow: 0 12px 22px rgba(0, 55, 100, 0.18);
+        z-index: 3;
+        pointer-events: none;
+        white-space: normal;
+      }}
+      #seoulmna-yangdo-calculator .guided-focus-target[data-guided-focus-level="sticky"] {{
+        box-shadow: 0 0 0 4px rgba(0, 55, 100, 0.20), 0 24px 44px rgba(0, 55, 100, 0.20);
+      }}
+      #seoulmna-yangdo-calculator .guided-focus-target[data-guided-focus-level="sticky"][data-guided-focus-copy]::after {{
+        top: -12px;
+        right: auto;
+        left: 12px;
+        max-width: min(280px, calc(100% - 24px));
+        padding: 9px 12px;
+        background: linear-gradient(135deg, rgba(0, 55, 100, 0.96), rgba(16, 106, 165, 0.94));
+        font-size: 12px;
+        box-shadow: 0 16px 28px rgba(0, 55, 100, 0.24);
+      }}
+      @keyframes yangdoGuidedFocusPulse {{
+        0% {{
+          box-shadow: 0 0 0 0 rgba(31, 106, 165, 0.30), 0 10px 20px rgba(0, 55, 100, 0.10);
+        }}
+        100% {{
+          box-shadow: 0 0 0 3px rgba(0, 55, 100, 0.16), 0 18px 34px rgba(0, 55, 100, 0.14);
+        }}
+      }}
+    #seoulmna-yangdo-calculator .wizard-progress-count {{
+      flex: 0 0 auto;
+      min-width: 58px;
+      padding: 8px 10px;
+      border-radius: 14px;
+      background: rgba(0, 55, 100, 0.08);
+      color: #003764;
+      font-size: 15px;
+      font-weight: 900;
+      letter-spacing: -0.01em;
+      text-align: center;
+    }}
+    #seoulmna-yangdo-calculator .wizard-mobile-sticky {{
+      display: none;
+      appearance: none;
+      width: 100%;
+      padding: 11px 13px;
+      border-radius: 18px;
+      border: 1px solid rgba(0, 55, 100, 0.14);
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(14px);
+      text-align: left;
+      box-shadow: 0 12px 24px rgba(8, 28, 49, 0.10);
+      cursor: pointer;
+    }}
+    #seoulmna-yangdo-calculator .wizard-mobile-sticky-copy {{
+      min-width: 0;
+    }}
+    #seoulmna-yangdo-calculator .wizard-mobile-sticky-label {{
+      color: #003764;
+      font-size: 11px;
+      line-height: 1.3;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }}
+    #seoulmna-yangdo-calculator .wizard-mobile-sticky-action {{
+      margin-top: 3px;
+      color: #173652;
+      font-size: 14px;
+      line-height: 1.45;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      word-break: keep-all;
+    }}
+    #seoulmna-yangdo-calculator .wizard-mobile-sticky-compact {{
+      margin-top: 4px;
+      color: #4c6782;
+      font-size: 12px;
+      line-height: 1.42;
+      font-weight: 800;
+      word-break: keep-all;
+    }}
+    #seoulmna-yangdo-calculator .wizard-mobile-sticky-meta {{
+      display: none;
+      color: #5a7186;
+      font-size: 12px;
+      line-height: 1.45;
+      font-weight: 700;
+      word-break: keep-all;
+    }}
+    #seoulmna-yangdo-calculator .wizard-mobile-sticky-reason {{
+      display: none;
+      color: #36516c;
+      font-size: 12px;
+      line-height: 1.5;
+      font-weight: 700;
+      word-break: keep-all;
+    }}
+    #seoulmna-yangdo-calculator .wizard-mobile-sticky-count {{
+      margin-top: 8px;
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: rgba(0, 55, 100, 0.08);
+      color: #003764;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: -0.01em;
+    }}
     #seoulmna-yangdo-calculator .wizard-steps {{
       display: grid;
       gap: 8px;
@@ -2389,6 +2630,12 @@ def build_page_html(
       #seoulmna-yangdo-calculator .checks {{ grid-template-columns: 1fr; }}
       #seoulmna-yangdo-calculator .wizard-steps {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }}
       #seoulmna-yangdo-calculator .wizard-rail-head {{ flex-direction: column; }}
+      #seoulmna-yangdo-calculator .wizard-mobile-sticky {{
+        display: grid;
+        position: sticky;
+        top: 10px;
+        z-index: 26;
+      }}
       #seoulmna-yangdo-calculator h2 {{ font-size: 33px; }}
       #seoulmna-yangdo-calculator .impact .cta-text {{ font-size: 17px; }}
       #seoulmna-yangdo-calculator .cta-button {{ font-size: 18px; }}
@@ -2688,14 +2935,14 @@ def build_page_html(
               <div class="result-card"><span class="k">예상 현금 정산액</span><strong class="v" id="out-cash-due">-</strong></div>
             <div class="result-card"><span class="k" id="out-balance-label">공제 활용분</span><strong class="v" id="out-realizable-balance">-</strong></div>
             <div class="result-card"><span class="k">예측 신뢰도</span><strong class="v" id="out-confidence">-</strong></div>
-            <div class="result-card"><span class="k">근거 매물 수</span><strong class="v" id="out-neighbors">-</strong></div>
-            <div class="result-card"><span class="k">비교 자료 수준</span><strong class="v" id="out-source-tier">-</strong></div>
+            <div class="result-card"><span class="k">비슷한 사례 수</span><strong class="v" id="out-neighbors">-</strong></div>
+            <div class="result-card"><span class="k">사례 근거 수준</span><strong class="v" id="out-source-tier">-</strong></div>
           </div>
           <div class="yoy-compare" id="out-yoy-compare">동일 조건 전년 대비 비교는 계산 후 표시됩니다.</div>
           <div id="result-reason-chips" class="result-reason-chips" style="display:none"></div>
           <div id="risk-note" class="risk-note">AI 산정 전: 면허/업종, 검색 기준(시평 또는 실적), 자본금, 필수 기준 충족 여부를 먼저 확인해 주세요.</div>
           <div id="settlement-panel" class="settlement-panel" style="display:none">
-            <div class="title">정산 해석</div>
+            <div class="title">정산 안내</div>
                 <div class="sub" id="settlement-summary">총 거래가와 공제 활용분을 분리해 현금 정산액을 해석합니다.</div>
             <div class="settlement-grid">
               <div class="settlement-item"><span class="k">총 거래가</span><strong class="v" id="out-settlement-total">-</strong></div>
@@ -2723,7 +2970,7 @@ def build_page_html(
             </div>
           </div>
           <div class="action-steps" id="result-action-steps">
-            <div class="title" id="recommend-actions-title">추천 액션 3단계</div>
+            <div class="title" id="recommend-actions-title">지금 하면 좋은 순서 3단계</div>
             <ol id="recommend-actions">
               <li>면허/업종을 먼저 선택해 통상 매물 기준값을 자동으로 불러옵니다.</li>
               <li>시평 검색 또는 실적 검색 중 한 축만 선택해 핵심 규모 값을 입력합니다.</li>
@@ -2732,8 +2979,8 @@ def build_page_html(
           </div>
           <div class="recommend-panel" id="recommend-panel">
             <div class="title">추천 매물</div>
-            <div class="sub">가격 근거 표와 별도로, 입력한 업종·선택한 검색축·규모에 가까운 매물을 먼저 골랐습니다.</div>
-            <div class="guide" id="recommend-panel-guide">표본이 적을 때는 아래 비슷한 사례 2~3건의 가격대부터 먼저 보세요.</div>
+            <div class="sub">가격 사례표와 별도로, 입력한 업종·선택한 검색축·규모에 가까운 매물을 먼저 골랐습니다.</div>
+            <div class="guide" id="recommend-panel-guide">표본이 적을 때는 아래 비슷한 사례 2~3건의 핵심 조건부터 먼저 보세요.</div>
             <div id="recommended-listings" class="recommended-listings"><div class="small">계산 후 입력한 업종·검색축·규모에 가까운 추천 매물이 표시됩니다.</div></div>
             <div class="followup" id="recommend-panel-followup">
               <div class="followup-text" id="recommend-panel-followup-text">최근 3년 실적을 1~2건만 더 보강하면 현재 범위를 더 줄이는 데 도움이 됩니다.</div>
@@ -2747,8 +2994,8 @@ def build_page_html(
 {consult_section_html}
           <details class="neighbor-panel" id="neighbor-panel" open>
             <summary>
-              <span id="neighbor-panel-label">근거 표 상세 비교</span>
-              <span class="sub" id="neighbor-panel-summary">추천 매물 아래에서 실제 비교표를 열어 확인하세요.</span>
+              <span id="neighbor-panel-label">비슷한 사례 표 자세히 보기</span>
+              <span class="sub" id="neighbor-panel-summary">추천 매물 아래에서 실제 사례표를 열어 확인하세요.</span>
             </summary>
             <table>
               <thead id="neighbor-head"></thead>
@@ -3260,6 +3507,36 @@ def build_page_html(
           + '<div class="v">한 단계에 2~3개 핵심 정보만 입력하고, 마지막 단계는 <strong>선택</strong> 정보로 분리했습니다.</div>'
           + '</div>'
           + '</div>';
+        const wizardProgress = document.createElement("div");
+        wizardProgress.id = "yangdoWizardProgress";
+        wizardProgress.className = "wizard-progress";
+        wizardProgress.innerHTML = ''
+          + '<div class="wizard-progress-copy">'
+          + '<div id="yangdoWizardProgressLabel" class="wizard-progress-label">현재 1/5 단계</div>'
+          + '<div id="yangdoWizardProgressBar" class="wizard-progress-track" role="progressbar" aria-valuemin="1" aria-valuemax="5" aria-valuenow="1" aria-describedby="yangdoWizardProgressMeta">'
+          + '<span id="yangdoWizardProgressFill" class="wizard-progress-fill"></span>'
+          + '</div>'
+          + '<div id="yangdoWizardProgressMeta" class="wizard-progress-meta">필수 0/3 완료 · 업종부터 입력하면 자동 제안이 시작됩니다.</div>'
+          + '<button type="button" id="yangdoWizardNextAction" class="wizard-progress-action" data-yangdo-next-action><span class="wizard-progress-action-label">지금 할 일</span><span id="yangdoWizardNextActionText" class="wizard-progress-action-text">면허/업종부터 선택하세요.</span></button>'
+          + '<div id="yangdoWizardActionReason" class="wizard-progress-support" role="button" tabindex="0" data-yangdo-action-reason data-actionable="1">업종이 정해져야 통상 자본금과 공제조합 기준을 자동 제안할 수 있습니다.</div>'
+          + '</div>'
+          + '<strong id="yangdoWizardProgressCount" class="wizard-progress-count">1/5</strong>';
+        wizardRail.appendChild(wizardProgress);
+        const wizardMobileSticky = document.createElement("button");
+        wizardMobileSticky.type = "button";
+        wizardMobileSticky.id = "yangdoWizardMobileSticky";
+        wizardMobileSticky.className = "wizard-mobile-sticky";
+        wizardMobileSticky.setAttribute("data-yangdo-next-action", "mobile");
+        wizardMobileSticky.innerHTML = ''
+          + '<div class="wizard-mobile-sticky-copy">'
+          + '<div id="yangdoWizardMobileStickyLabel" class="wizard-mobile-sticky-label">현재 1/5 단계</div>'
+          + '<div id="yangdoWizardMobileStickyAction" class="wizard-mobile-sticky-action">면허/업종부터 선택하세요.</div>'
+          + '<div id="yangdoWizardMobileStickyCompact" class="wizard-mobile-sticky-compact">업종 선택 후 자동 기준 시작</div>'
+          + '<div id="yangdoWizardMobileStickyMeta" class="wizard-mobile-sticky-meta">필수 0/3 완료 · 업종부터 입력하면 자동 제안이 시작됩니다.</div>'
+          + '<div id="yangdoWizardMobileStickyReason" class="wizard-mobile-sticky-reason">업종이 정해져야 통상 자본금과 공제조합 기준을 자동 제안할 수 있습니다.</div>'
+          + '</div>'
+          + '<span id="yangdoWizardMobileStickyCount" class="wizard-mobile-sticky-count">1/5</span>';
+        wizardRail.appendChild(wizardMobileSticky);
         const wizardSummary = document.createElement("div");
         wizardSummary.id = "yangdoWizardSummary";
         wizardSummary.className = "wizard-summary";
@@ -3354,7 +3631,7 @@ def build_page_html(
         companyHint.className = "wizard-priority-hint";
         companyHint.textContent = "재무 상태와 회사 리스크는 마지막 미세 보정용입니다. 필요한 항목만 선택해도 됩니다.";
         step5.appendChild(companyHint);
-        step5.appendChild(createYangdoWizardNav(4, "선택 정보를 검토했으면 바로 계산 결과와 추천 액션을 확인합니다."));
+      step5.appendChild(createYangdoWizardNav(4, "선택 정보를 검토했으면 바로 계산 결과와 다음 순서를 확인합니다."));
 
         wizardShell.appendChild(step1);
         wizardShell.appendChild(step2);
@@ -4054,7 +4331,7 @@ def build_page_html(
         ) {{
           return {{
             confidenceCap: 50,
-            reason: `${{licenseText}} 단일면허의 동일 업종 표본이 얇고 핵심 입력이 부족해 기준가 공개를 상담형으로 낮춥니다.`,
+          reason: `${{licenseText}} 단일면허의 동일 업종 표본이 얇고 핵심 입력이 부족해 기준가 공개를 자세히 확인 후 안내로 낮춥니다.`,
           }};
         }}
         if (
@@ -4103,7 +4380,7 @@ def build_page_html(
         if (scaleMissing && supportCount <= 2) {{
           return {{
             confidenceCap: 50,
-            reason: "동일 업종 실거래 표본이 1~2건이고 핵심 시평/실적 입력이 부족해 기준가 공개를 상담형으로 낮춥니다.",
+            reason: "동일 업종 실거래 표본이 1~2건이고 핵심 시평/실적 입력이 부족해 기준가 공개를 자세히 확인 후 안내로 낮춥니다.",
           }};
         }}
         if (supportCount <= 2 && centerRatio < 0.75) {{
@@ -4125,6 +4402,67 @@ def build_page_html(
           }};
         }}
         return null;
+      }};
+      const trimmedMedian = (values, lowerQ = 0.20, upperQ = 0.80) => {{
+        const nums = (Array.isArray(values) ? values : []).map((value) => Number(value)).filter((value) => Number.isFinite(value)).sort((a, b) => a - b);
+        if (!nums.length) return null;
+        const lo = plainQuantile(nums, lowerQ);
+        const hi = plainQuantile(nums, upperQ);
+        const trimmed = nums.filter((value) => value >= lo && value <= hi);
+        return plainQuantile(trimmed.length ? trimmed : nums, 0.50);
+      }};
+
+      const sectorSignalValue = (source) => {{
+        const sales3 = num(source && source.sales3_eok);
+        const specialty = num(source && source.specialty);
+        if (Number.isFinite(sales3) && Number.isFinite(specialty)) return (sales3 * 0.65) + (specialty * 0.35);
+        if (Number.isFinite(sales3)) return sales3;
+        if (Number.isFinite(specialty)) return specialty;
+        return null;
+      }};
+
+      const applyFireSingleLicenseGuardedPrior = (target, center, low, high, riskNotes) => {{
+        const targetTokens = target && target.tokens instanceof Set ? Array.from(target.tokens) : [];
+        if (targetTokens.length !== 1) return {{ applied: false, center, low, high, mode: "" }};
+        if (compact(target && target.license_text) !== "소방") return {{ applied: false, center, low, high, mode: "" }};
+        const targetSignal = sectorSignalValue(target);
+        if (!Number.isFinite(targetSignal) || targetSignal <= 0) return {{ applied: false, center, low, high, mode: "" }};
+        const sectorRows = dataset.filter((row) => {{
+          const rowTokens = Array.isArray(row && row.tokens) ? row.tokens.map((token) => compact(token)).filter((token) => !!token) : [];
+          return rowTokens.length === 1 && rowTokens[0] === "소방" && Number.isFinite(num(row && row.price_eok)) && num(row && row.price_eok) > 0;
+        }});
+        const prices = sectorRows.map((row) => num(row && row.price_eok)).filter((value) => Number.isFinite(value) && value > 0);
+        if (prices.length < 8) return {{ applied: false, center, low, high, mode: "" }};
+        const ratios = sectorRows.map((row) => {{
+          const price = num(row && row.price_eok);
+          const signal = sectorSignalValue(row);
+          if (!Number.isFinite(price) || price <= 0 || !Number.isFinite(signal) || signal <= 0) return null;
+          return price / signal;
+        }}).filter((value) => Number.isFinite(value) && value > 0);
+        if (ratios.length < 6) return {{ applied: false, center, low, high, mode: "" }};
+        const priorEstimate = targetSignal * trimmedMedian(ratios, 0.20, 0.80);
+        const q25 = plainQuantile(prices, 0.25);
+        const q60 = plainQuantile(prices, 0.60);
+        if (!Number.isFinite(priorEstimate) || !Number.isFinite(q25) || !Number.isFinite(q60)) return {{ applied: false, center, low, high, mode: "" }};
+        const candidate = Number(center) + (0.55 * Math.max(0, priorEstimate - Number(center)));
+        const floorValue = Math.max(Number(center), q25 * 0.90);
+        const capValue = Math.min(q60 * 1.02, Number(center) * 1.60);
+        const adjustedCenter = Math.max(floorValue, Math.min(candidate, capValue));
+        if (!(adjustedCenter > Number(center) + 0.0005)) return {{ applied: false, center, low, high, mode: "" }};
+        const lowGap = Math.max(0, Number(center) - Number(low));
+        const highGap = Math.max(0, Number(high) - Number(center));
+        const adjustedLow = Math.max(0.05, adjustedCenter - lowGap);
+        const adjustedHigh = Math.max(adjustedLow, adjustedCenter + highGap);
+        if (Array.isArray(riskNotes) && riskNotes.indexOf("소방 단일면허는 same-sector bounded prior를 제한 반영해 none-mode 과소평가를 줄였습니다.") < 0) {{
+          riskNotes.push("소방 단일면허는 same-sector bounded prior를 제한 반영해 none-mode 과소평가를 줄였습니다.");
+        }}
+        return {{
+          applied: true,
+          mode: "fire_single_license_guarded_prior",
+          center: adjustedCenter,
+          low: adjustedLow,
+          high: adjustedHigh,
+        }};
       }};
 
       const renderYoyCompare = (out) => {{
@@ -5245,7 +5583,7 @@ def build_page_html(
         const nextLow = Math.max(0.05, low * scale);
         const nextHigh = Math.max(nextLow, Math.min(high * scale, hardCap * (n <= 5 ? 1.18 : 1.24)));
         if (Array.isArray(riskNotes)) {{
-          riskNotes.push(`유사군 일관성 보정: 근거 매물 상위 분위 대비 과대 추정을 ${{
+          riskNotes.push(`유사군 일관성 보정: 비슷한 사례 상위 분위 대비 과대 추정을 ${{
             Math.round(Math.max(0, ((center / Math.max(ref, 0.05)) - 1) * 100))
           }}% 구간에서 안정화했습니다.`);
         }}
@@ -5489,12 +5827,12 @@ def build_page_html(
         else if (sameCore >= 0.999) reasons.push("같은 핵심 업종입니다");
         if (salesFit >= 0.72) reasons.push("최근 실적 규모가 비슷합니다");
         else if (yearlyFit >= 0.70) reasons.push("최근 3년 실적 흐름이 비슷합니다");
-        if (priceFit >= 0.62) reasons.push("예상 가격대와 매물 가격대가 가깝습니다");
+        if (priceFit >= 0.62) reasons.push("현재 입력 조건과 비교 우선도가 높습니다");
         if (specialtyFit >= 0.78 && Number.isFinite(num(target && target.specialty))) reasons.push("시평 규모가 비슷합니다");
         if (capitalFit >= 0.78 && Number.isFinite(num(target && target.capital_eok))) reasons.push("자본금 규모가 비슷합니다");
         if (!(target && target.balance_excluded) && balanceFit >= 0.72 && Number.isFinite(num(target && target.balance_eok))) reasons.push("공제조합 잔액 규모가 비슷합니다");
         if (companyMatch >= 0.999) reasons.push("회사 형태가 같습니다");
-        if (!reasons.length) reasons.push("입력한 면허와 가격대가 가까운 매물입니다");
+        if (!reasons.length) reasons.push("입력한 면허와 현재 조건이 가까운 매물입니다");
         return reasons.filter((item, idx, arr) => item && arr.indexOf(item) === idx).slice(0, 3);
       }};
 
@@ -5618,7 +5956,7 @@ def build_page_html(
           recommendation_score: Math.round((Number(sim) || 0) * 10) / 10,
           recommendation_label: "조건 유사",
           similarity: Math.round((Number(sim) || 0) * 10) / 10,
-          reasons: ["입력한 면허와 가격대가 가까운 매물입니다"],
+          reasons: ["입력한 면허와 현재 조건이 가까운 매물입니다"],
           url: String(rec.url || siteMna),
         }}));
       }};
@@ -5638,7 +5976,7 @@ def build_page_html(
             recommendation_score: Number.isFinite(num(row && (row.recommendation_score ?? row.score))) ? num(row && (row.recommendation_score ?? row.score)) : null,
             recommendation_label: compact(row && row.recommendation_label) || "조건 유사",
             similarity: Number.isFinite(num(row && (row.similarity ?? row.sim))) ? num(row && (row.similarity ?? row.sim)) : null,
-            reasons: reasons.length ? reasons.slice(0, 3) : ["입력한 면허와 가격대가 가까운 매물입니다"],
+            reasons: reasons.length ? reasons.slice(0, 3) : ["입력한 면허와 현재 조건이 가까운 매물입니다"],
             url: String(row && row.url || siteMna),
           }};
         }}).filter((row) => row && (row.seoul_no > 0 || row.url)) : [];
@@ -6388,7 +6726,7 @@ def build_page_html(
           const extra = Math.max(center * 0.18, (high - low) * 0.45);
           low = Math.max(0.05, low - (extra * 0.45));
           high = Math.max(low, high + extra);
-          riskNotes.push("근거 매물 수가 적어 오차 범위를 보수적으로 확장했습니다.");
+        riskNotes.push("비슷한 사례 수가 적어 오차 범위를 보수적으로 넓혔습니다.");
         }}
         if (high < low) high = low;
         const coverage = Math.min(1, neighbors.length / 8);
@@ -6487,6 +6825,16 @@ def build_page_html(
         }}
         confidenceScore = Math.max(0, Math.min(100, confidenceScore));
         const confidence = `${{Math.round(confidenceScore)}}%`;
+        let corePricingMode = "";
+        if (balanceExcluded) {{
+          const fireGuarded = applyFireSingleLicenseGuardedPrior(target, center, low, high, riskNotes);
+          if (fireGuarded && fireGuarded.applied) {{
+            center = fireGuarded.center;
+            low = fireGuarded.low;
+            high = fireGuarded.high;
+            corePricingMode = compact(fireGuarded.mode);
+          }}
+        }}
         if (!riskNotes.length) riskNotes.push("강한 영향 항목 입력이 없어 기본 유사 매물 기준으로 계산했습니다.");
         const yoy = buildYoyInsight(target, center, neighbors);
         const evidence = classifyPriceEvidence(neighbors.length, confidenceScore, hotMatchCount);
@@ -6500,6 +6848,7 @@ def build_page_html(
           baseModelApplied: !!useBaseModel,
           confidence,
           confidenceScore,
+          corePricingMode,
           balanceModelMode,
           balancePassThrough: Number.isFinite(effectiveBalanceRate) ? effectiveBalanceRate : (Number.isFinite(balanceSlope) ? balanceSlope : null),
           balanceAdditionEok: Number.isFinite(balanceAddition) ? balanceAddition : null,
@@ -6773,7 +7122,7 @@ def build_page_html(
             const extra = Math.max(center * 0.18, (high - low) * 0.45);
             low = Math.max(0.05, low - (extra * 0.45));
             high = Math.max(low, high + extra);
-            riskNotes.push("근거 매물 수가 적어 오차 범위를 보수적으로 확장했습니다.");
+        riskNotes.push("비슷한 사례 수가 적어 오차 범위를 보수적으로 넓혔습니다.");
           }}
           const hotMatchCount = Number(data.hot_match_count || neighbors.filter((x) => Number(x[0]) >= 90).length || 0);
           const yoy = (() => {{
@@ -6997,7 +7346,7 @@ def build_page_html(
           `[검색기준] ${{scaleModeLabelText}}`,
           `[양도 구조] ${{compact(val("in-reorg-mode")) || "-"}}`,
           `[공제조합 정산] ${{specialBalance ? `${{settlementScenarioLabel(val("in-balance-usage-mode")) || "-"}} · 양도가 영향 0` : (balanceUsageModeLabel(val("in-balance-usage-mode")) || "-")}}`,
-          `[산정] 기준가 ${{center || "-"}} · 범위 ${{range || "-"}} · 신뢰지수 ${{confidence || "-"}} · 근거 ${{neighbors || "-"}} · 비교자료 ${{sourceTier || "-"}}`,
+          `[산정] 기준가 ${{center || "-"}} · 범위 ${{range || "-"}} · 신뢰지수 ${{confidence || "-"}} · 근거 ${{neighbors || "-"}} · 사례 근거 ${{sourceTier || "-"}}`,
           `[정산] 예상 현금 정산액 ${{cashDue || "-"}} · ${{specialBalance ? `별도 공제잔액 ${{balanceRealized || "-"}} (양도가 영향 0)` : `공제 활용분 ${{balanceRealized || "-"}}`}}`,
           `[전년 비교] ${{yoyText || "-"}}`,
           `[핵심 입력] 시평 ${{effectiveScaleMode === "specialty" ? `${{specialtyValue || "-"}}억` : "미사용"}} · 실적 ${{salesLine}}`,
@@ -7221,12 +7570,12 @@ def build_page_html(
         const label = $("neighbor-panel-label");
         const summary = $("neighbor-panel-summary");
         const count = Array.isArray(rows) ? rows.length : 0;
-        if (label) label.textContent = count > 0 ? `근거 표 ${{count}}건 상세 비교` : "근거 표 상세 비교";
+        if (label) label.textContent = count > 0 ? `비슷한 사례 표 ${{count}}건 자세히 보기` : "비슷한 사례 표 자세히 보기";
         if (summary) summary.textContent = count === 0
-          ? "추천 매물이 아직 없어 비교표를 숨겨두었습니다. 입력을 조금 보강한 뒤 다시 계산해 보세요."
+          ? "추천 매물이 아직 없어 사례표를 접어두었습니다. 입력을 조금 보강한 뒤 다시 계산해 보세요."
           : (count === 1
-            ? "추천 매물 1건이 먼저 보이도록 비교표는 접어두었습니다."
-            : "추천 매물 아래에서 실제 비교표를 펼쳐 근거 차이를 확인하세요.");
+            ? "추천 매물 1건이 먼저 보이도록 사례표는 접어두었습니다."
+            : "추천 매물 아래에서 실제 사례표를 펼쳐 차이를 확인하세요.");
       }};
 
       const syncResultPriorityLayout = (rows) => {{
@@ -7275,11 +7624,11 @@ def build_page_html(
         }} else if (pubMode === "consult_only" || sourceTier.indexOf("표본 적음") >= 0 || (count > 0 && count <= 3)) {{
           text = splitOptionalPricing
             ? "표본이 적을 때는 아래 비슷한 사례의 최근 3년 실적과 자본금부터 먼저 보세요."
-            : "표본이 적을 때는 아래 비슷한 사례 2~3건의 가격대부터 먼저 보세요.";
+            : "표본이 적을 때는 아래 비슷한 사례 2~3건의 핵심 조건부터 먼저 보세요.";
         }} else if (pubMode === "range_only") {{
           text = splitOptionalPricing
-            ? "범위가 넓을 때는 아래 추천 매물의 최근 3년 실적 공통대부터 먼저 보세요."
-            : "범위가 넓을 때는 아래 추천 매물의 공통 가격대를 먼저 보세요.";
+            ? "범위가 넓을 때는 아래 추천 매물의 최근 3년 실적과 자본금 공통 조건부터 먼저 보세요."
+            : "범위가 넓을 때는 아래 추천 매물의 공통 조건을 먼저 보세요.";
         }}
         node.textContent = text;
         node.style.display = text ? "block" : "none";
@@ -7454,8 +7803,8 @@ def build_page_html(
               pushAction("capital", "1순위 · 자본금 보강", "실적 검색에서 범위를 다시 만드는 핵심 보강값입니다.");
               pushAction("sales3", "2순위 · 최근 3년 실적 보강", "자본금 보강 후 범위를 더 정밀하게 줄이는 보조 입력입니다.");
             }} else {{
-              note = "1순위는 시평, 2순위는 자본금입니다. 시평을 먼저 맞춘 뒤 자본금으로 가격대를 더 조여 보세요.";
-              pushAction("specialty", "1순위 · 시평 보강", "현재 가격대와 가장 직접적으로 맞물리는 핵심 입력입니다.");
+              note = "1순위는 시평, 2순위는 자본금입니다. 시평을 먼저 맞춘 뒤 자본금으로 후보 범위를 더 조여 보세요.";
+              pushAction("specialty", "1순위 · 시평 보강", "추천 후보를 다시 잡는 핵심 입력입니다.");
               pushAction("capital", "2순위 · 자본금 보강", "시평 보강 후 후보 범위를 더 안정적으로 줄이는 보조 입력입니다.");
             }}
           }} else {{
@@ -7469,11 +7818,11 @@ def build_page_html(
             if (scaleMode === "sales") {{
               note = "1순위는 공제조합 잔액, 2순위는 자본금입니다. 잔액부터 맞추고 자본금으로 범위를 더 조이면 다음 계산이 빨라집니다.";
               pushAction("balance", "1순위 · 공제조합 잔액 보강", "실적 검색에서 추천 후보를 다시 잡는 핵심 보강값입니다.");
-              pushAction("capital", "2순위 · 자본금 보강", "공제조합 잔액 보강 후 가격 범위를 한 번 더 줄이는 보조 입력입니다.");
+              pushAction("capital", "2순위 · 자본금 보강", "공제조합 잔액 보강 후 후보 범위를 한 번 더 줄이는 보조 입력입니다.");
             }} else {{
               note = "1순위는 시평, 2순위는 공제조합 잔액입니다. 시평으로 먼저 축을 맞추고 공제조합 잔액으로 세부 범위를 줄이세요.";
-              pushAction("specialty", "1순위 · 시평 보강", "현재 가격대와 가장 직접적으로 맞물리는 핵심 입력입니다.");
-              pushAction("balance", "2순위 · 공제조합 잔액 보강", "시평 보강 후 가격 범위를 더 안정적으로 줄이는 보조 입력입니다.");
+              pushAction("specialty", "1순위 · 시평 보강", "추천 후보를 다시 잡는 핵심 입력입니다.");
+              pushAction("balance", "2순위 · 공제조합 잔액 보강", "시평 보강 후 후보 범위를 더 안정적으로 줄이는 보조 입력입니다.");
             }}
           }}
         }}
@@ -7510,7 +7859,24 @@ def build_page_html(
         secondaryActionNode.dataset.focusAction = secondaryAction ? secondaryAction.kind : "";
         secondaryActionNode.dataset.rank = secondaryAction ? "2" : "";
         secondaryActionNode.title = secondaryAction && secondaryAction.reason ? secondaryAction.reason : "";
-        actionsNode.style.display = primaryAction || secondaryAction ? "flex" : "none";
+        const tertiaryAction = plan.actions[2] || null;
+        let tertiaryNode = $("recommend-panel-followup-tertiary-action");
+        if (tertiaryAction && !tertiaryNode && actionsNode) {{
+          tertiaryNode = document.createElement("button");
+          tertiaryNode.type = "button";
+          tertiaryNode.id = "recommend-panel-followup-tertiary-action";
+          tertiaryNode.className = "followup-action tertiary";
+          tertiaryNode.addEventListener("click", () => {{ runRecommendFollowupAction(tertiaryNode); }});
+          actionsNode.appendChild(tertiaryNode);
+        }}
+        if (tertiaryNode) {{
+          tertiaryNode.textContent = tertiaryAction ? tertiaryAction.label : "";
+          tertiaryNode.style.display = tertiaryAction ? "inline-flex" : "none";
+          tertiaryNode.dataset.focusAction = tertiaryAction ? tertiaryAction.kind : "";
+          tertiaryNode.dataset.rank = tertiaryAction ? "3" : "";
+          tertiaryNode.title = tertiaryAction && tertiaryAction.reason ? tertiaryAction.reason : "";
+        }}
+        actionsNode.style.display = primaryAction || secondaryAction || tertiaryAction ? "flex" : "none";
         if (!primaryAction && !secondaryAction) clearRecommendAutoLoop();
       }};
       const renderRecommendedListings = (rows, out = null) => {{
@@ -7525,14 +7891,17 @@ def build_page_html(
           const emptySplitOptionalPricing = !!(emptyTarget && emptyTarget.split_optional_pricing);
           const emptyBalanceExcluded = !!(emptyTarget && emptyTarget.balance_excluded);
           const emptyScaleMode = compact(emptyTarget && (emptyTarget.scale_search_mode || emptyTarget.requested_scale_search_mode));
+          const emptyPlan = buildRecommendPanelFollowupPlan(out, 0);
+          const emptyPrimaryAction = emptyPlan.actions[0] || null;
+          const emptyPrimaryLabel = emptyPrimaryAction ? emptyPrimaryAction.shortLabel : "1순위 보강";
           const emptyMessage = emptySplitOptionalPricing
-            ? "추천 후보가 아직 없습니다. 최근 3년 실적과 자본금을 보강한 뒤 다시 계산해 보세요."
+            ? "최근 3년 실적과 자본금을 보강한 뒤 다시 계산해 보세요."
             : (emptyScaleMode === "sales"
               ? (emptyBalanceExcluded
-                ? "추천 후보가 아직 없습니다. 자본금을 보강한 뒤 다시 계산해 보세요."
-                : "추천 후보가 아직 없습니다. 공제조합 잔액을 보강한 뒤 다시 계산해 보세요.")
-              : "추천 후보가 아직 없습니다. 시평을 조금 더 구체적으로 넣고 다시 계산해 보세요.");
-          wrap.innerHTML = `<div class="small"><strong>추천 후보가 아직 없습니다.</strong> ${{emptyMessage}} 아래 1순위 보강부터 누르면 해당 입력칸으로 바로 이동합니다.</div>`;
+                ? "자본금을 보강한 뒤 다시 계산해 보세요."
+                : "공제조합 잔액을 보강한 뒤 다시 계산해 보세요.")
+              : "시평을 조금 더 구체적으로 넣고 다시 계산해 보세요.");
+          wrap.innerHTML = `<div class="small"><strong>추천 후보가 아직 없습니다.</strong> ${{emptyMessage}} 아래 ${{emptyPrimaryLabel}}부터 누르면 해당 입력칸으로 바로 이동합니다.</div>`;
           syncNeighborPanelDisclosure(false);
           return;
         }}
@@ -7545,14 +7914,14 @@ def build_page_html(
             "실적 유사": 1,
             "자본금 유사": 2,
             "업종 일치": 3,
-            "가격대 근접": 4,
+            "조건 적합": 4,
             "시평 유사": 5,
             "번호대 우선": 6,
           }}
           : {{
             "업종 일치": 1,
             "실적 유사": 2,
-            "가격대 근접": 3,
+            "조건 적합": 3,
             "시평 유사": 4,
             "자본금 유사": 5,
             "번호대 우선": 6,
@@ -7572,7 +7941,7 @@ def build_page_html(
           if (splitOptionalPricing && label === "업종 일치") return "1순위 · 같은 업종";
           if (label === "업종 일치") return "1순위 · 같은 업종";
           if (label === "실적 유사") return "1순위 · 비슷한 실적";
-          if (label === "가격대 근접") return "1순위 · 가까운 가격대";
+          if (label === "조건 적합") return "1순위 · 현재 조건 적합";
           if (label === "시평 유사") return "1순위 · 비슷한 시평";
           if (label === "자본금 유사") return "1순위 · 비슷한 자본금";
           if (label === "번호대 우선") return "1순위 · 우선 검토 번호대";
@@ -7582,22 +7951,22 @@ def build_page_html(
           const primary = Array.isArray(chips) && chips.length ? compact(chips[0]) : "";
           if (splitOptionalPricing) {{
             const prefix = specialSector ? `${{specialSector}} 분할/합병은` : "분할/합병은";
-            if (primary === "가격대 근접") return `${{prefix}} 번호대보다 최근 3년 실적·자본금과 현재 범위를 먼저 반영했습니다.`;
+            if (primary === "조건 적합") return `${{prefix}} 번호대보다 최근 3년 실적·자본금과 현재 입력 조건을 먼저 반영했습니다.`;
             if (primary === "업종 일치") return `${{prefix}} 번호대보다 업종과 최근 3년 실적을 먼저 반영했습니다.`;
             return `${{prefix}} 번호대보다 최근 3년 실적과 자본금을 먼저 반영했습니다.`;
           }}
           if (primary === "번호대 우선") return "비슷한 후보끼리는 7천·6천·5천 번호대를 먼저 보여드립니다.";
           if (primary === "실적 유사") return "번호대보다 최근 실적이 더 비슷한 매물을 먼저 보여드립니다.";
-          if (primary === "가격대 근접") return "번호대보다 현재 계산 범위에 더 가까운 매물을 먼저 보여드립니다.";
+          if (primary === "조건 적합") return "번호대보다 현재 입력 조건에 더 가까운 매물을 먼저 보여드립니다.";
           if (primary === "업종 일치") return "번호대보다 같은 업종 여부를 먼저 반영했습니다.";
-          return "번호대보다 업종·실적·가격대 적합도를 먼저 반영했습니다.";
+          return "번호대보다 업종·실적·조건 적합도를 먼저 반영했습니다.";
         }};
         const humanizeReasonText = (text) => {{
           const src = compact(text);
           if (!src) return "";
           if (src.indexOf("면허 구성") >= 0 || (src.indexOf("면허") >= 0 && src.indexOf("같") >= 0) || (src.indexOf("업종") >= 0 && src.indexOf("같") >= 0)) return "업종이 같습니다.";
           if (src.indexOf("실적") >= 0 && (src.indexOf("비슷") >= 0 || src.indexOf("가깝") >= 0)) return "실적 규모가 비슷합니다.";
-          if ((src.indexOf("가격") >= 0 || src.indexOf("범위") >= 0) && (src.indexOf("비슷") >= 0 || src.indexOf("가깝") >= 0)) return "가격대가 비슷합니다.";
+          if ((src.indexOf("가격") >= 0 || src.indexOf("범위") >= 0) && (src.indexOf("비슷") >= 0 || src.indexOf("가깝") >= 0)) return "현재 조건 적합도가 높습니다.";
           if (src.indexOf("자본금") >= 0 && (src.indexOf("비슷") >= 0 || src.indexOf("가깝") >= 0)) return "자본금이 비슷합니다.";
           if (src.indexOf("번호대") >= 0 || src.indexOf("7천") >= 0 || src.indexOf("7000") >= 0) return "우선 검토할 번호대 매물입니다.";
           return src;
@@ -7616,7 +7985,7 @@ def build_page_html(
             if (src.indexOf("업종") >= 0 || src.indexOf("면허") >= 0) pushChip("업종 일치");
             if (src.indexOf("실적") >= 0) pushChip("실적 유사");
             if (src.indexOf("시평") >= 0) pushChip("시평 유사");
-            if (src.indexOf("가격") >= 0 || src.indexOf("범위") >= 0) pushChip("가격대 근접");
+            if (src.indexOf("가격") >= 0 || src.indexOf("범위") >= 0) pushChip("조건 적합");
             if (src.indexOf("자본금") >= 0) pushChip("자본금 유사");
             if (src.indexOf("7천") >= 0 || src.indexOf("7000") >= 0 || src.indexOf("번호대") >= 0) pushChip("번호대 우선");
           }};
@@ -7640,15 +8009,10 @@ def build_page_html(
           const seoulNo = Number(row && row.seoul_no || 0);
           const licenseText = escapeHtml(compact(row && row.license_text) || "-");
           const badge = escapeHtml(humanizeRecommendationBadge(row && row.recommendation_label, row && row.precision_tier));
-          const low = num(row && row.display_low_eok);
-          const high = num(row && row.display_high_eok);
-          const priceText = (Number.isFinite(low) && Number.isFinite(high))
-            ? `${{fmtEok(low)}}~${{fmtEok(high)}}`
-            : fmtEok(num(row && row.price_eok));
           const focusRaw = compact(row && row.recommendation_focus);
           const fitSummaryRaw = compact(row && row.fit_summary);
           const reasonFirst = Array.isArray(row && row.reasons) ? compact(row.reasons[0]) : "";
-          const why = escapeHtml(humanizeReasonText(fitSummaryRaw || reasonFirst || focusRaw || "입력한 면허와 가격대가 가까운 매물입니다."));
+          const why = escapeHtml(humanizeReasonText(fitSummaryRaw || reasonFirst || focusRaw || "입력한 면허와 현재 조건이 가까운 매물입니다."));
           const reasonChips = buildReasonChips(row);
           const orderNote = escapeHtml(buildRecommendationOrderNote(reasonChips));
           const url = safeUrl(row && row.url, siteMna);
@@ -7661,7 +8025,6 @@ def build_page_html(
               <div class="name">매물 ${{seoulNo > 0 ? seoulNo : "-"}} · ${{licenseText}}</div>
               <div class="badge">${{badge}}</div>
             </div>
-            <div class="price">${{escapeHtml(priceText || "-")}}</div>
             <div class="why">${{why}}</div>
             <div class="order-note">${{orderNote}}</div>
             ${{reasonChips.length ? `<div class="reason-chips">${{reasonChips.map((item, idx) => `<span class="reason-chip${{idx === 0 ? " primary" : ""}}">${{escapeHtml(idx === 0 ? primaryChipLabel(item) : item)}}</span>`).join("")}}</div>` : ""}}
@@ -7676,7 +8039,7 @@ def build_page_html(
         const colCount = renderNeighborHead();
         updateNeighborPanelSummary(rows);
         if (!rows || !rows.length) {{
-          body.innerHTML = `<tr><td colspan="${{colCount}}" class='small'>근거 매물이 없습니다.</td></tr>`;
+          body.innerHTML = `<tr><td colspan="${{colCount}}" class='small'>비슷한 사례가 없습니다.</td></tr>`;
           syncNeighborPanelDisclosure(false);
           return;
         }}
@@ -7728,7 +8091,7 @@ def build_page_html(
         }};
         const scaleModeLabelText = scaleSearchModeLabel(t && (t.scale_search_mode || t.requested_scale_search_mode));
         if (!t) {{
-          if (title) title.textContent = "추천 액션 3단계";
+          if (title) title.textContent = "지금 하면 좋은 순서 3단계";
           pushStep("면허/업종을 먼저 선택해 통상 매물 기준값을 자동으로 불러옵니다.");
           pushStep("시평 검색 또는 실적 검색 중 한 축만 선택해 핵심 규모 값을 입력합니다.");
           pushStep("결과 요약을 복사하거나 메일로 전달해 내부 검토에 활용합니다.");
@@ -7736,8 +8099,8 @@ def build_page_html(
           return;
         }}
         if (title) title.textContent = compactRecommendation
-          ? (zeroRecommendation ? "추천 후보 만들기 2단계" : "추천 액션 2단계")
-          : "추천 액션 3단계";
+          ? (zeroRecommendation ? "비슷한 사례 찾기 2단계" : "지금 하면 좋은 순서 2단계")
+          : "지금 하면 좋은 순서 3단계";
         if (compactRecommendation) {{
           if (zeroRecommendation) {{
             pushStep(primaryFollowupAction
@@ -7754,10 +8117,10 @@ def build_page_html(
             pushStep("추천 매물 1건의 최근 3년 실적과 자본금을 먼저 비교해 보세요.");
             pushStep("최근 3년 실적을 1~2건만 더 보강해 다시 계산하면 범위를 더 빨리 좁힐 수 있습니다.");
           }} else if (t.balance_excluded) {{
-            pushStep("추천 매물 1건의 업종과 가격대를 먼저 비교해 보세요.");
+            pushStep("추천 매물 1건의 업종과 핵심 조건을 먼저 비교해 보세요.");
             pushStep(`${{scaleModeLabelText}} 값과 자본금을 더 정확히 넣어 다시 계산하면 범위를 더 빨리 좁힐 수 있습니다.`);
           }} else {{
-            pushStep("추천 매물 1건의 업종과 가격대를 먼저 비교해 보세요.");
+            pushStep("추천 매물 1건의 업종과 핵심 조건을 먼저 비교해 보세요.");
             pushStep(`${{scaleModeLabelText}} 값과 공제조합 잔액을 더 정확히 넣어 다시 계산하면 범위를 더 빨리 좁힐 수 있습니다.`);
           }}
           list.innerHTML = items.slice(0, 2).map((x) => `<li>${{x}}</li>`).join("");
@@ -7780,8 +8143,8 @@ def build_page_html(
         if (out && Number.isFinite(out.confidenceScore)) {{
           if (out.confidenceScore >= 70) {{
             pushStep(t.split_optional_pricing
-              ? "아래 추천 매물에서 실적이 가까운 순서대로 희망 가격대를 먼저 정리해 보세요."
-              : "아래 추천 매물부터 확인해 희망 가격대를 1차로 정리해 보세요.");
+              ? "아래 추천 매물에서 실적이 가까운 순서대로 검토 우선순위를 먼저 정리해 보세요."
+              : "아래 추천 매물부터 확인해 검토 우선순위를 1차로 정리해 보세요.");
           }} else {{
             pushStep(t.split_optional_pricing
               ? "자료 편차가 있으면 최근 실적과 자본금을 더 정확히 넣고 다시 계산해 보세요."
@@ -7859,7 +8222,7 @@ def build_page_html(
               : "검색축 값과 공제잔액을 더 정확히 넣으면 범위를 더 좁힐 수 있습니다."));
         }} else {{
           pushLine(Array.isArray(out && out.recommendedListings) && out.recommendedListings.length
-            ? "아래 추천 매물부터 보면서 희망 가격대를 정리해 보세요."
+            ? "아래 추천 매물부터 보면서 검토 우선순위를 정리해 보세요."
             : "현재 값은 협상 출발선으로 보시면 됩니다.");
         }}
         return lines.map((x) => `• ${{escapeHtml(x)}}`).join("<br>");
@@ -7868,14 +8231,14 @@ def build_page_html(
         const mode = compact(out && (out.publicationMode || out.publication_mode || ""));
         const reason = compact(out && (out.publicationReason || out.publication_reason || ""));
         if (mode === "consult_only") {{
-          if (reason.indexOf("면허") >= 0) return "공개 · 면허 확인 후 안내";
-          return "공개 · 상담형";
+          if (reason.indexOf("면허") >= 0) return "면허부터 확인";
+          return "자세히 확인 후 안내";
         }}
         if (mode === "range_only") {{
-          if (reason.indexOf("편차") >= 0 || reason.indexOf("분산") >= 0) return "공개 · 편차 커서 범위만";
-          return "공개 · 범위 우선";
+          if (reason.indexOf("편차") >= 0 || reason.indexOf("분산") >= 0) return "편차가 커 범위만 안내";
+          return "범위 먼저 안내";
         }}
-        return "공개 · 기준가 공개";
+        return "기준가 바로 보기";
       }};
       const summarizeSettlementChip = (out) => {{
         const target = out && out.target ? out.target : null;
@@ -7940,11 +8303,11 @@ def build_page_html(
         const displayedBalance = balanceExcluded
           ? (Number.isFinite(rawBalanceInput) ? rawBalanceInput : realizableBalance)
           : realizableBalance;
-        $("out-settlement-total").textContent = Number.isFinite(total) ? fmtEok(total) : (totalRangeVisible ? "범위 우선 안내" : "확인 후 안내");
+        $("out-settlement-total").textContent = Number.isFinite(total) ? fmtEok(total) : (totalRangeVisible ? "범위 먼저 보기" : "먼저 확인 필요");
         $("out-settlement-balance").textContent = Number.isFinite(displayedBalance)
           ? fmtEok(displayedBalance)
           : "-";
-        $("out-settlement-cash").textContent = Number.isFinite(cashDue) ? fmtEok(cashDue) : (cashRangeVisible ? "범위 우선 안내" : "확인 후 안내");
+        $("out-settlement-cash").textContent = Number.isFinite(cashDue) ? fmtEok(cashDue) : (cashRangeVisible ? "범위 먼저 보기" : "먼저 확인 필요");
         const equation = (
           balanceExcluded && Number.isFinite(total) && Number.isFinite(displayedBalance) && Number.isFinite(cashDue)
         )
@@ -8004,7 +8367,7 @@ def build_page_html(
               : ((row && row.is_recommended) ? "기본값" : "");
             const cashText = Number.isFinite(num(row && (row.public_estimated_cash_due_eok ?? row.estimated_cash_due_eok)))
               ? fmtEok(num(row && (row.public_estimated_cash_due_eok ?? row.estimated_cash_due_eok)))
-              : "확인 후 안내";
+              : "먼저 확인 필요";
             const balanceText = Number.isFinite(num(row && row.realizable_balance_eok))
               ? fmtEok(num(row && row.realizable_balance_eok))
               : "-";
@@ -8586,6 +8949,302 @@ def build_page_html(
           ? `시평 ${{formatInputNumber(specialtyValue, 1)}}`
           : "시평 입력 전";
       }};
+      const syncYangdoWizardProgress = () => {{
+        const labelNode = $("yangdoWizardProgressLabel");
+        const metaNode = $("yangdoWizardProgressMeta");
+        const fillNode = $("yangdoWizardProgressFill");
+        const countNode = $("yangdoWizardProgressCount");
+        const barNode = $("yangdoWizardProgressBar");
+        const actionNode = $("yangdoWizardNextActionText");
+        const actionReasonNode = $("yangdoWizardActionReason");
+        const stickyShellNode = $("yangdoWizardMobileSticky");
+        const stickyLabelNode = $("yangdoWizardMobileStickyLabel");
+        const stickyActionNode = $("yangdoWizardMobileStickyAction");
+        const stickyCompactNode = $("yangdoWizardMobileStickyCompact");
+        const stickyMetaNode = $("yangdoWizardMobileStickyMeta");
+        const stickyReasonNode = $("yangdoWizardMobileStickyReason");
+        const stickyCountNode = $("yangdoWizardMobileStickyCount");
+        if (!labelNode && !metaNode && !fillNode && !countNode && !barNode && !actionNode && !stickyShellNode && !stickyLabelNode && !stickyActionNode && !stickyCompactNode && !stickyMetaNode && !stickyReasonNode && !stickyCountNode) return;
+        const state = getYangdoWizardState();
+        const totalSteps = yangdoWizardStepsMeta.length;
+        const currentIndex = Math.max(0, Math.min(totalSteps - 1, Number(yangdoWizardStepIndex) || 0));
+        const requiredIndices = yangdoWizardStepsMeta
+          .map((step, stepIndex) => step.optional ? -1 : stepIndex)
+          .filter((stepIndex) => stepIndex >= 0);
+        const optionalIndices = yangdoWizardStepsMeta
+          .map((step, stepIndex) => step.optional ? stepIndex : -1)
+          .filter((stepIndex) => stepIndex >= 0);
+        const requiredDone = requiredIndices.filter((stepIndex) => !!state.completed[stepIndex]).length;
+        const optionalDone = optionalIndices.filter((stepIndex) => !!state.completed[stepIndex]).length;
+        const requiredTotal = requiredIndices.length;
+        const optionalTotal = optionalIndices.length;
+        const progressPct = Math.round(((currentIndex + 1) / Math.max(1, totalSteps)) * 100);
+        let metaText = "";
+        if (!state.hasLicense) {{
+          metaText = `필수 ${{requiredDone}}/${{requiredTotal}} 완료 · 업종부터 입력하면 자동 제안이 시작됩니다.`;
+        }} else if (!state.scaleReady) {{
+          metaText = `필수 ${{requiredDone}}/${{requiredTotal}} 완료 · 검색 기준 1단계가 남았습니다.`;
+        }} else if (!state.criticalReady) {{
+          metaText = `필수 ${{requiredDone}}/${{requiredTotal}} 완료 · 가격 영향 필수 입력을 마치면 결과가 더 안정됩니다.`;
+        }} else if (state.needsReorg && !state.reorgValue) {{
+          metaText = `필수 ${{requiredDone}}/${{requiredTotal}} 완료 · 이 업종은 구조 선택이 먼저 필요합니다.`;
+        }} else if (optionalTotal > 0 && optionalDone > 0) {{
+          metaText = `필수 입력 완료 · 선택 ${{optionalDone}}/${{optionalTotal}}단계가 결과에 반영되고 있습니다.`;
+        }} else if (optionalTotal > 0) {{
+          metaText = `필수 입력 완료 · 남은 ${{optionalTotal}}단계는 선택 보정입니다.`;
+        }} else {{
+          metaText = `필수 ${{requiredDone}}/${{requiredTotal}} 완료`;
+        }}
+        if (labelNode) labelNode.textContent = `현재 ${{currentIndex + 1}}/${{totalSteps}} 단계`;
+        if (metaNode) metaNode.textContent = metaText;
+        if (actionNode) actionNode.textContent = getYangdoWizardNextActionCopy();
+        if (actionReasonNode) {{
+          actionReasonNode.textContent = getYangdoWizardActionReasonCopy();
+          actionReasonNode.dataset.actionable = "1";
+          actionReasonNode.setAttribute("aria-label", `${{getYangdoWizardActionReasonCopy()}} 눌러서 바로 이동합니다.`);
+        }}
+        if (fillNode) fillNode.style.width = `${{progressPct}}%`;
+        if (countNode) countNode.textContent = `${{currentIndex + 1}}/${{totalSteps}}`;
+        if (stickyLabelNode) stickyLabelNode.textContent = `현재 ${{currentIndex + 1}}/${{totalSteps}} 단계`;
+        if (stickyActionNode) stickyActionNode.textContent = getYangdoWizardNextActionCopy();
+        if (stickyCompactNode) stickyCompactNode.textContent = getYangdoWizardMobileCompactCopy();
+        if (stickyMetaNode) stickyMetaNode.textContent = metaText;
+        if (stickyReasonNode) stickyReasonNode.textContent = getYangdoWizardActionReasonCopy();
+        if (stickyCountNode) stickyCountNode.textContent = `${{currentIndex + 1}}/${{totalSteps}}`;
+        if (stickyShellNode) {{
+          stickyShellNode.setAttribute(
+            "aria-label",
+            `현재 ${{currentIndex + 1}}/${{totalSteps}} 단계. ${{getYangdoWizardNextActionCopy()}}. ${{getYangdoWizardMobileCompactCopy()}}. ${{metaText}}`
+          );
+        }}
+        if (barNode) {{
+          barNode.setAttribute("aria-valuenow", String(currentIndex + 1));
+          barNode.setAttribute("aria-valuetext", `현재 ${{currentIndex + 1}}단계 / 총 ${{totalSteps}}단계`);
+        }}
+      }};
+      const getYangdoWizardNextActionCopy = () => {{
+        const state = getYangdoWizardState();
+        const licenseValue = compact(($("in-license") || {{}}).value);
+        if (!state.hasLicense) {{
+          return "면허/업종부터 선택하세요.";
+        }}
+        if (!state.scaleReady) {{
+          return "시평 또는 실적 중 한 축을 먼저 입력하세요.";
+        }}
+        if (!state.criticalReady) {{
+          const missing = [];
+          if (!Number.isFinite(num(($("in-capital") || {{}}).value))) missing.push("자본금");
+          if (!(Number.isFinite(num(($("in-balance") || {{}}).value)) || !!resolveLicenseProfile(licenseValue))) missing.push("공제조합 잔액");
+          const pendingChecks = [];
+          ["ok-capital", "ok-engineer", "ok-office"].forEach((id) => {{
+            const checkbox = $(id);
+            if (!checkbox || checkbox.checked) return;
+            if (id === "ok-capital") pendingChecks.push("자본금 충족");
+            if (id === "ok-engineer") pendingChecks.push("기술자 충족");
+            if (id === "ok-office") pendingChecks.push("사무실 충족");
+          }});
+          if (missing.length) {{
+            return missing.length === 1
+              ? `${{missing[0]}}부터 입력하세요.`
+              : `${{missing.join(", ")}}를 순서대로 입력하세요.`;
+          }}
+          if (pendingChecks.length) {{
+            return pendingChecks.length === 1
+              ? `${{pendingChecks[0]}} 체크를 마치세요.`
+              : `${{pendingChecks.join(", ")}} 체크를 마치세요.`;
+          }}
+          return "핵심 가격 영향 입력을 먼저 마치세요.";
+        }}
+        if (state.needsReorg && !state.reorgValue) {{
+          return "포괄 또는 분할/합병 중 구조를 선택하세요.";
+        }}
+        if (state.optionalCount > 0) {{
+          return "결과를 확인하고 전달용 브리프를 복사하세요.";
+        }}
+        return "선택 정보는 필요한 것만 더하고 바로 결과를 확인하세요.";
+      }};
+      const getYangdoWizardActionReasonCopy = () => {{
+        const state = getYangdoWizardState();
+        const licenseValue = compact(($("in-license") || {{}}).value);
+        if (!state.hasLicense) {{
+          return "업종이 정해져야 통상 자본금과 공제조합 기준을 자동 제안할 수 있습니다.";
+        }}
+        if (!state.scaleReady) {{
+          return "시평과 실적을 함께 받으면 값이 튈 수 있어 먼저 한 축만 입력합니다.";
+        }}
+        if (!state.criticalReady) {{
+          return "자본금과 공제조합 잔액이 맞아야 추천 후보 범위와 결과 신뢰도가 빨리 안정됩니다.";
+        }}
+        if (state.needsReorg && !state.reorgValue) {{
+          return `${{licenseValue || "이 업종"}}은 구조에 따라 계산 축이 달라져 여기서 포괄과 분할/합병을 먼저 나눕니다.`;
+        }}
+        if (state.optionalCount > 0) {{
+          return "선택 정보는 가격보다 전달 정밀도를 높이는 마지막 보정 단계입니다.";
+        }}
+        return "필수 입력은 끝났고, 필요하면 선택 정보만 더한 뒤 바로 결과를 확인하면 됩니다.";
+      }};
+      const getYangdoWizardMobileCompactCopy = () => {{
+        const state = getYangdoWizardState();
+        if (!state.hasLicense) {{
+          return "업종 선택 후 자동 기준 시작";
+        }}
+        if (!state.scaleReady) {{
+          return "시평/실적 한 축만 먼저";
+        }}
+        if (!state.criticalReady) {{
+          return "자본금·잔액·필수 체크 순서";
+        }}
+        if (state.needsReorg && !state.reorgValue) {{
+          return "구조 선택 먼저";
+        }}
+        if (state.optionalCount > 0) {{
+          return "선택 정보는 마지막 보정";
+        }}
+        return "결과 브리프 바로 전달";
+      }};
+      const resolveYangdoActionTargetNode = (target) => {{
+        if (!target) return null;
+        return typeof target === "string"
+          ? (document.querySelector(target) || $(target))
+          : target;
+      }};
+      let yangdoGuidedFocusTimer = 0;
+      let yangdoGuidedFocusNode = null;
+      const clearYangdoGuidedFocus = () => {{
+        if (yangdoGuidedFocusTimer) {{
+          window.clearTimeout(yangdoGuidedFocusTimer);
+          yangdoGuidedFocusTimer = 0;
+        }}
+        if (yangdoGuidedFocusNode) {{
+          yangdoGuidedFocusNode.classList.remove("guided-focus-target");
+          delete yangdoGuidedFocusNode.dataset.guidedFocus;
+          delete yangdoGuidedFocusNode.dataset.guidedFocusCopy;
+          delete yangdoGuidedFocusNode.dataset.guidedFocusLevel;
+          yangdoGuidedFocusNode = null;
+        }}
+      }};
+      const resolveYangdoGuidedFocusNode = (node) => {{
+        if (!node) return null;
+        return node.closest(".field, .reorg-choice-btn, .reorg-compare-card, .result-share-wrap, .wizard-progress-card, .panel, .btn-row") || node;
+      }};
+      const getYangdoGuidedFocusCopy = (target, node, source = "") => {{
+        const key = typeof target === "string"
+          ? target
+          : String((node && (node.id || node.getAttribute && node.getAttribute("data-reorg-choice"))) || "").trim();
+        if (source === "mobile") {{
+          if (key === "in-license") return "지금은 업종만 고르면 됩니다.";
+          if (["in-specialty", "in-y23", "in-sales3-total", "in-sales5-total"].includes(key)) return "지금은 검색 기준 한 축만 정하면 됩니다.";
+          if (["in-capital", "in-balance"].includes(key)) return "지금 이 값만 채우면 바로 다음으로 넘어갑니다.";
+          if (["ok-capital", "ok-engineer", "ok-office"].includes(key)) return "지금은 확인 체크만 끝내면 됩니다.";
+          if (key.indexOf("[data-reorg-choice=") === 0 || key === "포괄" || key === "분할/합병") return "지금은 구조 하나만 선택하면 됩니다.";
+          if (key === "btn-copy-brief") return "지금은 브리프만 복사하면 전달 준비가 끝납니다.";
+        }}
+        if (key === "in-license") return "업종만 고르면 자동 기준이 바로 시작됩니다.";
+        if (["in-specialty", "in-y23", "in-sales3-total", "in-sales5-total"].includes(key)) return "이 값 하나만 넣으면 다음 판단이 쉬워집니다.";
+        if (key === "in-capital") return "자본금부터 넣으면 추천 범위가 빨리 안정됩니다.";
+        if (key === "in-balance") return "공제조합 잔액만 맞추면 후보 비교가 쉬워집니다.";
+        if (["ok-capital", "ok-engineer", "ok-office"].includes(key)) return "확인됐다면 체크만 해도 다음 단계로 넘어갑니다.";
+        if (key.indexOf("[data-reorg-choice=") === 0 || key === "포괄" || key === "분할/합병") return "구조 하나만 선택하면 계산 축이 정리됩니다.";
+        if (key === "btn-estimate") return "여기서 바로 AI 계산을 실행합니다.";
+        if (key === "btn-copy-brief") return "복사 후 바로 상담 전달에 쓰면 됩니다.";
+        if (key === "in-balance-usage-mode") return "정산 방식을 고르면 전달 문구가 더 정확해집니다.";
+        return "여기만 확인하면 다음 행동이 이어집니다.";
+      }};
+      const showYangdoGuidedFocus = (node, helperCopy = "", options = {{}}) => {{
+        const highlightNode = resolveYangdoGuidedFocusNode(node);
+        if (!highlightNode) return;
+        clearYangdoGuidedFocus();
+        highlightNode.classList.add("guided-focus-target");
+        highlightNode.dataset.guidedFocus = "1";
+        if (helperCopy) highlightNode.dataset.guidedFocusCopy = helperCopy;
+        if (options && options.level) highlightNode.dataset.guidedFocusLevel = String(options.level);
+        yangdoGuidedFocusNode = highlightNode;
+        yangdoGuidedFocusTimer = window.setTimeout(() => {{
+          clearYangdoGuidedFocus();
+        }}, 1400);
+      }};
+      const isYangdoActionTargetFocusable = (node) => {{
+        if (!node) return false;
+        if ("disabled" in node && node.disabled) return false;
+        if (node.hidden) return false;
+        if (node.closest("[hidden]")) return false;
+        const style = window.getComputedStyle(node);
+        if (!style || style.display === "none" || style.visibility === "hidden") return false;
+        return node.getClientRects().length > 0;
+      }};
+      const focusYangdoActionTarget = (target, options = {{}}) => {{
+        const node = resolveYangdoActionTargetNode(target);
+        if (!isYangdoActionTargetFocusable(node)) return false;
+        if (typeof node.scrollIntoView === "function") {{
+          node.scrollIntoView({{ behavior: "smooth", block: "center" }});
+        }}
+        if (typeof node.focus === "function") {{
+          try {{ node.focus({{ preventScroll: true }}); }} catch (_error) {{ node.focus(); }}
+        }}
+        const source = options && options.source ? String(options.source) : "";
+        showYangdoGuidedFocus(node, getYangdoGuidedFocusCopy(target, node, source), {{
+          level: source === "mobile" ? "sticky" : "",
+        }});
+        return document.activeElement === node || (!!document.activeElement && node.contains(document.activeElement));
+      }};
+      const getYangdoWizardNextActionTarget = () => {{
+        const state = getYangdoWizardState();
+        const scaleMode = getScaleSearchMode();
+        const salesMode = compact(($("in-sales-input-mode") || {{}}).value) || "yearly";
+        if (!state.hasLicense) {{
+          return {{ stepIndex: 0, target: "in-license" }};
+        }}
+        if (!state.scaleReady) {{
+          if (scaleMode === "sales") {{
+            if (salesMode === "sales3") return {{ stepIndex: 1, target: "in-sales3-total" }};
+            if (salesMode === "sales5") return {{ stepIndex: 1, target: "in-sales5-total" }};
+            return {{ stepIndex: 1, target: "in-y23" }};
+          }}
+          return {{ stepIndex: 1, target: "in-specialty" }};
+        }}
+        if (!state.criticalReady) {{
+          if (!Number.isFinite(num(($("in-capital") || {{}}).value))) return {{ stepIndex: 2, target: "in-capital" }};
+          if (!(Number.isFinite(num(($("in-balance") || {{}}).value)) || !!resolveLicenseProfile(compact(($("in-license") || {{}}).value)))) {{
+            return {{ stepIndex: 2, target: "in-balance" }};
+          }}
+          if (!($("ok-capital") || {{}}).checked) return {{ stepIndex: 2, target: "ok-capital" }};
+          if (!($("ok-engineer") || {{}}).checked) return {{ stepIndex: 2, target: "ok-engineer" }};
+          if (!($("ok-office") || {{}}).checked) return {{ stepIndex: 2, target: "ok-office" }};
+          return {{ stepIndex: 2, target: "in-capital" }};
+        }}
+        if (state.needsReorg && !state.reorgValue) {{
+          return {{ stepIndex: 3, target: '[data-reorg-choice="포괄"]' }};
+        }}
+        if (isYangdoEstimateReady(state)) {{
+          if (lastEstimate && $("btn-copy-brief") && !$("btn-copy-brief").disabled) {{
+            return {{ stepIndex: 4, target: "btn-copy-brief" }};
+          }}
+          return {{ stepIndex: 2, target: "btn-estimate" }};
+        }}
+        return {{ stepIndex: findYangdoWizardResumeStep(), target: "in-balance-usage-mode" }};
+      }};
+      const runYangdoWizardNextAction = (source = "") => {{
+        const action = getYangdoWizardNextActionTarget();
+        if (!action) return;
+        if (Number.isFinite(Number(action.stepIndex))) {{
+          setYangdoWizardStep(Number(action.stepIndex), false);
+        }}
+        let attemptsLeft = 6;
+        const tryFocusAction = () => {{
+          const latestAction = Number(action.stepIndex) === 1 ? (getYangdoWizardNextActionTarget() || action) : action;
+          if (latestAction.target === "btn-copy-brief" && lastEstimate) {{
+            const resultPanel = $("estimate-result-panel") || document.querySelector("#seoulmna-yangdo-calculator .panel.result");
+            if (resultPanel && typeof resultPanel.scrollIntoView === "function") {{
+              resultPanel.scrollIntoView({{ behavior: "smooth", block: "start" }});
+            }}
+          }}
+          if (focusYangdoActionTarget(latestAction.target, {{ source }})) return;
+          attemptsLeft -= 1;
+          if (attemptsLeft <= 0) return;
+          window.setTimeout(tryFocusAction, 48);
+        }};
+        window.setTimeout(tryFocusAction, 0);
+      }};
       const syncYangdoWizardSummary = () => {{
         const node = $("yangdoWizardSummary");
         if (!node) return;
@@ -8737,6 +9396,7 @@ def build_page_html(
             noteNode.textContent = currentMeta.note;
           }}
         }}
+        syncYangdoWizardProgress();
         syncYangdoWizardSummary();
         syncYangdoWizardBlocker();
         syncYangdoPriorityHint();
@@ -8948,6 +9608,16 @@ def build_page_html(
       if (wizardShell) {{
         wizardShell.addEventListener("click", (event) => {{
           const target = event.target;
+          const actionButton = target && target.closest ? target.closest("[data-yangdo-next-action]") : null;
+          if (actionButton) {{
+            runYangdoWizardNextAction(String(actionButton.getAttribute("data-yangdo-next-action") || ""));
+            return;
+          }}
+          const actionReason = target && target.closest ? target.closest("[data-yangdo-action-reason]") : null;
+          if (actionReason) {{
+            runYangdoWizardNextAction("reason");
+            return;
+          }}
           const prevButton = target && target.closest ? target.closest("[data-yangdo-wizard-prev]") : null;
           if (prevButton) {{
             setYangdoWizardStep(Number(prevButton.getAttribute("data-yangdo-wizard-prev") || 0) - 1, true);
@@ -8968,6 +9638,14 @@ def build_page_html(
           if (trackButton) {{
             setYangdoWizardStep(Number(trackButton.getAttribute("data-yangdo-wizard-track") || 0), true);
           }}
+        }});
+        wizardShell.addEventListener("keydown", (event) => {{
+          const target = event.target;
+          const actionReason = target && target.closest ? target.closest("[data-yangdo-action-reason]") : null;
+          if (!actionReason) return;
+          if (event.key !== "Enter" && event.key !== " ") return;
+          event.preventDefault();
+          runYangdoWizardNextAction("reason");
         }});
       }}
       const ensureConsultConsent = () => {{
@@ -9029,15 +9707,15 @@ def build_page_html(
           const publicLow = num(out.publicLow);
           const publicHigh = num(out.publicHigh);
           const publicRangeVisible = Number.isFinite(publicLow) && Number.isFinite(publicHigh);
-          $("out-center").textContent = Number.isFinite(publicCenter) ? fmtEok(publicCenter) : (publicRangeVisible ? "범위 우선 안내" : "확인 후 안내");
+          $("out-center").textContent = Number.isFinite(publicCenter) ? fmtEok(publicCenter) : (publicRangeVisible ? "범위 먼저 보기" : "먼저 확인 필요");
           $("out-range").textContent = (Number.isFinite(publicLow) && Number.isFinite(publicHigh))
             ? buildDisplayRange(publicLow, publicHigh).text
-            : "표본 확인 필요";
+            : "사례 더 필요";
           const publicCashDue = num(out.public_estimated_cash_due_eok ?? out.estimated_cash_due_eok);
           const publicCashLow = num(out.public_estimated_cash_due_low_eok);
           const publicCashHigh = num(out.public_estimated_cash_due_high_eok);
           const publicCashRangeVisible = Number.isFinite(publicCashLow) && Number.isFinite(publicCashHigh);
-          $("out-cash-due").textContent = Number.isFinite(publicCashDue) ? fmtEok(publicCashDue) : (publicCashRangeVisible ? "범위 우선 안내" : "확인 후 안내");
+          $("out-cash-due").textContent = Number.isFinite(publicCashDue) ? fmtEok(publicCashDue) : (publicCashRangeVisible ? "범위 먼저 보기" : "먼저 확인 필요");
           const displayBalance = (out && out.target && out.target.balance_excluded)
             ? num((out.target.input_balance_eok ?? out.target.balance_eok) ?? out.raw_balance_input_eok ?? out.balance_reference_eok)
             : num(out.realizable_balance_eok);
@@ -9357,6 +10035,18 @@ def build_page_html(
       on("draft-restore-action", "click", resetForm);
       const runRecommendFollowupAction = (actionNode) => {{
         const actionKind = compact(actionNode && actionNode.dataset.focusAction);
+        if (actionKind === "market") {{
+          const listingsSection = document.querySelector(".result-panel .neighbor-panel, .neighbor-panel, #neighbor-panel");
+          if (listingsSection && typeof listingsSection.scrollIntoView === "function") {{
+            listingsSection.scrollIntoView({{ behavior: "smooth", block: "start" }});
+          }} else {{
+            const resultPanel = $("result-panel");
+            if (resultPanel && typeof resultPanel.scrollIntoView === "function") {{
+              resultPanel.scrollIntoView({{ behavior: "smooth", block: "start" }});
+            }}
+          }}
+          return;
+        }}
         if (actionKind === "specialty") {{
           focusRecommendSpecialtyRefinement();
         }} else if (actionKind === "balance") {{

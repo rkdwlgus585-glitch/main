@@ -23,6 +23,9 @@ DEFAULT_PATENT_EVIDENCE_BUNDLE_PATH = ROOT / "logs" / "permit_patent_evidence_bu
 DEFAULT_REVIEW_CASE_PRESETS_PATH = ROOT / "logs" / "permit_review_case_presets_latest.json"
 DEFAULT_CASE_STORY_SURFACE_PATH = ROOT / "logs" / "permit_case_story_surface_latest.json"
 DEFAULT_OPERATOR_DEMO_PACKET_PATH = ROOT / "logs" / "permit_operator_demo_packet_latest.json"
+DEFAULT_REVIEW_REASON_DECISION_LADDER_PATH = ROOT / "logs" / "permit_review_reason_decision_ladder_latest.json"
+DEFAULT_CRITICAL_PROMPT_SURFACE_PACKET_PATH = ROOT / "logs" / "permit_critical_prompt_surface_packet_latest.json"
+DEFAULT_CRITICAL_PROMPT_DOC_PATH = ROOT / "docs" / "permit_critical_thinking_prompt.md"
 RULES_ONLY_CATEGORY_CODE = "RG"
 RULES_ONLY_CATEGORY_NAME = "등록기준 업종군"
 OBJECTIVE_SOURCE_HOSTS = (
@@ -77,6 +80,66 @@ def _blank_focus_scope_overrides() -> dict:
     }
 
 
+def _load_text_file(path: Path) -> str:
+    try:
+        return path.read_text(encoding="utf-8")
+    except (FileNotFoundError, OSError, UnicodeDecodeError):
+        return ""
+
+
+def _prompt_surface_excerpt_lines(text: str, limit: int = 4) -> list[str]:
+    lines: list[str] = []
+    for raw_line in str(text or "").splitlines():
+        line = str(raw_line or "").strip()
+        if not line:
+            continue
+        line = re.sub(r"^#+\s*", "", line)
+        if line.startswith("- "):
+            line = line[2:].strip()
+        if not line:
+            continue
+        lines.append(line)
+        if len(lines) >= limit:
+            break
+    return lines
+
+
+def _compact_critical_prompt_lens(packet: dict) -> dict:
+    lens = dict((packet or {}).get("compact_decision_lens") or {})
+    summary = dict((packet or {}).get("summary") or {})
+    if not lens:
+        return {}
+    return {
+        "lane_id": str(lens.get("lane_id", "") or "").strip(),
+        "lane_title": str(lens.get("lane_title", "") or "").strip(),
+        "bottleneck_statement": str(lens.get("bottleneck_statement", "") or "").strip(),
+        "why_now": str(lens.get("why_now", "") or "").strip(),
+        "inspect_first": str(lens.get("inspect_first", "") or "").strip(),
+        "next_action": str(lens.get("next_action", "") or "").strip(),
+        "success_metric": str(lens.get("success_metric", "") or "").strip(),
+        "falsification_test": str(lens.get("falsification_test", "") or "").strip(),
+        "founder_questions": [
+            str(item or "").strip()
+            for item in list(lens.get("founder_questions") or [])
+            if str(item or "").strip()
+        ][:3],
+        "anti_patterns": [
+            str(item or "").strip()
+            for item in list(lens.get("anti_patterns") or [])
+            if str(item or "").strip()
+        ][:3],
+        "evidence_first": [
+            str(item or "").strip()
+            for item in list(lens.get("evidence_first") or [])
+            if str(item or "").strip()
+        ],
+        "lens_ready": bool(summary.get("compact_lens_ready", False)),
+        "runtime_surface_contract_ready": bool(summary.get("runtime_surface_contract_ready", False)),
+        "release_surface_contract_ready": bool(summary.get("release_surface_contract_ready", False)),
+        "operator_surface_contract_ready": bool(summary.get("operator_surface_contract_ready", False)),
+    }
+
+
 def _blank_patent_evidence_bundle() -> dict:
     return {
         "summary": {},
@@ -103,6 +166,21 @@ def _blank_operator_demo_packet_report() -> dict:
         "summary": {},
         "source_paths": {},
         "families": [],
+    }
+
+
+def _blank_review_reason_decision_ladder_report() -> dict:
+    return {
+        "summary": {},
+        "ladders": [],
+    }
+
+
+def _blank_critical_prompt_surface_packet() -> dict:
+    return {
+        "summary": {},
+        "critical_prompt_block": {},
+        "compact_decision_lens": {},
     }
 
 
@@ -352,6 +430,45 @@ def _load_operator_demo_packet_report(path: Path) -> dict:
         base["source_paths"] = {}
     if not isinstance(base.get("families"), list):
         base["families"] = []
+    return base
+
+
+def _load_review_reason_decision_ladder_report(path: Path) -> dict:
+    if not path.exists():
+        return _blank_review_reason_decision_ladder_report()
+    try:
+        loaded = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return _blank_review_reason_decision_ladder_report()
+    if not isinstance(loaded, dict):
+        return _blank_review_reason_decision_ladder_report()
+    base = _blank_review_reason_decision_ladder_report()
+    base.update(loaded)
+    if not isinstance(base.get("summary"), dict):
+        base["summary"] = {}
+    ladders = base.get("ladders")
+    if not isinstance(ladders, list):
+        base["ladders"] = list(base.get("decision_ladder") or []) if isinstance(base.get("decision_ladder"), list) else []
+    return base
+
+
+def _load_critical_prompt_surface_packet(path: Path) -> dict:
+    if not path.exists():
+        return _blank_critical_prompt_surface_packet()
+    try:
+        loaded = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return _blank_critical_prompt_surface_packet()
+    if not isinstance(loaded, dict):
+        return _blank_critical_prompt_surface_packet()
+    base = _blank_critical_prompt_surface_packet()
+    base.update(loaded)
+    if not isinstance(base.get("summary"), dict):
+        base["summary"] = {}
+    if not isinstance(base.get("critical_prompt_block"), dict):
+        base["critical_prompt_block"] = {}
+    if not isinstance(base.get("compact_decision_lens"), dict):
+        base["compact_decision_lens"] = {}
     return base
 
 
@@ -1304,7 +1421,8 @@ def _build_row_claim_packet_summary(row: dict, claim_packet_lookup: dict[str, di
         ),
         "source_url_samples": source_url_samples,
         "official_snapshot_note": str(
-            raw_source_proof.get("official_snapshot_note", "") or ""
+            raw_source_proof.get("official_snapshot_note", "")
+            or claim_packet.get("official_snapshot_note", "")
         ).strip(),
     }
     return {key: value for key, value in compact.items() if value not in ("", [], {})}
@@ -1483,6 +1601,11 @@ def _compact_operator_demo_family(family: dict) -> dict:
             for item in list(family.get("operator_story_points") or [])
             if str(item or "").strip()
         ][:3],
+        "prompt_case_binding": {
+            key: value
+            for key, value in dict(family.get("prompt_case_binding") or {}).items()
+            if value not in ("", [], {}) and value is not None
+        },
         "demo_cases": demo_cases[:3],
     }
     return {
@@ -1490,6 +1613,47 @@ def _compact_operator_demo_family(family: dict) -> dict:
         for key, value in compact.items()
         if value not in ("", [], {}) and value is not None
     }
+
+
+def _compact_runtime_reasoning_ladder_map(report: dict) -> dict:
+    ladder_map: dict[str, dict] = {}
+    for item in list(report.get("ladders") or []):
+        if not isinstance(item, dict):
+            continue
+        review_reason = str(item.get("review_reason", "") or "").strip()
+        if not review_reason:
+            continue
+        ladder_map[review_reason] = {
+            key: value
+            for key, value in {
+                "review_reason": review_reason,
+                "inspect_first": str(item.get("inspect_first", "") or "").strip(),
+                "next_action": str(item.get("next_action", "") or "").strip(),
+                "manual_review_gate": bool(item.get("manual_review_gate", False)),
+                "evidence_first": [
+                    str(token or "").strip()
+                    for token in list(item.get("evidence_first") or [])
+                    if str(token or "").strip()
+                ],
+                "missing_input_focus": [
+                    str(token or "").strip()
+                    for token in list(item.get("missing_input_focus") or [])
+                    if str(token or "").strip()
+                ],
+                "binding_preset_ids": [
+                    str(token or "").strip()
+                    for token in list(item.get("binding_preset_ids") or [])
+                    if str(token or "").strip()
+                ][:3],
+                "binding_questions": [
+                    str(token or "").strip()
+                    for token in list(item.get("binding_questions") or [])
+                    if str(token or "").strip()
+                ][:2],
+            }.items()
+            if value not in ("", [], {}) and value is not None
+        }
+    return ladder_map
 
 
 def _attach_review_case_artifacts(
@@ -1949,9 +2113,22 @@ def build_bootstrap_payload(catalog: dict, rule_catalog: dict) -> dict:
     review_case_presets_report = _load_review_case_presets_report(DEFAULT_REVIEW_CASE_PRESETS_PATH)
     case_story_surface_report = _load_case_story_surface_report(DEFAULT_CASE_STORY_SURFACE_PATH)
     operator_demo_packet_report = _load_operator_demo_packet_report(DEFAULT_OPERATOR_DEMO_PACKET_PATH)
+    review_reason_decision_ladder_report = _load_review_reason_decision_ladder_report(
+        DEFAULT_REVIEW_REASON_DECISION_LADDER_PATH
+    )
+    critical_prompt_surface_packet = _load_critical_prompt_surface_packet(
+        DEFAULT_CRITICAL_PROMPT_SURFACE_PACKET_PATH
+    )
+    critical_prompt_excerpt = _prompt_surface_excerpt_lines(
+        _load_text_file(DEFAULT_CRITICAL_PROMPT_DOC_PATH)
+    )
     review_case_presets_summary = dict(review_case_presets_report.get("summary") or {})
     case_story_surface_summary = dict(case_story_surface_report.get("summary") or {})
     operator_demo_summary = dict(operator_demo_packet_report.get("summary") or {})
+    review_reason_decision_ladder_summary = dict(review_reason_decision_ladder_report.get("summary") or {})
+    critical_prompt_surface_summary = dict(critical_prompt_surface_packet.get("summary") or {})
+    critical_prompt_lens = _compact_critical_prompt_lens(critical_prompt_surface_packet)
+    runtime_reasoning_ladder_map = _compact_runtime_reasoning_ladder_map(review_reason_decision_ladder_report)
     scoped_source_rows = _attach_claim_packet_summaries(scoped_source_rows, patent_bundle)
     scoped_source_rows = _attach_review_case_artifacts(
         scoped_source_rows,
@@ -2035,10 +2212,49 @@ def build_bootstrap_payload(catalog: dict, rule_catalog: dict) -> dict:
     summary["runtime_operator_demo_manual_review_total"] = int(
         operator_demo_summary.get("manual_review_demo_total", 0) or 0
     )
+    summary["runtime_prompt_case_binding_total"] = sum(
+        1
+        for row in compact_rows
+        if isinstance(((row.get("operator_demo_surface") or {}).get("prompt_case_binding")), dict)
+        and ((row.get("operator_demo_surface") or {}).get("prompt_case_binding"))
+    )
     summary["runtime_operator_demo_ready"] = bool(
         operator_demo_summary.get("operator_demo_ready", False)
     )
     summary["runtime_operator_demo_packet_path"] = str(DEFAULT_OPERATOR_DEMO_PACKET_PATH.resolve())
+    summary["runtime_review_reason_decision_ladder_path"] = str(
+        DEFAULT_REVIEW_REASON_DECISION_LADDER_PATH.resolve()
+    )
+    summary["runtime_review_reason_total"] = int(
+        review_reason_decision_ladder_summary.get("review_reason_total", 0) or 0
+    )
+    summary["runtime_review_reason_decision_ladder_ready"] = bool(
+        review_reason_decision_ladder_summary.get("decision_ladder_ready", False)
+    )
+    summary["runtime_reasoning_ladder_map"] = runtime_reasoning_ladder_map
+    summary["runtime_critical_prompt_packet_ready"] = bool(
+        critical_prompt_surface_summary.get("packet_ready", False)
+    )
+    summary["runtime_critical_prompt_packet_path"] = str(
+        DEFAULT_CRITICAL_PROMPT_SURFACE_PACKET_PATH.resolve()
+    )
+    summary["runtime_critical_prompt_lens_ready"] = bool(critical_prompt_lens.get("lens_ready"))
+    summary["runtime_critical_prompt_lens"] = critical_prompt_lens
+    summary["runtime_critical_prompt_lane_id"] = str(
+        critical_prompt_surface_summary.get("lane_id", "") or ""
+    ).strip()
+    summary["runtime_critical_prompt_runtime_contract_ready"] = bool(
+        critical_prompt_lens.get("runtime_surface_contract_ready")
+    )
+    summary["runtime_critical_prompt_release_contract_ready"] = bool(
+        critical_prompt_lens.get("release_surface_contract_ready")
+    )
+    summary["runtime_critical_prompt_operator_contract_ready"] = bool(
+        critical_prompt_lens.get("operator_surface_contract_ready")
+    )
+    summary["runtime_critical_prompt_doc_ready"] = bool(critical_prompt_excerpt)
+    summary["runtime_critical_prompt_doc_path"] = str(DEFAULT_CRITICAL_PROMPT_DOC_PATH.resolve())
+    summary["runtime_critical_prompt_excerpt"] = critical_prompt_excerpt
     summary["focus_target_total"] = len(scoped_focus_target_rows)
     summary["focus_target_with_other_total"] = len(scoped_focus_with_other_rows)
     summary["real_focus_target_total"] = sum(
@@ -2507,6 +2723,197 @@ def build_html(
       line-height: 1.5;
       font-weight: 700;
     }
+    .wizard-progress {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-top: 14px;
+      padding: 14px 15px;
+      border-radius: 18px;
+      border: 1px solid rgba(15, 82, 127, 0.12);
+      background: linear-gradient(180deg, rgba(244, 249, 253, 0.98) 0%, rgba(255, 255, 255, 0.98) 100%);
+      box-shadow: 0 12px 22px rgba(4, 36, 60, 0.06);
+    }
+    .wizard-progress-copy {
+      flex: 1 1 220px;
+      min-width: 0;
+    }
+    .wizard-progress-label {
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1.4;
+    }
+    .wizard-progress-track {
+      position: relative;
+      width: 100%;
+      height: 8px;
+      margin: 9px 0 8px;
+      border-radius: 999px;
+      background: rgba(15, 82, 127, 0.12);
+      overflow: hidden;
+    }
+    .wizard-progress-fill {
+      display: block;
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #0f5f75 0%, #003764 100%);
+      transition: width 0.22s ease;
+    }
+    .wizard-progress-meta {
+      color: #577086;
+      font-size: 12px;
+      line-height: 1.5;
+      font-weight: 700;
+    }
+    .wizard-progress-action {
+      appearance: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-start;
+      flex-wrap: wrap;
+      gap: 7px;
+      width: 100%;
+      margin-top: 10px;
+      padding: 8px 11px;
+      border-radius: 14px;
+      background: rgba(15, 82, 127, 0.06);
+      border: 1px solid rgba(15, 82, 127, 0.10);
+      cursor: pointer;
+      text-align: left;
+    }
+    .wizard-progress-action-label {
+      color: var(--navy);
+      font-size: 11px;
+      line-height: 1.3;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .wizard-progress-action-text {
+      color: var(--ink);
+      font-size: 12px;
+      line-height: 1.5;
+      font-weight: 800;
+    }
+    .guided-focus-target {
+      position: relative;
+      box-shadow: 0 0 0 3px rgba(15, 82, 127, 0.16), 0 18px 34px rgba(15, 82, 127, 0.14);
+      border-color: #2e7db0 !important;
+      animation: permitGuidedFocusPulse 0.9s ease-out 1;
+    }
+    .guided-focus-target[data-guided-focus-copy]::after {
+      content: attr(data-guided-focus-copy);
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      max-width: min(240px, calc(100% - 20px));
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(15, 82, 127, 0.92);
+      color: #f8fbff;
+      font-size: 11px;
+      line-height: 1.35;
+      font-weight: 900;
+      letter-spacing: -0.01em;
+      box-shadow: 0 12px 22px rgba(15, 82, 127, 0.18);
+      z-index: 3;
+      pointer-events: none;
+      white-space: normal;
+    }
+    .guided-focus-target[data-guided-focus-level="sticky"] {
+      box-shadow: 0 0 0 4px rgba(15, 82, 127, 0.20), 0 24px 44px rgba(15, 82, 127, 0.20);
+    }
+    .guided-focus-target[data-guided-focus-level="sticky"][data-guided-focus-copy]::after {
+      top: -12px;
+      right: auto;
+      left: 12px;
+      max-width: min(280px, calc(100% - 24px));
+      padding: 9px 12px;
+      background: linear-gradient(135deg, rgba(15, 82, 127, 0.96), rgba(46, 125, 176, 0.94));
+      font-size: 12px;
+      box-shadow: 0 16px 28px rgba(15, 82, 127, 0.24);
+    }
+    @keyframes permitGuidedFocusPulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(46, 125, 176, 0.30), 0 10px 20px rgba(15, 82, 127, 0.10);
+      }
+      100% {
+        box-shadow: 0 0 0 3px rgba(15, 82, 127, 0.16), 0 18px 34px rgba(15, 82, 127, 0.14);
+      }
+    }
+    .wizard-progress-count {
+      flex: 0 0 auto;
+      min-width: 54px;
+      padding: 8px 10px;
+      border-radius: 14px;
+      background: rgba(15, 82, 127, 0.08);
+      color: var(--navy);
+      font-size: 15px;
+      font-weight: 900;
+      letter-spacing: -0.01em;
+      text-align: center;
+    }
+    .wizard-mobile-sticky {
+      display: none;
+      appearance: none;
+      width: 100%;
+      padding: 11px 13px;
+      border-radius: 18px;
+      border: 1px solid rgba(15, 82, 127, 0.14);
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(14px);
+      text-align: left;
+      box-shadow: 0 12px 24px rgba(4, 36, 60, 0.10);
+      cursor: pointer;
+    }
+    .wizard-mobile-sticky-label {
+      color: var(--navy);
+      font-size: 11px;
+      line-height: 1.3;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .wizard-mobile-sticky-action {
+      margin-top: 3px;
+      color: var(--ink);
+      font-size: 14px;
+      line-height: 1.45;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      word-break: keep-all;
+    }
+    .wizard-mobile-sticky-compact {
+      margin-top: 4px;
+      color: #4d687f;
+      font-size: 12px;
+      line-height: 1.42;
+      font-weight: 800;
+      word-break: keep-all;
+    }
+    .wizard-mobile-sticky-meta {
+      display: none;
+      color: #577086;
+      font-size: 12px;
+      line-height: 1.45;
+      font-weight: 700;
+      word-break: keep-all;
+    }
+    .wizard-mobile-sticky-count {
+      margin-top: 8px;
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: rgba(15, 82, 127, 0.08);
+      color: var(--navy);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: -0.01em;
+    }
     .wizard-steps {
       display: grid;
       gap: 8px;
@@ -2670,6 +3077,121 @@ def build_html(
       font-size: 14px;
       line-height: 1.46;
       font-weight: 700;
+    }
+    .assist.auto-selection-reason {
+      margin-top: 6px;
+      color: var(--navy);
+      font-size: 13px;
+      line-height: 1.48;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      cursor: pointer;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+    }
+    .assist.auto-selection-reason:hover,
+    .assist.auto-selection-reason:focus-visible {
+      outline: none;
+      transform: translateY(-1px);
+    }
+    .assist.auto-selection-reason[data-actionable="1"]:hover,
+    .assist.auto-selection-reason[data-actionable="1"]:focus-visible {
+      box-shadow: 0 0 0 3px rgba(15, 82, 127, 0.10);
+      border-radius: 14px;
+      background: rgba(0, 55, 100, 0.03);
+    }
+    .assist.auto-selection-reason::before {
+      content: attr(data-reason-icon) " " attr(data-reason-kind);
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 0 9px;
+      border-radius: 999px;
+      background: rgba(0, 55, 100, 0.08);
+      border: 1px solid rgba(0, 55, 100, 0.14);
+      color: #003764;
+      font-size: 11px;
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .assist.auto-selection-reason[data-reason-icon="="]::before,
+    .assist.auto-selection-reason[data-reason-icon="~"]::before,
+    .assist.auto-selection-reason[data-reason-icon=">"]::before,
+    .assist.auto-selection-reason[data-reason-icon="i"]::before {
+      letter-spacing: 0.03em;
+    }
+    .assist.auto-selection-reason[data-reason-tone="match"]::before {
+      background: rgba(16, 132, 92, 0.10);
+      border-color: rgba(16, 132, 92, 0.18);
+      color: #0f6a4b;
+    }
+    .assist.auto-selection-reason[data-reason-tone="search"]::before {
+      background: rgba(0, 55, 100, 0.08);
+      border-color: rgba(0, 55, 100, 0.14);
+      color: #003764;
+    }
+    .assist.auto-selection-reason[data-reason-tone="direct"]::before {
+      background: rgba(15, 82, 127, 0.10);
+      border-color: rgba(15, 82, 127, 0.18);
+      color: #1d587f;
+    }
+    .assist.auto-selection-reason[data-reason-tone="guide"]::before {
+      background: rgba(84, 100, 118, 0.10);
+      border-color: rgba(84, 100, 118, 0.16);
+      color: #5c6f83;
+    }
+    .assist.auto-selection-reason[data-actionable="1"]::after {
+      content: "검색 수정";
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      padding: 0 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid rgba(0, 55, 100, 0.12);
+      color: #4e6982;
+      font-size: 11px;
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+    }
+    .auto-selection-reason-body {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .auto-selection-reason-copy {
+      color: #47637d;
+      font-size: 13px;
+      line-height: 1.48;
+      font-weight: 700;
+    }
+    .auto-selection-token,
+    .auto-selection-field {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 0 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: -0.01em;
+    }
+    .auto-selection-token {
+      background: linear-gradient(180deg, rgba(0, 55, 100, 0.12), rgba(0, 55, 100, 0.05));
+      color: #003764;
+      border: 1px solid rgba(0, 55, 100, 0.14);
+    }
+    .auto-selection-field {
+      background: rgba(15, 82, 127, 0.08);
+      color: #1c587f;
+      border: 1px solid rgba(15, 82, 127, 0.12);
     }
     .guide {
       margin: 10px 0 0;
@@ -3285,6 +3807,12 @@ def build_html(
       .wizard-rail-head {
         flex-direction: column;
       }
+      .wizard-mobile-sticky {
+        display: grid;
+        position: sticky;
+        top: 10px;
+        z-index: 26;
+      }
     }
     @media (min-width: 920px) {
       .mobile-quick-bar {
@@ -3338,6 +3866,7 @@ def build_html(
           <label for="industrySelect">세부 인허가 업종</label>
           <select id="industrySelect" class="control"></select>
           <p id="industryHint" class="assist"></p>
+          <p id="industryAutoReason" class="assist auto-selection-reason" role="button" tabindex="0" aria-live="polite"></p>
         </div>
         <div class="field">
           <label for="capitalInput">현재 보유 자본금(억)</label>
@@ -3390,6 +3919,7 @@ def build_html(
         <div id="reviewPresetBox" class="law-box" style="display:none"></div>
         <div id="caseStoryBox" class="law-box" style="display:none"></div>
         <div id="operatorDemoBox" class="law-box" style="display:none"></div>
+        <div id="runtimeReasoningCardBox" class="law-box" style="display:none"></div>
         <p id="coverageGuide" class="meta-box" style="display:none"></p>
         <div id="typedCriteriaBox" class="law-box" style="display:none"></div>
         <div id="evidenceChecklistBox" class="law-box" style="display:none"></div>
@@ -3665,7 +4195,35 @@ def build_html(
           + '</div>'
           + '<div class="tip">한 단계에 2~3개 정보만 넣도록 쪼갰습니다. 마지막 단계는 <strong>선택</strong>입니다.</div>'
           + '</div>';
-        const wizardSummary = document.createElement("div");
+        const wizardProgress = document.createElement("div");
+        wizardProgress.id = "permitWizardProgress";
+        wizardProgress.className = "wizard-progress";
+      wizardProgress.innerHTML = ''
+        + '<div class="wizard-progress-copy">'
+        + '<div id="permitWizardProgressLabel" class="wizard-progress-label">현재 1/4 단계</div>'
+        + '<div id="permitWizardProgressBar" class="wizard-progress-track" role="progressbar" aria-valuemin="1" aria-valuemax="4" aria-valuenow="1" aria-describedby="permitWizardProgressMeta">'
+        + '<span id="permitWizardProgressFill" class="wizard-progress-fill"></span>'
+          + '</div>'
+          + '<div id="permitWizardProgressMeta" class="wizard-progress-meta">필수 0/3 완료 · 업종 검색부터 시작합니다.</div>'
+          + '<button type="button" id="permitWizardNextAction" class="wizard-progress-action" data-permit-next-action><span class="wizard-progress-action-label">지금 할 일</span><span id="permitWizardNextActionText" class="wizard-progress-action-text">업종명 검색이나 빠른 선택으로 시작하세요.</span></button>'
+        + '</div>'
+        + '<strong id="permitWizardProgressCount" class="wizard-progress-count">1/4</strong>';
+      wizardRail.appendChild(wizardProgress);
+      const wizardMobileSticky = document.createElement("button");
+      wizardMobileSticky.type = "button";
+      wizardMobileSticky.id = "permitWizardMobileSticky";
+      wizardMobileSticky.className = "wizard-mobile-sticky";
+      wizardMobileSticky.setAttribute("data-permit-next-action", "mobile");
+      wizardMobileSticky.innerHTML = ''
+        + '<div class="wizard-mobile-sticky-copy">'
+        + '<div id="permitWizardMobileStickyLabel" class="wizard-mobile-sticky-label">현재 1/4 단계</div>'
+        + '<div id="permitWizardMobileStickyAction" class="wizard-mobile-sticky-action">업종명 검색이나 빠른 선택으로 시작하세요.</div>'
+        + '<div id="permitWizardMobileStickyCompact" class="wizard-mobile-sticky-compact">업종 검색부터 시작</div>'
+        + '<div id="permitWizardMobileStickyMeta" class="wizard-mobile-sticky-meta">필수 0/3 완료 · 업종 검색부터 시작합니다.</div>'
+        + '</div>'
+        + '<span id="permitWizardMobileStickyCount" class="wizard-mobile-sticky-count">1/4</span>';
+      wizardRail.appendChild(wizardMobileSticky);
+      const wizardSummary = document.createElement("div");
         wizardSummary.id = "permitWizardSummary";
         wizardSummary.className = "wizard-summary";
         wizardSummary.innerHTML = '<span class="wizard-summary-chip is-empty">검색을 시작하면 현재 선택 상태와 필수 입력 진행률을 여기에 요약합니다.</span>';
@@ -3910,6 +4468,17 @@ def build_html(
       permitWizardRail: document.getElementById("permitWizardRail"),
       permitWizardStepTitle: document.getElementById("permitWizardStepTitle"),
       permitWizardStepNote: document.getElementById("permitWizardStepNote"),
+      permitWizardProgressLabel: document.getElementById("permitWizardProgressLabel"),
+      permitWizardProgressMeta: document.getElementById("permitWizardProgressMeta"),
+      permitWizardNextActionText: document.getElementById("permitWizardNextActionText"),
+      permitWizardProgressBar: document.getElementById("permitWizardProgressBar"),
+      permitWizardProgressFill: document.getElementById("permitWizardProgressFill"),
+      permitWizardProgressCount: document.getElementById("permitWizardProgressCount"),
+      permitWizardMobileStickyLabel: document.getElementById("permitWizardMobileStickyLabel"),
+      permitWizardMobileStickyAction: document.getElementById("permitWizardMobileStickyAction"),
+      permitWizardMobileStickyCompact: document.getElementById("permitWizardMobileStickyCompact"),
+      permitWizardMobileStickyMeta: document.getElementById("permitWizardMobileStickyMeta"),
+      permitWizardMobileStickyCount: document.getElementById("permitWizardMobileStickyCount"),
       permitWizardSummary: document.getElementById("permitWizardSummary"),
       permitWizardBlocker: document.getElementById("permitWizardBlocker"),
       permitWizardStep1: document.getElementById("permitWizardStep1"),
@@ -3925,6 +4494,7 @@ def build_html(
       categorySelect: document.getElementById("categorySelect"),
       industrySelect: document.getElementById("industrySelect"),
       industryHint: document.getElementById("industryHint"),
+      industryAutoReason: document.getElementById("industryAutoReason"),
       smartIndustryProfile: document.getElementById("smartIndustryProfile"),
       capitalInput: document.getElementById("capitalInput"),
       technicianInput: document.getElementById("technicianInput"),
@@ -3971,6 +4541,7 @@ def build_html(
       reviewPresetBox: document.getElementById("reviewPresetBox"),
       caseStoryBox: document.getElementById("caseStoryBox"),
       operatorDemoBox: document.getElementById("operatorDemoBox"),
+      runtimeReasoningCardBox: document.getElementById("runtimeReasoningCardBox"),
       coverageGuide: document.getElementById("coverageGuide"),
       typedCriteriaBox: document.getElementById("typedCriteriaBox"),
       evidenceChecklistBox: document.getElementById("evidenceChecklistBox"),
@@ -4087,6 +4658,17 @@ def build_html(
     ui.permitWizardRail = document.getElementById("permitWizardRail");
     ui.permitWizardStepTitle = document.getElementById("permitWizardStepTitle");
     ui.permitWizardStepNote = document.getElementById("permitWizardStepNote");
+    ui.permitWizardProgressLabel = document.getElementById("permitWizardProgressLabel");
+    ui.permitWizardProgressMeta = document.getElementById("permitWizardProgressMeta");
+    ui.permitWizardNextActionText = document.getElementById("permitWizardNextActionText");
+    ui.permitWizardProgressBar = document.getElementById("permitWizardProgressBar");
+    ui.permitWizardProgressFill = document.getElementById("permitWizardProgressFill");
+    ui.permitWizardProgressCount = document.getElementById("permitWizardProgressCount");
+    ui.permitWizardMobileStickyLabel = document.getElementById("permitWizardMobileStickyLabel");
+    ui.permitWizardMobileStickyAction = document.getElementById("permitWizardMobileStickyAction");
+    ui.permitWizardMobileStickyCompact = document.getElementById("permitWizardMobileStickyCompact");
+    ui.permitWizardMobileStickyMeta = document.getElementById("permitWizardMobileStickyMeta");
+    ui.permitWizardMobileStickyCount = document.getElementById("permitWizardMobileStickyCount");
     ui.permitWizardSummary = document.getElementById("permitWizardSummary");
     ui.permitWizardBlocker = document.getElementById("permitWizardBlocker");
     ui.permitWizardStep1 = document.getElementById("permitWizardStep1");
@@ -4108,6 +4690,7 @@ def build_html(
     ui.resetHoldingsPreset = document.getElementById("resetHoldingsPreset");
     ui.presetActionHint = document.getElementById("presetActionHint");
     ui.holdingsPriorityHint = document.getElementById("holdingsPriorityHint");
+    ui.industryAutoReason = document.getElementById("industryAutoReason");
     ui.mobileQuickBar = document.getElementById("mobileQuickBar");
     ui.mobileQuickTitle = document.getElementById("mobileQuickTitle");
     ui.mobileQuickMeta = document.getElementById("mobileQuickMeta");
@@ -4226,9 +4809,19 @@ def build_html(
     };
 
     const reviewReasonLabels = {
+      capital_and_technician_shortfall: "자본금·기술인력 동시 부족",
       capital_shortfall_only: "자본금 부족",
       technician_shortfall_only: "기술인력 부족",
       other_requirement_documents_missing: "서류 보완 검토",
+    };
+
+    const promptBindingFocusLabels = {
+      manual_review_gate: "수동 검토 게이트",
+      capital_and_technician_gap_first: "자본금·기술인력 동시 부족 우선",
+      capital_gap_first: "자본금 부족 우선",
+      technician_gap_first: "기술인력 부족 우선",
+      review_reason_first: "검토 사유 우선",
+      baseline_reference: "기준값 참조",
     };
 
     const reviewChecklistPresetMap = {
@@ -4261,6 +4854,9 @@ def build_html(
     );
 
     const getReviewReasonLabel = (reason) => reviewReasonLabels[String(reason || "").trim()] || String(reason || "").trim();
+    const getPromptBindingFocusLabel = (focus) => (
+      promptBindingFocusLabels[String(focus || "").trim()] || String(focus || "").trim()
+    );
 
     const normalizeSearchKey = (value) => String(value || "")
       .toLowerCase()
@@ -4334,6 +4930,17 @@ def build_html(
         seen.add(dedupeKey);
         return true;
       });
+    };
+
+    const getSearchFieldTypeLabel = (fieldType) => {
+      const key = String(fieldType || "").trim();
+      if (key === "service_name") return "업종명";
+      if (key === "alias") return "별칭";
+      if (key === "major_name") return "대분류";
+      if (key === "group_name") return "그룹명";
+      if (key === "law_title") return "법령명";
+      if (key === "legal_basis_title") return "근거명";
+      return "검색 항목";
     };
 
     const getSearchMatchMeta = (row, searchTerm) => {
@@ -4738,6 +5345,7 @@ def build_html(
     const applyIndustrySelection = (selectionCode) => {
       const targetCode = String(selectionCode || "");
       if (!targetCode) return false;
+      permitSearchStarted = true;
       const selectorEntry = selectorEntriesByCode[targetCode] || null;
       const directDisplayTarget = displayRowsByCode[targetCode] || null;
       const canonicalCode = String(
@@ -4793,8 +5401,49 @@ def build_html(
     };
 
     let permitWizardStepIndex = 0;
+    let permitSearchStarted = false;
+    let permitAutoSelectionReasonText = "";
+    let permitAutoSelectionReasonKind = "";
+    let permitAutoSelectionReasonMeta = null;
     let optionalChecklistExpanded = false;
     let optionalChecklistPlanKey = "";
+    const setPermitAutoSelectionReasonState = (text, kind, meta) => {
+      permitAutoSelectionReasonText = String(text || "").trim();
+      permitAutoSelectionReasonKind = String(kind || "").trim();
+      permitAutoSelectionReasonMeta = meta && typeof meta === "object"
+        ? {
+            query: String(meta.query || "").trim(),
+            fieldLabel: String(meta.fieldLabel || "").trim(),
+            detailText: String(meta.detailText || "").trim(),
+          }
+        : null;
+    };
+    const clearPermitAutoSelectionReasonState = () => {
+      permitAutoSelectionReasonText = "";
+      permitAutoSelectionReasonKind = "";
+      permitAutoSelectionReasonMeta = null;
+    };
+    const getIndustryAutoReasonTone = (kind) => {
+      const normalized = String(kind || "").trim();
+      if (!normalized) return "guide";
+      if (["정확 일치", "접두 일치", "관련도 최고"].includes(normalized)) return "match";
+      if (["검색 1건", "선택 1건", "자동 선택"].includes(normalized)) return "search";
+      if (["빠른 선택", "직접 확정"].includes(normalized)) return "direct";
+      return "guide";
+    };
+    const getIndustryAutoReasonIcon = (kind, tone = "") => {
+      const normalizedTone = String(tone || "").trim();
+      if (normalizedTone === "match") return "=";
+      if (normalizedTone === "search") return "~";
+      if (normalizedTone === "direct") return ">";
+      if (normalizedTone === "guide") return "i";
+      const normalized = String(kind || "").trim();
+      if (!normalized) return "i";
+      if (["?? ??", "?? ??", "??? ??"].includes(normalized)) return "=";
+      if (["?? 1?", "?? 1?", "?? ??"].includes(normalized)) return "~";
+      if (["?? ??", "?? ??"].includes(normalized)) return ">";
+      return "i";
+    };
     const getPermitCoreFieldPlan = () => {
       const selected = getSelectedIndustry();
       const rule = getSelectedRule(selected);
@@ -4855,8 +5504,9 @@ def build_html(
     };
     const getPermitWizardState = () => {
       const selectedIndustry = !!getSelectedIndustry();
-      const searchTouched = !!String((ui.industrySearchInput && ui.industrySearchInput.value) || "").trim()
-        || !!String((ui.focusQuickSelect && ui.focusQuickSelect.value) || "").trim();
+      const searchTouched = permitSearchStarted
+        || !!String((ui.industrySearchInput && ui.industrySearchInput.value) || "").trim()
+        || selectedIndustry;
       const corePlan = getPermitCoreFieldPlan();
       const filledCoreCount = corePlan.filledRequiredCount;
       const optionalCheckedCount = [
@@ -4879,7 +5529,10 @@ def build_html(
         completed: [
           searchTouched || selectedIndustry,
           selectedIndustry,
-          filledCoreCount >= corePlan.requiredFieldCount,
+          selectedIndustry && (
+            !corePlan.hasStructuredCore
+            || filledCoreCount >= corePlan.requiredFieldCount
+          ),
           optionalCheckedCount > 0,
         ],
       };
@@ -4905,6 +5558,299 @@ def build_html(
         countText: `${count}개`,
         isStructured: true,
       };
+    };
+    const syncIndustryAutoReason = () => {
+      if (!ui.industryAutoReason) return;
+      const selected = getSelectedIndustry();
+      const selectedValue = String((ui.industrySelect && ui.industrySelect.value) || "").trim();
+      const searchText = String((ui.industrySearchInput && ui.industrySearchInput.value) || "").trim();
+      let reasonText = "";
+      let reasonKind = "";
+      let reasonMeta = null;
+      if (selected || selectedValue) {
+        reasonText = permitAutoSelectionReasonText
+          || (searchText
+            ? "검색 결과에서 가장 가까운 업종으로 자동 선택했습니다."
+            : "직접 확정한 업종입니다. 이제 법정 기준과 부족 항목을 바로 비교합니다.");
+        reasonKind = permitAutoSelectionReasonKind || (searchText ? "자동 선택" : "직접 확정");
+        reasonMeta = permitAutoSelectionReasonMeta
+          || (searchText
+            ? { query: searchText, detailText: "기준으로 가장 가까운 업종을 자동 선택했습니다." }
+            : null);
+      } else if (searchText) {
+        reasonText = "후보가 여러 개면 직접 업종을 확정해 주세요.";
+        reasonKind = "후보 확인";
+        reasonMeta = { query: searchText, detailText: "기준 후보가 여러 개라 직접 업종을 확정해 주세요." };
+      } else {
+        reasonText = "업종명이 정확할수록 자동선택이 빨라집니다.";
+        reasonKind = "검색 팁";
+      }
+      ui.industryAutoReason.dataset.reasonKind = reasonKind;
+      const reasonTone = getIndustryAutoReasonTone(reasonKind);
+      ui.industryAutoReason.dataset.reasonTone = reasonTone;
+      ui.industryAutoReason.dataset.reasonIcon = getIndustryAutoReasonIcon(reasonKind, reasonTone);
+      ui.industryAutoReason.dataset.actionable = searchText ? "1" : "0";
+      ui.industryAutoReason.setAttribute("aria-label", searchText ? `${reasonText} 눌러서 검색어를 수정할 수 있습니다.` : reasonText);
+      ui.industryAutoReason.innerHTML = "";
+      if (reasonMeta && reasonMeta.query) {
+        const body = document.createElement("span");
+        body.className = "auto-selection-reason-body";
+        const prefix = document.createElement("span");
+        prefix.className = "auto-selection-reason-copy";
+        prefix.textContent = "검색어";
+        body.appendChild(prefix);
+        const token = document.createElement("strong");
+        token.className = "auto-selection-token";
+        token.textContent = reasonMeta.query;
+        body.appendChild(token);
+        if (reasonMeta.fieldLabel) {
+          const field = document.createElement("span");
+          field.className = "auto-selection-field";
+          field.textContent = reasonMeta.fieldLabel;
+          body.appendChild(field);
+        }
+        const detail = document.createElement("span");
+        detail.className = "auto-selection-reason-copy";
+        detail.textContent = reasonMeta.detailText || "기준으로 자동 선택했습니다.";
+        body.appendChild(detail);
+        ui.industryAutoReason.appendChild(body);
+      } else {
+        ui.industryAutoReason.textContent = reasonText;
+      }
+      ui.industryAutoReason.hidden = !reasonText;
+    };
+    const syncPermitWizardProgress = () => {
+      if (
+        !ui.permitWizardProgressLabel
+        && !ui.permitWizardProgressMeta
+        && !ui.permitWizardNextActionText
+        && !ui.permitWizardProgressFill
+        && !ui.permitWizardProgressCount
+        && !ui.permitWizardProgressBar
+        && !ui.permitWizardMobileStickyLabel
+        && !ui.permitWizardMobileStickyAction
+        && !ui.permitWizardMobileStickyCompact
+        && !ui.permitWizardMobileStickyMeta
+        && !ui.permitWizardMobileStickyCount
+      ) return;
+      const state = getPermitWizardState();
+      const totalSteps = permitWizardStepsMeta.length;
+      const currentIndex = Math.max(0, Math.min(totalSteps - 1, Number(permitWizardStepIndex) || 0));
+      const requiredTotal = permitWizardStepsMeta.filter((step) => !step.optional).length;
+      const requiredDone = permitWizardStepsMeta.reduce((count, step, stepIndex) => {
+        if (step.optional) return count;
+        return count + (state.completed[stepIndex] ? 1 : 0);
+      }, 0);
+      const progressPct = Math.round(((currentIndex + 1) / Math.max(1, totalSteps)) * 100);
+      const labelText = `현재 ${currentIndex + 1}/${totalSteps} 단계`;
+      const nextActionText = getPermitWizardNextActionCopy();
+      let metaText = "";
+      if (!state.searchTouched && !state.selectedIndustry) {
+        metaText = `필수 ${requiredDone}/${requiredTotal} 완료 · 업종 검색부터 시작합니다.`;
+      } else if (!state.selectedIndustry) {
+        metaText = `필수 ${requiredDone}/${requiredTotal} 완료 · 업종 확정이 남았습니다.`;
+      } else if (!state.hasStructuredCore) {
+        metaText = `필수 ${requiredDone}/${requiredTotal} 완료 · 이 업종은 보유 현황 대신 법령·서류 확인이 중심입니다.`;
+      } else if (state.filledCoreCount < state.requiredCoreCount) {
+        metaText = `필수 ${requiredDone}/${requiredTotal} 완료 · 현재 보유 ${state.filledCoreCount}/${state.requiredCoreCount} 입력`;
+      } else if (state.optionalCheckedCount > 0) {
+        metaText = `필수 입력 완료 · 선택 ${state.optionalCheckedCount}건이 결과에 반영되고 있습니다.`;
+      } else {
+        metaText = "필수 입력 완료 · 마지막 선택 단계에서 준비 상태만 확인하면 됩니다.";
+      }
+      if (ui.permitWizardProgressLabel) ui.permitWizardProgressLabel.textContent = `현재 ${currentIndex + 1}/${totalSteps} 단계`;
+      if (ui.permitWizardProgressMeta) ui.permitWizardProgressMeta.textContent = metaText;
+      if (ui.permitWizardNextActionText) ui.permitWizardNextActionText.textContent = getPermitWizardNextActionCopy();
+      if (ui.permitWizardProgressFill) ui.permitWizardProgressFill.style.width = `${progressPct}%`;
+      if (ui.permitWizardProgressCount) ui.permitWizardProgressCount.textContent = `${currentIndex + 1}/${totalSteps}`;
+      if (ui.permitWizardProgressLabel) ui.permitWizardProgressLabel.textContent = labelText;
+      if (ui.permitWizardNextActionText) ui.permitWizardNextActionText.textContent = nextActionText;
+      if (ui.permitWizardMobileStickyLabel) ui.permitWizardMobileStickyLabel.textContent = labelText;
+      if (ui.permitWizardMobileStickyAction) ui.permitWizardMobileStickyAction.textContent = nextActionText;
+      if (ui.permitWizardMobileStickyCompact) ui.permitWizardMobileStickyCompact.textContent = getPermitWizardMobileCompactCopy();
+      if (ui.permitWizardMobileStickyMeta) ui.permitWizardMobileStickyMeta.textContent = metaText;
+      if (ui.permitWizardMobileStickyCount) ui.permitWizardMobileStickyCount.textContent = `${currentIndex + 1}/${totalSteps}`;
+      const stickyShellNode = document.getElementById("permitWizardMobileSticky");
+      if (stickyShellNode) {
+        stickyShellNode.setAttribute(
+          "aria-label",
+          `${labelText}. ${nextActionText}. ${getPermitWizardMobileCompactCopy()}. ${metaText}`
+        );
+      }
+      if (ui.permitWizardProgressBar) {
+        ui.permitWizardProgressBar.setAttribute("aria-valuenow", String(currentIndex + 1));
+        ui.permitWizardProgressBar.setAttribute("aria-valuetext", `현재 ${currentIndex + 1}단계 / 총 ${totalSteps}단계`);
+      }
+    };
+    const getPermitWizardMobileCompactCopy = () => {
+      const state = getPermitWizardState();
+      const coreGuide = getPermitCoreGuide();
+      if (!state.searchTouched && !state.selectedIndustry) {
+        return "업종 검색부터 시작";
+      }
+      if (!state.selectedIndustry) {
+        return "후보에서 업종 확정";
+      }
+      if (!state.hasStructuredCore) {
+        return "법령·서류 중심 확인";
+      }
+      if (state.filledCoreCount < state.requiredCoreCount) {
+        const compactLabels = (coreGuide.labels || []).slice(0, Math.max(1, Math.min(2, state.requiredCoreCount || 1)));
+        return compactLabels.length ? `${compactLabels.join("·")} 순서 입력` : "핵심 요건부터 입력";
+      }
+      if (state.optionalCheckedCount > 0) {
+        return "브리프 복사 후 전달";
+      }
+      return "선택 준비만 체크하면 완료";
+    };
+    const getPermitWizardNextActionCopy = () => {
+      const state = getPermitWizardState();
+      if (!state.searchTouched && !state.selectedIndustry) {
+        return "업종명 검색이나 빠른 선택으로 시작하세요.";
+      }
+      if (!state.selectedIndustry) {
+        return "자동 선택 결과에서 업종을 확정하세요.";
+      }
+      if (!state.hasStructuredCore) {
+        return "법령 근거와 준비 서류부터 확인하세요.";
+      }
+      if (state.filledCoreCount < state.requiredCoreCount) {
+        const missing = state.missingCoreLabels.filter(Boolean);
+        if (missing.length === 1) {
+          return `${missing[0]}부터 입력하세요.`;
+        }
+        if (missing.length > 1) {
+          return `${missing.join(", ")}를 순서대로 입력하세요.`;
+        }
+        return "현재 보유 필수 입력을 마무리하세요.";
+      }
+      if (state.optionalCheckedCount > 0) {
+        return "전달 브리프를 복사해 바로 전달하세요.";
+      }
+      return "선택 준비 항목은 필요한 것만 체크하세요.";
+    };
+    const resolvePermitActionTargetNode = (target) => {
+      if (!target) return null;
+      return typeof target === "string"
+        ? (document.querySelector(target) || document.getElementById(target))
+        : target;
+    };
+    let permitGuidedFocusTimer = 0;
+    let permitGuidedFocusNode = null;
+    const clearPermitGuidedFocus = () => {
+      if (permitGuidedFocusTimer) {
+        window.clearTimeout(permitGuidedFocusTimer);
+        permitGuidedFocusTimer = 0;
+      }
+      if (permitGuidedFocusNode) {
+        permitGuidedFocusNode.classList.remove("guided-focus-target");
+        delete permitGuidedFocusNode.dataset.guidedFocus;
+        delete permitGuidedFocusNode.dataset.guidedFocusCopy;
+        delete permitGuidedFocusNode.dataset.guidedFocusLevel;
+        permitGuidedFocusNode = null;
+      }
+    };
+    const resolvePermitGuidedFocusNode = (node) => {
+      if (!node) return null;
+      return node.closest(".field, .check-item, .result-banner, .result-card, .wizard-progress-card, .optional-toggle-wrap, .btn-row") || node;
+    };
+    const getPermitGuidedFocusCopy = (target, node, source = "") => {
+      const key = typeof target === "string"
+        ? target
+        : String((node && (node.id || node.name || "")) || "").trim();
+      if (source === "mobile") {
+        if (key === "industrySearchInput") return "지금은 업종명만 다시 검색하면 됩니다.";
+        if (key === "industrySelect") return "지금은 업종 하나만 확정하면 됩니다.";
+        if (["capitalInput", "technicianInput", "equipmentInput"].includes(key)) return "지금 이 필수값만 채우면 됩니다.";
+        if (key === "legalBasis") return "지금은 법령 근거만 먼저 확인하면 됩니다.";
+        if (key === "btnCopyResultBrief") return "지금은 브리프만 복사하면 전달됩니다.";
+        if (key === "optionalChecklistToggle") return "지금은 우선 항목만 체크하면 됩니다.";
+      }
+      if (key === "industrySearchInput") return "업종명만 다시 검색하면 후보가 바로 다시 정렬됩니다.";
+      if (key === "industrySelect") return "여기서 원하는 업종만 확정하면 다음 단계로 넘어갑니다.";
+      if (key === "capitalInput") return "자본금부터 입력하면 부족 금액이 바로 보입니다.";
+      if (key === "technicianInput") return "기술자 수만 넣어도 충족 여부가 바로 바뀝니다.";
+      if (key === "equipmentInput") return "장비 수를 넣으면 마지막 코어 비교가 끝납니다.";
+      if (key === "legalBasis") return "정량 기준이 없을 때는 여기서 법령 근거를 먼저 확인합니다.";
+      if (key === "btnCopyResultBrief") return "복사 후 카카오톡이나 문자로 바로 전달하면 됩니다.";
+      if (key === "optionalChecklistToggle") return "우선 항목만 먼저 보고 나머지는 필요할 때 펼치면 됩니다.";
+      if (node && node.matches && node.matches('#advancedInputs .check-item input')) return "준비된 항목이면 체크만 해도 전달 준비도가 올라갑니다.";
+      return "여기만 확인하면 다음 행동이 이어집니다.";
+    };
+    const showPermitGuidedFocus = (node, helperCopy = "", options = {}) => {
+      const highlightNode = resolvePermitGuidedFocusNode(node);
+      if (!highlightNode) return;
+      clearPermitGuidedFocus();
+      highlightNode.classList.add("guided-focus-target");
+      highlightNode.dataset.guidedFocus = "1";
+      if (helperCopy) highlightNode.dataset.guidedFocusCopy = helperCopy;
+      if (options && options.level) highlightNode.dataset.guidedFocusLevel = String(options.level);
+      permitGuidedFocusNode = highlightNode;
+      permitGuidedFocusTimer = window.setTimeout(() => {
+        clearPermitGuidedFocus();
+      }, 1400);
+    };
+    const focusPermitActionTarget = (target, options = {}) => {
+      const node = resolvePermitActionTargetNode(target);
+      if (!node) return false;
+      if ("disabled" in node && node.disabled) return false;
+      if (node.hidden) return false;
+      if (node.closest("[hidden]")) return false;
+      const style = window.getComputedStyle(node);
+      if (!style || style.display === "none" || style.visibility === "hidden") return false;
+      if (typeof node.scrollIntoView === "function") {
+        node.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      if (typeof node.focus === "function") {
+        try { node.focus({ preventScroll: true }); } catch (_error) { node.focus(); }
+      }
+      const source = options && options.source ? String(options.source) : "";
+      showPermitGuidedFocus(node, getPermitGuidedFocusCopy(target, node, source), {
+        level: source === "mobile" ? "sticky" : "",
+      });
+      return document.activeElement === node || (!!document.activeElement && node.contains(document.activeElement));
+    };
+    const getPermitWizardNextActionTarget = () => {
+      const state = getPermitWizardState();
+      if (!state.searchTouched && !state.selectedIndustry) {
+        return { stepIndex: 0, target: "industrySearchInput" };
+      }
+      if (!state.selectedIndustry) {
+        return { stepIndex: 0, target: "industrySelect" };
+      }
+      if (!state.hasStructuredCore) {
+        return { stepIndex: 3, target: "legalBasis" };
+      }
+      if (state.filledCoreCount < state.requiredCoreCount) {
+        const missing = state.missingCoreLabels.filter(Boolean);
+        if (missing.includes("자본금")) return { stepIndex: 2, target: "capitalInput" };
+        if (missing.includes("기술자")) return { stepIndex: 2, target: "technicianInput" };
+        if (missing.includes("장비")) return { stepIndex: 2, target: "equipmentInput" };
+        return { stepIndex: 2, target: "capitalInput" };
+      }
+      if (state.optionalCheckedCount > 0) {
+        return { stepIndex: 3, target: "btnCopyResultBrief" };
+      }
+      const firstPriorityToggle = document.querySelector('#advancedInputs .check-item.is-priority input:not(:checked)');
+      return { stepIndex: 3, target: firstPriorityToggle || "optionalChecklistToggle" };
+    };
+    const runPermitWizardNextAction = (source = "") => {
+      const action = getPermitWizardNextActionTarget();
+      if (!action) return;
+      if (Number.isFinite(Number(action.stepIndex))) {
+        setPermitWizardStep(Number(action.stepIndex), false);
+      }
+      window.setTimeout(() => {
+        if (action.target === "btnCopyResultBrief") {
+          const resultTarget = document.getElementById("resultBanner")
+            || document.getElementById("result-title")
+            || document.querySelector(".result-card");
+          if (resultTarget && typeof resultTarget.scrollIntoView === "function") {
+            resultTarget.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        }
+        focusPermitActionTarget(action.target, { source });
+      }, 80);
     };
     const findPermitWizardResumeStep = () => {
       const state = getPermitWizardState();
@@ -5129,6 +6075,7 @@ def build_html(
       if (!state.selectedIndustry && permitWizardStepIndex > 1) {
         permitWizardStepIndex = 1;
       }
+      syncPermitWizardProgress();
       syncPermitWizardSummary();
       syncPermitWizardBlockerSafe();
       syncHoldingsPriorityHintSafe();
@@ -5219,6 +6166,7 @@ def build_html(
           exact: !!matchMeta.exact || normalizedTokens.some((token) => token === normalizedTerm),
           prefix: !!matchMeta.prefix || normalizedTokens.some((token) => token.startsWith(normalizedTerm)),
           score: Number(matchMeta.score || 0),
+          fieldType: String(matchMeta.fieldType || ""),
         });
       });
       rows.sort((left, right) => Number(right.score || 0) - Number(left.score || 0));
@@ -5230,32 +6178,82 @@ def build_html(
         .map((option) => String(option.value || "").trim())
         .filter(Boolean);
       const currentValue = String(ui.industrySelect.value || "").trim();
+      const searchTerm = String((ui.industrySearchInput && ui.industrySearchInput.value) || "").trim();
       const renderAutoSelection = () => {
         renderResult();
         syncExperienceLayer();
       };
       let targetCode = "";
+      let reasonText = "";
+      let reasonKind = "";
+      let reasonMeta = null;
       const candidates = getSearchDrivenIndustryCandidates();
       const exactMatches = candidates.filter((row) => row.exact);
       const prefixMatches = candidates.filter((row) => row.prefix);
       const bestScore = candidates.length ? Number(candidates[0].score || 0) : 0;
       const bestScoreMatches = candidates.filter((row) => Number(row.score || 0) === bestScore);
-      if (exactMatches.length === 1) targetCode = exactMatches[0].code;
-      else if (prefixMatches.length === 1) targetCode = prefixMatches[0].code;
-      else if (bestScoreMatches.length === 1 && bestScore >= 520) targetCode = bestScoreMatches[0].code;
-      else if (candidates.length === 1) targetCode = candidates[0].code;
-      else if (visibleCodes.length === 1) targetCode = visibleCodes[0];
+      if (exactMatches.length === 1) {
+        targetCode = exactMatches[0].code;
+        reasonText = `검색어 '${searchTerm}'이 ${getSearchFieldTypeLabel(exactMatches[0].fieldType)}과 정확히 일치해 자동 선택했습니다.`;
+        reasonKind = "정확 일치";
+        reasonMeta = {
+          query: searchTerm,
+          fieldLabel: getSearchFieldTypeLabel(exactMatches[0].fieldType),
+          detailText: "과 정확히 일치해 자동 선택했습니다.",
+        };
+      } else if (prefixMatches.length === 1) {
+        targetCode = prefixMatches[0].code;
+        reasonText = `검색어 '${searchTerm}'이 ${getSearchFieldTypeLabel(prefixMatches[0].fieldType)} 시작과 일치해 자동 선택했습니다.`;
+        reasonKind = "접두 일치";
+        reasonMeta = {
+          query: searchTerm,
+          fieldLabel: getSearchFieldTypeLabel(prefixMatches[0].fieldType),
+          detailText: "시작과 일치해 자동 선택했습니다.",
+        };
+      } else if (bestScoreMatches.length === 1 && bestScore >= 520) {
+        targetCode = bestScoreMatches[0].code;
+        reasonText = `검색어 '${searchTerm}'과 ${getSearchFieldTypeLabel(bestScoreMatches[0].fieldType)} 관련도가 가장 높아 자동 선택했습니다.`;
+        reasonKind = "관련도 최고";
+        reasonMeta = {
+          query: searchTerm,
+          fieldLabel: getSearchFieldTypeLabel(bestScoreMatches[0].fieldType),
+          detailText: "기준 관련도가 가장 높아 자동 선택했습니다.",
+        };
+      } else if (candidates.length === 1) {
+        targetCode = candidates[0].code;
+        reasonText = `검색어 '${searchTerm}' 기준 후보가 1건만 남아 자동 선택했습니다.`;
+        reasonKind = "검색 1건";
+        reasonMeta = {
+          query: searchTerm,
+          detailText: "기준 후보가 1건만 남아 자동 선택했습니다.",
+        };
+      } else if (visibleCodes.length === 1) {
+        targetCode = visibleCodes[0];
+        reasonText = searchTerm
+          ? `검색어 '${searchTerm}' 기준 현재 필터에서 선택 가능한 업종이 1건이라 자동 선택했습니다.`
+          : "현재 필터에서 선택 가능한 업종이 1건이라 자동 선택했습니다.";
+        reasonKind = "선택 1건";
+        reasonMeta = searchTerm
+          ? {
+              query: searchTerm,
+              detailText: "기준 현재 필터에서 선택 가능한 업종이 1건이라 자동 선택했습니다.",
+            }
+          : null;
+      }
       if (!targetCode) return false;
       if (currentValue === targetCode) {
+        setPermitAutoSelectionReasonState(reasonText, reasonKind, reasonMeta);
         renderAutoSelection();
         return true;
       }
       if (applyIndustrySelection(targetCode)) {
+        setPermitAutoSelectionReasonState(reasonText, reasonKind, reasonMeta);
         renderAutoSelection();
         return true;
       }
       if (visibleCodes.includes(targetCode)) {
         ui.industrySelect.value = targetCode;
+        setPermitAutoSelectionReasonState(reasonText, reasonKind, reasonMeta);
         syncFocusQuickSelectSelection();
         renderAutoSelection();
         return true;
@@ -5446,15 +6444,15 @@ def build_html(
       const chips = [];
       if (profile.focus_target) chips.push("핵심 업종");
       else if (profile.inferred_focus_candidate) chips.push("추론 후보");
-      if (selected.is_rules_only) chips.push("규칙 우선");
-      if (selected.is_platform_row) chips.push("플랫폼 노출");
+      if (selected.is_rules_only) chips.push("법령 우선 검토");
+      if (selected.is_platform_row) chips.push("실제 노출 업종");
       if (corePlan.hasStructuredCore && corePlan.requiredFieldCount > 0) {
-        chips.push(`필수 ${corePlan.requiredFieldCount}개 업종`);
+        chips.push(`필수 ${corePlan.requiredFieldCount}개만 확인`);
       } else {
         chips.push("법령 확인형");
       }
       if (Array.isArray(selected.platform_selector_aliases) && selected.platform_selector_aliases.length) {
-        chips.push(`검색 별칭 ${selected.platform_selector_aliases.length}개`);
+        chips.push(`검색어 ${selected.platform_selector_aliases.length}개 지원`);
       }
       const smartProfileItems = [
         {
@@ -5931,6 +6929,7 @@ def build_html(
     const syncExperienceLayer = () => {
       syncFocusModePills();
       syncFocusQuickSelectSelection();
+      syncIndustryAutoReason();
       renderSmartIndustryProfile();
       const selected = getSelectedIndustry();
       const rule = getSelectedRule(selected);
@@ -5970,6 +6969,8 @@ def build_html(
       ui.caseStoryBox.innerHTML = "";
       ui.operatorDemoBox.style.display = "none";
       ui.operatorDemoBox.innerHTML = "";
+      ui.runtimeReasoningCardBox.style.display = "none";
+      ui.runtimeReasoningCardBox.innerHTML = "";
       ui.coverageGuide.style.display = "none";
       ui.coverageGuide.textContent = "";
       ui.typedCriteriaBox.style.display = "none";
@@ -6098,10 +7099,15 @@ def build_html(
           lines.push(`- sample: ${checksumSamples.map((item) => esc(item)).join(", ")}`);
         }
       }
-      if (proof && proof.official_snapshot_note) {
-        lines.push(`- snapshot: ${esc(proof.official_snapshot_note)}`);
+      const snapshotNote = (proof && proof.official_snapshot_note)
+        || (claim && claim.official_snapshot_note)
+        || "";
+      if (snapshotNote) {
+        lines.push(`- snapshot: ${esc(snapshotNote)}`);
       }
-      const proofUrls = proof && Array.isArray(proof.source_urls) ? proof.source_urls.slice(0, 1) : [];
+      const proofUrls = proof && Array.isArray(proof.source_urls) && proof.source_urls.length
+        ? proof.source_urls.slice(0, 1)
+        : (claim && Array.isArray(claim.source_url_samples) ? claim.source_url_samples.slice(0, 1) : []);
       if (proofUrls.length) {
         const url = esc(proofUrls[0]);
         lines.push(`- source: <a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
@@ -6187,6 +7193,12 @@ def build_html(
       ui.caseStoryBox.style.display = "block";
     };
 
+    const getRuntimeCriticalPromptLens = () => (
+      permitCatalog.summary && typeof permitCatalog.summary.runtime_critical_prompt_lens === "object"
+        ? permitCatalog.summary.runtime_critical_prompt_lens
+        : {}
+    );
+
     const renderOperatorDemoSurface = (industry) => {
       if (!ui.operatorDemoBox) return;
       const demo = getOperatorDemoSurface(industry);
@@ -6208,6 +7220,25 @@ def build_html(
       const storyPoints = Array.isArray(demo.operator_story_points)
         ? demo.operator_story_points.filter(Boolean)
         : [];
+      const criticalPromptLines = Array.isArray((permitCatalog.summary && permitCatalog.summary.runtime_critical_prompt_excerpt) || [])
+        ? permitCatalog.summary.runtime_critical_prompt_excerpt.filter(Boolean)
+        : [];
+      const criticalPromptLens = getRuntimeCriticalPromptLens();
+      const binding = demo.prompt_case_binding && typeof demo.prompt_case_binding === "object"
+        ? demo.prompt_case_binding
+        : null;
+      const bindingPresetId = String((binding && binding.preset_id) || "").trim();
+      const bindingParts = [];
+      if (binding) {
+        if (binding.service_name || binding.service_code) {
+          bindingParts.push(esc(binding.service_name || binding.service_code || ""));
+        }
+        if (binding.expected_status) bindingParts.push(`expected ${esc(binding.expected_status)}`);
+        if (binding.review_reason) bindingParts.push(esc(getReviewReasonLabel(binding.review_reason)));
+        if (binding.binding_focus) bindingParts.push(`lens ${esc(getPromptBindingFocusLabel(binding.binding_focus))}`);
+        if (binding.manual_review_expected) bindingParts.push("수동 검토");
+      }
+      const bindingQuestion = String((binding && binding.binding_question) || "").trim();
       const caseLines = Array.isArray(demo.demo_cases)
         ? demo.demo_cases.slice(0, 3).map((item) => {
             const parts = [esc(item.service_name || item.service_code || "")];
@@ -6218,14 +7249,155 @@ def build_html(
             return `- ${parts.filter(Boolean).join(" / ")}`;
           })
         : [];
+      const lensLines = [];
+      if (criticalPromptLens && typeof criticalPromptLens === "object" && criticalPromptLens.lens_ready) {
+        if (criticalPromptLens.bottleneck_statement) lensLines.push(`- bottleneck: ${esc(criticalPromptLens.bottleneck_statement)}`);
+        if (criticalPromptLens.inspect_first) lensLines.push(`- inspect first: ${esc(criticalPromptLens.inspect_first)}`);
+        if (criticalPromptLens.next_action) lensLines.push(`- next action: ${esc(criticalPromptLens.next_action)}`);
+        if (criticalPromptLens.falsification_test) lensLines.push(`- falsification: ${esc(criticalPromptLens.falsification_test)}`);
+      }
       const packetPath = String((permitCatalog.summary && permitCatalog.summary.runtime_operator_demo_packet_path) || "").trim();
       ui.operatorDemoBox.innerHTML = ''
         + '<strong>운영 데모 패킷</strong><br>'
         + (meta.length ? `${meta.map((item) => `[${item}]`).join(" ")}<br>` : "")
         + (storyPoints.length ? `${storyPoints.map((item) => `- ${esc(item)}`).join("<br>")}<br>` : "")
+        + (bindingParts.length || bindingQuestion || bindingPresetId
+            ? `<span class="assist">판단 바로가기</span><br>`
+              + (bindingParts.length ? `- ${bindingParts.join(" / ")}<br>` : "")
+              + (bindingQuestion ? `- 질문: ${esc(bindingQuestion)}<br>` : "")
+              + (bindingPresetId
+                  ? `<button type="button" class="preset-action" data-prompt-preset-id="${esc(bindingPresetId)}">대표 시나리오 채우기</button><br>`
+                  : "")
+            : "")
         + (caseLines.length ? `<span class="assist">대표 데모 케이스</span><br>${caseLines.join("<br>")}<br>` : "")
+        + (lensLines.length ? `<span class="assist">critical thinking lens</span><br>${lensLines.join("<br>")}<br>` : "")
+        + (criticalPromptLines.length
+            ? `<span class="assist">?먰뙋 ?꾨줈?꾪듃</span><br>${criticalPromptLines.map((item) => `- ${esc(item)}`).join("<br>")}<br>`
+            : "")
         + (packetPath ? `<span class="assist">packet: ${esc(packetPath)}</span>` : "");
+      if (bindingPresetId) {
+        const button = ui.operatorDemoBox.querySelector("[data-prompt-preset-id]");
+        if (button) {
+          button.addEventListener("click", () => {
+            const presets = getReviewCasePresets(industry);
+            const target = presets.find((item) => String(item.preset_id || "") === bindingPresetId);
+            if (target) applyReviewCasePreset(target);
+          });
+        }
+      }
       ui.operatorDemoBox.style.display = "block";
+    };
+
+    const getRuntimeReasoningLadderMap = () => (
+      permitCatalog.summary && typeof permitCatalog.summary.runtime_reasoning_ladder_map === "object"
+        ? permitCatalog.summary.runtime_reasoning_ladder_map
+        : {}
+    );
+
+    const deriveRuntimeReasonKey = (typedEval, capitalGap, technicianGap) => {
+      if (!typedEval || typeof typedEval !== "object") return "";
+      const capitalShort = !!(capitalGap && !capitalGap.isSatisfied);
+      const technicianShort = !!(technicianGap && !technicianGap.isSatisfied);
+      if (typedEval.manualReviewRequired) return "other_requirement_documents_missing";
+      if (capitalShort && technicianShort) return "capital_and_technician_shortfall";
+      if (capitalShort && !technicianShort) return "capital_shortfall_only";
+      if (technicianShort && !capitalShort) return "technician_shortfall_only";
+      return "";
+    };
+
+    const getRuntimeReasoningPreset = (industry, reasonKey) => {
+      const demo = getOperatorDemoSurface(industry);
+      const presets = getReviewCasePresets(industry);
+      if (reasonKey === "other_requirement_documents_missing"
+          && demo
+          && demo.prompt_case_binding
+          && typeof demo.prompt_case_binding === "object") {
+        return demo.prompt_case_binding;
+      }
+      const preset = presets.find((item) => {
+        const expected = item && typeof item.expected_outcome === "object" ? item.expected_outcome : {};
+        return String(expected.review_reason || "").trim() === reasonKey;
+      });
+      if (preset) {
+        const expected = preset && typeof preset.expected_outcome === "object" ? preset.expected_outcome : {};
+        return {
+          preset_id: String(preset.preset_id || "").trim(),
+          service_code: String(preset.service_code || "").trim(),
+          service_name: String(preset.service_name || "").trim(),
+          expected_status: String(expected.overall_status || "").trim(),
+          review_reason: String(expected.review_reason || "").trim(),
+          manual_review_expected: !!expected.manual_review_expected,
+          binding_focus: reasonKey === "capital_and_technician_shortfall"
+            ? "capital_and_technician_gap_first"
+            : (reasonKey === "capital_shortfall_only"
+              ? "capital_gap_first"
+              : (reasonKey === "technician_shortfall_only" ? "technician_gap_first" : "review_reason_first")),
+        };
+      }
+      return null;
+    };
+
+    const renderRuntimeReasoningCard = (industry, typedEval, context = {}) => {
+      if (!ui.runtimeReasoningCardBox) return;
+      if (!industry || !typedEval || typeof typedEval !== "object") {
+        ui.runtimeReasoningCardBox.style.display = "none";
+        ui.runtimeReasoningCardBox.innerHTML = "";
+        return;
+      }
+      const ladderMap = getRuntimeReasoningLadderMap();
+      const criticalPromptLens = getRuntimeCriticalPromptLens();
+      const reasonKey = deriveRuntimeReasonKey(typedEval, context.capitalGap, context.technicianGap);
+      const ladder = reasonKey && typeof ladderMap[reasonKey] === "object" ? ladderMap[reasonKey] : null;
+      const preset = getRuntimeReasoningPreset(industry, reasonKey);
+      const badges = [];
+      if (typedEval.overall_status) badges.push(`status ${esc(typedEval.overall_status)}`);
+      if (reasonKey) badges.push(esc(getReviewReasonLabel(reasonKey)));
+      if (typedEval.manualReviewRequired) badges.push("수동 검토");
+      if (preset && preset.binding_focus) badges.push(`lens ${esc(getPromptBindingFocusLabel(preset.binding_focus))}`);
+      const inspectFirst = String((ladder && ladder.inspect_first) || "").trim()
+        || (context.capitalGap && !context.capitalGap.isSatisfied && context.technicianGap && !context.technicianGap.isSatisfied
+          ? "자본금과 기술인력 증빙을 함께 먼저 확인해 주세요."
+          : "")
+        || (context.capitalGap && !context.capitalGap.isSatisfied
+          ? "자본금 증빙과 입력값을 먼저 확인해 주세요."
+          : (context.technicianGap && !context.technicianGap.isSatisfied
+            ? "기술인력 자격과 인원 증빙을 먼저 확인해 주세요."
+            : "누락된 서류와 자동 검토 보류 사유를 먼저 확인해 주세요."));
+      const nextAction = String((ladder && ladder.next_action) || "").trim()
+        || (Array.isArray(typedEval.next_actions) && typedEval.next_actions.length
+          ? String(typedEval.next_actions[0] || "").trim()
+          : "다음 액션을 위해 증빙과 입력값을 먼저 정리해 주세요.");
+      const evidenceFirst = Array.isArray(ladder && ladder.evidence_first)
+        ? ladder.evidence_first.map((item) => esc(proofDomainLabels[item] || item)).filter(Boolean)
+        : [];
+      const bindingQuestion = String((preset && preset.binding_question) || "").trim()
+        || (Array.isArray(ladder && ladder.binding_questions) ? String((ladder.binding_questions[0] || "")).trim() : "");
+      const cardLines = [
+        "<strong>실시간 판단 카드</strong>",
+        badges.length ? badges.map((item) => `[${item}]`).join(" ") : "",
+        `- inspect first: ${esc(inspectFirst)}`,
+        evidenceFirst.length ? `- evidence first: ${evidenceFirst.join(", ")}` : "",
+        `- next action: ${esc(nextAction)}`,
+        (criticalPromptLens && criticalPromptLens.lens_ready && criticalPromptLens.falsification_test)
+          ? `- critical lens: ${esc(criticalPromptLens.falsification_test)}`
+          : "",
+        bindingQuestion ? `- operator question: ${esc(bindingQuestion)}` : "",
+      ].filter(Boolean);
+      if (preset && preset.preset_id) {
+        cardLines.push(
+          `<button type="button" class="preset-action" data-runtime-preset-id="${esc(preset.preset_id)}">대표 보완 프리셋 적용</button>`
+        );
+      }
+      ui.runtimeReasoningCardBox.innerHTML = cardLines.join("<br>");
+      ui.runtimeReasoningCardBox.style.display = "block";
+      const button = ui.runtimeReasoningCardBox.querySelector("[data-runtime-preset-id]");
+      if (button && preset && preset.preset_id) {
+        button.addEventListener("click", () => {
+          const presets = getReviewCasePresets(industry);
+          const target = presets.find((item) => String(item.preset_id || "") === String(preset.preset_id || "").trim());
+          if (target) applyReviewCasePreset(target);
+        });
+      }
     };
 
     const renderCandidateFallback = (industry) => {
@@ -6436,6 +7608,8 @@ def build_html(
       renderReviewCasePresets(selected);
       renderCaseStorySurface(selected);
       renderOperatorDemoSurface(selected);
+      ui.runtimeReasoningCardBox.style.display = "none";
+      ui.runtimeReasoningCardBox.innerHTML = "";
 
       const rawCapitalInput = String(ui.capitalInput.value || "").trim();
       const currentCapital = Core.toNum(rawCapitalInput);
@@ -6526,6 +7700,7 @@ def build_html(
         ui.fallbackGuide.textContent = `${industryName}: 자동 구조화가 덜 된 항목이 있어 법령 원문을 함께 확인해 주세요.`;
       }
       renderRuleBasis(rule);
+      renderRuntimeReasoningCard(selected, typedEval, { capitalGap, technicianGap });
       renderStructuredReview(typedEval);
     };
 
@@ -6558,6 +7733,11 @@ def build_html(
       if (ui.permitInputWizard) {
         ui.permitInputWizard.addEventListener("click", (event) => {
           const target = event.target;
+          const nextActionButton = target && target.closest ? target.closest("[data-permit-next-action]") : null;
+          if (nextActionButton) {
+            runPermitWizardNextAction(String(nextActionButton.getAttribute("data-permit-next-action") || ""));
+            return;
+          }
           const prevButton = target && target.closest ? target.closest("[data-permit-wizard-prev]") : null;
           if (prevButton) {
             setPermitWizardStep(Number(prevButton.getAttribute("data-permit-wizard-prev") || 0) - 1, { focus: true });
@@ -6600,12 +7780,15 @@ def build_html(
       }
       if (ui.focusQuickSelect) {
         ui.focusQuickSelect.addEventListener("change", () => {
+          permitSearchStarted = true;
           const targetCode = String(ui.focusQuickSelect.value || "");
           if (!targetCode) {
+            clearPermitAutoSelectionReasonState();
             clearResult();
             syncExperienceLayer();
             return;
           }
+          setPermitAutoSelectionReasonState("빠른 선택으로 바로 확정한 업종입니다.", "빠른 선택");
           if (applyIndustrySelection(targetCode)) {
             renderWithExperience();
             advancePermitWizardAfterIndustrySelection();
@@ -6671,14 +7854,33 @@ def build_html(
           alert(ok ? "한 줄 브리프를 복사했습니다." : "한 줄 브리프 복사에 실패했습니다.");
         });
       }
+      if (ui.industryAutoReason) {
+        const focusPermitSearchRefine = () => {
+          setPermitWizardStep(0, false);
+          window.setTimeout(() => {
+            focusPermitActionTarget("industrySearchInput");
+          }, 32);
+        };
+        ui.industryAutoReason.addEventListener("click", () => {
+          focusPermitSearchRefine();
+        });
+        ui.industryAutoReason.addEventListener("keydown", (event) => {
+          if (event.key !== "Enter" && event.key !== " ") return;
+          event.preventDefault();
+          focusPermitSearchRefine();
+        });
+      }
       if (ui.industrySearchInput) {
         ui.industrySearchInput.addEventListener("input", () => {
+          permitSearchStarted = !!String(ui.industrySearchInput.value || "").trim();
+          clearPermitAutoSelectionReasonState();
           rerenderSelection();
           tryAutoSelectIndustry();
           advancePermitWizardAfterIndustrySelection();
         });
       }
       ui.categorySelect.addEventListener("change", () => {
+        clearPermitAutoSelectionReasonState();
         renderIndustries();
         ensureSyntheticIndustryOptions();
         clearResult();
@@ -6687,6 +7889,7 @@ def build_html(
         advancePermitWizardAfterIndustrySelection();
       });
       ui.industrySelect.addEventListener("change", () => {
+        setPermitAutoSelectionReasonState("직접 확정한 업종입니다. 이제 법정 기준과 부족 항목을 바로 비교합니다.", "직접 확정");
         renderWithExperience();
         advancePermitWizardAfterIndustrySelection();
       });

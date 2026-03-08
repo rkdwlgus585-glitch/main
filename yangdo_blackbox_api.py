@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.machinery
 import importlib.util
 import json
+import statistics
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -41,6 +42,11 @@ _token_containment = getattr(_BASE, "_token_containment")
 
 _SPECIAL_BALANCE_LOAN_UTILIZATION = 0.60
 _SPECIAL_SETTLEMENT_SCENARIO_INPUT_MODES: Tuple[str, ...] = ("auto", "credit_transfer", "none")
+_FIRE_GUARDED_PRIOR_BLEND = 0.55
+_FIRE_GUARDED_PRIOR_CAP_QUANTILE = 0.60
+_FIRE_GUARDED_PRIOR_CAP_MULT = 1.02
+_FIRE_GUARDED_PRIOR_CURRENT_CAP = 1.60
+_FIRE_GUARDED_PRIOR_Q25_FLOOR = 0.90
 _SPECIAL_BALANCE_AUTO_POLICIES: Dict[str, Dict[str, Any]] = {
     "전기": {
         "sector": "전기",
@@ -145,6 +151,124 @@ def _round4(value: Any) -> Optional[float]:
     if num is None:
         return None
     return float(core._round4(float(num)))
+
+
+def _plain_quantile(values: List[float], q: float) -> float:
+    seq = sorted(float(v) for v in values if _to_float(v) is not None)
+    if not seq:
+        return 0.0
+    if len(seq) == 1:
+        return seq[0]
+    idx = (len(seq) - 1) * max(0.0, min(1.0, q))
+    lo = int(idx)
+    hi = min(len(seq) - 1, lo + 1)
+    frac = idx - lo
+    return (seq[lo] * (1.0 - frac)) + (seq[hi] * frac)
+
+
+def _trimmed_plain_median(values: List[float], lower_q: float = 0.20, upper_q: float = 0.80) -> float:
+    seq = sorted(float(v) for v in values if _to_float(v) is not None)
+    if not seq:
+        return 0.0
+    lo = _plain_quantile(seq, lower_q)
+    hi = _plain_quantile(seq, upper_q)
+    trimmed = [value for value in seq if lo <= value <= hi]
+    return float(statistics.median(trimmed or seq))
+
+
+def _sector_signal_value(source: Dict[str, Any] | None) -> Optional[float]:
+    source = dict(source or {})
+    sales3 = _to_float(source.get("sales3_eok"))
+    specialty = _to_float(source.get("specialty"))
+    if sales3 is not None and specialty is not None:
+        return (0.65 * float(sales3)) + (0.35 * float(specialty))
+    if sales3 is not None:
+        return float(sales3)
+    if specialty is not None:
+        return float(specialty)
+    return None
+
+
+def _single_license_special_sector_rows(records: List[Dict[str, Any]], sector_name: str) -> List[Dict[str, Any]]:
+    out: List[Dict[str, Any]] = []
+    for row in list(records or []):
+        token_list = list(row.get("license_tokens") or [])
+        token_set = {str(token or "").strip() for token in token_list if str(token or "").strip()}
+        if len(token_set) != 1:
+            continue
+        if _special_balance_sector_name(token_set or row.get("license_text")) != sector_name:
+            continue
+        price = _to_float(row.get("current_price_eok"))
+        if price is None or price <= 0:
+            continue
+        out.append(row)
+    return out
+
+
+def _maybe_apply_fire_single_license_guarded_prior(
+    *,
+    records: List[Dict[str, Any]],
+    target: Dict[str, Any],
+    total: float,
+    low: float,
+    high: float,
+    public_total: Optional[float],
+    public_low: Optional[float],
+    public_high: Optional[float],
+) -> Optional[Dict[str, Any]]:
+    target_tokens = {str(token or "").strip() for token in list(target.get("license_tokens") or []) if str(token or "").strip()}
+    if len(target_tokens) != 1:
+        return None
+    if _special_balance_sector_name(target.get("license_text") or target_tokens) != "소방":
+        return None
+    current_total = float(_to_float(total) or 0.0)
+    if current_total <= 0:
+        return None
+    target_signal = _sector_signal_value(target)
+    if target_signal is None or target_signal <= 0:
+        return None
+    sector_rows = _single_license_special_sector_rows(records, "소방")
+    prices = [float(_to_float(row.get("current_price_eok")) or 0.0) for row in sector_rows if (_to_float(row.get("current_price_eok")) or 0.0) > 0]
+    if len(prices) < 8:
+        return None
+    ratio_samples: List[float] = []
+    for row in sector_rows:
+        price = _to_float(row.get("current_price_eok"))
+        signal = _sector_signal_value(row)
+        if price is None or price <= 0 or signal is None or signal <= 0:
+            continue
+        ratio_samples.append(float(price) / float(signal))
+    if len(ratio_samples) < 6:
+        return None
+    prior_estimate = float(target_signal) * _trimmed_plain_median(ratio_samples)
+    q25 = _plain_quantile(prices, 0.25)
+    q60 = _plain_quantile(prices, _FIRE_GUARDED_PRIOR_CAP_QUANTILE)
+    candidate = current_total + (_FIRE_GUARDED_PRIOR_BLEND * max(0.0, prior_estimate - current_total))
+    floor_value = max(current_total, q25 * _FIRE_GUARDED_PRIOR_Q25_FLOOR)
+    cap_value = min(q60 * _FIRE_GUARDED_PRIOR_CAP_MULT, current_total * _FIRE_GUARDED_PRIOR_CURRENT_CAP)
+    adjusted_total = max(floor_value, min(candidate, cap_value))
+    if adjusted_total <= current_total + 0.0005:
+        return None
+    delta = adjusted_total - current_total
+    low_gap = max(0.0, current_total - float(_to_float(low) or current_total))
+    high_gap = max(0.0, float(_to_float(high) or current_total) - current_total)
+    public_center = float(_to_float(public_total) or current_total)
+    public_low_value = float(_to_float(public_low) or float(_to_float(low) or current_total))
+    public_high_value = float(_to_float(public_high) or float(_to_float(high) or current_total))
+    public_low_gap = max(0.0, public_center - public_low_value)
+    public_high_gap = max(0.0, public_high_value - public_center)
+    return {
+        "mode": "fire_single_license_guarded_prior",
+        "reason": "소방 단일면허는 same-sector bounded prior를 제한 반영해 none-mode 과소평가를 줄였습니다.",
+        "support_count": len(prices),
+        "prior_estimate_eok": _round4(prior_estimate),
+        "adjusted_total_transfer_value_eok": _round4(adjusted_total),
+        "adjusted_low_eok": _round4(max(0.05, adjusted_total - low_gap)),
+        "adjusted_high_eok": _round4(max(adjusted_total - low_gap, adjusted_total + high_gap)),
+        "adjusted_public_total_transfer_value_eok": _round4(public_center + delta),
+        "adjusted_public_low_eok": _round4(max(0.05, (public_center + delta) - public_low_gap)),
+        "adjusted_public_high_eok": _round4(max((public_center + delta) - public_low_gap, (public_center + delta) + public_high_gap)),
+    }
 
 
 
@@ -750,6 +874,45 @@ def _build_recommended_listings(*, target: Dict[str, Any], rows: List[Tuple[floa
     return fallback
 
 
+def _apply_special_sector_publication_guard(result: Dict[str, Any], target: Dict[str, Any]) -> Dict[str, Any]:
+    out = dict(result or {})
+    sector_name = _special_balance_sector_name(target.get("license_tokens") or target.get("license_text"))
+    if sector_name != "정보통신":
+        return out
+    if str(out.get("publication_mode") or "").strip() != "full":
+        return out
+
+    center = float(_to_float(out.get("estimate_center_eok")) or _to_float(out.get("total_transfer_value_eok")) or 0.0)
+    low = float(_to_float(out.get("estimate_low_eok")) or _to_float(out.get("total_transfer_low_eok")) or center)
+    high = float(_to_float(out.get("estimate_high_eok")) or _to_float(out.get("total_transfer_high_eok")) or center)
+    confidence = float(_to_float(out.get("confidence_percent")) or 0.0)
+    span_ratio = ((high - low) / center) if center > 0 else 0.0
+
+    too_wide = span_ratio > 0.70
+    too_small = center < 0.25
+    insufficient_confidence = confidence < 90.0
+    if not (too_wide or too_small or insufficient_confidence):
+        return out
+
+    reason_parts: List[str] = []
+    if too_wide:
+        reason_parts.append("추정 범위 폭이 넓음")
+    if too_small:
+        reason_parts.append("절대 금액 구간이 작음")
+    if insufficient_confidence:
+        reason_parts.append("공개 신뢰도 기준 미달")
+    reason = "정보통신 업종은 공개 안전도 기준상 " + ", ".join(reason_parts) + " 경우 기준가 대신 범위부터 안내합니다."
+
+    out["publication_mode"] = "range_only"
+    out["publication_label"] = "범위 먼저 안내"
+    out["publication_reason"] = reason
+    notes = [str(x or "").strip() for x in list(out.get("risk_notes") or []) if str(x or "").strip()]
+    if reason not in notes:
+        notes.append(reason)
+    out["risk_notes"] = notes
+    return out
+
+
 
 def _project_estimate_result(server, resolution, result: Dict[str, Any]) -> Dict[str, Any]:
     payload = dict(result or {})
@@ -996,6 +1159,25 @@ class YangdoBlackboxEstimator(_BaseYangdoBlackboxEstimator):
             public_high = _to_float(result.get("public_high_eok"))
         if public_high is None:
             public_high = high
+        pricing_adjustment = _maybe_apply_fire_single_license_guarded_prior(
+            records=list(getattr(self, "_records", []) or []),
+            target=target,
+            total=total,
+            low=low,
+            high=high,
+            public_total=public_total,
+            public_low=public_low,
+            public_high=public_high,
+        )
+        if pricing_adjustment:
+            total = float(_to_float(pricing_adjustment.get("adjusted_total_transfer_value_eok")) or total)
+            low = float(_to_float(pricing_adjustment.get("adjusted_low_eok")) or low)
+            high = float(_to_float(pricing_adjustment.get("adjusted_high_eok")) or high)
+            public_total = _to_float(pricing_adjustment.get("adjusted_public_total_transfer_value_eok")) or public_total
+            public_low = _to_float(pricing_adjustment.get("adjusted_public_low_eok")) or public_low
+            public_high = _to_float(pricing_adjustment.get("adjusted_public_high_eok")) or public_high
+            result["core_pricing_mode"] = pricing_adjustment.get("mode")
+            result["core_pricing_adjustment"] = pricing_adjustment
         requested_mode = _normalize_balance_usage_mode(data.get("balance_usage_mode") or target.get("balance_usage_mode_requested"))
         is_special = self._is_balance_separate_paid_group(target)
 
@@ -1029,6 +1211,9 @@ class YangdoBlackboxEstimator(_BaseYangdoBlackboxEstimator):
             policy_summary = _compact((result.get("settlement_policy") or {}).get("summary"))
             if policy_summary:
                 notes.append(policy_summary)
+            adjustment_reason = _compact((pricing_adjustment or {}).get("reason"))
+            if adjustment_reason and adjustment_reason not in notes:
+                notes.append(adjustment_reason)
             result["risk_notes"] = notes
         else:
             result["balance_excluded"] = False
@@ -1063,7 +1248,7 @@ class YangdoBlackboxEstimator(_BaseYangdoBlackboxEstimator):
         result["target"] = target
         result["neighbors"] = [_clean_row_license_text(row, clean_license) for row in list(result.get("neighbors") or []) if isinstance(row, dict)]
         result["recommended_listings"] = [_clean_row_license_text(row, clean_license) for row in list(result.get("recommended_listings") or []) if isinstance(row, dict)]
-        return result
+        return _apply_special_sector_publication_guard(result, target)
 
 
 _ORIGINAL_HANDLER_DO_GET = getattr(Handler, "do_GET", None)
@@ -1115,6 +1300,7 @@ vars(_BASE).update(
         "_recommendation_ops": _recommendation_ops,
         "_build_recommendation_result": _build_recommendation_result,
         "_build_recommended_listings": _build_recommended_listings,
+        "_apply_special_sector_publication_guard": _apply_special_sector_publication_guard,
         "_project_estimate_result": _project_estimate_result,
         "collapse_duplicate_neighbors": collapse_duplicate_neighbors,
     }
