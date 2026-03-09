@@ -3197,53 +3197,32 @@ def build_page_html(
       const draftStorageKey = `smna_yangdo_draft_${{viewMode || "customer"}}`;
       const urlParams = new URLSearchParams(String(location.search || ""));
       const embedFromCo = (urlParams.get("from") || "").toLowerCase() === "co";
+      const forceHideElements = (selector) => {{
+        document.querySelectorAll(selector).forEach((el) => {{
+          if (!el) return;
+          el.style.setProperty("display", "none", "important");
+          el.style.setProperty("visibility", "hidden", "important");
+          el.style.setProperty("height", "0", "important");
+          el.style.setProperty("min-height", "0", "important");
+          el.style.setProperty("margin", "0", "important");
+          el.style.setProperty("padding", "0", "important");
+        }});
+      }};
       const hideStandalonePageTitle = () => {{
-        try {{
-          document.querySelectorAll(".entry-header, .entry-title, .wp-block-post-title").forEach((el) => {{
-            if (!el) return;
-            el.style.setProperty("display", "none", "important");
-            el.style.setProperty("visibility", "hidden", "important");
-            el.style.setProperty("height", "0", "important");
-            el.style.setProperty("min-height", "0", "important");
-            el.style.setProperty("margin", "0", "important");
-            el.style.setProperty("padding", "0", "important");
-          }});
-        }} catch (_e) {{}}
+        try {{ forceHideElements(".entry-header, .entry-title, .wp-block-post-title"); }} catch (_e) {{}}
       }};
       const hideEmbedChrome = () => {{
         try {{
-          const hideSelectors = [
-            "#masthead",
-            "header",
-            ".site-header",
-            ".site-main-header-wrap",
-            ".ast-main-header-wrap",
-            ".main-header-bar-wrap",
-            ".ast-mobile-header-wrap",
-            ".main-header-bar",
-            ".ast-primary-header-bar",
-            ".site-logo-img",
-            ".site-branding",
-            ".ast-site-identity",
-            ".ast-builder-layout-element",
-            ".custom-logo-link",
-            ".custom-logo",
-            ".entry-header",
-            ".entry-title",
-            ".wp-block-post-title",
-            ".ast-breadcrumbs",
-            "#colophon",
-            ".site-below-footer-wrap",
-          ];
-          document.querySelectorAll(hideSelectors.join(",")).forEach((el) => {{
-            if (!el) return;
-            el.style.setProperty("display", "none", "important");
-            el.style.setProperty("visibility", "hidden", "important");
-            el.style.setProperty("height", "0", "important");
-            el.style.setProperty("min-height", "0", "important");
-            el.style.setProperty("margin", "0", "important");
-            el.style.setProperty("padding", "0", "important");
-          }});
+          forceHideElements([
+            "#masthead", "header", ".site-header",
+            ".site-main-header-wrap", ".ast-main-header-wrap",
+            ".main-header-bar-wrap", ".ast-mobile-header-wrap",
+            ".main-header-bar", ".ast-primary-header-bar",
+            ".site-logo-img", ".site-branding", ".ast-site-identity",
+            ".ast-builder-layout-element", ".custom-logo-link", ".custom-logo",
+            ".entry-header", ".entry-title", ".wp-block-post-title",
+            ".ast-breadcrumbs", "#colophon", ".site-below-footer-wrap",
+          ].join(","));
         }} catch (_e) {{}}
       }};
       if (embedFromCo) {{
@@ -3943,16 +3922,7 @@ def build_page_html(
         syncLicenseAutoProfile(false);
         syncYangdoWizard();
       }};
-      const isSeparateBalanceGroupToken = (raw) => {{
-        const t = normalizeLicenseKey(raw);
-        if (!t) return false;
-        return (
-          t.indexOf("전기") >= 0
-          || t.indexOf("정보통신") >= 0
-          || t.indexOf("통신") >= 0
-          || t.indexOf("소방") >= 0
-        );
-      }};
+      const isSeparateBalanceGroupToken = (raw) => !!specialBalanceSectorName(raw);
       const isSeparateBalanceGroupTarget = (target) => {{
         const tokens = (target && target.tokens instanceof Set) ? target.tokens : new Set();
         if (tokens.size) {{
@@ -8901,10 +8871,12 @@ def build_page_html(
         }}
         if (reorgMode === "분할/합병") {{
           const sectorName = specialBalanceSectorName(licenseRaw) || "";
-          let splitDetail = "분할/합병 선택 시 시평·외부신용·부채/유동비율·이익잉여금은 가격 반영에서 제외됩니다.";
-          if (sectorName === "전기") splitDetail += " 전기공사업은 실적과 자본금 중심으로 산정하며, 공제조합 잔액은 별도 정산으로 비교합니다.";
-          else if (sectorName === "정보통신") splitDetail += " 정보통신공사업은 실적과 자본금 중심으로 산정하며, 공제조합 잔액 비중이 작은 경우 정산을 생략합니다.";
-          else if (sectorName === "소방") splitDetail += " 소방시설공사업은 실적과 자본금 중심으로 산정하며, 잔액 비중 기준이 타 업종보다 높습니다.";
+          const SECTOR_SPLIT_NOTES = {{
+            "전기": " 전기공사업은 실적과 자본금 중심으로 산정하며, 공제조합 잔액은 별도 정산으로 비교합니다.",
+            "정보통신": " 정보통신공사업은 실적과 자본금 중심으로 산정하며, 공제조합 잔액 비중이 작은 경우 정산을 생략합니다.",
+            "소방": " 소방시설공사업은 실적과 자본금 중심으로 산정하며, 잔액 비중 기준이 타 업종보다 높습니다.",
+          }};
+          const splitDetail = "분할/합병 선택 시 시평·외부신용·부채/유동비율·이익잉여금은 가격 반영에서 제외됩니다." + (SECTOR_SPLIT_NOTES[sectorName] || "");
           note.textContent = splitDetail;
           return;
         }}
