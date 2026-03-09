@@ -1399,7 +1399,8 @@ def _attach_claim_packet_summaries(rows: list[dict], patent_bundle: dict) -> lis
     return enriched_rows
 
 
-def _build_review_case_preset_lookup(report: dict) -> dict[str, dict]:
+def _build_family_key_lookup(report: dict) -> dict[str, dict]:
+    """Build a family_key→family dict from any report with a 'families' list."""
     lookup: dict[str, dict] = {}
     for family in list((report or {}).get("families") or []):
         if not isinstance(family, dict):
@@ -1410,26 +1411,10 @@ def _build_review_case_preset_lookup(report: dict) -> dict[str, dict]:
     return lookup
 
 
-def _build_case_story_surface_lookup(report: dict) -> dict[str, dict]:
-    lookup: dict[str, dict] = {}
-    for family in list((report or {}).get("families") or []):
-        if not isinstance(family, dict):
-            continue
-        family_key = _get_str(family, "family_key")
-        if family_key:
-            lookup[family_key] = family
-    return lookup
-
-
-def _build_operator_demo_lookup(report: dict) -> dict[str, dict]:
-    lookup: dict[str, dict] = {}
-    for family in list((report or {}).get("families") or []):
-        if not isinstance(family, dict):
-            continue
-        family_key = _get_str(family, "family_key")
-        if family_key:
-            lookup[family_key] = family
-    return lookup
+# Legacy aliases — kept for backward compatibility with external callers
+_build_review_case_preset_lookup = _build_family_key_lookup
+_build_case_story_surface_lookup = _build_family_key_lookup
+_build_operator_demo_lookup = _build_family_key_lookup
 
 
 def _compact_review_case_preset(preset: dict) -> dict:

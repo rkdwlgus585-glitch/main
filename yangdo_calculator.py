@@ -218,15 +218,7 @@ def calc_quantile(values, q):
     frac = idx - lo
     return nums[lo] + (nums[hi] - nums[lo]) * frac
 def mean_or_none(values):
-    nums = []
-    for raw in list(values or []):
-        try:
-            n = float(raw)
-        except (ValueError, TypeError):
-            continue
-        if n != n:
-            continue
-        nums.append(n)
+    nums = _finite_numbers(values)
     if not nums:
         return None
     return _round4(sum(nums) / float(len(nums)))
