@@ -2645,6 +2645,7 @@ def build_page_html(
     }}
     @media (max-width: 640px) {{
       #seoulmna-yangdo-calculator .panel .panel-body {{ padding: 15px; }}
+      #seoulmna-yangdo-calculator .btn-row {{ position: sticky; bottom: 0; z-index: 40; background: linear-gradient(to top, rgba(255,255,255,0.98) 70%, transparent); padding: 12px 0 4px; margin-left: -15px; margin-right: -15px; padding-left: 15px; padding-right: 15px; }}
       #seoulmna-yangdo-calculator .result-grid {{ gap: 8px; margin-bottom: 6px; }}
       #seoulmna-yangdo-calculator .yoy-compare {{ margin-top: 6px; padding: 8px 10px; }}
       #seoulmna-yangdo-calculator .risk-note {{ margin-top: 6px; padding: 10px 11px; font-size: 15px; }}
@@ -9669,6 +9670,41 @@ def build_page_html(
         alert("개인정보 수집·이용 안내 동의 후 상담 요청을 진행해 주세요.");
         return false;
       }};
+      let _skeletonTimer = null;
+      let _skeletonActive = false;
+      const _skeletonSteps = [
+        "재무 비율 분석 중...",
+        "행정처분 이력 확인 중...",
+        "시장 평균 비교 중...",
+        "유사 사례 매칭 중...",
+        "최종 가격 산정 중...",
+      ];
+      const startSkeletonProgress = () => {{
+        let idx = 0;
+        _skeletonActive = true;
+        const note = $("risk-note");
+        if (!note) return;
+        note.style.transition = "opacity 0.18s ease";
+        const show = () => {{
+          if (!_skeletonActive) return;
+          if (idx >= _skeletonSteps.length) idx = _skeletonSteps.length - 1;
+          note.style.opacity = "0.6";
+          setTimeout(() => {{
+            if (!_skeletonActive) return;
+            note.textContent = _skeletonSteps[idx];
+            note.style.opacity = "1";
+            idx++;
+          }}, 120);
+        }};
+        show();
+        _skeletonTimer = setInterval(show, 380);
+      }};
+      const stopSkeletonProgress = () => {{
+        _skeletonActive = false;
+        if (_skeletonTimer) {{ clearInterval(_skeletonTimer); _skeletonTimer = null; }}
+        const note = $("risk-note");
+        if (note) note.style.transition = "";
+      }};
       const setEstimateBusy = (busy) => {{
         const btn = $("btn-estimate");
         if (!btn) return;
@@ -9677,6 +9713,7 @@ def build_page_html(
         btn.style.opacity = busy ? "0.72" : "";
         btn.style.cursor = busy ? "wait" : "";
         btn.textContent = busy ? "AI 계산 중..." : "AI 예상 양도가 계산";
+        if (busy) {{ startSkeletonProgress(); }} else {{ stopSkeletonProgress(); }}
       }};
 
       on("btn-estimate", "click", async () => {{
