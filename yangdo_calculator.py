@@ -438,13 +438,15 @@ def _collapse_script_whitespace(html_text):
     src = str(html_text or "")
     if not src:
         return src
-    if str(os.environ.get("SMNA_DISABLE_SCRIPT_COLLAPSE", "")).strip().lower() in {"1", "true", "yes", "on"}:
+
+    env_flag = os.environ.get("SMNA_DISABLE_SCRIPT_COLLAPSE", "")
+    if str(env_flag).strip().lower() in {"1", "true", "yes", "on"}:
         return src
 
     def _trim_script(match):
-        open_tag = str(match.group(1) or "")
-        body = str(match.group(2) or "")
-        close_tag = str(match.group(3) or "")
+        open_tag = match.group(1) or ""
+        body = match.group(2) or ""
+        close_tag = match.group(3) or ""
         # Skip external scripts (with src=)
         if "src=" in open_tag.lower():
             return f"{open_tag}{body}{close_tag}"

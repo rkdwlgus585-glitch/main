@@ -73,7 +73,7 @@ def _get_int(data: dict, key: str, default: int = 0) -> int:
     """Safely extract a non-negative int from *data[key]*."""
     try:
         out = int(float(data.get(key, default)))
-    except Exception:
+    except (ValueError, TypeError):
         return 0
     return max(out, 0)
 # ───────────────────────────────────────────────────────────────────────

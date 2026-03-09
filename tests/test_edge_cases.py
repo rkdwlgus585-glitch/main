@@ -146,10 +146,10 @@ class PermitDoubleBraceFixTest(unittest.TestCase):
         )
         parts = []
         for m in pattern.finditer(html):
-            attrs = str(m.group("attrs") or "")
+            attrs = m.group("attrs") or ""
             if "src=" in attrs.lower():
                 continue
-            parts.append(str(m.group("body") or ""))
+            parts.append(m.group("body") or "")
         return "\n".join(parts)
 
     def _build_permit_html(self) -> str:
