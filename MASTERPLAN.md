@@ -295,6 +295,11 @@
 - patent handoff: `scripts/generate_attorney_handoff.py`
 
 ## Changelog
+### [2026-03-09] Session 11
+- **yangdo_calculator Python 함수 132개 테스트**: 가격 파싱(_price_token_to_eok, _extract_price_values_eok), 통계(calc_quantile, mean_or_none, build_meta), 업종별 폴백값(_fallback_capital/surplus/min_balance), 라이선스 정규화, 보안 필터, HTML 축소, 데이터 파이프라인 등 21개 함수 포괄 커버.
+- **permit_diagnosis_calculator Python 함수 117개 테스트**: 유틸리티, 규칙 파이프라인(_expand_rule_groups→_build_rule_index→_resolve_rule), 핵심 진단(evaluate_registration_diagnosis: 갭/의심/날짜), criteria 합성, CSS 스코핑(_scope_embed_css), 셀렉터 등 34개 함수 포괄 커버.
+- **Quality**: 1327 tests + 52 subtests PASS. (+260 from Session 10)
+
 ### [2026-03-09] Session 10
 - **보안: 차단 외부 링크 가드**: `BLOCKED_OUTBOUND_HOSTS` 6개 악성 도메인(slzlj.xyz, rpbwb.xyz, capiture.net), seoulmna.co.kr 게시 시 payload 스캔 → 차단 URL 발견 시 게시 중단. `seoulmna_banned_link_guard.py` 독립 스캔 스크립트.
 - **ops: watchdog 프로파일 분리**: 모놀리식 watchdog → legacy shim + 프로파일별 워커 (−807줄). co.kr 워커 태스크 관리 스크립트 추가.
