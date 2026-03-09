@@ -428,34 +428,31 @@ def _build_license_ui_profiles(train_dataset, license_canonical_by_key=None, gen
 
 
 def _collapse_script_whitespace(html_text):
+    """Minify inline <script> blocks by trimming per-line whitespace.
+
+    Previous implementation wrapped JS in ``(0,eval)(code)`` which required
+    CSP ``unsafe-eval`` and risked ASI (Automatic Semicolon Insertion) bugs.
+    This version preserves line breaks to maintain JS semantics and avoids
+    dynamic code evaluation entirely.
+    """
     src = str(html_text or "")
     if not src:
         return src
     if str(os.environ.get("SMNA_DISABLE_SCRIPT_COLLAPSE", "")).strip().lower() in {"1", "true", "yes", "on"}:
         return src
-    def _pack_script(match):
+
+    def _trim_script(match):
         open_tag = str(match.group(1) or "")
         body = str(match.group(2) or "")
         close_tag = str(match.group(3) or "")
+        # Skip external scripts (with src=)
         if "src=" in open_tag.lower():
             return f"{open_tag}{body}{close_tag}"
-        compact_body = "\n".join(line.strip() for line in body.splitlines() if line.strip())
-        payload = compact_body.replace("&", "\\u0026").replace("\u2028", "\\u2028").replace("\u2029", "\\u2029")
-        payload_json = json.dumps(payload, ensure_ascii=False)
-        loader = (
-            "(function(){"
-            "try{"
-            f"var code={payload_json};"
-            "code=code.replace(/\\\\u0026/g,String.fromCharCode(38));"
-            "(0,eval)(code);"
-            "}catch(e){"
-            "if(window.console){try{console.error('[smna-calc] script load failed',e);}catch(_e){}}"
-            "}"
-            "})();"
-        )
-        return f"{open_tag}{loader}{close_tag}"
+        # Trim leading/trailing whitespace per line; keep line breaks for ASI safety
+        trimmed = "\n".join(line.strip() for line in body.splitlines() if line.strip())
+        return f"{open_tag}\n{trimmed}\n{close_tag}"
 
-    return re.sub(r"(<script[^>]*>)([\s\S]*?)(</script>)", _pack_script, src, flags=re.IGNORECASE)
+    return re.sub(r"(<script[^>]*>)([\s\S]*?)(</script>)", _trim_script, src, flags=re.IGNORECASE)
 
 
 def build_page_html(
