@@ -76,7 +76,7 @@
 | `.co.kr` 브리지 | 100% | 정책/CTA/UTM 계약 확정, 5개 placement snippet 생성, Playwright MCP로 5/5 셀렉터 라이브 검증 완료, 인젝션 실행 계획 수립 |
 | 임대형 위젯/API | 99% | template -> scaffold -> validate -> activate 구조 완료 |
 | 특허 | 98% | canonical attorney handoff + claim 9건(양도5+아키텍처3+구조화1), typed_criteria 자동 구조화 특허 claim 추가 |
-| 품질 기준 | 100% | 1838 tests + 52 subtests 100% PASS, core_engine 11/11 모듈 테스트 100%, yangdo API+JS+calculator/permit precheck API/permit/match/premium/gabji/utils 순수함수 테스트 완비, XSS 전수 감사, daily/weekly 자동 QA, except Exception 전 코어+premium 파일 구체화, DRY −449줄, AI 엔진 심층 감사로 HIGH 5건+MEDIUM 4건 버그 수정, 후보 업종 191개 진단 연동 |
+| 품질 기준 | 100% | 1906 tests + 52 subtests PASS, permit 80/80+yangdo 22/22 함수 100% 커버리지, core_engine 11/11 모듈 테스트 100%, 순수함수 테스트 완비, XSS 전수 감사, daily/weekly 자동 QA, except 전 코어 파일 구체화, DRY −449줄, AI 엔진 심층 감사 HIGH 5건+MEDIUM 4건 수정, 후보 업종 191개 진단 연동 |
 
 ## 3-Tier Automation Architecture
 - **Tier 1: Orchestrator (Claude)**: 전체 전략 수립, 시스템 아키텍처 매핑, 하위 태스크 분할 및 에이전트 위임 제어.
@@ -308,6 +308,21 @@
 - **permit_diagnosis_calculator 보충 33개 테스트**: blank factory 8종, _compact_operator_demo_family, _compact_runtime_reasoning_ladder_map, _compact_industry_row_for_client, _build_selector_entry.
 - **premium_auto.py except 22건 구체화 (29→7)**: Selenium 예외 타입 분류(WebDriverException, NoSuchElementException, NoAlertPresentException, TimeoutException), HTTP(RequestException), 파일(OSError). 의도적 유지 7건(Gemini retry, login handler, runtime top-level).
 - **Quality**: 1779 tests + 52 subtests PASS. (+329 from Session 12)
+
+### [2026-03-10] Session 16 — permit 함수 100% 커버리지 + None guard 버그 수정
+- **permit 함수 테스트 100% 커버리지 달성**: 80/80 함수. 21개 미테스트 함수에 대한 68개 테스트 추가.
+  - `_load_json_safe`, `_load_text_file`, `_load_catalog_file` — I/O 방어 함수
+  - `_build_expanded_industry_lookup`, `_build_family_key_lookup` — 데이터 인덱싱
+  - `_merge_expanded_rule_metadata` — 규칙 머지 (7개 테스트, 중복 제거/coverage_status/typed_criteria 합성)
+  - `_compact_case_story_surface`, `_compact_review_case_preset` — 데이터 압축
+  - `_attach_claim_packet_summaries`, `_attach_operator_demo_artifacts`, `_attach_review_case_artifacts` — 파이프라인
+  - `_build_platform_catalog`, `_build_master_catalog` — 카탈로그 조합
+  - `_build_wordpress_fragment`, `_wrap_wordpress_safe_scripts` — WordPress 통합
+  - `_repair_generated_permit_html` — HTML 패치 스모크 테스트
+- **버그 수정 1건**: `_merge_expanded_rule_metadata(None, None)` → AttributeError 방어 (`expanded_catalog or {}`)
+- **guarantee input_key 일관성 수정**: `_PENDING_CRITERIA_TEMPLATES` + `enrich_permit_typed_criteria.py` + JS `buildAdditionalInputs()` 에 `guarantee_secured` 키 추가
+- **alias 발견**: `_build_review_case_preset_lookup`/`_build_case_story_surface_lookup`/`_build_operator_demo_lookup`은 모두 `_build_family_key_lookup`의 alias
+- **Quality**: 1906 tests + 52 subtests PASS. (+68 from Session 15)
 
 ### [2026-03-10] Session 15 — 후보 업종 진단 활성화 + 코드 품질 개선
 - **후보(candidate) 업종 진단 엔진 연동**: 191개 후보 업종(의료/문화/식품/환경 등)의 `typed_criteria`를 진단 엔진에서 사용 가능하도록 `_build_candidate_rule()` 함수 추가. `mapping_confidence: 0.5`, `coverage_status: "candidate"`, `manual_review_required: true` 플래그로 신뢰도 표시.
