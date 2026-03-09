@@ -50,6 +50,17 @@ def _load_json_safe(path: Path, default_factory) -> dict:
     return base
 
 
+def _ensure_keys(base: dict, dict_keys: tuple = (), list_keys: tuple = ()) -> dict:
+    """Ensure *base* has expected key types; fix in-place and return."""
+    for k in dict_keys:
+        if not isinstance(base.get(k), dict):
+            base[k] = {}
+    for k in list_keys:
+        if not isinstance(base.get(k), list):
+            base[k] = []
+    return base
+
+
 def _safe_json(data) -> str:
     text = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
     return (
@@ -324,17 +335,6 @@ def _load_focus_scope_overrides(path: Path) -> dict:
     return _ensure_keys(base, list_keys=("manual_rule_groups", "profile_overrides"))
 
 
-def _ensure_keys(base: dict, dict_keys: tuple = (), list_keys: tuple = ()) -> dict:
-    """Ensure *base* has expected key types; fix in-place and return."""
-    for k in dict_keys:
-        if not isinstance(base.get(k), dict):
-            base[k] = {}
-    for k in list_keys:
-        if not isinstance(base.get(k), list):
-            base[k] = []
-    return base
-
-
 def _load_patent_evidence_bundle(path: Path) -> dict:
     base = _load_json_safe(path, _blank_patent_evidence_bundle)
     return _ensure_keys(base, dict_keys=("summary",), list_keys=("families",))
@@ -360,7 +360,9 @@ def _load_review_reason_decision_ladder_report(path: Path) -> dict:
     _ensure_keys(base, dict_keys=("summary",))
     ladders = base.get("ladders")
     if not isinstance(ladders, list):
-        base["ladders"] = list(base.get("decision_ladder") or []) if isinstance(base.get("decision_ladder"), list) else []
+        # Legacy key migration: older files used "decision_ladder" instead of "ladders"
+        fallback = base.get("decision_ladder")
+        base["ladders"] = list(fallback) if isinstance(fallback, list) else []
     return base
 
 
@@ -7576,7 +7578,7 @@ def build_html(
       if (nextRows.length) {
         const isManualReview = typedEval.overall_status === "manual_review";
         const ctaTitle = isManualReview ? "전문가 검토 안내" : "다음 단계";
-        const ctaStyle = isManualReview ? "background:#FFF8E1;border-left:3px solid var(--smna-warning);padding:12px;border-radius:8px;" : "";
+        const ctaStyle = isManualReview ? "background:var(--smna-badge-warning-bg,#FFF8E1);border-left:3px solid var(--smna-warning);padding:12px;border-radius:8px;" : "";
         ui.nextActionsBox.innerHTML = `<div style="${ctaStyle}"><strong>${ctaTitle}</strong><br>${nextRows.map((row) => `- ${esc(row)}`).join("<br>")}</div>`;
         ui.nextActionsBox.style.display = "block";
       }
@@ -8337,7 +8339,7 @@ def _repair_generated_permit_html(html: str) -> str:
       if (nextRows.length) {
         const isManualReview = typedEval.overall_status === "manual_review";
         const ctaTitle = isManualReview ? "전문가 검토 안내" : "다음 단계";
-        const ctaStyle = isManualReview ? "background:#FFF8E1;border-left:3px solid var(--smna-warning);padding:12px;border-radius:8px;" : "";
+        const ctaStyle = isManualReview ? "background:var(--smna-badge-warning-bg,#FFF8E1);border-left:3px solid var(--smna-warning);padding:12px;border-radius:8px;" : "";
         ui.nextActionsBox.innerHTML = `<div style="${ctaStyle}"><strong>${ctaTitle}</strong><br>${nextRows.map((row) => `- ${esc(row)}`).join("<br>")}</div>`;
         ui.nextActionsBox.style.display = "block";
       }
@@ -8526,7 +8528,7 @@ def _repair_generated_permit_html(html: str) -> str:
       if (nextRows.length) {
         const isManualReview = typedEval.overall_status === "manual_review";
         const ctaTitle = isManualReview ? "전문가 검토 안내" : "다음 단계";
-        const ctaStyle = isManualReview ? "background:#FFF8E1;border-left:3px solid var(--smna-warning);padding:12px;border-radius:8px;" : "";
+        const ctaStyle = isManualReview ? "background:var(--smna-badge-warning-bg,#FFF8E1);border-left:3px solid var(--smna-warning);padding:12px;border-radius:8px;" : "";
         ui.nextActionsBox.innerHTML = `<div style="${ctaStyle}"><strong>${ctaTitle}</strong><br>${nextRows.map((row) => `- ${esc(row)}`).join("<br>")}</div>`;
         ui.nextActionsBox.style.display = "block";
       }

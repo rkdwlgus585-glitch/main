@@ -24,8 +24,9 @@ def _sanitize_endpoint(url):
     src = str(url or "").strip()
     if not src:
         return ""
-    lowered = src.lower()
-    if lowered.startswith("javascript:"):
+    lowered = src.lower().lstrip()
+    # Protocol whitelist — only http(s) and relative paths allowed
+    if ":" in lowered.split("/")[0] and not (lowered.startswith("https:") or lowered.startswith("http:")):
         return ""
     if "localhost" in lowered or "127.0.0.1" in lowered or "::1" in lowered:
         return ""
