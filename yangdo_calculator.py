@@ -37,7 +37,7 @@ def listing_detail_url(site_url, seoul_no=0, now_uid=""):
         base = "https://seoulmna.co.kr"
     try:
         no = int(seoul_no or 0)
-    except Exception:
+    except (ValueError, TypeError):
         no = 0
     if no > 0:
         return f"{base}/mna/{no}"
@@ -137,7 +137,7 @@ def build_training_dataset(records, site_url=""):
             display_low, display_high = display_high, display_low
         try:
             seoul_no = int(rec.get("number", 0) or 0)
-        except Exception:
+        except (ValueError, TypeError):
             seoul_no = 0
         rows.append(
             {
@@ -204,7 +204,7 @@ def calc_quantile(values, q):
     for raw in list(values or []):
         try:
             nums.append(float(raw))
-        except Exception:
+        except (ValueError, TypeError):
             continue
     if not nums:
         return None
@@ -222,7 +222,7 @@ def mean_or_none(values):
     for raw in list(values or []):
         try:
             n = float(raw)
-        except Exception:
+        except (ValueError, TypeError):
             continue
         if n != n:
             continue
@@ -286,7 +286,7 @@ def _finite_numbers(values):
     for raw in list(values or []):
         try:
             num = float(raw)
-        except Exception:
+        except (ValueError, TypeError):
             continue
         if num != num:
             continue
@@ -319,7 +319,7 @@ def _fallback_capital_eok(key):
 def _fallback_surplus_eok(capital_eok):
     try:
         capital = float(capital_eok)
-    except Exception:
+    except (ValueError, TypeError):
         capital = 0.0
     if capital <= 0:
         return 0.2

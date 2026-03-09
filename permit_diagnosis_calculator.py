@@ -589,7 +589,7 @@ def _is_objective_source_url(url: str) -> bool:
 def _coerce_non_negative_float(value) -> float:
     try:
         out = float(value)
-    except Exception:
+    except (ValueError, TypeError):
         return 0.0
     if out != out or out < 0:
         return 0.0
@@ -599,7 +599,7 @@ def _coerce_non_negative_float(value) -> float:
 def _coerce_non_negative_int(value) -> int:
     try:
         out = int(float(value))
-    except Exception:
+    except (ValueError, TypeError):
         return 0
     if out < 0:
         return 0
