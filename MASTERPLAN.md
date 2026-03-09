@@ -71,11 +71,11 @@
 | Axis | Status | Direction |
 |---|---:|---|
 | AI 양도가 산정/추천 | 99% | 코어/위젯/QA/게이트 구조 완료, 추천 정밀도·집중도 감사·공개계약·서비스-매물 브리지·서비스 카피·UX 정렬·임대 lane ladder까지 canonical화, 전기/정보통신/소방 정산정책·confidence cap·reorgOverrides 정밀화, CSS 디자인 시스템 토큰화 완료 |
-| AI 인허가 사전검토 | 97% | 독립 시스템 유지, 플랫폼/임대 공통축 병행, 전기/정보통신/소방 typed_criteria·basis_refs·blocking 보완, CTA mode separation(shortfall/manual/pass) 및 증거 기반 분기 완료 |
+| AI 인허가 사전검토 | 99% | typed_criteria 245/245 업종 100% 커버리지 달성, 3계층 파이프라인(수작업+런타임합성+자동생성) 완성, 색상 배지 UX, _PENDING_CRITERIA_TEMPLATES 9개 카테고리, CTA mode separation(shortfall/manual/pass) 및 증거 기반 분기 완료 |
 | `.kr` 플랫폼화 | 99% | WordPress/Astra-first 경로로 IA/blueprint/apply/verify/operator checklist까지 완료 |
 | `.co.kr` 브리지 | 95% | 정책/CTA/UTM 계약 확정, 삽입용 bridge snippets 생성 |
 | 임대형 위젯/API | 99% | template -> scaffold -> validate -> activate 구조 완료 |
-| 특허 | 96% | canonical attorney handoff와 claim sentence draft까지 완료 |
+| 특허 | 98% | canonical attorney handoff + claim 9건(양도5+아키텍처3+구조화1), typed_criteria 자동 구조화 특허 claim 추가 |
 | 품질 기준 | 100% | 733 tests 100% PASS, XSS 전수 감사 완료, daily/weekly 자동 QA scheduled tasks 가동, Codex/Gemini 자동화 QA 체계 구축 |
 
 ## 3-Tier Automation Architecture
