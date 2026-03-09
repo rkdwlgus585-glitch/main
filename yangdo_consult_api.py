@@ -28,7 +28,7 @@ from utils import load_config, setup_logger
 try:
     import gspread
     from oauth2client.service_account import ServiceAccountCredentials
-except Exception:  # pragma: no cover - optional runtime dependency
+except ImportError:  # pragma: no cover - optional runtime dependency
     gspread = None
     ServiceAccountCredentials = None
 
@@ -72,7 +72,7 @@ def _cfg_bool(key, default=False):
 def _cfg_int(key, default):
     try:
         return int(str(CONFIG.get(key, default)).strip())
-    except Exception:
+    except (ValueError, TypeError):
         return int(default)
 
 
@@ -94,7 +94,7 @@ def _parse_confidence_score(raw):
         return None
     try:
         return float(m.group(1))
-    except Exception:
+    except (ValueError, OverflowError):
         return None
 
 
@@ -721,7 +721,7 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
         self.end_headers()
         try:
             self.wfile.write(body)
-        except Exception:
+        except (BrokenPipeError, ConnectionResetError, OSError):
             # Client disconnected before reading response.
             pass
 
@@ -777,7 +777,7 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
 
         try:
             request_id = self.server.store.insert(payload, tags, priority, urgency)
-        except Exception:
+        except (sqlite3.Error, OSError):
             logger.exception("db insert failed")
             self._write_json(500, {"ok": False, "error": "db_insert_failed"})
             return
@@ -787,7 +787,7 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
         crm_lead_id = _compact(crm.get("lead_id"), limit=80)
         try:
             self.server.store.update_crm_result(request_id, crm_status, crm_lead_id)
-        except Exception:
+        except (sqlite3.Error, OSError):
             logger.exception("db update crm result failed")
 
         self._write_json(
@@ -817,7 +817,7 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
         payload = _normalize_business_payload(payload)
         try:
             usage_id = self.server.store.insert_usage(payload)
-        except Exception:
+        except (sqlite3.Error, OSError):
             logger.exception("usage db insert failed")
             self._write_json(500, {"ok": False, "error": "usage_db_insert_failed"})
             return
@@ -857,7 +857,7 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
         except ValueError as e:
             self._write_json(400, {"ok": False, "error": str(e)})
             return
-        except Exception:
+        except (json.JSONDecodeError, UnicodeDecodeError, OSError):
             self._write_json(400, {"ok": False, "error": "invalid_json"})
             return
 
@@ -982,7 +982,7 @@ def main():
     finally:
         try:
             srv.server_close()
-        except Exception:
+        except OSError:
             pass
 
 
