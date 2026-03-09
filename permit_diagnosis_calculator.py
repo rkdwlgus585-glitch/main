@@ -867,8 +867,9 @@ def _build_rule_index(rule_catalog: dict) -> dict:
 
 def _resolve_rule_for_industry(industry: dict, rule_index: dict):
     service_code = _get_str(industry, "service_code")
-    if service_code and service_code in rule_index.get("by_service_code", {}):
-        return rule_index["by_service_code"][service_code]
+    by_service_code = rule_index.get("by_service_code", {})
+    if service_code and service_code in by_service_code:
+        return by_service_code[service_code]
     service_name = _get_str(industry, "service_name")
     if service_name:
         key = _normalize_key(service_name)

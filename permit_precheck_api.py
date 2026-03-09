@@ -74,7 +74,7 @@ def _compact(value: Any, limit: int = 2000) -> str:
 def _json_dumps_compact(value: Any) -> str:
     try:
         return json.dumps(value, ensure_ascii=False, separators=(",", ":"))
-    except Exception:
+    except (TypeError, ValueError, OverflowError):
         return "{}"
 
 
@@ -110,7 +110,7 @@ def _coerce_int_or_none(value: Any) -> int | None:
         if value is None:
             return None
         return int(float(value))
-    except Exception:
+    except (ValueError, TypeError, OverflowError):
         return None
 
 
@@ -119,7 +119,7 @@ def _coerce_float_or_none(value: Any) -> float | None:
         if value is None:
             return None
         out = float(value)
-    except Exception:
+    except (ValueError, TypeError):
         return None
     if out != out:
         return None
@@ -211,7 +211,7 @@ def _env_str(key: str, default: str = "") -> str:
 def _env_int(key: str, default: int) -> int:
     try:
         return int(str(CONFIG.get(key, default) or default).strip())
-    except Exception:
+    except (ValueError, TypeError):
         return int(default)
 
 
@@ -357,7 +357,7 @@ class PermitUsageStore:
             return {}
         try:
             return json.loads(path.read_text(encoding="utf-8-sig"))
-        except Exception:
+        except (OSError, json.JSONDecodeError, UnicodeDecodeError):
             return {}
 
     def _init_db(self) -> None:
@@ -1161,7 +1161,7 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         try:
             self.wfile.write(body)
-        except Exception:
+        except OSError:
             pass
 
     def _request_id(self) -> str:
