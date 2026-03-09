@@ -43,7 +43,7 @@ CONFIG = load_config({
 try:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
-except Exception:
+except (AttributeError, OSError):
     pass
 
 
@@ -404,7 +404,7 @@ class ListingSheetLookup:
         raw = ""
         try:
             raw = cell.decode_contents()
-        except Exception:
+        except (AttributeError, TypeError):
             raw = str(cell or "")
         raw = raw.replace("&nbsp;", " ")
         raw = re.sub(r"<br\s*/?>", "\n", raw, flags=re.I)
@@ -435,7 +435,7 @@ class ListingSheetLookup:
                     year = int(num)
                     if 1900 <= year <= 2100:
                         continue
-                except Exception:
+                except (ValueError, TypeError):
                     pass
             candidates.append(num)
         return _dedupe_keep_order(candidates)
@@ -494,7 +494,7 @@ class ListingSheetLookup:
 
         try:
             timeout = float(str(CONFIG.get("GABJI_SOURCE_TIMEOUT_SEC", "8")).strip() or "8")
-        except Exception:
+        except (ValueError, TypeError):
             timeout = 8.0
 
         url = self._seoul_detail_url_from_wr_id(int(wr_txt))
@@ -795,7 +795,7 @@ class ListingSheetLookup:
             return {}
         try:
             timeout = float(str(CONFIG.get("GABJI_SOURCE_TIMEOUT_SEC", "8")).strip() or "8")
-        except Exception:
+        except (ValueError, TypeError):
             timeout = 8.0
 
         url = self._detail_url_from_uid(source_uid)
@@ -1334,9 +1334,9 @@ def analyze_property(data: dict) -> dict:
                         pros.append(f"유동비율 양호 ({ratio}%)")
                     else:
                         cons.append(f"유동비율 주의 ({ratio}%)")
-            except Exception:
+            except (ValueError, TypeError):
                 pass
-    
+
     # 부채비율 분석
     for item in 비고:
         if "부채" in item:
@@ -1349,7 +1349,7 @@ def analyze_property(data: dict) -> dict:
                         cons.append(f"부채비율 보통 ({ratio}%)")
                     else:
                         cons.append(f"부채비율 높음 ({ratio}%)")
-            except Exception:
+            except (ValueError, TypeError):
                 pass
     
     # 기술자 분석
@@ -1375,7 +1375,7 @@ def analyze_property(data: dict) -> dict:
                 val = float(''.join(filter(lambda x: x.isdigit() or x=='.', str(합계3))))
                 if val >= 10:
                     pros.append("3년 매출실적 우수")
-            except Exception:
+            except (ValueError, TypeError):
                 pass
     
     return {"장점": pros[:4], "단점": cons[:4]}
@@ -1873,7 +1873,7 @@ class PNGGenerator:
             if os.path.exists(temp_html):
                 try:
                     os.remove(temp_html)
-                except Exception:
+                except OSError:
                     pass
 
 

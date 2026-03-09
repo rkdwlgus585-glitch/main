@@ -143,14 +143,14 @@ UPLOAD_STATE_FILE = str(CONFIG.get("UPLOAD_STATE_FILE", "all_upload_state.json")
 def _cfg_int(key, default):
     try:
         return int(str(CONFIG.get(key, default)).strip())
-    except Exception:
+    except (ValueError, TypeError):
         return default
 
 
 def _cfg_float(key, default):
     try:
         return float(str(CONFIG.get(key, default)).strip())
-    except Exception:
+    except (ValueError, TypeError):
         return default
 
 
@@ -381,7 +381,7 @@ _validate_domain_separation()
 try:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
-except Exception:
+except (AttributeError, OSError):
     pass
 
 
@@ -778,7 +778,7 @@ def _sheet_no_to_int(value):
     if re.fullmatch(r"\d+\.0+", src):
         try:
             return int(float(src))
-        except Exception:
+        except (ValueError, TypeError):
             return 0
     return 0
 
@@ -1038,14 +1038,14 @@ def _build_price_trace_updates(all_values):
 def _to_int_safe(value):
     try:
         return int(str(value).strip())
-    except Exception:
+    except (ValueError, TypeError):
         return 0
 
 
 def _to_float_safe(value):
     try:
         return float(str(value).strip())
-    except Exception:
+    except (ValueError, TypeError):
         return 0.0
 
 
@@ -1503,7 +1503,7 @@ def _sheet_num_or_none(raw):
         return None
     try:
         return float(m.group(0))
-    except Exception:
+    except (ValueError, TypeError):
         return None
 
 
@@ -1540,7 +1540,7 @@ def _fmt_eok_value(value):
         return ""
     try:
         num = float(value)
-    except Exception:
+    except (ValueError, TypeError):
         return ""
     if abs(num - round(num)) < 1e-9:
         return f"{int(round(num))}억"
@@ -1817,14 +1817,14 @@ def _neighbor_similarity_score(target, candidate):
             b = candidate.get("specialty")
             if isinstance(a, (int, float)) and isinstance(b, (int, float)) and float(b) != 0:
                 spec_ratio = float(a) / float(b)
-        except Exception:
+        except (ValueError, TypeError, ZeroDivisionError):
             spec_ratio = None
         try:
             a = target.get("sales3_eok")
             b = candidate.get("sales3_eok")
             if isinstance(a, (int, float)) and isinstance(b, (int, float)) and float(b) != 0:
                 sales_ratio = float(a) / float(b)
-        except Exception:
+        except (ValueError, TypeError, ZeroDivisionError):
             sales_ratio = None
         if (
             (spec_ratio is not None and (spec_ratio < 0.35 or spec_ratio > 2.85))
@@ -1841,7 +1841,7 @@ def _weighted_quantile(values, weights, q):
         try:
             vv = float(v)
             ww = float(w)
-        except Exception:
+        except (ValueError, TypeError):
             continue
         if ww <= 0:
             continue
@@ -2224,7 +2224,7 @@ def _compact_yangdo_training_dataset(train_dataset, max_rows=0):
     rows = list(train_dataset or [])
     try:
         limit = int(max_rows or 0)
-    except Exception:
+    except (ValueError, TypeError):
         limit = 0
     if limit <= 0 or len(rows) <= limit:
         return rows
@@ -2680,7 +2680,7 @@ def _truncate(text, limit):
 def _to_num_key(uid):
     try:
         return int(str(uid))
-    except Exception:
+    except (ValueError, TypeError):
         return 0
 
 
@@ -2727,7 +2727,7 @@ def _is_soft_empty_nowmna_list_page(ok, reason, page_no=0, html=""):
         return False
     try:
         page_no = int(page_no or 0)
-    except Exception:
+    except (ValueError, TypeError):
         page_no = 0
     reason_text = str(reason or "").strip().lower()
     if page_no < 5:
@@ -2796,7 +2796,7 @@ def _load_upload_state(path):
         if not str(data.get("last_uploaded_uid", "")).strip().isdigit():
             data["last_uploaded_uid"] = 0
         return data
-    except Exception:
+    except (json.JSONDecodeError, OSError, KeyError, TypeError):
         return {"uploaded_uids": {}, "last_uploaded_uid": 0}
 
 
@@ -2805,7 +2805,7 @@ def _extract_last_uploaded_uid(state):
     explicit = payload.get("last_uploaded_uid", 0)
     try:
         explicit_num = int(explicit or 0)
-    except Exception:
+    except (ValueError, TypeError):
         explicit_num = 0
     uploaded = payload.get("uploaded_uids", {})
     max_uid = 0
@@ -2885,7 +2885,7 @@ def _number_token(text):
 def _trim_decimal(value):
     try:
         num = float(value)
-    except Exception:
+    except (ValueError, TypeError):
         return str(value or "").strip()
     if abs(num - round(num)) < 1e-9:
         return str(int(round(num)))
@@ -3029,12 +3029,12 @@ def _extract_mna_cate_maps(form_html):
     if m1:
         try:
             cate1 = json.loads(m1.group(1))
-        except Exception:
+        except (json.JSONDecodeError, ValueError):
             cate1 = {}
     if m2:
         try:
             cate2 = json.loads(m2.group(1))
-        except Exception:
+        except (json.JSONDecodeError, ValueError):
             cate2 = {}
     return cate1, cate2
 
@@ -3993,7 +3993,7 @@ class MnaBoardPublisher:
                     data["date"] = str(raw.get("date", slot)).strip() or slot
                     data["requests"] = max(0, int(raw.get("requests", 0) or 0))
                     data["writes"] = max(0, int(raw.get("writes", 0) or 0))
-            except Exception:
+            except (json.JSONDecodeError, OSError, ValueError, TypeError):
                 pass
         if str(data.get("date", "")) != slot:
             data = {"date": slot, "requests": 0, "writes": 0}
@@ -4009,7 +4009,7 @@ class MnaBoardPublisher:
             payload["updated_at"] = datetime.now().isoformat(timespec="seconds")
             with open(path, "w", encoding="utf-8") as f:
                 json.dump(payload, f, ensure_ascii=False, indent=2)
-        except Exception:
+        except (OSError, TypeError):
             pass
 
     def _ensure_daily_limit_slot(self):
@@ -4054,7 +4054,7 @@ class MnaBoardPublisher:
                 _ensure_parent_dir(latest_path)
                 with open(latest_path, "w", encoding="utf-8") as f:
                     json.dump(payload, f, ensure_ascii=False, indent=2)
-            except Exception:
+            except (OSError, TypeError):
                 pass
         session_dir = str(self._guard_session_dir or "").strip()
         if session_dir and self._guard_session_id:
@@ -4063,7 +4063,7 @@ class MnaBoardPublisher:
                 session_path = os.path.join(session_dir, f"{self._guard_session_id}.json")
                 with open(session_path, "w", encoding="utf-8") as f:
                     json.dump(payload, f, ensure_ascii=False, indent=2)
-            except Exception:
+            except (OSError, TypeError):
                 pass
 
     def _load_lock_payload(self, path):
@@ -4072,7 +4072,7 @@ class MnaBoardPublisher:
                 data = json.load(f)
             if isinstance(data, dict):
                 return data
-        except Exception:
+        except (json.JSONDecodeError, OSError):
             pass
         return {}
 
@@ -4158,7 +4158,7 @@ class MnaBoardPublisher:
                         expected = str(MnaBoardPublisher._process_guard_session_id or "").strip()
                         if (not sid) or (sid == expected):
                             os.remove(lock_path)
-                except Exception:
+                except OSError:
                     pass
                 MnaBoardPublisher._process_guard_depth = 0
                 MnaBoardPublisher._process_guard_lock_file = ""
@@ -5267,7 +5267,7 @@ def _log_sheet_row_jump_watchdog(report, context=""):
         _ensure_parent_dir(path)
         with open(path, "w", encoding="utf-8") as f:
             json.dump(payload, f, ensure_ascii=False, indent=2)
-    except Exception:
+    except (OSError, TypeError):
         pass
 
 
