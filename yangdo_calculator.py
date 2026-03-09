@@ -5422,7 +5422,7 @@ def build_page_html(
           }})
           .filter((x) => !!x);
         if (rows.length < 4) {{
-          return {{ slope: 1.0, reliability: 0.28, samples: rows.length }};
+          return {{ slope: NaN, reliability: 0.0, samples: rows.length }};
         }}
         const wSum = rows.reduce((a, x) => a + x.w, 0) || 1;
         const meanB = rows.reduce((a, x) => a + (x.b * x.w), 0) / wSum;
@@ -5435,7 +5435,7 @@ def build_page_html(
           varB += x.w * db * db;
         }});
         let slope = Number.isFinite(varB) && varB > 1e-7 ? (cov / varB) : NaN;
-        if (!Number.isFinite(slope)) slope = 1.0;
+        if (!Number.isFinite(slope)) return {{ slope: NaN, reliability: 0.0, samples: rows.length }};
         slope = clamp(slope, 0.92, 1.08);
         const minB = Math.min(...rows.map((x) => x.b));
         const maxB = Math.max(...rows.map((x) => x.b));

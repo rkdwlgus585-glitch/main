@@ -934,7 +934,7 @@ def evaluate_registration_diagnosis(
 
     typed_eval = evaluate_typed_criteria(rule, typed_inputs, base_date=baseline)
     typed_status = _get_str(typed_eval, "overall_status").lower()
-    typed_ok = typed_status in {"", "pass"}
+    typed_ok = typed_status == "pass"
     overall_ok = bool(capital_ok and technicians_ok and equipment_ok and typed_ok)
 
     return {
@@ -7373,7 +7373,10 @@ def build_html(
       const mappingMeta = rule && rule.mapping_meta ? rule.mapping_meta : {};
       const coerce = (value, type) => {
         const vt = String(type || "number").toLowerCase();
-        if (vt === "boolean" || vt === "bool") return !!value;
+        if (vt === "boolean" || vt === "bool") {
+          if (value === null || value === undefined) return null;
+          return !!value;
+        }
         if (vt === "integer" || vt === "int") return Core.toInt(value);
         if (vt === "string" || vt === "text") return String(value || "").trim();
         return Number.isFinite(Number(value)) ? Number(value) : null;

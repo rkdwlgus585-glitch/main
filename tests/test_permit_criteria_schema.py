@@ -242,6 +242,46 @@ class EvaluateOperatorTest(unittest.TestCase):
         r = _evaluate_operator(True, None, "TRUTHY", "bool")
         self.assertTrue(r["ok"])
 
+    # -- Regression: Bug2 — contains/in with required=None → manual_review --
+    def test_contains_required_none_returns_manual_review(self):
+        r = _evaluate_operator(["a", "b"], None, "contains", "list")
+        self.assertEqual(r["status"], "manual_review")
+        self.assertIsNone(r["ok"])
+
+    def test_in_required_none_returns_manual_review(self):
+        r = _evaluate_operator("a", None, "in", "list")
+        self.assertEqual(r["status"], "manual_review")
+        self.assertIsNone(r["ok"])
+
+    # -- Regression: Bug6 — float precision tolerance in >=/<= --
+    def test_gte_float_precision_boundary(self):
+        """1.4999999999999998 should pass >= 1.5 (IEEE 754 tolerance)."""
+        r = _evaluate_operator(1.4999999999999998, 1.5, ">=", "number")
+        self.assertTrue(r["ok"])
+        self.assertEqual(r["status"], "pass")
+        self.assertEqual(r["gap"], 0)
+
+    def test_lte_float_precision_boundary(self):
+        """1.5000000000000002 should pass <= 1.5 (IEEE 754 tolerance)."""
+        r = _evaluate_operator(1.5000000000000002, 1.5, "<=", "number")
+        self.assertTrue(r["ok"])
+        self.assertEqual(r["status"], "pass")
+        self.assertEqual(r["gap"], 0)
+
+    def test_gte_genuine_fail_not_affected(self):
+        """Genuine shortfall (1.0 vs 1.5) should still fail."""
+        r = _evaluate_operator(1.0, 1.5, ">=", "number")
+        self.assertFalse(r["ok"])
+        self.assertEqual(r["status"], "fail")
+        self.assertAlmostEqual(r["gap"], 0.5)
+
+    def test_lte_genuine_fail_not_affected(self):
+        """Genuine overshoot (2.0 vs 1.5) should still fail."""
+        r = _evaluate_operator(2.0, 1.5, "<=", "number")
+        self.assertFalse(r["ok"])
+        self.assertEqual(r["status"], "fail")
+        self.assertAlmostEqual(r["gap"], 0.5)
+
 
 # ── Full evaluation pipeline ─────────────────────────────────────────
 

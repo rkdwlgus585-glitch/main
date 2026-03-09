@@ -227,7 +227,7 @@ class ConsultantAI:
                         if req.get('credit_max') and row_credit_score > target_max: continue
 
                 matches.append(row_id)
-            except Exception:
+            except (ValueError, TypeError, KeyError):
                 continue
         return matches
 

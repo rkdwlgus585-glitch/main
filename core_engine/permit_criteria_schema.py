@@ -131,7 +131,7 @@ def _evaluate_operator(current_value: Any, required_value: Any, operator: str, v
             "gap": None,
         }
 
-    if required is None and op in (">=", "<=", "==", "!="):
+    if required is None and op in (">=", "<=", "==", "!=", "contains", "in"):
         return {
             "status": "manual_review",
             "ok": None,
@@ -141,15 +141,21 @@ def _evaluate_operator(current_value: Any, required_value: Any, operator: str, v
         }
 
     if op == ">=":
-        ok = current >= required
-        status = "pass" if ok else "fail"
         if isinstance(current, (int, float)) and isinstance(required, (int, float)):
-            gap = max(0, required - current)
+            ok = current >= required or abs(current - required) < 1e-9
+            gap = max(0, round(required - current, 9))
+        else:
+            ok = current >= required
+            gap = None
+        status = "pass" if ok else "fail"
     elif op == "<=":
-        ok = current <= required
-        status = "pass" if ok else "fail"
         if isinstance(current, (int, float)) and isinstance(required, (int, float)):
-            gap = max(0, current - required)
+            ok = current <= required or abs(current - required) < 1e-9
+            gap = max(0, round(current - required, 9))
+        else:
+            ok = current <= required
+            gap = None
+        status = "pass" if ok else "fail"
     elif op == "==":
         ok = current == required
         status = "pass" if ok else "fail"
