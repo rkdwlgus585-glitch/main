@@ -295,6 +295,16 @@
 - patent handoff: `scripts/generate_attorney_handoff.py`
 
 ## Changelog
+### [2026-03-09] Session 8
+- **HTML 빌드 통합 테스트**: `test_build_html_integration.py` 신규 — permit 12 + yangdo 5 = 17 테스트. JS 함수, UI ID, CSS 변수, placeholder 치환, fragment 모드 등 실제 HTML 출력물 검증.
+- **except Exception 구체화 (scheduler + lead_intake)**: `consult_match_scheduler.py` 7건 + `lead_intake.py` 5건 = 12건 → 구체적 예외 전환. scheduler loop catch-all은 의도적 유지.
+- **yangdo JS DRY 3건 통합 (−28줄)**:
+  - `isSeparateBalanceGroupToken`: indexOf 체인 → `specialBalanceSectorName()` 재사용
+  - `hideStandalonePageTitle` / `hideEmbedChrome`: 동일 style 6줄 → `forceHideElements()` helper
+  - `syncReorgModeRequirement`: if/else 업종 메시지 → `SECTOR_SPLIT_NOTES` lookup 객체
+- **ops scripts**: now-to-sheet 스케줄 weekly → twice-daily (12:00, 18:00)
+- **Quality**: 1040 tests + 32 subtests PASS.
+
 ### [2026-03-09] Session 7
 - **permit repair 함수 대규모 DRY**: `_repair_generated_permit_html()` 내 원본과 동일한 JS 교체 블록 7개 삭제 (evaluateTypedCriteriaLocal 98줄 + renderBasisRows/renderRuleBasis/renderFocusProfile/renderQualityFlags/renderCandidateFallback/renderStructuredReview 207줄). 실제 패치인 renderProofClaim/renderResult만 유지.
 - **Secondary File Exception Narrowing**: `listing_matcher.py`(3건), `quote_engine.py`(3건), `internal_linker.py`(4건) → 구체적 예외 전환.
