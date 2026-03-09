@@ -7540,9 +7540,17 @@ def build_html(
       if (blockingFailureCount > 0) overallStatus = "shortfall";
       else if (unknownBlockingCount > 0 || manualReviewRequired || coverageStatus !== "full") overallStatus = "manual_review";
       const nextActions = [];
-      if (blockingFailureCount > 0) nextActions.push("부족한 요건부터 먼저 보완해 주세요.");
-      if (unknownBlockingCount > 0) nextActions.push("입력하지 않은 필수 항목을 확인해 주세요.");
-      if (pending.length > 0) nextActions.push("자동 추출이 덜 된 항목은 법령 원문을 함께 확인해 주세요.");
+      const ctaMode = blockingFailureCount > 0 ? "shortfall" : (manualReviewRequired ? "manual_review" : "pass");
+      if (ctaMode === "shortfall") {{
+        nextActions.push("부족한 요건부터 먼저 보완해 주세요.");
+        if (unknownBlockingCount > 0) nextActions.push("입력하지 않은 필수 항목을 확인해 주세요.");
+        nextActions.push("보완 완료 후 다시 진단하면 등록 가능 여부를 확인할 수 있습니다.");
+      }} else if (ctaMode === "manual_review") {{
+        if (unknownBlockingCount > 0) nextActions.push("일부 항목의 입력값이 누락되어 정확한 판단이 어렵습니다.");
+        if (pending.length > 0) nextActions.push("자동 구조화가 완료되지 않은 기준이 있어 법령 원문 대조가 필요합니다.");
+        if (mappingConfidence !== null && mappingConfidence < 0.75) nextActions.push("매핑 신뢰도가 낮아 전문 행정사의 확인을 권장합니다.");
+        nextActions.push("정밀 검토가 필요한 경우 전문 상담을 이용해 주세요.");
+      }}
       return {
         typed_criteria_total: typed.length,
         pending_criteria_count: pending.length,
@@ -7580,16 +7588,27 @@ def build_html(
       }
 
       const evidenceRows = Array.isArray(typedEval.evidence_checklist) ? typedEval.evidence_checklist : [];
-      if (evidenceRows.length) {
-        ui.evidenceChecklistBox.innerHTML = `<strong>준비 서류</strong><br>${evidenceRows.map((row) => `- ${esc(row.label)} (${esc(row.reason || "확인 필요")})`).join("<br>")}`;
+      if (evidenceRows.length) {{
+        const isShortfall = typedEval.overall_status === "shortfall";
+        const evidenceTitle = isShortfall ? "보완 필요 서류" : "확인 권장 서류";
+        const evidenceDesc = isShortfall
+          ? "아래 서류를 준비하시면 등록 요건을 충족할 수 있습니다."
+          : "아래 항목은 전문가 확인 시 필요할 수 있는 서류입니다.";
+        ui.evidenceChecklistBox.innerHTML = `<strong>${{evidenceTitle}}</strong><br><small style="color:#6B7280">${{evidenceDesc}}</small><br>${{evidenceRows.map((row) => {{
+          const icon = row.reason === "보완 필요" ? "⚠️" : "📋";
+          return `${{icon}} ${{esc(row.label)}} <span style="color:#6B7280">(${{esc(row.reason || "확인 필요")}})</span>`;
+        }}).join("<br>")}}}`;
         ui.evidenceChecklistBox.style.display = "block";
-      }
+      }}
 
       const nextRows = Array.isArray(typedEval.next_actions) ? typedEval.next_actions : [];
-      if (nextRows.length) {
-        ui.nextActionsBox.innerHTML = `<strong>다음 단계</strong><br>${nextRows.map((row) => `- ${esc(row)}`).join("<br>")}`;
+      if (nextRows.length) {{
+        const isManualReview = typedEval.overall_status === "manual_review";
+        const ctaTitle = isManualReview ? "전문가 검토 안내" : "다음 단계";
+        const ctaStyle = isManualReview ? "background:#FFF8E1;border-left:3px solid #FFB800;padding:12px;border-radius:8px;" : "";
+        ui.nextActionsBox.innerHTML = `<div style="${{ctaStyle}}"><strong>${{ctaTitle}}</strong><br>${{nextRows.map((row) => `- ${{esc(row)}}`).join("<br>")}}</div>`;
         ui.nextActionsBox.style.display = "block";
-      }
+      }}
     };
 
     const renderResult = () => {
@@ -8270,9 +8289,17 @@ def _repair_generated_permit_html(html: str) -> str:
       if (blockingFailureCount > 0) overallStatus = "shortfall";
       else if (unknownBlockingCount > 0 || manualReviewRequired || coverageStatus !== "full") overallStatus = "manual_review";
       const nextActions = [];
-      if (blockingFailureCount > 0) nextActions.push("부족한 요건부터 먼저 보완해 주세요.");
-      if (unknownBlockingCount > 0) nextActions.push("입력하지 않은 필수 항목을 확인해 주세요.");
-      if (pending.length > 0) nextActions.push("자동 추출이 덜 된 항목은 법령 원문을 함께 확인해 주세요.");
+      const ctaMode = blockingFailureCount > 0 ? "shortfall" : (manualReviewRequired ? "manual_review" : "pass");
+      if (ctaMode === "shortfall") {{
+        nextActions.push("부족한 요건부터 먼저 보완해 주세요.");
+        if (unknownBlockingCount > 0) nextActions.push("입력하지 않은 필수 항목을 확인해 주세요.");
+        nextActions.push("보완 완료 후 다시 진단하면 등록 가능 여부를 확인할 수 있습니다.");
+      }} else if (ctaMode === "manual_review") {{
+        if (unknownBlockingCount > 0) nextActions.push("일부 항목의 입력값이 누락되어 정확한 판단이 어렵습니다.");
+        if (pending.length > 0) nextActions.push("자동 구조화가 완료되지 않은 기준이 있어 법령 원문 대조가 필요합니다.");
+        if (mappingConfidence !== null && mappingConfidence < 0.75) nextActions.push("매핑 신뢰도가 낮아 전문 행정사의 확인을 권장합니다.");
+        nextActions.push("정밀 검토가 필요한 경우 전문 상담을 이용해 주세요.");
+      }}
       return {
         typed_criteria_total: typed.length,
         pending_criteria_count: pending.length,
@@ -8314,16 +8341,27 @@ def _repair_generated_permit_html(html: str) -> str:
       }
 
       const evidenceRows = Array.isArray(typedEval.evidence_checklist) ? typedEval.evidence_checklist : [];
-      if (evidenceRows.length) {
-        ui.evidenceChecklistBox.innerHTML = `<strong>준비 서류</strong><br>${evidenceRows.map((row) => `- ${esc(row.label)} (${esc(row.reason || "확인 필요")})`).join("<br>")}`;
+      if (evidenceRows.length) {{
+        const isShortfall = typedEval.overall_status === "shortfall";
+        const evidenceTitle = isShortfall ? "보완 필요 서류" : "확인 권장 서류";
+        const evidenceDesc = isShortfall
+          ? "아래 서류를 준비하시면 등록 요건을 충족할 수 있습니다."
+          : "아래 항목은 전문가 확인 시 필요할 수 있는 서류입니다.";
+        ui.evidenceChecklistBox.innerHTML = `<strong>${{evidenceTitle}}</strong><br><small style="color:#6B7280">${{evidenceDesc}}</small><br>${{evidenceRows.map((row) => {{
+          const icon = row.reason === "보완 필요" ? "⚠️" : "📋";
+          return `${{icon}} ${{esc(row.label)}} <span style="color:#6B7280">(${{esc(row.reason || "확인 필요")}})</span>`;
+        }}).join("<br>")}}}`;
         ui.evidenceChecklistBox.style.display = "block";
-      }
+      }}
 
       const nextRows = Array.isArray(typedEval.next_actions) ? typedEval.next_actions : [];
-      if (nextRows.length) {
-        ui.nextActionsBox.innerHTML = `<strong>다음 단계</strong><br>${nextRows.map((row) => `- ${esc(row)}`).join("<br>")}`;
+      if (nextRows.length) {{
+        const isManualReview = typedEval.overall_status === "manual_review";
+        const ctaTitle = isManualReview ? "전문가 검토 안내" : "다음 단계";
+        const ctaStyle = isManualReview ? "background:#FFF8E1;border-left:3px solid #FFB800;padding:12px;border-radius:8px;" : "";
+        ui.nextActionsBox.innerHTML = `<div style="${{ctaStyle}}"><strong>${{ctaTitle}}</strong><br>${{nextRows.map((row) => `- ${{esc(row)}}`).join("<br>")}}</div>`;
         ui.nextActionsBox.style.display = "block";
-      }
+      }}
     };
 ''',
     )
@@ -8485,16 +8523,27 @@ def _repair_generated_permit_html(html: str) -> str:
       }
 
       const evidenceRows = Array.isArray(typedEval.evidence_checklist) ? typedEval.evidence_checklist : [];
-      if (evidenceRows.length) {
-        ui.evidenceChecklistBox.innerHTML = `<strong>준비 서류</strong><br>${evidenceRows.map((row) => `- ${esc(row.label)} (${esc(row.reason || "확인 필요")})`).join("<br>")}`;
+      if (evidenceRows.length) {{
+        const isShortfall = typedEval.overall_status === "shortfall";
+        const evidenceTitle = isShortfall ? "보완 필요 서류" : "확인 권장 서류";
+        const evidenceDesc = isShortfall
+          ? "아래 서류를 준비하시면 등록 요건을 충족할 수 있습니다."
+          : "아래 항목은 전문가 확인 시 필요할 수 있는 서류입니다.";
+        ui.evidenceChecklistBox.innerHTML = `<strong>${{evidenceTitle}}</strong><br><small style="color:#6B7280">${{evidenceDesc}}</small><br>${{evidenceRows.map((row) => {{
+          const icon = row.reason === "보완 필요" ? "⚠️" : "📋";
+          return `${{icon}} ${{esc(row.label)}} <span style="color:#6B7280">(${{esc(row.reason || "확인 필요")}})</span>`;
+        }}).join("<br>")}}}`;
         ui.evidenceChecklistBox.style.display = "block";
-      }
+      }}
 
       const nextRows = Array.isArray(typedEval.next_actions) ? typedEval.next_actions : [];
-      if (nextRows.length) {
-        ui.nextActionsBox.innerHTML = `<strong>다음 단계</strong><br>${nextRows.map((row) => `- ${esc(row)}`).join("<br>")}`;
+      if (nextRows.length) {{
+        const isManualReview = typedEval.overall_status === "manual_review";
+        const ctaTitle = isManualReview ? "전문가 검토 안내" : "다음 단계";
+        const ctaStyle = isManualReview ? "background:#FFF8E1;border-left:3px solid #FFB800;padding:12px;border-radius:8px;" : "";
+        ui.nextActionsBox.innerHTML = `<div style="${{ctaStyle}}"><strong>${{ctaTitle}}</strong><br>${{nextRows.map((row) => `- ${{esc(row)}}`).join("<br>")}}</div>`;
         ui.nextActionsBox.style.display = "block";
-      }
+      }}
     };
 
     const renderResult = () => {''',

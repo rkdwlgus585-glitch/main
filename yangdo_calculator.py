@@ -559,7 +559,7 @@ def build_page_html(
               <summary>전문가 상담 요청 열기</summary>
               <div class="consult-panel-body">
                 <div class="consult-title">전문가 상담 요청</div>
-                <div class="consult-sub">산정 결과를 첨부해 바로 상담 요청할 수 있습니다. 대표 상담 / <strong id="contact-phone-display">{escape(contact_phone)}</strong></div>
+                <div class="consult-sub">산정 결과를 첨부해 바로 상담 요청할 수 있습니다.<br>대표 상담 / <strong id="contact-phone-display" style="font-weight:600">{escape(contact_phone)}</strong></div>
                 <div class="consult-grid">
                   <div class="field"><label for="consult-name">성함</label><input id="consult-name" type="text" maxlength="40" placeholder="홍길동" /></div>
                   <div class="field"><label for="consult-phone">연락처</label><input id="consult-phone" type="text" maxlength="20" placeholder="010-1234-5678" /></div>
@@ -677,19 +677,22 @@ def build_page_html(
     }}
     #seoulmna-yangdo-calculator {{
       --smna-primary: #003764;
-      --smna-primary-strong: #022742;
-      --smna-primary-soft: #0f5a8e;
-      --smna-neutral: #edf4f8;
-      --smna-accent: #0f9fb0;
-      --smna-accent-strong: #087889;
-      --smna-bg: linear-gradient(180deg, #eef4f8 0%, #f7fafc 100%);
-      --smna-bg-soft: #f3f8fb;
-      --smna-line: rgba(0, 55, 100, 0.12);
-      --smna-accent-soft: rgba(15, 159, 176, 0.08);
-      --smna-accent-border: rgba(15, 159, 176, 0.22);
-      --smna-text: #102132;
-      --smna-sub: #546476;
-      --smna-warning: #d76a3b;
+      --smna-primary-strong: #002244;
+      --smna-primary-soft: #0A4D8C;
+      --smna-neutral: #F8FAFB;
+      --smna-accent: #00A3FF;
+      --smna-accent-strong: #0080CC;
+      --smna-bg: linear-gradient(180deg, #F8FAFB 0%, #FFFFFF 100%);
+      --smna-bg-soft: #F8FAFB;
+      --smna-line: rgba(0, 55, 100, 0.10);
+      --smna-accent-soft: rgba(0, 163, 255, 0.08);
+      --smna-accent-border: rgba(0, 163, 255, 0.22);
+      --smna-text: #1A1A2E;
+      --smna-sub: #6B7280;
+      --smna-warning: #FFB800;
+      --smna-success: #00C48C;
+      --smna-error: #FF4757;
+      --smna-border: #E5E7EB;
       font-family: "Pretendard", "Noto Sans KR", "Malgun Gothic", Arial, sans-serif;
       color: var(--smna-text);
       font-size: 19px;
@@ -1627,8 +1630,10 @@ def build_page_html(
     }}
     #seoulmna-yangdo-calculator .consult-sub {{
       font-size: 17px;
-      color: #4a5d72;
+      color: var(--smna-sub, #6B7280);
       margin-bottom: 8px;
+      text-align: center;
+      line-height: 1.6;
     }}
     #seoulmna-yangdo-calculator .consult-grid {{
       display: grid;
@@ -2660,6 +2665,21 @@ def build_page_html(
       #seoulmna-yangdo-calculator .neighbor-panel summary {{ padding: 10px 11px; }}
       #seoulmna-yangdo-calculator .neighbor-panel summary .sub {{ font-size: 11px; }}
     }}
+
+    /* ── Design System Components (#003764) ── */
+    #seoulmna-yangdo-calculator .badge-success {{ background: #E6F9F1; color: var(--smna-success, #00C48C); padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; display: inline-block; }}
+    #seoulmna-yangdo-calculator .badge-warning {{ background: #FFF8E1; color: var(--smna-warning, #FFB800); padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; display: inline-block; }}
+    #seoulmna-yangdo-calculator .badge-error {{ background: #FFEBEE; color: var(--smna-error, #FF4757); padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; display: inline-block; }}
+    #seoulmna-yangdo-calculator .badge-info {{ background: #E3F2FD; color: var(--smna-primary, #003764); padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; display: inline-block; }}
+    #seoulmna-yangdo-calculator .sector-chip {{ padding: 6px 14px; border-radius: 20px; background: #F3F4F6; color: var(--smna-sub, #6B7280); font-size: 14px; cursor: pointer; transition: all 0.2s ease; border: none; }}
+    #seoulmna-yangdo-calculator .sector-chip:hover {{ background: #E5E7EB; }}
+    #seoulmna-yangdo-calculator .sector-chip.active {{ background: var(--smna-primary, #003764); color: #FFFFFF; }}
+    #seoulmna-yangdo-calculator .bottom-cta-wrap {{ position: sticky; bottom: 0; left: 0; right: 0; padding: 16px 20px; background: linear-gradient(to top, #fff 80%, transparent); z-index: 50; }}
+    #seoulmna-yangdo-calculator .btn-primary {{ width: 100%; height: 52px; background: var(--smna-primary, #003764); color: white; border-radius: 12px; font-size: 17px; font-weight: 600; border: none; cursor: pointer; transition: background 0.2s; }}
+    #seoulmna-yangdo-calculator .btn-primary:hover {{ background: var(--smna-primary-strong, #002244); }}
+    #seoulmna-yangdo-calculator .alert-banner {{ background: var(--smna-neutral, #F8FAFB); border-left: 3px solid var(--smna-accent, #00A3FF); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 8px 0; font-size: 14px; }}
+    #seoulmna-yangdo-calculator .step-indicator {{ height: 4px; background: #E5E7EB; border-radius: 2px; overflow: hidden; }}
+    #seoulmna-yangdo-calculator .step-indicator-fill {{ height: 100%; background: var(--smna-accent, #00A3FF); border-radius: 2px; transition: width 0.3s ease; }}
   </style>
 
   <div class="smna-header">
