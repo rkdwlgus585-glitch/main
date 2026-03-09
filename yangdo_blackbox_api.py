@@ -156,7 +156,7 @@ def _write_partner_health_json(handler: Any, status: int = 200) -> None:
     handler.end_headers()
     try:
         handler.wfile.write(body)
-    except Exception:
+    except OSError:
         pass
 
 
@@ -1029,12 +1029,12 @@ def _json_ready(value: Any) -> Any:
     if hasattr(value, "_asdict"):
         try:
             return _json_ready(value._asdict())
-        except Exception:
+        except (TypeError, AttributeError):
             pass
     if hasattr(value, "__dict__"):
         try:
             return _json_ready(vars(value))
-        except Exception:
+        except TypeError:
             pass
     return str(value)
 

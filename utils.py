@@ -46,7 +46,7 @@ def setup_logger(name="mnakr", log_dir="logs"):
                 logger.removeHandler(handler)
                 try:
                     handler.close()
-                except Exception:
+                except OSError:
                     pass
         elif is_console:
             has_console = True
