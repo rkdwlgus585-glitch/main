@@ -7,7 +7,10 @@ from core_engine.channel_branding import resolve_channel_branding
 def _round4(value):
     if value is None:
         return None
-    return round(float(value), 4)
+    try:
+        return round(float(value), 4)
+    except (ValueError, TypeError):
+        return None
 def safe_json_for_script(data):
     text = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
     return (
