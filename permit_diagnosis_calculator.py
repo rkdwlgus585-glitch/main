@@ -757,6 +757,39 @@ _PENDING_CRITERIA_TEMPLATES = {
         "blocking": False,
         "evidence_types": ["안전관리 계획서", "환경·안전 교육 증빙"],
     },
+    "core_requirement": {
+        "criterion_id": "facility.secured.auto",
+        "category": "facility",
+        "label": "시설·장비·보관공간 확인",
+        "input_key": "facility_secured",
+        "value_type": "boolean",
+        "operator": "==",
+        "required_value": True,
+        "blocking": False,
+        "evidence_types": ["시설 보유 증빙", "사업장 사진", "장비 명세"],
+    },
+    "guarantee": {
+        "criterion_id": "guarantee.secured.auto",
+        "category": "guarantee",
+        "label": "보증금·이행보증 확인",
+        "input_key": "insurance_secured",
+        "value_type": "boolean",
+        "operator": "==",
+        "required_value": True,
+        "blocking": False,
+        "evidence_types": ["보증보험 증권", "이행보증서", "보증금 납부 영수증"],
+    },
+    "operations": {
+        "criterion_id": "facility.secured.auto",
+        "category": "facility",
+        "label": "시설·장비·보관공간 확인",
+        "input_key": "facility_secured",
+        "value_type": "boolean",
+        "operator": "==",
+        "required_value": True,
+        "blocking": False,
+        "evidence_types": ["운영 계획서", "업무 매뉴얼", "관리 체계 증빙"],
+    },
 }
 
 
@@ -768,6 +801,8 @@ def _synthesize_typed_criteria_from_pending(pending_lines) -> list:
             continue
         category = str(item.get("category", "") or "").strip()
         template = _PENDING_CRITERIA_TEMPLATES.get(category)
+        if not template and category == "other":
+            template = _PENDING_CRITERIA_TEMPLATES.get("facility_misc")
         if not template:
             continue
         criterion_id = str(template.get("criterion_id", "") or "").strip()

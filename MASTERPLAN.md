@@ -295,6 +295,16 @@
 - patent handoff: `scripts/generate_attorney_handoff.py`
 
 ## Changelog
+### [2026-03-09] Session 3
+- **Permit typed_criteria 100% Coverage**: 245개 전체 업종 typed_criteria 달성. 기존 20/245(8%) → 245/245(100%).
+  - `_PENDING_CRITERIA_TEMPLATES` 확장: `core_requirement`, `guarantee`, `operations` 3개 카테고리 추가 + `other` → `facility_misc` 폴백.
+  - `enrich_permit_typed_criteria.py` 스크립트 작성: `other_components` 기반 자동 typed_criteria 생성, 219개 업종 enrichment.
+  - 나머지 6개 (other_components 미지정) → `document.ready.auto` 최소 기준 부여.
+- **Permit Data Architecture 분석 완료**:
+  - `registration_requirement_profile` vs `typed_criteria` vs `pending_criteria_lines` 3계층 구조 해석.
+  - `rule_criteria_packs`(54개) ↔ `industries`(245개) 연결 구조: rule_id 기반 + 신규 enrichment 기반 이중 경로.
+  - 카테고리 분포: facility_misc(3178), core_requirement(454), other(137), personnel_misc(145), document(105), office(90), environment_safety(66).
+
 ### [2026-03-09] Session 2
 - **CSS Design System**: 11개 새 CSS 커스텀 프로퍼티 추가(--smna-header-text, --smna-teal, --smna-disabled-bg 등), hardcoded hex 14곳 → var() 치환.
 - **WCAG 2.1 AA**: Gemini CLI 접근성 감사 기반 — --smna-sub 색상 대비 4.5:1 달성(#6B7280→#4B5563), button/chip/cta focus-visible 스타일 추가, aria-required/aria-live/aria-atomic/role="region" 보강.
