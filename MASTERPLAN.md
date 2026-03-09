@@ -295,6 +295,12 @@
 - patent handoff: `scripts/generate_attorney_handoff.py`
 
 ## Changelog
+### [2026-03-09] Session 9
+- **host_utils 공통 모듈 추출**: `channel_profiles.py` + `tenant_gateway.py` 동일 3함수 → `core_engine/host_utils.py` 통합 (−70줄). normalize_host protocol-relative URL 지원, to_bool int(0) 올바른 처리.
+- **host_utils 테스트**: 27개 단위 테스트 추가. core_engine 11/11 모듈.
+- **permit repair 분석**: renderProofClaim/renderResult 패치가 template과 의도적으로 다름. 제거 불가 판정.
+- **Quality**: 1067 tests + 52 subtests PASS.
+
 ### [2026-03-09] Session 8
 - **HTML 빌드 통합 테스트**: `test_build_html_integration.py` 신규 — permit 12 + yangdo 5 = 17 테스트. JS 함수, UI ID, CSS 변수, placeholder 치환, fragment 모드 등 실제 HTML 출력물 검증.
 - **except Exception 구체화 (scheduler + lead_intake)**: `consult_match_scheduler.py` 7건 + `lead_intake.py` 5건 = 12건 → 구체적 예외 전환. scheduler loop catch-all은 의도적 유지.
