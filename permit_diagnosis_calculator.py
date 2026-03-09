@@ -3894,12 +3894,12 @@ def build_html(
         </div>
         <div class="field">
           <label for="capitalInput">현재 보유 자본금(억)</label>
-          <input id="capitalInput" class="control" type="number" inputmode="decimal" min="0" step="0.01" placeholder="예: 1.5" />
+          <input id="capitalInput" class="control" type="number" inputmode="decimal" min="0" step="0.01" placeholder="예: 1.5" aria-required="true" />
           <p id="crossValidation" class="assist" aria-live="polite"></p>
         </div>
         <div class="field">
           <label for="technicianInput">현재 기술인력 수(명)</label>
-          <input id="technicianInput" class="control" type="number" inputmode="numeric" min="0" step="1" placeholder="예: 2" />
+          <input id="technicianInput" class="control" type="number" inputmode="numeric" min="0" step="1" placeholder="예: 2" aria-required="true" />
         </div>
         <div class="field">
           <label for="equipmentInput">현재 보유 장비 수(식)</label>
@@ -3927,11 +3927,11 @@ def build_html(
         <p id="requirementsMeta" class="meta-box">-</p>
 
         <p class="metric-label">자본금 갭 진단</p>
-        <p id="capitalGapStatus" class="status">-</p>
+        <p id="capitalGapStatus" class="status" aria-live="polite">-</p>
         <p class="metric-label">기술인력 갭 진단</p>
-        <p id="technicianGapStatus" class="status">-</p>
+        <p id="technicianGapStatus" class="status" aria-live="polite">-</p>
         <p class="metric-label">장비 갭 진단</p>
-        <p id="equipmentGapStatus" class="status">-</p>
+        <p id="equipmentGapStatus" class="status" aria-live="polite">-</p>
 
         <p class="metric-label">오늘 보완 시 예상 진단 가능일</p>
         <p id="diagnosisDate" class="metric-value">-</p>
@@ -4572,6 +4572,13 @@ def build_html(
       nextActionsBox: document.getElementById("nextActionsBox"),
       };
 
+      const _debounce = (fn, ms) => {
+        let tid;
+        const d = (...a) => { clearTimeout(tid); tid = setTimeout(() => fn(...a), ms); };
+        d.cancel = () => clearTimeout(tid);
+        d.flush = (...a) => { clearTimeout(tid); fn(...a); };
+        return d;
+      };
       const Core = (() => {
       const toNum = (value) => {
         const n = Number(value || 0);
@@ -7936,9 +7943,10 @@ def build_html(
         renderWithExperience();
         advancePermitWizardAfterIndustrySelection();
       });
-      ui.capitalInput.addEventListener("input", renderWithExperience);
-      ui.technicianInput.addEventListener("input", renderWithExperience);
-      ui.equipmentInput.addEventListener("input", renderWithExperience);
+      const _debouncedRender = _debounce(renderWithExperience, 250);
+      ui.capitalInput.addEventListener("input", _debouncedRender);
+      ui.technicianInput.addEventListener("input", _debouncedRender);
+      ui.equipmentInput.addEventListener("input", _debouncedRender);
       [
         ui.officeSecuredInput,
         ui.facilitySecuredInput,

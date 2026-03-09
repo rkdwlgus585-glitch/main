@@ -295,7 +295,14 @@
 - patent handoff: `scripts/generate_attorney_handoff.py`
 
 ## Changelog
-### [2026-03-09]
+### [2026-03-09] Session 2
+- **CSS Design System**: 11개 새 CSS 커스텀 프로퍼티 추가(--smna-header-text, --smna-teal, --smna-disabled-bg 등), hardcoded hex 14곳 → var() 치환.
+- **WCAG 2.1 AA**: Gemini CLI 접근성 감사 기반 — --smna-sub 색상 대비 4.5:1 달성(#6B7280→#4B5563), button/chip/cta focus-visible 스타일 추가, aria-required/aria-live/aria-atomic/role="region" 보강.
+- **Performance**: _debounce 유틸 도입 — syncConsultSummary(300ms), persistDraft(800ms), syncYangdoWizard(250ms), recommendAutoLoop(500ms) input 이벤트 debounce.
+- **Security**: _safe_json U+2028/U+2029 이스케이프 전 파일 통일(permit, acquisition, gas_bundle).
+- **3-Tier Delegation**: Gemini CLI → WCAG 감사 + 중복 로직 분석 + 특허 차별화 분석. Codex CLI → CSS hardcoded color 감사. Claude → 설계 + 적용 + 검증.
+
+### [2026-03-09] Session 1
 - **UX/Value Preview**: 양도가 5단계 위자드에 실시간 예상 가격 범위 표시. 유사 매물 기준으로 입력이 늘수록 범위가 좁아지는 시각적 피드백 제공.
 - **UX/Trust Signal**: 결과 패널 하단에 업종별 중앙 시세 칩(Trust Signal Footer) 추가로 플랫폼 신뢰도 강화.
 - **UX/Skeleton Loading**: 양도가 AI 계산 중 단계별 프로그레시브 상태 메시지(재무 비율 분석 → 행정처분 확인 → 시장 비교 → 사례 매칭 → 최종 산정) 표시.
