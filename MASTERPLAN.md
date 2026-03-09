@@ -70,13 +70,19 @@
 ## Status
 | Axis | Status | Direction |
 |---|---:|---|
-| AI 양도가 산정/추천 | 99% | 코어/위젯/QA/게이트 구조 완료, 추천 정밀도·집중도 감사·공개계약·서비스-매물 브리지·서비스 카피·UX 정렬·임대 lane ladder까지 canonical화, 전기/정보통신/소방 정산정책·confidence cap·reorgOverrides 정밀화 |
-| AI 인허가 사전검토 | 96% | 독립 시스템 유지, 플랫폼/임대 공통축 병행, 전기/정보통신/소방 typed_criteria·basis_refs·blocking 보완 |
+| AI 양도가 산정/추천 | 99% | 코어/위젯/QA/게이트 구조 완료, 추천 정밀도·집중도 감사·공개계약·서비스-매물 브리지·서비스 카피·UX 정렬·임대 lane ladder까지 canonical화, 전기/정보통신/소방 정산정책·confidence cap·reorgOverrides 정밀화, CSS 디자인 시스템 토큰화 완료 |
+| AI 인허가 사전검토 | 97% | 독립 시스템 유지, 플랫폼/임대 공통축 병행, 전기/정보통신/소방 typed_criteria·basis_refs·blocking 보완, CTA mode separation(shortfall/manual/pass) 및 증거 기반 분기 완료 |
 | `.kr` 플랫폼화 | 99% | WordPress/Astra-first 경로로 IA/blueprint/apply/verify/operator checklist까지 완료 |
 | `.co.kr` 브리지 | 95% | 정책/CTA/UTM 계약 확정, 삽입용 bridge snippets 생성 |
 | 임대형 위젯/API | 99% | template -> scaffold -> validate -> activate 구조 완료 |
 | 특허 | 96% | canonical attorney handoff와 claim sentence draft까지 완료 |
-| 품질 기준 | 100% | `system_risk_map_latest`: discover green |
+| 품질 기준 | 100% | `system_risk_map_latest`: discover green, Codex/Gemini 자동화 QA 체계 구축 |
+
+## 3-Tier Automation Architecture
+- **Tier 1: Orchestrator (Claude)**: 전체 전략 수립, 시스템 아키텍처 매핑, 하위 태스크 분할 및 에이전트 위임 제어.
+- **Tier 2: Documenter (Gemini CLI)**: 배포 로그, 문서화 갱신, 구조화된 리포트 생성 및 headless pipe 모드 연동.
+- **Tier 3: Implementer/Auditor (Codex CLI)**: 유닛 테스트 생성, 디자인 시스템 감사, 코드 리팩토링 및 headless exec 모드 연동.
+- **Operational Flow**: Claude(전략) → Gemini(문서/로그) → Codex(구현/검증) → CI/CD Verification.
 
 ## What Is Actually Done
 1. `.kr` WordPress/Astra 플랫폼 자산
@@ -126,6 +132,23 @@
 - canonical: `logs/attorney_handoff_latest.json`, `logs/attorney_handoff_latest.md`
 - A/B 분리 유지
 - 운영/배포 세부는 청구항 본체에서 분리
+
+6. QA & Automation Framework
+- 3-tier delegation architecture(Claude-Gemini-Codex) 가동
+- Codex headless exec 모드(영어 명령 기반) 및 Gemini headless pipe 모드 확립
+- 12개 신규 유닛 테스트 추가 (양도 10개, 인허가 2개)
+
+7. Design System Implementation
+- 173개 하드코딩 색상 상수를 `--smna-*` CSS 변수 토큰으로 전면 마이그레이션
+- `permit_diagnosis_calculator.py` 내 공통 디자인 토큰 `:root` 정의 추가
+- 자동화 스크립트: `scripts/migrate_css_tokens.py` (line-targeted, ±5 shift tolerance, dry-run)
+
+8. Engine Refinement (2026-03-08 ~ 09)
+- 전기(Electric) 업종 `singleCorePublicationCap()` 내 저실적/고분산 confidence cap fallback(50) 누락 수정
+- 인허가 CTA 분기 로직 강화: 증거 기반 `shortfall`, `manual_review`, `pass` 삼원화
+
+9. Code Health
+- 미사용 JS 변수(`brandLabel`, `consultPhoneDigits`, `noticeUrl`) 3종 제거 완료
 
 ## Current Risks
 1. 서울건설정보 live 반영은 아직 수행 전
@@ -237,6 +260,10 @@
 - first-principles review: `logs/ai_platform_first_principles_review_latest.json`, `logs/ai_platform_first_principles_review_latest.md`
 - system split first-principles packet: `logs/system_split_first_principles_packet_latest.json`, `logs/system_split_first_principles_packet_latest.md`
 - external masterplan alignment: `logs/external_masterplan_alignment_latest.json`, `logs/external_masterplan_alignment_latest.md`
+- css design system audit: `logs/css_design_system_audit.md`
+- special sector crosscheck: `logs/special_sector_crosscheck.md`
+- css migration script: `scripts/migrate_css_tokens.py`
+- competitor UX benchmark: `logs/batch2/result_competitor_ux.md`
 
 ## Concrete Output Path
 - planner: `scripts/plan_channel_embed.py`
@@ -266,3 +293,12 @@
 - partner simulation: `scripts/generate_partner_activation_simulation_matrix.py`
 - partner snapshot: `scripts/generate_partner_input_snapshot.py`
 - patent handoff: `scripts/generate_attorney_handoff.py`
+
+## Changelog
+### [2026-03-08 ~ 2026-03-09]
+- **Design System**: 양도/인허가 계산기 전역 173개 하드코딩 색상을 `--smna-*` 토큰으로 마이그레이션.
+- **Permit Engine**: 인허가 검토 결과 CTA를 `부족(shortfall)`, `수동검토(manual_review)`, `통과(pass)`의 3단계 증거 기반 분기 구조로 개편.
+- **Yangdo Engine**: 전기 업종 `singleCorePublicationCap()` thin-support cap 50 누락 버그 수정 (정보통신/소방 정합성 확보).
+- **Automation**: 3단계 에이전트 위임 아키텍처(Claude-Gemini-Codex) 운영 개시. Codex(테스트/감사) 및 Gemini(문서화)의 Headless 자동화 파이프라인 구축.
+- **QA/Tests**: 신규 유닛 테스트 12건(양도 10건, 인허가 2건) 생성 및 반영.
+- **Refactoring**: 미사용 JS 변수 3종 제거 및 CSS 디자인 시스템 오딧 완결.
