@@ -2,7 +2,7 @@
 
 Covers: blank factory functions, _compact_operator_demo_family,
 _compact_runtime_reasoning_ladder_map, _compact_industry_row_for_client,
-_build_selector_entry.
+_build_selector_entry, _build_candidate_rule.
 """
 
 import unittest
@@ -20,6 +20,7 @@ from permit_diagnosis_calculator import (
     _compact_runtime_reasoning_ladder_map,
     _compact_industry_row_for_client,
     _build_selector_entry,
+    _build_candidate_rule,
 )
 
 
@@ -376,6 +377,114 @@ class BuildSelectorEntryTest(unittest.TestCase):
         result = _build_selector_entry(self._row(), "focus")
         self.assertEqual(result["service_name"], "전기공사업")
         self.assertEqual(result["canonical_service_code"], "SC001")
+
+
+# ===================================================================
+# _build_candidate_rule
+# ===================================================================
+class BuildCandidateRuleTest(unittest.TestCase):
+    def _expanded_row(self, **overrides):
+        base = {
+            "typed_criteria": [
+                {
+                    "criterion_id": "facility.secured.auto",
+                    "category": "facility",
+                    "label": "시설기준 확보",
+                    "input_key": "facility_secured",
+                    "value_type": "boolean",
+                    "operator": "==",
+                    "required_value": True,
+                    "blocking": False,
+                },
+                {
+                    "criterion_id": "safety.secured.auto",
+                    "category": "environment_safety",
+                    "label": "안전위생 확보",
+                    "input_key": "safety_secured",
+                    "value_type": "boolean",
+                    "operator": "==",
+                    "required_value": True,
+                    "blocking": False,
+                },
+            ],
+            "registration_requirement_profile": {
+                "capital_eok": 0.0,
+                "technicians_required": 0,
+            },
+            "legal_basis": [{"law_title": "의료법 시행규칙"}],
+            "candidate_criteria_lines": [
+                {"category": "facility_misc", "text": "시설기준표"},
+            ],
+        }
+        base.update(overrides)
+        return base
+
+    def test_returns_rule_with_typed_criteria(self):
+        rule = _build_candidate_rule("01_01_01_P", "병원", self._expanded_row())
+        self.assertIsNotNone(rule)
+        self.assertEqual(rule["rule_id"], "CANDIDATE::01_01_01_P")
+        self.assertEqual(rule["industry_name"], "병원")
+        self.assertEqual(len(rule["typed_criteria"]), 2)
+        self.assertEqual(rule["service_codes"], ["01_01_01_P"])
+
+    def test_mapping_meta_flags_candidate(self):
+        rule = _build_candidate_rule("SC", "업종", self._expanded_row())
+        meta = rule["mapping_meta"]
+        self.assertEqual(meta["source"], "candidate_auto")
+        self.assertEqual(meta["mapping_confidence"], 0.5)
+        self.assertEqual(meta["coverage_status"], "candidate")
+        self.assertTrue(meta["manual_review_required"])
+
+    def test_requirements_from_profile(self):
+        row = self._expanded_row()
+        row["registration_requirement_profile"]["capital_eok"] = 1.5
+        row["registration_requirement_profile"]["technicians_required"] = 3
+        rule = _build_candidate_rule("SC", "업종", row)
+        self.assertEqual(rule["requirements"]["capital_eok"], 1.5)
+        self.assertEqual(rule["requirements"]["technicians"], 3)
+
+    def test_returns_none_when_no_typed_criteria(self):
+        row = self._expanded_row(typed_criteria=[])
+        rule = _build_candidate_rule("SC", "업종", row)
+        self.assertIsNone(rule)
+
+    def test_returns_none_when_typed_criteria_missing(self):
+        row = self._expanded_row()
+        del row["typed_criteria"]
+        rule = _build_candidate_rule("SC", "업종", row)
+        self.assertIsNone(rule)
+
+    def test_filters_invalid_typed_criteria(self):
+        row = self._expanded_row(typed_criteria=[
+            {"criterion_id": "valid.auto", "input_key": "k", "value_type": "boolean",
+             "operator": "==", "required_value": True, "blocking": False},
+            {"no_id": True},  # invalid — missing criterion_id
+            "not_a_dict",
+        ])
+        rule = _build_candidate_rule("SC", "업종", row)
+        self.assertIsNotNone(rule)
+        self.assertEqual(len(rule["typed_criteria"]), 1)
+
+    def test_legal_basis_falls_back_to_candidate(self):
+        row = self._expanded_row()
+        del row["legal_basis"]
+        row["candidate_legal_basis"] = [{"law_title": "후보 법령"}]
+        rule = _build_candidate_rule("SC", "업종", row)
+        self.assertEqual(rule["legal_basis"][0]["law_title"], "후보 법령")
+
+    def test_document_templates_synthesized(self):
+        rule = _build_candidate_rule("SC", "업종", self._expanded_row())
+        # document_templates should be synthesized from typed_criteria
+        self.assertIsInstance(rule["document_templates"], list)
+
+    def test_empty_expanded_row(self):
+        rule = _build_candidate_rule("SC", "업종", {})
+        self.assertIsNone(rule)
+
+    def test_pending_criteria_lines_included(self):
+        rule = _build_candidate_rule("SC", "업종", self._expanded_row())
+        self.assertEqual(len(rule["pending_criteria_lines"]), 1)
+        self.assertEqual(rule["pending_criteria_lines"][0]["text"], "시설기준표")
 
 
 if __name__ == "__main__":

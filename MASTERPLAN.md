@@ -76,7 +76,7 @@
 | `.co.kr` 브리지 | 100% | 정책/CTA/UTM 계약 확정, 5개 placement snippet 생성, Playwright MCP로 5/5 셀렉터 라이브 검증 완료, 인젝션 실행 계획 수립 |
 | 임대형 위젯/API | 99% | template -> scaffold -> validate -> activate 구조 완료 |
 | 특허 | 98% | canonical attorney handoff + claim 9건(양도5+아키텍처3+구조화1), typed_criteria 자동 구조화 특허 claim 추가 |
-| 품질 기준 | 100% | 1787 tests + 52 subtests 100% PASS, core_engine 11/11 모듈 테스트 100%, yangdo API+JS+calculator/permit precheck API/permit/match/premium/gabji 순수함수 테스트 완비, XSS 전수 감사, daily/weekly 자동 QA, except Exception 전 코어+premium 파일 구체화, DRY −449줄, AI 엔진 심층 감사로 HIGH 5건+MEDIUM 4건 버그 수정 |
+| 품질 기준 | 100% | 1838 tests + 52 subtests 100% PASS, core_engine 11/11 모듈 테스트 100%, yangdo API+JS+calculator/permit precheck API/permit/match/premium/gabji/utils 순수함수 테스트 완비, XSS 전수 감사, daily/weekly 자동 QA, except Exception 전 코어+premium 파일 구체화, DRY −449줄, AI 엔진 심층 감사로 HIGH 5건+MEDIUM 4건 버그 수정, 후보 업종 191개 진단 연동 |
 
 ## 3-Tier Automation Architecture
 - **Tier 1: Orchestrator (Claude)**: 전체 전략 수립, 시스템 아키텍처 매핑, 하위 태스크 분할 및 에이전트 위임 제어.
@@ -309,6 +309,15 @@
 - **premium_auto.py except 22건 구체화 (29→7)**: Selenium 예외 타입 분류(WebDriverException, NoSuchElementException, NoAlertPresentException, TimeoutException), HTTP(RequestException), 파일(OSError). 의도적 유지 7건(Gemini retry, login handler, runtime top-level).
 - **Quality**: 1779 tests + 52 subtests PASS. (+329 from Session 12)
 
+### [2026-03-10] Session 15 — 후보 업종 진단 활성화 + 코드 품질 개선
+- **후보(candidate) 업종 진단 엔진 연동**: 191개 후보 업종(의료/문화/식품/환경 등)의 `typed_criteria`를 진단 엔진에서 사용 가능하도록 `_build_candidate_rule()` 함수 추가. `mapping_confidence: 0.5`, `coverage_status: "candidate"`, `manual_review_required: true` 플래그로 신뢰도 표시.
+- **permit_precheck_api.py except 1건 구체화**: JSON 파싱 fallback `except Exception` → `except (TypeError, UnicodeDecodeError, OverflowError)`.
+- **MASTERPLAN/MEMORY 테스트 카운트 보정**: 1787 → 1828 (Session 14 마지막 커밋 후 누락 반영), 이후 +10 → 1838.
+- **코어 파일 broad exception 감사**: yangdo_blackbox_api(7), permit_precheck_api(3), yangdo_consult_api(4) — 전부 외부 의존성/안전장치 코드. 코어 엔진 로직에는 broad exception 없음 확인.
+- **인허가 데이터 커버리지 분석**: 245 업종 중 54 건설 관련 업종은 전부 검증(verified) 완료. 191 후보는 비건설(의료/문화/식품) 업종으로 자본금/기술인력 정량 요건이 없거나 다른 형태.
+- **테스트 +10**: `_build_candidate_rule` 10개 (구조, mapping_meta 플래그, requirements 전달, None/empty 방어, 필터링, legal_basis 폴백, document_templates 합성, pending_lines)
+- **Quality**: 1838 tests + 52 subtests PASS. (+10 from Session 14)
+
 ### [2026-03-09] Session 14 — AI 엔진 심층 감사 HIGH+MEDIUM 버그 수정
 - **AI 엔진 심층 감사**: permit 평가 로직 + yangdo confidence 스코어링에 대해 sonnet 에이전트 기반 심층 감사 수행. permit 10건, yangdo 14건 이슈 발견.
 - **HIGH 심각도 5건 수정**:
@@ -324,7 +333,7 @@
   - yangdo Bug2A: `centerRatio > 2.0` 고가 이상치 confidence cap 66 추가 (대칭 보호)
 - **match.py except Exception 1건 구체화**: `(ValueError, TypeError, KeyError)`
 - **회귀 테스트 8개 추가**: float precision, contains/in guard, manual_review counting, doc_id collision
-- **Quality**: 1787 tests + 52 subtests PASS. (+8 from Session 13)
+- **Quality**: 1828 tests + 52 subtests PASS. (+49 from Session 13: 회귀 8 + utils 23 + yangdo_api 보충 18)
 
 ### [2026-03-09] Session 12
 - **양도 API 전기/정보통신 파라미터 동기화**: `yangdo_blackbox_api.py` 전기 업종 `min_auto_balance_share`(0.10) / `min_auto_balance_eok`(0.05) 누락 보완. 전기·정보통신 `reorg_overrides`(분할/합병) 추가. JS 엔진과 Python API 간 정산정책 완전 동기화 달성. 검증 테스트 8개 추가.

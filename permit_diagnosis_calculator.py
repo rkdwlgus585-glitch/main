@@ -400,6 +400,54 @@ def _build_expanded_industry_lookup(expanded_catalog: dict) -> dict:
     return lookup
 
 
+def _build_candidate_rule(service_code: str, service_name: str, expanded_row: dict):
+    """Build a lightweight rule from candidate typed_criteria for industries
+    without a verified rule_pack.  Returns None if no usable criteria exist."""
+    typed_criteria = [
+        x for x in list(expanded_row.get("typed_criteria") or [])
+        if isinstance(x, dict) and _get_str(x, "criterion_id")
+    ]
+    if not typed_criteria:
+        return None
+    profile = dict(expanded_row.get("registration_requirement_profile") or {})
+    capital_eok = float(profile.get("capital_eok") or 0)
+    technicians = int(profile.get("technicians_required") or 0)
+    legal_basis = list(expanded_row.get("legal_basis") or expanded_row.get("candidate_legal_basis") or [])
+    pending_lines = [
+        x for x in list(expanded_row.get("candidate_criteria_lines") or [])
+        if isinstance(x, dict) and _get_str(x, "text")
+    ]
+    document_templates = _synthesize_document_templates(typed_criteria)
+    return {
+        "rule_id": f"CANDIDATE::{service_code}",
+        "group_rule_id": f"CANDIDATE::{service_code}",
+        "industry_name": service_name,
+        "aliases": [],
+        "service_codes": [service_code],
+        "requirements": {
+            "capital_eok": capital_eok,
+            "technicians": technicians,
+            "equipment_count": 0,
+            "deposit_days": 0,
+        },
+        "requirements_legacy": {
+            "capital_eok": capital_eok,
+            "technicians": technicians,
+        },
+        "legal_basis": legal_basis,
+        "mapping_meta": {
+            "source": "candidate_auto",
+            "mapping_confidence": 0.5,
+            "coverage_status": "candidate",
+            "manual_review_required": True,
+        },
+        "typed_criteria": typed_criteria,
+        "pending_criteria_lines": pending_lines,
+        "document_templates": document_templates,
+        "include_in_selector": True,
+    }
+
+
 def _merge_expanded_rule_metadata(rule_catalog: dict, expanded_catalog: dict) -> dict:
     base = dict(rule_catalog or {})
     groups = [dict(x) for x in list(base.get("rule_groups") or []) if isinstance(x, dict)]
@@ -1101,6 +1149,12 @@ def _prepare_ui_payload(catalog: dict, rule_catalog: dict) -> dict:
             industry["has_rule"] = True
             rules_lookup[service_code] = rule
             seen_rule_names.add(_normalize_key(rule.get("industry_name", "")))
+        elif expanded_row:
+            candidate_rule = _build_candidate_rule(service_code, service_name, expanded_row)
+            if candidate_rule:
+                industry["has_rule"] = True
+                industry["criteria_source_type"] = "candidate_pack"
+                rules_lookup[service_code] = candidate_rule
         industries.append(industry)
 
     rules_only_rows = []

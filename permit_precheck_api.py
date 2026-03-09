@@ -1251,7 +1251,7 @@ class Handler(BaseHTTPRequestHandler):
         except ValueError as exc:
             self._write_json(400, {"ok": False, "error": str(exc)})
             return
-        except Exception:
+        except (TypeError, UnicodeDecodeError, OverflowError):
             self._write_json(400, {"ok": False, "error": "invalid_json"})
             return
 
