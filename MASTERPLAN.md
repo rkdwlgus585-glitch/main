@@ -295,6 +295,12 @@
 - patent handoff: `scripts/generate_attorney_handoff.py`
 
 ## Changelog
+### [2026-03-09] Session 7
+- **JS DRY: evaluateTypedCriteriaLocal 중복 제거**: `_repair_generated_permit_html()` 내 98줄 동일 JS 블록 삭제. 원본 `build_html()` 템플릿이 single source of truth.
+- **Secondary File Exception Narrowing**: `listing_matcher.py`(3건), `quote_engine.py`(3건), `internal_linker.py`(4건) → `gspread.exceptions.WorksheetNotFound`, `(AttributeError, OSError)`, `(ValueError, TypeError)`, `(requests.RequestException, json.JSONDecodeError, KeyError)` 등 구체적 예외.
+- **DRY 추가**: permit lookup builder 3→1 통합, yangdo mean_or_none → _finite_numbers 재사용.
+- **Quality**: 1008 tests PASS, net −114줄 감소.
+
 ### [2026-03-09] Session 6
 - **core_engine 전 모듈 테스트 100%**: 기존 테스트 없던 5개 모듈에 직접 단위 테스트 추가.
   - `permit_criteria_schema` (50 tests): type coercion, alias resolution, operator evaluation, full pipeline
@@ -303,7 +309,7 @@
   - `channel_branding` (17 tests): digits_only, slugify, default branding resolution
   - `api_contract` (21 tests): compact, normalize_v1_request wrapper/flat/header fallback
 - **Bug Fix: `_evaluate_operator` "in" 연산자**: `set()` 에 list(unhashable) 삽입 → `_safe_list` 기반 `all()` 검사로 교체. 테스트가 발견한 프로덕션 버그.
-- **Exception Narrowing**: core_engine/ 6개 `except Exception` → `(ValueError, TypeError)`, `(json.JSONDecodeError, OSError, UnicodeDecodeError)`, `(ValueError, AttributeError)` 등 구체적 예외로 전환.
+- **Exception Narrowing**: core_engine/ 6개 + 메인 계산기 8개 `except Exception` → 구체적 예외. assert 제거 1건.
 - **Quality**: 1008 tests PASS (795 → 1008, +213).
 
 ### [2026-03-09] Session 5
