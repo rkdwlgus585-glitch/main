@@ -76,7 +76,7 @@
 | `.co.kr` 브리지 | 100% | 정책/CTA/UTM 계약 확정, 5개 placement snippet 생성, Playwright MCP로 5/5 셀렉터 라이브 검증 완료, 인젝션 실행 계획 수립 |
 | 임대형 위젯/API | 99% | template -> scaffold -> validate -> activate 구조 완료 |
 | 특허 | 98% | canonical attorney handoff + claim 9건(양도5+아키텍처3+구조화1), typed_criteria 자동 구조화 특허 claim 추가 |
-| 품질 기준 | 100% | 1008 tests 100% PASS, core_engine 전 모듈 테스트 커버리지 100%, XSS 전수 감사 완료, daily/weekly 자동 QA scheduled tasks 가동, Codex/Gemini 자동화 QA 체계 구축, pyproject.toml testpaths 정립, eval 제거 보안 강화, except Exception→구체적 예외 전환 완료 |
+| 품질 기준 | 100% | 1023 tests 100% PASS, core_engine 10/10 모듈 테스트 100%, XSS 전수 감사 완료, daily/weekly 자동 QA scheduled tasks 가동, Codex/Gemini 자동화 QA 체계 구축, pyproject.toml testpaths 정립, eval 제거 보안 강화, except Exception→구체적 예외 전환 완료, repair 함수 DRY −321줄 |
 
 ## 3-Tier Automation Architecture
 - **Tier 1: Orchestrator (Claude)**: 전체 전략 수립, 시스템 아키텍처 매핑, 하위 태스크 분할 및 에이전트 위임 제어.
@@ -296,10 +296,11 @@
 
 ## Changelog
 ### [2026-03-09] Session 7
-- **JS DRY: evaluateTypedCriteriaLocal 중복 제거**: `_repair_generated_permit_html()` 내 98줄 동일 JS 블록 삭제. 원본 `build_html()` 템플릿이 single source of truth.
-- **Secondary File Exception Narrowing**: `listing_matcher.py`(3건), `quote_engine.py`(3건), `internal_linker.py`(4건) → `gspread.exceptions.WorksheetNotFound`, `(AttributeError, OSError)`, `(ValueError, TypeError)`, `(requests.RequestException, json.JSONDecodeError, KeyError)` 등 구체적 예외.
+- **permit repair 함수 대규모 DRY**: `_repair_generated_permit_html()` 내 원본과 동일한 JS 교체 블록 7개 삭제 (evaluateTypedCriteriaLocal 98줄 + renderBasisRows/renderRuleBasis/renderFocusProfile/renderQualityFlags/renderCandidateFallback/renderStructuredReview 207줄). 실제 패치인 renderProofClaim/renderResult만 유지.
+- **Secondary File Exception Narrowing**: `listing_matcher.py`(3건), `quote_engine.py`(3건), `internal_linker.py`(4건) → 구체적 예외 전환.
 - **DRY 추가**: permit lookup builder 3→1 통합, yangdo mean_or_none → _finite_numbers 재사용.
-- **Quality**: 1008 tests PASS, net −114줄 감소.
+- **api_response 테스트 추가**: 15개 테스트 → core_engine 10/10 모듈 직접 테스트 100%.
+- **Quality**: 1023 tests PASS, net −321줄 감소.
 
 ### [2026-03-09] Session 6
 - **core_engine 전 모듈 테스트 100%**: 기존 테스트 없던 5개 모듈에 직접 단위 테스트 추가.
