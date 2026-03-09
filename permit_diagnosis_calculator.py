@@ -659,8 +659,11 @@ def _merge_manual_rule_groups(rule_catalog: dict, overrides_catalog: dict) -> di
     return base
 
 
+_RE_NORMALIZE_KEY = re.compile(r"[^0-9a-z가-힣]+")
+
+
 def _normalize_key(value) -> str:
-    return re.sub(r"[^0-9a-z가-힣]+", "", str(value or "").strip().lower())
+    return _RE_NORMALIZE_KEY.sub("", str(value or "").strip().lower())
 
 
 def _is_objective_source_url(url: str) -> bool:
@@ -7645,11 +7648,17 @@ def build_html(
 
       const criteriaRows = Array.isArray(typedEval.criterion_results) ? typedEval.criterion_results : [];
       if (criteriaRows.length) {
-        ui.typedCriteriaBox.innerHTML = `<strong>자동 점검 결과</strong><br>${criteriaRows.map((row) => {
-          const badge = row.status === "pass" ? "충족" : (row.status === "fail" ? "부족" : "입력 필요");
-          const note = row.note ? ` · ${esc(row.note)}` : "";
-          return `- ${esc(row.label || row.criterion_id)}: <strong>${esc(badge)}</strong>${note}`;
-        }).join("<br>")}`;
+        const _bs = {
+          pass: "background:var(--smna-badge-success-bg,#E6F9F1);color:#0F9460;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;",
+          fail: "background:var(--smna-badge-error-bg,#FFEBEE);color:#D32F2F;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;",
+          missing_input: "background:var(--smna-badge-warning-bg,#FFF8E1);color:#F57C00;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;",
+        };
+        ui.typedCriteriaBox.innerHTML = `<strong style="display:block;margin-bottom:8px;">자동 점검 결과 <span style="font-weight:400;color:var(--smna-sub);font-size:13px;">(${criteriaRows.length}개 항목)</span></strong>${criteriaRows.map((row) => {
+          const badgeText = row.status === "pass" ? "충족" : (row.status === "fail" ? "부족" : "입력 필요");
+          const st = _bs[row.status] || _bs.missing_input;
+          const note = row.note ? `<span style="color:var(--smna-sub);font-size:12px;margin-left:4px;">${esc(row.note)}</span>` : "";
+          return `<div style="margin:4px 0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span style="${st}">${esc(badgeText)}</span><span>${esc(row.label || row.criterion_id)}</span>${note}</div>`;
+        }).join("")}`;
         ui.typedCriteriaBox.style.display = "block";
       }
 
@@ -7660,9 +7669,9 @@ def build_html(
         const evidenceDesc = isShortfall
           ? "아래 서류를 준비하시면 등록 요건을 충족할 수 있습니다."
           : "아래 항목은 전문가 확인 시 필요할 수 있는 서류입니다.";
-        ui.evidenceChecklistBox.innerHTML = `<strong>${evidenceTitle}</strong><br><small style="color:#6B7280">${evidenceDesc}</small><br>${evidenceRows.map((row) => {
+        ui.evidenceChecklistBox.innerHTML = `<strong>${evidenceTitle}</strong><br><small style="color:var(--smna-sub)">${evidenceDesc}</small><br>${evidenceRows.map((row) => {
           const icon = row.reason === "보완 필요" ? "⚠️" : "📋";
-          return `${icon} ${esc(row.label)} <span style="color:#6B7280">(${esc(row.reason || "확인 필요")})</span>`;
+          return `${icon} ${esc(row.label)} <span style="color:var(--smna-sub)">(${esc(row.reason || "확인 필요")})</span>`;
         }).join("<br>")}`;
         ui.evidenceChecklistBox.style.display = "block";
       }
@@ -8399,11 +8408,17 @@ def _repair_generated_permit_html(html: str) -> str:
 
       const criteriaRows = Array.isArray(typedEval.criterion_results) ? typedEval.criterion_results : [];
       if (criteriaRows.length) {
-        ui.typedCriteriaBox.innerHTML = `<strong>자동 점검 결과</strong><br>${criteriaRows.map((row) => {
-          const badge = row.status === "pass" ? "충족" : (row.status === "fail" ? "부족" : "입력 필요");
-          const note = row.note ? ` · ${esc(row.note)}` : "";
-          return `- ${esc(row.label || row.criterion_id)}: <strong>${esc(badge)}</strong>${note}`;
-        }).join("<br>")}`;
+        const _bs = {
+          pass: "background:var(--smna-badge-success-bg,#E6F9F1);color:#0F9460;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;",
+          fail: "background:var(--smna-badge-error-bg,#FFEBEE);color:#D32F2F;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;",
+          missing_input: "background:var(--smna-badge-warning-bg,#FFF8E1);color:#F57C00;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;",
+        };
+        ui.typedCriteriaBox.innerHTML = `<strong style="display:block;margin-bottom:8px;">자동 점검 결과 <span style="font-weight:400;color:var(--smna-sub);font-size:13px;">(${criteriaRows.length}개 항목)</span></strong>${criteriaRows.map((row) => {
+          const badgeText = row.status === "pass" ? "충족" : (row.status === "fail" ? "부족" : "입력 필요");
+          const st = _bs[row.status] || _bs.missing_input;
+          const note = row.note ? `<span style="color:var(--smna-sub);font-size:12px;margin-left:4px;">${esc(row.note)}</span>` : "";
+          return `<div style="margin:4px 0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span style="${st}">${esc(badgeText)}</span><span>${esc(row.label || row.criterion_id)}</span>${note}</div>`;
+        }).join("")}`;
         ui.typedCriteriaBox.style.display = "block";
       }
 
@@ -8414,9 +8429,9 @@ def _repair_generated_permit_html(html: str) -> str:
         const evidenceDesc = isShortfall
           ? "아래 서류를 준비하시면 등록 요건을 충족할 수 있습니다."
           : "아래 항목은 전문가 확인 시 필요할 수 있는 서류입니다.";
-        ui.evidenceChecklistBox.innerHTML = `<strong>${evidenceTitle}</strong><br><small style="color:#6B7280">${evidenceDesc}</small><br>${evidenceRows.map((row) => {
+        ui.evidenceChecklistBox.innerHTML = `<strong>${evidenceTitle}</strong><br><small style="color:var(--smna-sub)">${evidenceDesc}</small><br>${evidenceRows.map((row) => {
           const icon = row.reason === "보완 필요" ? "⚠️" : "📋";
-          return `${icon} ${esc(row.label)} <span style="color:#6B7280">(${esc(row.reason || "확인 필요")})</span>`;
+          return `${icon} ${esc(row.label)} <span style="color:var(--smna-sub)">(${esc(row.reason || "확인 필요")})</span>`;
         }).join("<br>")}`;
         ui.evidenceChecklistBox.style.display = "block";
       }
@@ -8581,11 +8596,17 @@ def _repair_generated_permit_html(html: str) -> str:
 
       const criteriaRows = Array.isArray(typedEval.criterion_results) ? typedEval.criterion_results : [];
       if (criteriaRows.length) {
-        ui.typedCriteriaBox.innerHTML = `<strong>자동 점검 결과</strong><br>${criteriaRows.map((row) => {
-          const badge = row.status === "pass" ? "충족" : (row.status === "fail" ? "부족" : "입력 필요");
-          const note = row.note ? ` · ${esc(row.note)}` : "";
-          return `- ${esc(row.label || row.criterion_id)}: <strong>${esc(badge)}</strong>${note}`;
-        }).join("<br>")}`;
+        const _bs = {
+          pass: "background:var(--smna-badge-success-bg,#E6F9F1);color:#0F9460;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;",
+          fail: "background:var(--smna-badge-error-bg,#FFEBEE);color:#D32F2F;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;",
+          missing_input: "background:var(--smna-badge-warning-bg,#FFF8E1);color:#F57C00;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;",
+        };
+        ui.typedCriteriaBox.innerHTML = `<strong style="display:block;margin-bottom:8px;">자동 점검 결과 <span style="font-weight:400;color:var(--smna-sub);font-size:13px;">(${criteriaRows.length}개 항목)</span></strong>${criteriaRows.map((row) => {
+          const badgeText = row.status === "pass" ? "충족" : (row.status === "fail" ? "부족" : "입력 필요");
+          const st = _bs[row.status] || _bs.missing_input;
+          const note = row.note ? `<span style="color:var(--smna-sub);font-size:12px;margin-left:4px;">${esc(row.note)}</span>` : "";
+          return `<div style="margin:4px 0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span style="${st}">${esc(badgeText)}</span><span>${esc(row.label || row.criterion_id)}</span>${note}</div>`;
+        }).join("")}`;
         ui.typedCriteriaBox.style.display = "block";
       }
 
@@ -8596,9 +8617,9 @@ def _repair_generated_permit_html(html: str) -> str:
         const evidenceDesc = isShortfall
           ? "아래 서류를 준비하시면 등록 요건을 충족할 수 있습니다."
           : "아래 항목은 전문가 확인 시 필요할 수 있는 서류입니다.";
-        ui.evidenceChecklistBox.innerHTML = `<strong>${evidenceTitle}</strong><br><small style="color:#6B7280">${evidenceDesc}</small><br>${evidenceRows.map((row) => {
+        ui.evidenceChecklistBox.innerHTML = `<strong>${evidenceTitle}</strong><br><small style="color:var(--smna-sub)">${evidenceDesc}</small><br>${evidenceRows.map((row) => {
           const icon = row.reason === "보완 필요" ? "⚠️" : "📋";
-          return `${icon} ${esc(row.label)} <span style="color:#6B7280">(${esc(row.reason || "확인 필요")})</span>`;
+          return `${icon} ${esc(row.label)} <span style="color:var(--smna-sub)">(${esc(row.reason || "확인 필요")})</span>`;
         }).join("<br>")}`;
         ui.evidenceChecklistBox.style.display = "block";
       }

@@ -1644,7 +1644,7 @@ def build_page_html(
     }}
     #seoulmna-yangdo-calculator .consult-sub {{
       font-size: 17px;
-      color: var(--smna-sub, #6B7280);
+      color: var(--smna-sub, #4B5563);
       margin-bottom: 8px;
       text-align: center;
       line-height: 1.6;
@@ -2774,7 +2774,7 @@ def build_page_html(
     #seoulmna-yangdo-calculator .badge-warning {{ background: var(--smna-badge-warning-bg); color: var(--smna-warning, #FFB800); padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; display: inline-block; }}
     #seoulmna-yangdo-calculator .badge-error {{ background: var(--smna-badge-error-bg); color: var(--smna-error, #FF4757); padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; display: inline-block; }}
     #seoulmna-yangdo-calculator .badge-info {{ background: var(--smna-badge-info-bg); color: var(--smna-primary, #003764); padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; display: inline-block; }}
-    #seoulmna-yangdo-calculator .sector-chip {{ padding: 6px 14px; border-radius: 20px; background: var(--smna-neutral); color: var(--smna-sub, #6B7280); font-size: 14px; cursor: pointer; transition: all 0.2s ease; border: none; }}
+    #seoulmna-yangdo-calculator .sector-chip {{ padding: 6px 14px; border-radius: 20px; background: var(--smna-neutral); color: var(--smna-sub, #4B5563); font-size: 14px; cursor: pointer; transition: all 0.2s ease; border: none; }}
     #seoulmna-yangdo-calculator .sector-chip:hover {{ background: var(--smna-border); }}
     #seoulmna-yangdo-calculator .sector-chip.active {{ background: var(--smna-primary, #003764); color: #FFFFFF; }}
     #seoulmna-yangdo-calculator .bottom-cta-wrap {{ position: sticky; bottom: 0; left: 0; right: 0; padding: 16px 20px; background: linear-gradient(to top, #fff 80%, transparent); z-index: 50; }}
