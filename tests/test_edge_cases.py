@@ -3,7 +3,6 @@
 Covers boundary inputs, empty/None handling, extreme values, and the
 permit double-brace SyntaxError fix.
 """
-import base64
 import re
 import unittest
 
@@ -132,19 +131,26 @@ class YangdoMetaEdgeCasesTest(unittest.TestCase):
 
 
 class PermitDoubleBraceFixTest(unittest.TestCase):
-    """Verify the permit SyntaxError fix: no ${{ in decoded JS output."""
+    """Verify the permit SyntaxError fix: no ${{ in inline JS output.
+
+    After removing the Base64 + ``new Function()`` wrapper, scripts are now
+    emitted as plain inline ``<script>`` blocks.
+    """
 
     @staticmethod
-    def _decode_all_scripts(html: str) -> str:
+    def _extract_all_inline_scripts(html: str) -> str:
+        """Extract body of all inline <script> blocks (no src= attribute)."""
         pattern = re.compile(
-            r'<script nowprocket>\(\(\)=>\{const encoded="(?P<encoded>[^"]+)";.*?\}\)\(\);</script>',
-            flags=re.S,
+            r"<script(?P<attrs>[^>]*)>(?P<body>.*?)</script>",
+            flags=re.S | re.I,
         )
-        decoded_parts = []
+        parts = []
         for m in pattern.finditer(html):
-            encoded = str(m.group("encoded") or "")
-            decoded_parts.append(base64.b64decode(encoded).decode("utf-8"))
-        return "\n".join(decoded_parts)
+            attrs = str(m.group("attrs") or "")
+            if "src=" in attrs.lower():
+                continue
+            parts.append(str(m.group("body") or ""))
+        return "\n".join(parts)
 
     def _build_permit_html(self) -> str:
         return permit_diagnosis_calculator.build_html(
@@ -158,32 +164,32 @@ class PermitDoubleBraceFixTest(unittest.TestCase):
     def test_no_double_brace_template_literals(self):
         """${{ in JS template literals would cause [object Object] or SyntaxError."""
         html = self._build_permit_html()
-        decoded_js = self._decode_all_scripts(html)
-        double_brace_in_template = re.findall(r'\$\{\{', decoded_js)
+        inline_js = self._extract_all_inline_scripts(html)
+        double_brace_in_template = re.findall(r'\$\{\{', inline_js)
         self.assertEqual(
             len(double_brace_in_template), 0,
-            f"Found {len(double_brace_in_template)} occurrences of '${{{{' in decoded JS — "
+            f"Found {len(double_brace_in_template)} occurrences of '${{{{' in inline JS — "
             "these are f-string escapes that leaked into a regular string template",
         )
 
     def test_no_double_brace_control_flow(self):
         """{{ in control flow creates unnecessary nested blocks."""
         html = self._build_permit_html()
-        decoded_js = self._decode_all_scripts(html)
+        inline_js = self._extract_all_inline_scripts(html)
         # Check for patterns like ") {{" or "} else if (...) {{"
-        double_brace_flow = re.findall(r'[)\s]\s*\{\{(?!\{)', decoded_js)
+        double_brace_flow = re.findall(r'[)\s]\s*\{\{(?!\{)', inline_js)
         self.assertEqual(
             len(double_brace_flow), 0,
-            f"Found {len(double_brace_flow)} double-brace control flow blocks in decoded JS",
+            f"Found {len(double_brace_flow)} double-brace control flow blocks in inline JS",
         )
 
     def test_permit_html_builds_without_error(self):
         html = self._build_permit_html()
-        decoded_js = self._decode_all_scripts(html)
-        # ctaMode lives inside base64-encoded script blocks
-        self.assertIn("ctaMode", decoded_js)
-        self.assertIn("evidenceChecklistBox", decoded_js)
-        self.assertIn("nextActionsBox", decoded_js)
+        inline_js = self._extract_all_inline_scripts(html)
+        # Core JS identifiers must be present in inline script blocks
+        self.assertIn("ctaMode", inline_js)
+        self.assertIn("evidenceChecklistBox", inline_js)
+        self.assertIn("nextActionsBox", inline_js)
 
 
 if __name__ == "__main__":

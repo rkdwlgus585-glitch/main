@@ -8590,25 +8590,13 @@ def _scope_embed_css(style_body: str, wrapper_selector: str) -> str:
 
 
 def _wrap_wordpress_safe_scripts(html: str) -> str:
-    pattern = re.compile(r"<script(?P<attrs>[^>]*)\snowprocket(?:=\"\")?[^>]*>(?P<body>.*?)</script>", flags=re.S)
-
-    def repl(match: re.Match[str]) -> str:
-        body = str(match.group("body") or "").strip()
-        if not body:
-            return str(match.group(0) or "")
-        encoded = base64.b64encode(body.encode("utf-8")).decode("ascii")
-        return (
-            "<script nowprocket>"
-            "(()=>{"
-            f'const encoded="{encoded}";'
-            "const bytes=Uint8Array.from(atob(encoded),(ch)=>ch.charCodeAt(0));"
-            'const source=new TextDecoder("utf-8").decode(bytes);'
-            "(new Function(source))();"
-            "})();"
-            "</script>"
-        )
-
-    return pattern.sub(repl, html)
+    """Pass-through: ``nowprocket`` attribute already prevents WP Rocket
+    from optimising inline scripts.  Previous implementation wrapped script
+    bodies in Base64 + ``new Function(source)()`` (essentially ``eval``),
+    which required CSP ``unsafe-eval`` and triggered security scanner
+    false-positives.  Removed in favour of the native ``nowprocket`` guard.
+    """
+    return html
 
 
 def _build_wordpress_fragment(full_html: str) -> str:
