@@ -451,7 +451,7 @@ def _build_candidate_rule(service_code: str, service_name: str, expanded_row: di
 def _merge_expanded_rule_metadata(rule_catalog: dict, expanded_catalog: dict) -> dict:
     base = dict(rule_catalog or {})
     groups = [dict(x) for x in list(base.get("rule_groups") or []) if isinstance(x, dict)]
-    packs = [dict(x) for x in list(expanded_catalog.get("rule_criteria_packs") or []) if isinstance(x, dict)]
+    packs = [dict(x) for x in list((expanded_catalog or {}).get("rule_criteria_packs") or []) if isinstance(x, dict)]
     if not groups or not packs:
         base["rule_groups"] = groups
         return base
