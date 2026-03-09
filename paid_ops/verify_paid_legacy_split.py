@@ -93,7 +93,7 @@ def _check_core_does_not_import_paid():
 def _check_entrypoint_contract():
     cmd = [sys.executable, str(ROOT / "scripts" / "show_entrypoints.py"), "--strict"]
     try:
-        proc = subprocess.run(cmd, cwd=str(ROOT), capture_output=True, text=True, timeout=120, check=False)
+        proc = subprocess.run(cmd, cwd=str(ROOT), capture_output=True, text=True, timeout=120, check=False, stdin=subprocess.DEVNULL)
         out = (proc.stdout or "") + "\n" + (proc.stderr or "")
     except Exception as exc:
         return {

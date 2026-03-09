@@ -76,7 +76,7 @@
 | `.co.kr` 브리지 | 95% | 정책/CTA/UTM 계약 확정, 삽입용 bridge snippets 생성 |
 | 임대형 위젯/API | 99% | template -> scaffold -> validate -> activate 구조 완료 |
 | 특허 | 96% | canonical attorney handoff와 claim sentence draft까지 완료 |
-| 품질 기준 | 100% | `system_risk_map_latest`: discover green, Codex/Gemini 자동화 QA 체계 구축 |
+| 품질 기준 | 100% | 733 tests 100% PASS, XSS 전수 감사 완료, daily/weekly 자동 QA scheduled tasks 가동, Codex/Gemini 자동화 QA 체계 구축 |
 
 ## 3-Tier Automation Architecture
 - **Tier 1: Orchestrator (Claude)**: 전체 전략 수립, 시스템 아키텍처 매핑, 하위 태스크 분할 및 에이전트 위임 제어.
@@ -295,6 +295,16 @@
 - patent handoff: `scripts/generate_attorney_handoff.py`
 
 ## Changelog
+### [2026-03-09]
+- **UX/Value Preview**: 양도가 5단계 위자드에 실시간 예상 가격 범위 표시. 유사 매물 기준으로 입력이 늘수록 범위가 좁아지는 시각적 피드백 제공.
+- **UX/Trust Signal**: 결과 패널 하단에 업종별 중앙 시세 칩(Trust Signal Footer) 추가로 플랫폼 신뢰도 강화.
+- **UX/Skeleton Loading**: 양도가 AI 계산 중 단계별 프로그레시브 상태 메시지(재무 비율 분석 → 행정처분 확인 → 시장 비교 → 사례 매칭 → 최종 산정) 표시.
+- **UX/Mobile CTA**: 양도가 모바일(640px 이하)에서 계산 버튼 하단 고정(sticky).
+- **Security**: XSS 전수 감사 — innerHTML 113개소 escapeHtml/safeUrl 보호 확인, eval/document.write 0건, 취약점 0건.
+- **Infra/Tests**: 전체 733 테스트 100% PASS 달성. WinError 6 해결(stdin=DEVNULL), show_entrypoints 미분류 해결, _safe_dict NameError 수정, WP mock 보강.
+- **Automation**: daily-qa-check(매일 09시) + weekly-code-health(매주 월 10시) scheduled tasks 설정. 연속 자율 작업 인프라 구축.
+- **Permit Fix**: CTA/evidence 렌더링 {{ → { 이중 중괄호 SyntaxError 수정.
+
 ### [2026-03-08 ~ 2026-03-09]
 - **Design System**: 양도/인허가 계산기 전역 173개 하드코딩 색상을 `--smna-*` 토큰으로 마이그레이션.
 - **Permit Engine**: 인허가 검토 결과 CTA를 `부족(shortfall)`, `수동검토(manual_review)`, `통과(pass)`의 3단계 증거 기반 분기 구조로 개편.

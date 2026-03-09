@@ -83,7 +83,7 @@ def _check_legacy_core_imports() -> dict:
 def _check_entrypoint_contract() -> dict:
     cmd = [sys.executable, str(ROOT / "scripts" / "show_entrypoints.py"), "--strict"]
     try:
-        proc = subprocess.run(cmd, cwd=str(ROOT), capture_output=True, text=True, timeout=120, check=False)
+        proc = subprocess.run(cmd, cwd=str(ROOT), capture_output=True, text=True, timeout=120, check=False, stdin=subprocess.DEVNULL)
     except Exception as exc:
         return {
             "check": "entrypoint_contract_strict",

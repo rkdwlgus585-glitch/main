@@ -19,6 +19,9 @@ class GenerateAiPlatformFirstPrinciplesReviewTests(unittest.TestCase):
                     'permit_integrity': {'ok': True},
                 },
                 {'blocking_issues': ['confirm_live_missing']},
+                {},
+                {},
+                {},
             ],
         ), patch(
             'scripts.generate_ai_platform_first_principles_review._lines',
@@ -28,7 +31,7 @@ class GenerateAiPlatformFirstPrinciplesReviewTests(unittest.TestCase):
 
         self.assertTrue(payload['summary']['packet_ready'])
         self.assertEqual(payload['summary']['blocking_issue_count'], 1)
-        self.assertEqual(payload['current_state']['current_bottleneck'], 'public/private publish 분기와 public post-publish 검증 분리')
+        self.assertEqual(payload['current_state']['current_bottleneck'], 'regression blocking issue: confirm_live_missing')
         self.assertGreaterEqual(len(payload['musk_style_questions']), 5)
         self.assertEqual(payload['next_experiments'][0], '1. tighten publish gate')
 

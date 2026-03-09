@@ -34,6 +34,12 @@ PLUGIN_RESPONSES = {
         'version': '1.0.265',
         'download_link': 'https://downloads.wordpress.org/plugin/seo-by-rank-math.1.0.265.zip',
     },
+    'sqlite-database-integration': {
+        'name': 'SQLite Database Integration',
+        'slug': 'sqlite-database-integration',
+        'version': '2.1.14',
+        'download_link': 'https://downloads.wordpress.org/plugin/sqlite-database-integration.2.1.14.zip',
+    },
 }
 
 
@@ -124,9 +130,9 @@ class PrepareWpSurfaceLabTests(unittest.TestCase):
                 download_packages=True,
             )
 
-            self.assertEqual(out['summary']['package_count'], 6)
-            self.assertEqual(out['summary']['downloaded_count'], 6)
-            self.assertEqual(out['summary']['staging_ready_count'], 6)
+            self.assertEqual(out['summary']['package_count'], 7)
+            self.assertEqual(out['summary']['downloaded_count'], 7)
+            self.assertEqual(out['summary']['staging_ready_count'], 7)
             self.assertFalse(out['summary']['runtime_ready'])
             self.assertIn('php_missing', out['summary']['runtime_blockers'])
             self.assertTrue((base / 'wp_surface_lab' / 'README.md').exists())

@@ -169,6 +169,7 @@ def _run_python_import(check: dict) -> tuple[bool, dict]:
                 capture_output=True,
                 timeout=timeout_sec,
                 env=_subprocess_env(),
+                stdin=subprocess.DEVNULL,
             )
         except subprocess.TimeoutExpired:
             failures.append({"module": module_name, "error": f"timeout>{timeout_sec}s"})
@@ -242,6 +243,7 @@ def _run_command(check: dict) -> tuple[bool, dict]:
             shell=shell,
             timeout=timeout_sec,
             env=_subprocess_env(),
+            stdin=subprocess.DEVNULL,
         )
     except subprocess.TimeoutExpired:
         return False, {"error": f"timeout>{timeout_sec}s", "command": normalized}

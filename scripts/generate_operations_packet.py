@@ -9,6 +9,11 @@ from typing import Any, Dict, List
 
 ROOT = Path(__file__).resolve().parents[1]
 
+
+def _safe_dict(value: Any) -> Dict[str, Any]:
+    return value if isinstance(value, dict) else {}
+
+
 REQUIRED_INPUT_METADATA: Dict[str, Dict[str, str]] = {
     "confirm_live_yes": {
         "label": "Live release confirmation",

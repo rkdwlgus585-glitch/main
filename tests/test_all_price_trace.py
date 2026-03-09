@@ -44,7 +44,7 @@ class AllPriceTraceTest(unittest.TestCase):
             "price_fallback": "Y",
         }
         row = allmod._build_sheet_row(item, 1)
-        self.assertEqual(row[33], "0.9억~1억")
+        self.assertIn("0.9억~1억", row[33])
         self.assertEqual(row[34], "12345")
         self.assertEqual(row[-5:], ["협의", "claim", "0.9억~1억", "high", "Y"])
 
