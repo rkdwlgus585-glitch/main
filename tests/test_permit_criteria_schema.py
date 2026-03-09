@@ -373,6 +373,53 @@ class EvaluateTypedCriteriaTest(unittest.TestCase):
         self.assertTrue(result["manual_review_required"])
         self.assertIn("추가 등록기준 구조화가 완료될 때까지 전문가 검토가 필요합니다.", result["next_actions"])
 
+    # -- Regression: Bug8 — blocking manual_review counted as unknown --
+    def test_blocking_manual_review_counted(self):
+        """Blocking criterion with required=None + user input → manual_review overall."""
+        rule = self._make_rule([
+            {
+                "criterion_id": "tech_check",
+                "input_key": "technicians",
+                "operator": ">=",
+                "required_value": None,  # threshold undefined
+                "blocking": True,
+            },
+        ])
+        inputs = {"technicians": 3}
+        result = evaluate_typed_criteria(rule, inputs)
+        self.assertEqual(result["unknown_blocking_count"], 1)
+        self.assertEqual(result["overall_status"], "manual_review")
+
+    # -- Regression: Bug4 — doc_id includes input_key to avoid collision --
+    def test_doc_id_includes_input_key(self):
+        """Two criteria with same criterion_id but different input_key → distinct doc_ids."""
+        rule = self._make_rule([
+            {
+                "criterion_id": "facility.secured.auto",
+                "input_key": "office_secured",
+                "operator": "truthy",
+                "value_type": "bool",
+                "blocking": True,
+                "evidence_types": ["임대차계약서"],
+            },
+            {
+                "criterion_id": "facility.secured.auto",
+                "input_key": "facility_secured",
+                "operator": "truthy",
+                "value_type": "bool",
+                "blocking": True,
+                "evidence_types": ["시설확인서"],
+            },
+        ])
+        inputs = {"office_secured": False, "facility_secured": False}
+        result = evaluate_typed_criteria(rule, inputs)
+        doc_ids = [item["doc_id"] for item in result["evidence_checklist"]]
+        # Should have 2 distinct doc_ids despite same criterion_id
+        self.assertEqual(len(doc_ids), 2)
+        self.assertNotEqual(doc_ids[0], doc_ids[1])
+        self.assertIn("office_secured", doc_ids[0])
+        self.assertIn("facility_secured", doc_ids[1])
+
 
 if __name__ == "__main__":
     unittest.main()

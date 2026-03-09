@@ -237,7 +237,7 @@ def evaluate_typed_criteria(rule: Dict[str, Any], inputs: Dict[str, Any], *, bas
 
         if result["blocking"] and result["status"] == "fail":
             blocking_failure_count += 1
-        elif result["blocking"] and result["status"] == "missing_input":
+        elif result["blocking"] and result["status"] in {"missing_input", "manual_review"}:
             unknown_blocking_count += 1
 
         if result["status"] in {"fail", "missing_input"}:
@@ -248,7 +248,7 @@ def evaluate_typed_criteria(rule: Dict[str, Any], inputs: Dict[str, Any], *, bas
             for idx, label in enumerate(evidence_types, 1):
                 evidence_checklist.append(
                     {
-                        "doc_id": f"{result['criterion_id']}::{idx}",
+                        "doc_id": f"{result['criterion_id']}::{result['input_key']}::{idx}",
                         "label": str(label),
                         "criterion_id": result["criterion_id"],
                         "required": True,

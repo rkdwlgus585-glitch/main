@@ -4500,6 +4500,12 @@ def build_page_html(
             reason: "동일 업종 실거래 중앙값 대비 기준가가 과도하게 낮아 점추정보다 범위 공개가 안전합니다.",
           }};
         }}
+        if (centerRatio > 2.0) {{
+          return {{
+            confidenceCap: 66,
+            reason: "동일 업종 실거래 중앙값 대비 기준가가 과도하게 높아 점추정보다 범위 공개가 안전합니다.",
+          }};
+        }}
         if (scaleMissing && Number.isFinite(dispersionRatio) && dispersionRatio > 1.80) {{
           return {{
             confidenceCap: 66,
@@ -6877,6 +6883,7 @@ def build_page_html(
         if (!target.has_license_input) confidenceScore -= 10;
         if (target.provided_signals <= 2) confidenceScore -= 8;
         confidenceScore -= (Math.abs(factor - 1.0) * 24);
+        confidenceScore -= (Math.abs(postFactor - 1.0) * 18);
         const singleCorePolicy = singleCorePublicationCap(target, center);
         if (singleCorePolicy && Number.isFinite(Number(singleCorePolicy.confidenceCap))) {{
           confidenceScore = Math.min(confidenceScore, Number(singleCorePolicy.confidenceCap));
