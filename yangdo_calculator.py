@@ -5482,7 +5482,7 @@ def build_page_html(
             ratioWeights.push(Math.max(0.2, (Number(sim) || 0) / 45));
           }});
           if (ratios.length < 3) return;
-          if (ratios.length >= 6) {{
+          if (ratios.length >= 4) {{
             const trimLo = weightedQuantile(ratios, ratioWeights, 0.15);
             const trimHi = weightedQuantile(ratios, ratioWeights, 0.85);
             if (Number.isFinite(trimLo) && Number.isFinite(trimHi) && trimHi > trimLo) {{
@@ -7176,6 +7176,15 @@ def build_page_html(
                 ratioW.push(Math.max(0.2, (Number(sim) || 0) / 45));
               }});
               if (ratios.length < 3) return;
+              if (ratios.length >= 4) {{
+                const tLo = weightedQuantile(ratios, ratioW, 0.15);
+                const tHi = weightedQuantile(ratios, ratioW, 0.85);
+                if (Number.isFinite(tLo) && Number.isFinite(tHi) && tHi > tLo) {{
+                  const tR = []; const tW = [];
+                  ratios.forEach((r, i) => {{ if (r >= tLo && r <= tHi) {{ tR.push(r); tW.push(ratioW[i]); }} }});
+                  if (tR.length >= 3) {{ ratios.length = 0; ratioW.length = 0; tR.forEach(r => ratios.push(r)); tW.forEach(w => ratioW.push(w)); }}
+                }}
+              }}
               const q = weightedQuantile(ratios, ratioW, 0.5);
               if (!Number.isFinite(q) || q <= 0) return;
               components.push(targetValue * q);
