@@ -1754,6 +1754,43 @@ def build_page_html(
       font-size: 13px;
       color: var(--smna-sub);
     }}
+    #seoulmna-yangdo-calculator .trust-signal {{
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(0, 55, 100, 0.07);
+      background: linear-gradient(135deg, rgba(244,248,252,0.96) 0%, rgba(255,255,255,0.98) 100%);
+    }}
+    #seoulmna-yangdo-calculator .trust-signal-items {{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }}
+    #seoulmna-yangdo-calculator .trust-signal-chip {{
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(0, 55, 100, 0.06);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--smna-body);
+      white-space: nowrap;
+    }}
+    #seoulmna-yangdo-calculator .trust-signal-chip .ts-label {{
+      color: var(--smna-sub);
+    }}
+    #seoulmna-yangdo-calculator .trust-signal-chip .ts-value {{
+      color: var(--smna-primary);
+      font-weight: 900;
+    }}
+    #seoulmna-yangdo-calculator .trust-signal-meta {{
+      margin-top: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--smna-sub);
+    }}
     #seoulmna-yangdo-calculator .action-steps {{
       margin-top: 10px;
       border: 1px solid rgba(0, 55, 100, 0.08);
@@ -2193,6 +2230,57 @@ def build_page_html(
         transform: translateY(-1px);
         background: rgba(0, 55, 100, 0.04);
         box-shadow: 0 0 0 3px rgba(0, 55, 100, 0.08);
+      }}
+      #seoulmna-yangdo-calculator .value-preview {{
+        display: none;
+        margin-top: 10px;
+        padding: 10px 12px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, rgba(0, 55, 100, 0.04) 0%, rgba(15, 95, 117, 0.06) 100%);
+        border: 1px solid rgba(0, 55, 100, 0.09);
+      }}
+      #seoulmna-yangdo-calculator .value-preview.is-visible {{
+        display: block;
+        animation: smnaFadeIn 0.24s ease;
+      }}
+      #seoulmna-yangdo-calculator .value-preview-label {{
+        font-size: 11px;
+        font-weight: 900;
+        color: var(--smna-sub);
+        letter-spacing: 0.03em;
+        margin-bottom: 5px;
+      }}
+      #seoulmna-yangdo-calculator .value-preview-range {{
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }}
+      #seoulmna-yangdo-calculator .value-preview-bar {{
+        flex: 1;
+        height: 6px;
+        border-radius: 999px;
+        background: rgba(0, 55, 100, 0.10);
+        position: relative;
+        overflow: hidden;
+      }}
+      #seoulmna-yangdo-calculator .value-preview-fill {{
+        position: absolute;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, var(--smna-primary), #0f5f75);
+        transition: left 0.3s ease, width 0.3s ease;
+      }}
+      #seoulmna-yangdo-calculator .value-preview-text {{
+        font-size: 14px;
+        font-weight: 900;
+        color: var(--smna-primary);
+        white-space: nowrap;
+      }}
+      #seoulmna-yangdo-calculator .value-preview-count {{
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--smna-sub);
+        margin-top: 4px;
       }}
       #seoulmna-yangdo-calculator .guided-focus-target {{
         position: relative;
@@ -3021,6 +3109,10 @@ def build_page_html(
             </table>
           </details>
           <div class="foot">주의: 본 산정치는 참고용입니다. 법정/계약 효력은 없으며 최종 거래가는 실사 결과, 채무 조건, 협의사항으로 달라질 수 있습니다.</div>
+          <div class="trust-signal" id="trust-signal" aria-label="최근 시장 현황">
+            <div class="trust-signal-items" id="trust-signal-items"></div>
+            <div class="trust-signal-meta" id="trust-signal-meta"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -3534,6 +3626,14 @@ def build_page_html(
           + '<div id="yangdoWizardProgressMeta" class="wizard-progress-meta">필수 0/3 완료 · 업종부터 입력하면 자동 제안이 시작됩니다.</div>'
           + '<button type="button" id="yangdoWizardNextAction" class="wizard-progress-action" data-yangdo-next-action><span class="wizard-progress-action-label">지금 할 일</span><span id="yangdoWizardNextActionText" class="wizard-progress-action-text">면허/업종부터 선택하세요.</span></button>'
           + '<div id="yangdoWizardActionReason" class="wizard-progress-support" role="button" tabindex="0" data-yangdo-action-reason data-actionable="1">업종이 정해져야 통상 자본금과 공제조합 기준을 자동 제안할 수 있습니다.</div>'
+          + '<div id="yangdoValuePreview" class="value-preview" aria-live="polite">'
+          + '<div class="value-preview-label">현재 입력 기준 예상 양도가 범위</div>'
+          + '<div class="value-preview-range">'
+          + '<div class="value-preview-bar"><div id="yangdoValuePreviewFill" class="value-preview-fill" style="left:0%;width:100%"></div></div>'
+          + '<span id="yangdoValuePreviewText" class="value-preview-text">—</span>'
+          + '</div>'
+          + '<div id="yangdoValuePreviewCount" class="value-preview-count"></div>'
+          + '</div>'
           + '</div>'
           + '<strong id="yangdoWizardProgressCount" class="wizard-progress-count">1/5</strong>';
         wizardRail.appendChild(wizardProgress);
@@ -9037,6 +9137,100 @@ def build_page_html(
           barNode.setAttribute("aria-valuetext", `현재 ${{currentIndex + 1}}단계 / 총 ${{totalSteps}}단계`);
         }}
       }};
+      const syncValuePreview = () => {{
+        const shell = $("yangdoValuePreview");
+        if (!shell) return;
+        const fillNode = $("yangdoValuePreviewFill");
+        const textNode = $("yangdoValuePreviewText");
+        const countNode = $("yangdoValuePreviewCount");
+        const state = getYangdoWizardState();
+        if (!state.hasLicense || !dataset.length) {{
+          shell.classList.remove("is-visible");
+          return;
+        }}
+        const licenseValue = compact(($("in-license") || {{}}).value);
+        const licTokens = licenseValue
+          ? Object.keys(canonicalByKey).filter((key) => licenseValue.indexOf(key) >= 0 || (canonicalByKey[key] || "").indexOf(licenseValue) >= 0)
+          : [];
+        const licSet = new Set(licTokens.length ? licTokens : [licenseValue]);
+        let filtered = dataset.filter((row) => {{
+          const rowTokens = Array.isArray(row.tokens) ? row.tokens : [];
+          return rowTokens.some((t) => licSet.has(compact(t)));
+        }});
+        if (!filtered.length) {{
+          filtered = dataset.filter((row) => {{
+            const lt = compact(row.license_text || "");
+            return lt.indexOf(licenseValue) >= 0 || licenseValue.indexOf(lt) >= 0;
+          }});
+        }}
+        if (!filtered.length) {{
+          shell.classList.remove("is-visible");
+          return;
+        }}
+        if (state.scaleReady) {{
+          const scaleMode = getScaleSearchMode();
+          if (scaleMode === "specialty") {{
+            const sv = num(($("in-specialty") || {{}}).value);
+            if (Number.isFinite(sv) && sv > 0) {{
+              const margin = sv * 0.4;
+              const sub = filtered.filter((r) => {{
+                const rs = num(r.specialty);
+                return Number.isFinite(rs) && rs > 0 && Math.abs(rs - sv) <= margin;
+              }});
+              if (sub.length >= 3) filtered = sub;
+            }}
+          }} else {{
+            const s3 = num(($("in-sales3-total") || {{}}).value);
+            if (Number.isFinite(s3) && s3 > 0) {{
+              const margin = s3 * 0.5;
+              const sub = filtered.filter((r) => {{
+                const rs = num(r.sales3_eok);
+                return Number.isFinite(rs) && rs > 0 && Math.abs(rs - s3) <= margin;
+              }});
+              if (sub.length >= 3) filtered = sub;
+            }}
+          }}
+        }}
+        if (state.criticalReady) {{
+          const capVal = num(($("in-capital") || {{}}).value);
+          if (Number.isFinite(capVal) && capVal > 0) {{
+            const margin = capVal * 0.5;
+            const sub = filtered.filter((r) => {{
+              const rc = num(r.capital_eok);
+              return Number.isFinite(rc) && rc > 0 && Math.abs(rc - capVal) <= margin;
+            }});
+            if (sub.length >= 3) filtered = sub;
+          }}
+        }}
+        const prices = filtered
+          .map((r) => num(r.price_eok))
+          .filter((v) => Number.isFinite(v) && v > 0)
+          .sort((a, b) => a - b);
+        if (!prices.length) {{
+          shell.classList.remove("is-visible");
+          return;
+        }}
+        const q10Idx = Math.max(0, Math.floor(prices.length * 0.1));
+        const q90Idx = Math.min(prices.length - 1, Math.floor(prices.length * 0.9));
+        const low = prices[q10Idx];
+        const high = prices[q90Idx];
+        const globalMin = prices[0];
+        const globalMax = prices[prices.length - 1];
+        const range = Math.max(0.01, globalMax - globalMin);
+        const barLeft = Math.round(((low - globalMin) / range) * 100);
+        const barWidth = Math.max(4, Math.round(((high - low) / range) * 100));
+        const fmtP = (v) => {{
+          if (v >= 1) return v.toFixed(1) + "억";
+          return Math.round(v * 10000).toLocaleString() + "만";
+        }};
+        shell.classList.add("is-visible");
+        if (fillNode) {{
+          fillNode.style.left = barLeft + "%";
+          fillNode.style.width = barWidth + "%";
+        }}
+        if (textNode) textNode.textContent = `${{fmtP(low)}} ~ ${{fmtP(high)}}`;
+        if (countNode) countNode.textContent = `유사 매물 ${{prices.length}}건 기준 · 입력이 늘수록 범위가 좁아집니다`;
+      }};
       const getYangdoWizardNextActionCopy = () => {{
         const state = getYangdoWizardState();
         const licenseValue = compact(($("in-license") || {{}}).value);
@@ -9416,6 +9610,7 @@ def build_page_html(
         syncYangdoWizardBlocker();
         syncYangdoPriorityHint();
         syncYangdoOptionalHints();
+        syncValuePreview();
         yangdoWizardStepsMeta.forEach((step, stepIndex) => {{
           const stepNode = $(step.id);
           const isActive = stepIndex === yangdoWizardStepIndex;
@@ -10187,6 +10382,38 @@ def build_page_html(
       syncConsultSummary();
       syncYangdoWizard();
       setYangdoWizardStep(draftRestored ? findYangdoWizardResumeStep() : 0, draftRestored);
+      (() => {{
+        const container = $("trust-signal-items");
+        const metaNode = $("trust-signal-meta");
+        if (!container || !dataset.length) return;
+        const byToken = {{}};
+        dataset.forEach((row) => {{
+          const tokens = Array.isArray(row.tokens) ? row.tokens : [];
+          const price = num(row.price_eok);
+          if (!Number.isFinite(price) || price <= 0) return;
+          const key = tokens.length === 1 ? compact(tokens[0]) : compact(row.license_text || "");
+          if (!key) return;
+          if (!byToken[key]) byToken[key] = [];
+          byToken[key].push(price);
+        }});
+        const entries = Object.entries(byToken)
+          .filter(([, prices]) => prices.length >= 2)
+          .sort((a, b) => b[1].length - a[1].length)
+          .slice(0, 6);
+        if (!entries.length) return;
+        const fmtP = (v) => v >= 1 ? v.toFixed(1) + "억" : Math.round(v * 10000).toLocaleString() + "만";
+        entries.forEach(([label, prices]) => {{
+          prices.sort((a, b) => a - b);
+          const mid = prices[Math.floor(prices.length / 2)];
+          const chip = document.createElement("span");
+          chip.className = "trust-signal-chip";
+          chip.innerHTML = `<span class="ts-label">${{escapeHtml(label)}}</span><span class="ts-value">${{fmtP(mid)}}</span>`;
+          container.appendChild(chip);
+        }});
+        if (metaNode) {{
+          metaNode.textContent = `${{dataset.length}}건 매물 기준 · 업종별 중앙 시세`;
+        }}
+      }})();
     }})();
   </script>
 </section>"""

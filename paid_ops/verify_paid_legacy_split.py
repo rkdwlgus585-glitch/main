@@ -91,7 +91,7 @@ def _check_core_does_not_import_paid():
 
 
 def _check_entrypoint_contract():
-    cmd = ["py", "-3", str(ROOT / "scripts" / "show_entrypoints.py"), "--strict"]
+    cmd = [sys.executable, str(ROOT / "scripts" / "show_entrypoints.py"), "--strict"]
     try:
         proc = subprocess.run(cmd, cwd=str(ROOT), capture_output=True, text=True, timeout=120, check=False)
         out = (proc.stdout or "") + "\n" + (proc.stderr or "")

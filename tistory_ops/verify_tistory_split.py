@@ -4,6 +4,7 @@ import argparse
 import json
 import re
 import subprocess
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -80,7 +81,7 @@ def _check_legacy_core_imports() -> dict:
 
 
 def _check_entrypoint_contract() -> dict:
-    cmd = ["py", "-3", str(ROOT / "scripts" / "show_entrypoints.py"), "--strict"]
+    cmd = [sys.executable, str(ROOT / "scripts" / "show_entrypoints.py"), "--strict"]
     try:
         proc = subprocess.run(cmd, cwd=str(ROOT), capture_output=True, text=True, timeout=120, check=False)
     except Exception as exc:

@@ -21,6 +21,9 @@ IGNORE_PARTS = {
     "logs",
     "dist",
     "build",
+    "desktop_related",
+    "workspace_partitions",
+    ".playwright-mcp",
 }
 
 CALL_RE = re.compile(r'^\s*call\s+"%~dp0launchers\\([^"]+\.bat)"(?:\s+(.*))?$', re.IGNORECASE)
