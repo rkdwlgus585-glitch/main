@@ -117,7 +117,7 @@ def _coerce_value(value: Any, value_type: str) -> Any:
 def _evaluate_operator(current_value: Any, required_value: Any, operator: str, value_type: str) -> Dict[str, Any]:
     current = _coerce_value(current_value, value_type)
     required = _coerce_value(required_value, value_type)
-    op = str(operator or "").strip() or ">="
+    op = str(operator or "").strip().lower() or ">="
     status = "missing_input" if current is None else "pass"
     ok = None
     gap = None
@@ -128,6 +128,15 @@ def _evaluate_operator(current_value: Any, required_value: Any, operator: str, v
             "ok": None,
             "current_value": None,
             "required_value": required,
+            "gap": None,
+        }
+
+    if required is None and op in (">=", "<=", "==", "!="):
+        return {
+            "status": "manual_review",
+            "ok": None,
+            "current_value": current,
+            "required_value": None,
             "gap": None,
         }
 
@@ -155,7 +164,7 @@ def _evaluate_operator(current_value: Any, required_value: Any, operator: str, v
     elif op == "in":
         check_items = _safe_list(current)
         req_list = _safe_list(required)
-        ok = all(c in req_list for c in check_items)
+        ok = bool(check_items) and all(c in req_list for c in check_items)
         status = "pass" if ok else "fail"
     elif op == "truthy":
         ok = bool(current)

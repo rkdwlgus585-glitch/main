@@ -76,7 +76,7 @@
 | `.co.kr` 브리지 | 100% | 정책/CTA/UTM 계약 확정, 5개 placement snippet 생성, Playwright MCP로 5/5 셀렉터 라이브 검증 완료, 인젝션 실행 계획 수립 |
 | 임대형 위젯/API | 99% | template -> scaffold -> validate -> activate 구조 완료 |
 | 특허 | 98% | canonical attorney handoff + claim 9건(양도5+아키텍처3+구조화1), typed_criteria 자동 구조화 특허 claim 추가 |
-| 품질 기준 | 100% | 1023 tests 100% PASS, core_engine 10/10 모듈 테스트 100%, XSS 전수 감사 완료, daily/weekly 자동 QA scheduled tasks 가동, Codex/Gemini 자동화 QA 체계 구축, pyproject.toml testpaths 정립, eval 제거 보안 강화, except Exception→구체적 예외 전환 완료, repair 함수 DRY −321줄 |
+| 품질 기준 | 100% | 1437 tests + 52 subtests 100% PASS, core_engine 11/11 모듈 테스트 100%, yangdo/permit/match/premium 순수함수 테스트 완비, XSS 전수 감사(+premium_auto slug XSS 수정), daily/weekly 자동 QA, except Exception 전 파일 구체화(양도/인허가/gabji/all/match/premium), DRY −449줄 |
 
 ## 3-Tier Automation Architecture
 - **Tier 1: Orchestrator (Claude)**: 전체 전략 수립, 시스템 아키텍처 매핑, 하위 태스크 분할 및 에이전트 위임 제어.
@@ -295,6 +295,12 @@
 - patent handoff: `scripts/generate_attorney_handoff.py`
 
 ## Changelog
+### [2026-03-09] Session 12
+- **gabji.py + all.py except 36건 구체화**: gabji 9건(reconfigure/parse/timeout/ratio/remove), all.py 27건(cfg/parse/json/remove).
+- **match.py 테스트 69개 + except 3건**: ConsultantAI 순수함수(credit scoring, price parsing, matching logic, license tokens) 전면 커버. reconfigure/float/money parse 예외 구체화.
+- **premium_auto.py 테스트 41개 + except 3건 + XSS 수정**: sanitize/extract/render 함수 커버. `render_html()` number_slug 폴백에서 raw 값 → escaped 값 전환 (href XSS 취약점 수정). reconfigure/int_config/report write 예외 구체화.
+- **Quality**: 1437 tests + 52 subtests PASS. (+110 from Session 11)
+
 ### [2026-03-09] Session 11
 - **yangdo_calculator Python 함수 132개 테스트**: 가격 파싱(_price_token_to_eok, _extract_price_values_eok), 통계(calc_quantile, mean_or_none, build_meta), 업종별 폴백값(_fallback_capital/surplus/min_balance), 라이선스 정규화, 보안 필터, HTML 축소, 데이터 파이프라인 등 21개 함수 포괄 커버.
 - **permit_diagnosis_calculator Python 함수 117개 테스트**: 유틸리티, 규칙 파이프라인(_expand_rule_groups→_build_rule_index→_resolve_rule), 핵심 진단(evaluate_registration_diagnosis: 갭/의심/날짜), criteria 합성, CSS 스코핑(_scope_embed_css), 셀렉터 등 34개 함수 포괄 커버.

@@ -1044,5 +1044,50 @@ class BalanceExclusionBehaviorTest(unittest.TestCase):
         self.assertEqual(str((out.get("settlement_policy") or {}).get("sector") or ""), "")
 
 
+class SpecialBalanceAutoPoliciesTest(unittest.TestCase):
+    """Verify all special sectors have required params (JS/Python parity)."""
+
+    def test_electric_has_min_balance_params(self):
+        policy = yangdo_blackbox_api._SPECIAL_BALANCE_AUTO_POLICIES["전기"]
+        self.assertAlmostEqual(policy["min_auto_balance_share"], 0.10)
+        self.assertAlmostEqual(policy["min_auto_balance_eok"], 0.05)
+
+    def test_electric_has_reorg_overrides(self):
+        policy = yangdo_blackbox_api._SPECIAL_BALANCE_AUTO_POLICIES["전기"]
+        overrides = policy["reorg_overrides"]["분할/합병"]
+        self.assertAlmostEqual(overrides["min_auto_balance_share"], 0.105)
+        self.assertAlmostEqual(overrides["min_auto_balance_eok"], 0.05)
+
+    def test_telecom_has_min_balance_params(self):
+        policy = yangdo_blackbox_api._SPECIAL_BALANCE_AUTO_POLICIES["정보통신"]
+        self.assertAlmostEqual(policy["min_auto_balance_share"], 0.0625)
+        self.assertAlmostEqual(policy["min_auto_balance_eok"], 0.025)
+
+    def test_telecom_has_reorg_overrides(self):
+        policy = yangdo_blackbox_api._SPECIAL_BALANCE_AUTO_POLICIES["정보통신"]
+        overrides = policy["reorg_overrides"]["분할/합병"]
+        self.assertAlmostEqual(overrides["min_auto_balance_share"], 0.065)
+        self.assertAlmostEqual(overrides["min_auto_balance_eok"], 0.025)
+
+    def test_fire_has_min_balance_params(self):
+        policy = yangdo_blackbox_api._SPECIAL_BALANCE_AUTO_POLICIES["소방"]
+        self.assertAlmostEqual(policy["min_auto_balance_share"], 0.17)
+        self.assertAlmostEqual(policy["min_auto_balance_eok"], 0.09)
+
+    def test_fire_has_reorg_overrides(self):
+        policy = yangdo_blackbox_api._SPECIAL_BALANCE_AUTO_POLICIES["소방"]
+        overrides = policy["reorg_overrides"]["분할/합병"]
+        self.assertAlmostEqual(overrides["min_auto_balance_share"], 0.1758)
+        self.assertAlmostEqual(overrides["min_auto_balance_eok"], 0.09)
+
+    def test_all_special_sectors_present(self):
+        policies = yangdo_blackbox_api._SPECIAL_BALANCE_AUTO_POLICIES
+        for sector in ("전기", "정보통신", "소방"):
+            self.assertIn(sector, policies, f"{sector} missing from special balance policies")
+            self.assertIn("min_auto_balance_share", policies[sector], f"{sector} missing min_auto_balance_share")
+            self.assertIn("min_auto_balance_eok", policies[sector], f"{sector} missing min_auto_balance_eok")
+            self.assertIn("reorg_overrides", policies[sector], f"{sector} missing reorg_overrides")
+
+
 if __name__ == "__main__":
     unittest.main()

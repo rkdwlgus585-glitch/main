@@ -216,6 +216,32 @@ class EvaluateOperatorTest(unittest.TestCase):
         self.assertEqual(r["status"], "missing_input")
         self.assertIsNone(r["ok"])
 
+    def test_required_none_comparison_returns_manual_review(self):
+        r = _evaluate_operator(2.0, None, ">=", "number")
+        self.assertEqual(r["status"], "manual_review")
+        self.assertIsNone(r["ok"])
+
+    def test_required_none_eq_returns_manual_review(self):
+        r = _evaluate_operator("a", None, "==", "string")
+        self.assertEqual(r["status"], "manual_review")
+
+    def test_in_empty_current_fails(self):
+        r = _evaluate_operator([], ["a", "b"], "in", "list")
+        self.assertFalse(r["ok"])
+        self.assertEqual(r["status"], "fail")
+
+    def test_in_nonempty_current_pass(self):
+        r = _evaluate_operator(["a"], ["a", "b"], "in", "list")
+        self.assertTrue(r["ok"])
+
+    def test_operator_case_insensitive_contains(self):
+        r = _evaluate_operator(["a", "b", "c"], ["a"], "CONTAINS", "list")
+        self.assertTrue(r["ok"])
+
+    def test_operator_uppercase_truthy(self):
+        r = _evaluate_operator(True, None, "TRUTHY", "bool")
+        self.assertTrue(r["ok"])
+
 
 # ── Full evaluation pipeline ─────────────────────────────────────────
 

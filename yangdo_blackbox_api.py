@@ -52,7 +52,15 @@ _SPECIAL_BALANCE_AUTO_POLICIES: Dict[str, Dict[str, Any]] = {
         "sector": "전기",
         "auto_mode": "loan_withdrawal",
         "loan_utilization": _SPECIAL_BALANCE_LOAN_UTILIZATION,
+        "min_auto_balance_share": 0.10,
+        "min_auto_balance_eok": 0.05,
         "summary": "전기 업종은 총 거래가와 공제조합 정산을 분리해 보고, 기본값은 조합 융자 인출 후 현금 차감입니다.",
+        "reorg_overrides": {
+            "분할/합병": {
+                "min_auto_balance_share": 0.105,
+                "min_auto_balance_eok": 0.05,
+            },
+        },
     },
     "정보통신": {
         "sector": "정보통신",
@@ -61,6 +69,12 @@ _SPECIAL_BALANCE_AUTO_POLICIES: Dict[str, Dict[str, Any]] = {
         "min_auto_balance_share": 0.0625,
         "min_auto_balance_eok": 0.025,
         "summary": "정보통신 업종은 총 거래가와 공제조합 정산을 분리해 보고, 기본값은 조합 융자 인출 후 현금 차감입니다.",
+        "reorg_overrides": {
+            "분할/합병": {
+                "min_auto_balance_share": 0.065,
+                "min_auto_balance_eok": 0.025,
+            },
+        },
     },
     "소방": {
         "sector": "소방",
