@@ -7919,91 +7919,8 @@ def _repair_generated_permit_html(html: str) -> str:
         r'<p class="tip">.*?최종 확정됩니다\.</p>',
         '<p class="tip">법령/관할 해석이 필요한 항목은 결과 화면의 법령 근거를 바탕으로 상담 단계에서 최종 확정됩니다.</p>',
     )
-    repaired = _replace_first_block(
-        repaired,
-        r'const renderBasisRows = \(rows, title = .*?\n    };\n',
-        '''const renderBasisRows = (rows, title = "법령 근거") => {
-      if (!rows.length) {
-        ui.legalBasis.style.display = "none";
-        ui.legalBasis.innerHTML = "";
-        return;
-      }
-      const parts = rows.map((item) => {
-        const lawTitle = esc(item.law_title || "");
-        const article = esc(item.article || "");
-        const url = esc(item.url || "");
-        if (!url) {
-          return `${lawTitle} ${article}`.trim();
-        }
-        return `<a href="${url}" target="_blank" rel="noopener noreferrer">${lawTitle} ${article}</a>`;
-      });
-      ui.legalBasis.innerHTML = `<strong>${esc(title)}</strong><br>${parts.join("<br>")}`;
-      ui.legalBasis.style.display = "block";
-    };
-''',
-    )
-    repaired = _replace_first_block(
-        repaired,
-        r'const renderRuleBasis = \(rule\) => \{.*?\n    };\n',
-        '''const renderRuleBasis = (rule) => {
-      const rows = Array.isArray(rule.legal_basis) ? rule.legal_basis : [];
-      renderBasisRows(rows, "법령 근거");
-    };
-''',
-    )
-    repaired = _replace_first_block(
-        repaired,
-        r'const renderFocusProfile = \(industry\) => \{.*?\n    };\n',
-        '''const renderFocusProfile = (industry) => {
-      const profile = getRegistrationProfile(industry);
-      if (!profile || !Object.keys(profile).length) {
-        ui.focusProfileBox.style.display = "none";
-        ui.focusProfileBox.innerHTML = "";
-        return;
-      }
-      const badges = [];
-      if (profile.focus_target_with_other) badges.push("자본금+기술인력+기타 필수");
-      else if (profile.focus_target) badges.push("자본금+기술인력 필수");
-      else if (profile.inferred_focus_candidate) badges.push("핵심 후보(재검증)");
-      else badges.push("부분 구조화");
-      badges.push(industry && industry.is_rules_only ? "등록기준 업종군" : "실업종");
-      badges.push(profile.profile_source === "structured_requirements" ? "구조화 기준" : "본문 추론");
-
-      const details = [];
-      if (profile.capital_required) details.push(`자본금 ${Core.formatEok(profile.capital_eok || 0)}`);
-      if (profile.technical_personnel_required) {
-        details.push(`기술인력 ${Core.toInt(profile.technicians_required || 0)}명`);
-      }
-      if (profile.other_required) {
-        const labels = Array.isArray(profile.other_components)
-          ? profile.other_components.map((item) => otherRequirementLabels[item] || item)
-          : [];
-        if (labels.length) details.push(`기타 ${labels.join(", ")}`);
-      }
-      ui.focusProfileBox.innerHTML = `<strong>핵심 요건 프로필</strong><br>${badges
-        .map((item) => `[${esc(item)}]`)
-        .join(" ")}${details.length ? `<br>${details.map((item) => `- ${esc(item)}`).join("<br>")}` : ""}`;
-      ui.focusProfileBox.style.display = "block";
-    };
-''',
-    )
-    repaired = _replace_first_block(
-        repaired,
-        r'const renderQualityFlags = \(industry\) => \{.*?\n    };\n',
-        '''const renderQualityFlags = (industry) => {
-      const flags = Array.isArray(industry && industry.quality_flags) ? industry.quality_flags : [];
-      if (!flags.length) {
-        ui.qualityFlagsBox.style.display = "none";
-        ui.qualityFlagsBox.innerHTML = "";
-        return;
-      }
-      ui.qualityFlagsBox.innerHTML = `<strong>품질 경고</strong><br>${flags
-        .map((item) => `- ${esc(qualityFlagLabels[item] || item)}`)
-        .join("<br>")}`;
-      ui.qualityFlagsBox.style.display = "block";
-    };
-''',
-    )
+    # NOTE: renderBasisRows, renderRuleBasis, renderFocusProfile, renderQualityFlags
+    # replacements removed — identical to template originals.
     repaired = _replace_first_block(
         repaired,
         r'const renderProofClaim = \(industry\) => \{.*?\n    };\n',
@@ -8057,126 +7974,9 @@ def _repair_generated_permit_html(html: str) -> str:
     };
 ''',
     )
-    repaired = _replace_first_block(
-        repaired,
-        r'const renderCandidateFallback = \(industry\) => \{.*?\n    };\n',
-        '''const renderCandidateFallback = (industry) => {
-      const criteriaRows = Array.isArray(industry.candidate_criteria_lines) ? industry.candidate_criteria_lines : [];
-      const additionalRows = Array.isArray(industry.candidate_additional_criteria_lines)
-        ? industry.candidate_additional_criteria_lines
-        : [];
-      const autoCandidates = Array.isArray(industry.auto_law_candidates) ? industry.auto_law_candidates : [];
-      const basisRows = Array.isArray(industry.candidate_legal_basis) && industry.candidate_legal_basis.length
-        ? industry.candidate_legal_basis
-        : autoCandidates.map((item) => ({
-            law_title: String(item.law_title || ""),
-            article: "",
-            url: String(item.law_url || ""),
-          }));
-
-      ui.requiredCapital.textContent = criteriaRows.length ? "법령 추출본 확인" : "법령 후보 확인";
-      ui.requirementsMeta.textContent = criteriaRows.length
-        ? `자동 추출 기준 ${criteriaRows.length}건`
-        : `법령 후보 ${autoCandidates.length}건`;
-      ui.capitalGapStatus.textContent = criteriaRows.length ? "수치 기준 구조화 중" : "법령 후보 검토 필요";
-      ui.capitalGapStatus.className = "status warn";
-      ui.technicianGapStatus.textContent = criteriaRows.length ? "추출 문장 확인" : "추출 대기";
-      ui.technicianGapStatus.className = "status warn";
-      ui.equipmentGapStatus.textContent = additionalRows.length ? "추가 기준 추출됨" : "법령 본문 확인 필요";
-      ui.equipmentGapStatus.className = "status warn";
-      ui.diagnosisDate.textContent = "-";
-      ui.crossValidation.textContent = "";
-
-      ui.fallbackGuide.style.display = "block";
-      ui.fallbackGuide.textContent = criteriaRows.length
-        ? `${industry.service_name}: 자동 수집한 법령 기준 문장을 우선 표시합니다. 정량 비교는 구조화가 끝나는 대로 반영합니다.`
-        : `${industry.service_name}: 법령 후보는 확보됐지만 등록기준 문장 추출은 아직 미완료입니다.`;
-
-      renderBasisRows(basisRows, criteriaRows.length ? "자동 수집 법령 근거" : "법령 후보");
-
-      if (criteriaRows.length) {
-        ui.coverageGuide.textContent = "자동 추출 기준 문장을 표시합니다. 법령 해석이 필요한 항목은 원문 링크로 함께 확인하세요.";
-        ui.coverageGuide.style.display = "block";
-        ui.typedCriteriaBox.innerHTML = `<strong>자동 추출 등록기준</strong><br>${criteriaRows
-          .map((row) => `- ${esc(row.text || "")}`)
-          .join("<br>")}`;
-        ui.typedCriteriaBox.style.display = "block";
-      }
-
-      if (additionalRows.length) {
-        ui.evidenceChecklistBox.innerHTML = `<strong>추가 확인 항목</strong><br>${additionalRows
-          .map((row) => `- ${esc(row.text || "")}`)
-          .join("<br>")}`;
-        ui.evidenceChecklistBox.style.display = "block";
-      }
-
-      if (autoCandidates.length) {
-        ui.nextActionsBox.innerHTML = `<strong>후속 처리</strong><br>${autoCandidates
-          .slice(0, 3)
-          .map((row) => `- ${esc(row.law_title || "")}`)
-          .join("<br>")}`;
-        ui.nextActionsBox.style.display = "block";
-      }
-    };
-''',
-    )
-    # NOTE: evaluateTypedCriteriaLocal replacement removed — the canonical
-    # implementation lives in the build_html() template (single source of truth).
-    repaired = _replace_first_block(
-        repaired,
-        r'const renderStructuredReview = \(typedEval\) => \{.*?\n    };\n',
-        '''const renderStructuredReview = (typedEval) => {
-      const coverageText = [];
-      if (typedEval.coverage_status) coverageText.push(`구조화 상태: ${esc(typedEval.coverage_status)}`);
-      if (Number.isFinite(Number(typedEval.mapping_confidence))) coverageText.push(`신뢰도: ${Number(typedEval.mapping_confidence).toFixed(2)}`);
-      if (Number(typedEval.pending_criteria_count || 0) > 0) coverageText.push(`미구조화 ${Number(typedEval.pending_criteria_count)}건`);
-      if (coverageText.length) {
-        ui.coverageGuide.textContent = coverageText.join(" / ");
-        ui.coverageGuide.style.display = "block";
-      }
-
-      const criteriaRows = Array.isArray(typedEval.criterion_results) ? typedEval.criterion_results : [];
-      if (criteriaRows.length) {
-        const _bs = {
-          pass: "background:var(--smna-badge-success-bg,#E6F9F1);color:#0F9460;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;",
-          fail: "background:var(--smna-badge-error-bg,#FFEBEE);color:#D32F2F;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;",
-          missing_input: "background:var(--smna-badge-warning-bg,#FFF8E1);color:#F57C00;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;",
-        };
-        ui.typedCriteriaBox.innerHTML = `<strong style="display:block;margin-bottom:8px;">자동 점검 결과 <span style="font-weight:400;color:var(--smna-sub);font-size:13px;">(${criteriaRows.length}개 항목)</span></strong>${criteriaRows.map((row) => {
-          const badgeText = row.status === "pass" ? "충족" : (row.status === "fail" ? "부족" : "입력 필요");
-          const st = _bs[row.status] || _bs.missing_input;
-          const note = row.note ? `<span style="color:var(--smna-sub);font-size:12px;margin-left:4px;">${esc(row.note)}</span>` : "";
-          return `<div style="margin:4px 0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span style="${st}">${esc(badgeText)}</span><span>${esc(row.label || row.criterion_id)}</span>${note}</div>`;
-        }).join("")}`;
-        ui.typedCriteriaBox.style.display = "block";
-      }
-
-      const evidenceRows = Array.isArray(typedEval.evidence_checklist) ? typedEval.evidence_checklist : [];
-      if (evidenceRows.length) {
-        const isShortfall = typedEval.overall_status === "shortfall";
-        const evidenceTitle = isShortfall ? "보완 필요 서류" : "확인 권장 서류";
-        const evidenceDesc = isShortfall
-          ? "아래 서류를 준비하시면 등록 요건을 충족할 수 있습니다."
-          : "아래 항목은 전문가 확인 시 필요할 수 있는 서류입니다.";
-        const _evBorder = isShortfall ? "border-left:3px solid #D32F2F;" : "border-left:3px solid var(--smna-accent-strong,#0078D4);";
-        ui.evidenceChecklistBox.innerHTML = `<div style="${_evBorder}padding:12px;border-radius:8px;background:${isShortfall ? "var(--smna-badge-error-bg,#FFEBEE)" : "var(--smna-badge-info-bg,#E3F2FD)"};"><strong style="display:block;margin-bottom:6px;">${evidenceTitle}</strong><small style="color:var(--smna-sub);display:block;margin-bottom:8px;">${evidenceDesc}</small>${evidenceRows.map((row) => {
-          const _evStyle = row.reason === "보완 필요" ? "color:#D32F2F;font-weight:600;" : "color:var(--smna-sub);";
-          return `<div style="margin:4px 0;display:flex;align-items:flex-start;gap:6px;"><span style="flex-shrink:0;width:18px;text-align:center;">${row.reason === "보완 필요" ? "⚠️" : "📋"}</span><span>${esc(row.label)} <span style="${_evStyle}font-size:12px;">(${esc(row.reason || "확인 필요")})</span></span></div>`;
-        }).join("")}</div>`;
-        ui.evidenceChecklistBox.style.display = "block";
-      }
-
-      const nextRows = Array.isArray(typedEval.next_actions) ? typedEval.next_actions : [];
-      if (nextRows.length) {
-        const isManualReview = typedEval.overall_status === "manual_review";
-        const ctaTitle = isManualReview ? "전문가 검토 안내" : "다음 단계";
-        const ctaStyle = isManualReview ? "background:var(--smna-badge-warning-bg,#FFF8E1);border-left:3px solid var(--smna-warning);padding:12px;border-radius:8px;" : "";
-        ui.nextActionsBox.innerHTML = `<div style="${ctaStyle}"><strong>${ctaTitle}</strong><br>${nextRows.map((row) => `- ${esc(row)}`).join("<br>")}</div>`;
-        ui.nextActionsBox.style.display = "block";
-      }
-    };
-''',
-    )
+    # NOTE: renderCandidateFallback, evaluateTypedCriteriaLocal, & renderStructuredReview
+    # replacements removed — canonical implementations live in build_html() template.
+    # renderProofClaim & renderResult are DIFFERENT from the template and remain as patches.
     repaired = _replace_first_block(
         repaired,
         r'const renderResult = \(\) => \{.*?\n    };\n',
@@ -8368,8 +8168,6 @@ def _repair_generated_permit_html(html: str) -> str:
     const renderResult = () => {''',
             1,
         )
-    repaired = repaired.replace("'''const renderCandidateFallback", "const renderCandidateFallback")
-    repaired = repaired.replace("'''const renderStructuredReview", "const renderStructuredReview")
     return repaired
 
 
