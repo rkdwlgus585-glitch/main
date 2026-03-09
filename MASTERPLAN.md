@@ -295,6 +295,13 @@
 - patent handoff: `scripts/generate_attorney_handoff.py`
 
 ## Changelog
+### [2026-03-09] Session 5
+- **Dict Extraction Helpers**: `_get_str()` / `_get_int()` 헬퍼 도입 — permit_diagnosis_calculator.py 전역 178건 `str(x.get("k","") or "").strip()` 보일러플레이트 치환. 가독성 대폭 개선.
+- **Security: eval 제거 (양도+인허가)**: yangdo `_collapse_script_whitespace`의 `(0,eval)(code)` → 줄별 trim 방식 전환. permit `_wrap_wordpress_safe_scripts`의 Base64+`new Function()` → pass-through (nowprocket 속성이 이미 WP Rocket 우회 처리). CSP unsafe-eval 불필요.
+- **Dead Code Cleanup**: permit 구버전 JS 함수 4개 (`syncPermitWizardBlocker`, `syncHoldingsPriorityHint`, `formatPermitCoreRequirement`, `buildPermitCorePriorityCopy`) 삭제 (−83줄). Safe 접미사 신버전으로 완전 대체됨.
+- **Test Update**: `test_edge_cases.py` Base64 디코딩 → 직접 inline script 추출 방식 전환.
+- **Quality**: 753/753 tests PASS.
+
 ### [2026-03-09] Session 4
 - **Test Infrastructure**: pytest `pyproject.toml` 추가 — `testpaths=["tests"]` + `norecursedirs` 설정으로 `__pycache__` import mismatch 4건 해소. 753/753 PASS (0 errors).
 - **New Tests**: `test_permit_typed_criteria_synthesis.py` 20개 테스트 추가 — `_PENDING_CRITERIA_TEMPLATES` 구조 검증, `_synthesize_typed_criteria_from_pending` 동작 검증, `_normalize_key` 정규식 검증.
