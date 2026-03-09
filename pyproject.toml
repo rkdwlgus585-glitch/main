@@ -1,0 +1,19 @@
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test* *Test"
+python_functions = "test_*"
+# workspace_partitions, desktop_related contain stale snapshot copies
+# of test files — excluded to avoid __pycache__ import mismatch errors
+norecursedirs = [
+    "workspace_partitions",
+    "desktop_related",
+    "node_modules",
+    ".git",
+    "__pycache__",
+    "scripts",
+    "config",
+    "logs",
+    "docs",
+    ".playwright-mcp",
+]
