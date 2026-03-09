@@ -61,6 +61,24 @@ def _ensure_keys(base: dict, dict_keys: tuple = (), list_keys: tuple = ()) -> di
     return base
 
 
+# ── Dict extraction helpers ────────────────────────────────────────────
+# Replace hundreds of `_get_str(d, "k")` boilerplate.
+
+def _get_str(data: dict, key: str, default: str = "") -> str:
+    """Safely extract a stripped string from *data[key]*."""
+    return str(data.get(key, default) or "").strip()
+
+
+def _get_int(data: dict, key: str, default: int = 0) -> int:
+    """Safely extract a non-negative int from *data[key]*."""
+    try:
+        out = int(float(data.get(key, default)))
+    except Exception:
+        return 0
+    return max(out, 0)
+# ───────────────────────────────────────────────────────────────────────
+
+
 def _safe_json(data) -> str:
     text = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
     return (
@@ -140,14 +158,14 @@ def _compact_critical_prompt_lens(packet: dict) -> dict:
     if not lens:
         return {}
     return {
-        "lane_id": str(lens.get("lane_id", "") or "").strip(),
-        "lane_title": str(lens.get("lane_title", "") or "").strip(),
-        "bottleneck_statement": str(lens.get("bottleneck_statement", "") or "").strip(),
-        "why_now": str(lens.get("why_now", "") or "").strip(),
-        "inspect_first": str(lens.get("inspect_first", "") or "").strip(),
-        "next_action": str(lens.get("next_action", "") or "").strip(),
-        "success_metric": str(lens.get("success_metric", "") or "").strip(),
-        "falsification_test": str(lens.get("falsification_test", "") or "").strip(),
+        "lane_id": _get_str(lens, "lane_id"),
+        "lane_title": _get_str(lens, "lane_title"),
+        "bottleneck_statement": _get_str(lens, "bottleneck_statement"),
+        "why_now": _get_str(lens, "why_now"),
+        "inspect_first": _get_str(lens, "inspect_first"),
+        "next_action": _get_str(lens, "next_action"),
+        "success_metric": _get_str(lens, "success_metric"),
+        "falsification_test": _get_str(lens, "falsification_test"),
         "founder_questions": [
             str(item or "").strip()
             for item in list(lens.get("founder_questions") or [])
@@ -230,7 +248,7 @@ def _merge_catalog_payloads(base_catalog: dict, *overlay_layers: tuple[str, dict
             if not isinstance(raw, dict):
                 continue
             row = dict(raw)
-            service_code = str(row.get("service_code", "") or "").strip()
+            service_code = _get_str(row, "service_code")
             if not service_code:
                 continue
             if source_name in {"focus_seed_catalog", "focus_family_registry"}:
@@ -249,8 +267,8 @@ def _merge_catalog_payloads(base_catalog: dict, *overlay_layers: tuple[str, dict
     category_meta: dict[str, dict[str, str]] = {}
     category_counts: dict[str, int] = {}
     for row in merged_rows:
-        major_code = str(row.get("major_code", "") or "").strip()
-        major_name = str(row.get("major_name", "") or "").strip()
+        major_code = _get_str(row, "major_code")
+        major_name = _get_str(row, "major_name")
         if not major_code or not major_name:
             continue
         category_meta[major_code] = {"major_code": major_code, "major_name": major_name}
@@ -259,7 +277,7 @@ def _merge_catalog_payloads(base_catalog: dict, *overlay_layers: tuple[str, dict
     major_categories = [
         {
             "major_code": code,
-            "major_name": str(meta.get("major_name", "") or "").strip(),
+            "major_name": _get_str(meta, "major_name"),
             "industry_count": int(category_counts.get(code, 0) or 0),
         }
         for code, meta in category_meta.items()
@@ -269,7 +287,7 @@ def _merge_catalog_payloads(base_catalog: dict, *overlay_layers: tuple[str, dict
 
     catalog_source_counts: dict[str, int] = {}
     for row in merged_rows:
-        kind = str(row.get("catalog_source_kind", "") or "").strip()
+        kind = _get_str(row, "catalog_source_kind")
         if not kind:
             continue
         catalog_source_counts[kind] = int(catalog_source_counts.get(kind, 0) or 0) + 1
@@ -376,7 +394,7 @@ def _build_expanded_industry_lookup(expanded_catalog: dict) -> dict:
     for row in list(expanded_catalog.get("industries") or []):
         if not isinstance(row, dict):
             continue
-        code = str(row.get("service_code", "") or "").strip()
+        code = _get_str(row, "service_code")
         if code:
             lookup[code] = dict(row)
     return lookup
@@ -392,13 +410,13 @@ def _merge_expanded_rule_metadata(rule_catalog: dict, expanded_catalog: dict) ->
 
     pack_by_rule_id = {}
     for pack in packs:
-        rule_id = str(pack.get("rule_id", "") or "").strip()
+        rule_id = _get_str(pack, "rule_id")
         if rule_id and rule_id not in pack_by_rule_id:
             pack_by_rule_id[rule_id] = pack
 
     merged = []
     for group in groups:
-        rule_id = str(group.get("rule_id", "") or "").strip()
+        rule_id = _get_str(group, "rule_id")
         pack = pack_by_rule_id.get(rule_id)
         if not pack:
             merged.append(group)
@@ -408,7 +426,7 @@ def _merge_expanded_rule_metadata(rule_catalog: dict, expanded_catalog: dict) ->
         pending = [x for x in list(out.get("pending_criteria_lines") or []) if isinstance(x, dict)]
         if pending:
             seen_pending = {
-                (str(item.get("category", "") or "").strip(), str(item.get("text", "") or "").strip())
+                (_get_str(item, "category"), _get_str(item, "text"))
                 for item in pending
             }
         else:
@@ -417,8 +435,8 @@ def _merge_expanded_rule_metadata(rule_catalog: dict, expanded_catalog: dict) ->
             if not isinstance(item, dict):
                 continue
             key = (
-                str(item.get("category", "") or "").strip(),
-                str(item.get("text", "") or "").strip(),
+                _get_str(item, "category"),
+                _get_str(item, "text"),
             )
             if key in seen_pending:
                 continue
@@ -429,23 +447,23 @@ def _merge_expanded_rule_metadata(rule_catalog: dict, expanded_catalog: dict) ->
 
         typed_existing = [x for x in list(out.get("typed_criteria") or []) if isinstance(x, dict)]
         typed_by_id = {
-            str(item.get("criterion_id", "") or "").strip(): dict(item)
+            _get_str(item, "criterion_id"): dict(item)
             for item in typed_existing
-            if str(item.get("criterion_id", "") or "").strip()
+            if _get_str(item, "criterion_id")
         }
         for item in _synthesize_typed_criteria_from_pending(pending):
-            typed_by_id.setdefault(str(item.get("criterion_id", "") or "").strip(), dict(item))
+            typed_by_id.setdefault(_get_str(item, "criterion_id"), dict(item))
         if typed_by_id:
             out["typed_criteria"] = list(typed_by_id.values())
 
         docs_existing = [x for x in list(out.get("document_templates") or []) if isinstance(x, dict)]
         doc_by_id = {
-            str(item.get("doc_id", "") or "").strip(): dict(item)
+            _get_str(item, "doc_id"): dict(item)
             for item in docs_existing
-            if str(item.get("doc_id", "") or "").strip()
+            if _get_str(item, "doc_id")
         }
         for item in _synthesize_document_templates(list(typed_by_id.values())):
-            doc_by_id.setdefault(str(item.get("doc_id", "") or "").strip(), dict(item))
+            doc_by_id.setdefault(_get_str(item, "doc_id"), dict(item))
         if doc_by_id:
             out["document_templates"] = list(doc_by_id.values())
 
@@ -470,25 +488,25 @@ def _merge_manual_rule_groups(rule_catalog: dict, overrides_catalog: dict) -> di
 
     group_index = {}
     for idx, group in enumerate(groups):
-        rule_id = str(group.get("rule_id", "") or "").strip()
+        rule_id = _get_str(group, "rule_id")
         if rule_id and rule_id not in group_index:
             group_index[rule_id] = idx
 
     for raw_group in manual_groups:
-        rule_id = str(raw_group.get("rule_id", "") or "").strip()
+        rule_id = _get_str(raw_group, "rule_id")
         if not rule_id:
             continue
         legal_basis = []
         for item in list(raw_group.get("legal_basis") or []):
             if not isinstance(item, dict):
                 continue
-            url = str(item.get("url", "") or "").strip()
+            url = _get_str(item, "url")
             if not _is_objective_source_url(url):
                 continue
             legal_basis.append(
                 {
-                    "law_title": str(item.get("law_title", "") or "").strip(),
-                    "article": str(item.get("article", "") or "").strip(),
+                    "law_title": _get_str(item, "law_title"),
+                    "article": _get_str(item, "article"),
                     "url": url,
                 }
             )
@@ -507,9 +525,9 @@ def _merge_manual_rule_groups(rule_catalog: dict, overrides_catalog: dict) -> di
         req_src = dict(raw_group.get("requirements") or {})
         out["requirements"] = {
             "capital_eok": _coerce_non_negative_float(req_src.get("capital_eok", 0)),
-            "technicians": _coerce_non_negative_int(req_src.get("technicians", 0)),
-            "equipment_count": _coerce_non_negative_int(req_src.get("equipment_count", 0)),
-            "deposit_days": _coerce_non_negative_int(req_src.get("deposit_days", 0)),
+            "technicians": _get_int(req_src, "technicians"),
+            "equipment_count": _get_int(req_src, "equipment_count"),
+            "deposit_days": _get_int(req_src, "deposit_days"),
         }
 
         pending = [dict(x) for x in list(raw_group.get("pending_criteria_lines") or []) if isinstance(x, dict)]
@@ -518,23 +536,23 @@ def _merge_manual_rule_groups(rule_catalog: dict, overrides_catalog: dict) -> di
 
         typed_existing = [dict(x) for x in list(raw_group.get("typed_criteria") or []) if isinstance(x, dict)]
         typed_by_id = {
-            str(item.get("criterion_id", "") or "").strip(): dict(item)
+            _get_str(item, "criterion_id"): dict(item)
             for item in typed_existing
-            if str(item.get("criterion_id", "") or "").strip()
+            if _get_str(item, "criterion_id")
         }
         for item in _synthesize_typed_criteria_from_pending(pending):
-            typed_by_id.setdefault(str(item.get("criterion_id", "") or "").strip(), dict(item))
+            typed_by_id.setdefault(_get_str(item, "criterion_id"), dict(item))
         if typed_by_id:
             out["typed_criteria"] = list(typed_by_id.values())
 
         docs_existing = [dict(x) for x in list(raw_group.get("document_templates") or []) if isinstance(x, dict)]
         doc_by_id = {
-            str(item.get("doc_id", "") or "").strip(): dict(item)
+            _get_str(item, "doc_id"): dict(item)
             for item in docs_existing
-            if str(item.get("doc_id", "") or "").strip()
+            if _get_str(item, "doc_id")
         }
         for item in _synthesize_document_templates(list(typed_by_id.values())):
-            doc_by_id.setdefault(str(item.get("doc_id", "") or "").strip(), dict(item))
+            doc_by_id.setdefault(_get_str(item, "doc_id"), dict(item))
         if doc_by_id:
             out["document_templates"] = list(doc_by_id.values())
 
@@ -697,18 +715,18 @@ def _synthesize_typed_criteria_from_pending(pending_lines) -> list:
     for item in list(pending_lines or []):
         if not isinstance(item, dict):
             continue
-        category = str(item.get("category", "") or "").strip()
+        category = _get_str(item, "category")
         template = _PENDING_CRITERIA_TEMPLATES.get(category)
         if not template and category == "other":
             template = _PENDING_CRITERIA_TEMPLATES.get("facility_misc")
         if not template:
             continue
-        criterion_id = str(template.get("criterion_id", "") or "").strip()
+        criterion_id = _get_str(template, "criterion_id")
         if not criterion_id or criterion_id in seen:
             continue
         seen.add(criterion_id)
         row = dict(template)
-        note = str(item.get("text", "") or "").strip()
+        note = _get_str(item, "text")
         if note:
             row["label"] = str(row.get("label", criterion_id) or criterion_id).strip()
             row["note"] = note[:200]
@@ -722,7 +740,7 @@ def _synthesize_document_templates(typed_criteria) -> list:
     for criterion in list(typed_criteria or []):
         if not isinstance(criterion, dict):
             continue
-        criterion_id = str(criterion.get("criterion_id", "") or "").strip()
+        criterion_id = _get_str(criterion, "criterion_id")
         label = str(criterion.get("label", "") or criterion_id).strip()
         for idx, evidence in enumerate(list(criterion.get("evidence_types") or []), 1):
             evidence_label = str(evidence or "").strip()
@@ -749,7 +767,7 @@ def _expand_rule_groups(rule_catalog: dict) -> list:
     for group in groups:
         if not isinstance(group, dict):
             continue
-        rule_id = str(group.get("rule_id", "") or "").strip()
+        rule_id = _get_str(group, "rule_id")
         if not rule_id:
             continue
 
@@ -757,13 +775,13 @@ def _expand_rule_groups(rule_catalog: dict) -> list:
         for item in list(group.get("legal_basis") or []):
             if not isinstance(item, dict):
                 continue
-            url = str(item.get("url", "") or "").strip()
+            url = _get_str(item, "url")
             if not _is_objective_source_url(url):
                 continue
             legal_basis.append(
                 {
-                    "law_title": str(item.get("law_title", "") or "").strip(),
-                    "article": str(item.get("article", "") or "").strip(),
+                    "law_title": _get_str(item, "law_title"),
+                    "article": _get_str(item, "article"),
                     "url": url,
                 }
             )
@@ -773,9 +791,9 @@ def _expand_rule_groups(rule_catalog: dict) -> list:
         req_src = dict(group.get("requirements") or {})
         requirements = {
             "capital_eok": _coerce_non_negative_float(req_src.get("capital_eok", 0)),
-            "technicians": _coerce_non_negative_int(req_src.get("technicians", 0)),
-            "equipment_count": _coerce_non_negative_int(req_src.get("equipment_count", 0)),
-            "deposit_days": _coerce_non_negative_int(req_src.get("deposit_days", 0)),
+            "technicians": _get_int(req_src, "technicians"),
+            "equipment_count": _get_int(req_src, "equipment_count"),
+            "deposit_days": _get_int(req_src, "deposit_days"),
         }
         mapping_meta = dict(group.get("mapping_meta") or {})
         typed_criteria = [x for x in list(group.get("typed_criteria") or []) if isinstance(x, dict)]
@@ -783,7 +801,7 @@ def _expand_rule_groups(rule_catalog: dict) -> list:
         document_templates = [x for x in list(group.get("document_templates") or []) if isinstance(x, dict)]
 
         names = []
-        single = str(group.get("industry_name", "") or "").strip()
+        single = _get_str(group, "industry_name")
         if single:
             names.append(single)
         for name in list(group.get("industry_names") or []):
@@ -848,10 +866,10 @@ def _build_rule_index(rule_catalog: dict) -> dict:
 
 
 def _resolve_rule_for_industry(industry: dict, rule_index: dict):
-    service_code = str(industry.get("service_code", "") or "").strip()
+    service_code = _get_str(industry, "service_code")
     if service_code and service_code in rule_index.get("by_service_code", {}):
         return rule_index["by_service_code"][service_code]
-    service_name = str(industry.get("service_name", "") or "").strip()
+    service_name = _get_str(industry, "service_name")
     if service_name:
         key = _normalize_key(service_name)
         hit = rule_index.get("by_key", {}).get(key)
@@ -872,9 +890,9 @@ def evaluate_registration_diagnosis(
     req = dict(rule.get("requirements") or {})
 
     required_capital = _coerce_non_negative_float(req.get("capital_eok", 0))
-    required_technicians = _coerce_non_negative_int(req.get("technicians", 0))
-    required_equipment = _coerce_non_negative_int(req.get("equipment_count", 0))
-    deposit_days = _coerce_non_negative_int(req.get("deposit_days", 0))
+    required_technicians = _get_int(req, "technicians")
+    required_equipment = _get_int(req, "equipment_count")
+    deposit_days = _get_int(req, "deposit_days")
 
     current_capital = _coerce_non_negative_float(current_capital_eok)
     current_tech = _coerce_non_negative_int(current_technicians)
@@ -914,7 +932,7 @@ def evaluate_registration_diagnosis(
         typed_inputs.update(extra_inputs)
 
     typed_eval = evaluate_typed_criteria(rule, typed_inputs, base_date=baseline)
-    typed_status = str(typed_eval.get("overall_status") or "").strip().lower()
+    typed_status = _get_str(typed_eval, "overall_status").lower()
     typed_ok = typed_status in {"", "pass"}
     overall_ok = bool(capital_ok and technicians_ok and equipment_ok and typed_ok)
 
@@ -963,15 +981,15 @@ def _prepare_ui_payload(catalog: dict, rule_catalog: dict) -> dict:
     for row in list(catalog.get("major_categories") or []):
         if not isinstance(row, dict):
             continue
-        major_code = str(row.get("major_code", "") or "").strip()
-        major_name = str(row.get("major_name", "") or "").strip()
+        major_code = _get_str(row, "major_code")
+        major_name = _get_str(row, "major_name")
         if not major_code or not major_name:
             continue
         major_categories.append(
             {
                 "major_code": major_code,
                 "major_name": major_name,
-                "industry_count": _coerce_non_negative_int(row.get("industry_count", 0)),
+                "industry_count": _get_int(row, "industry_count"),
             }
         )
 
@@ -982,10 +1000,10 @@ def _prepare_ui_payload(catalog: dict, rule_catalog: dict) -> dict:
     for row in list(catalog.get("industries") or []):
         if not isinstance(row, dict):
             continue
-        service_code = str(row.get("service_code", "") or "").strip()
-        service_name = str(row.get("service_name", "") or "").strip()
-        major_code = str(row.get("major_code", "") or "").strip()
-        major_name = str(row.get("major_name", "") or "").strip()
+        service_code = _get_str(row, "service_code")
+        service_name = _get_str(row, "service_name")
+        major_code = _get_str(row, "major_code")
+        major_name = _get_str(row, "major_name")
         if not service_code or not service_name or not major_code:
             continue
         if service_code in seen_codes:
@@ -996,13 +1014,13 @@ def _prepare_ui_payload(catalog: dict, rule_catalog: dict) -> dict:
             "service_name": service_name,
             "major_code": major_code,
             "major_name": major_name,
-            "group_code": str(row.get("group_code", "") or "").strip(),
-            "group_name": str(row.get("group_name", "") or "").strip(),
-            "group_description": str(row.get("group_description", "") or "").strip(),
-            "group_declared_total": _coerce_non_negative_int(row.get("group_declared_total", 0)),
-            "detail_url": str(row.get("detail_url", "") or "").strip(),
-            "catalog_source_kind": str(row.get("catalog_source_kind", "") or "").strip(),
-            "catalog_source_label": str(row.get("catalog_source_label", "") or "").strip(),
+            "group_code": _get_str(row, "group_code"),
+            "group_name": _get_str(row, "group_name"),
+            "group_description": _get_str(row, "group_description"),
+            "group_declared_total": _get_int(row, "group_declared_total"),
+            "detail_url": _get_str(row, "detail_url"),
+            "catalog_source_kind": _get_str(row, "catalog_source_kind"),
+            "catalog_source_label": _get_str(row, "catalog_source_label"),
             "has_rule": bool(row.get("has_rule", False)),
         }
         for key in (
@@ -1099,7 +1117,7 @@ def _prepare_ui_payload(catalog: dict, rule_catalog: dict) -> dict:
         rules_only_rows.append(
             {
                 "service_code": virtual_code,
-                "service_name": str(rule.get("industry_name", "") or "").strip(),
+                "service_name": _get_str(rule, "industry_name"),
                 "major_code": RULES_ONLY_CATEGORY_CODE,
                 "major_name": RULES_ONLY_CATEGORY_NAME,
                 "group_code": "",
@@ -1201,7 +1219,7 @@ def _prepare_ui_payload(catalog: dict, rule_catalog: dict) -> dict:
     )
     summary["inferred_focus_target_total"] = len(inferred_focus_rows)
     summary["focus_default_mode"] = "focus_only" if focus_target_rows else "all"
-    industry_total = _coerce_non_negative_int(summary.get("industry_total", 0))
+    industry_total = _get_int(summary, "industry_total")
     with_rule_total = _coerce_non_negative_int(real_with_rule_total)
     pending_rule_total = max(0, industry_total - with_rule_total)
     coverage_pct = round((with_rule_total / industry_total) * 100.0, 2) if industry_total > 0 else 0.0
@@ -1233,7 +1251,7 @@ def _compact_candidate_lines(rows) -> list:
     for row in list(rows or []):
         if not isinstance(row, dict):
             continue
-        text = str(row.get("text", "") or "").strip()
+        text = _get_str(row, "text")
         if not text:
             continue
         compact_rows.append({"text": text})
@@ -1245,8 +1263,8 @@ def _compact_candidate_law_rows(rows) -> list:
     for row in list(rows or []):
         if not isinstance(row, dict):
             continue
-        law_title = str(row.get("law_title", "") or "").strip()
-        article = str(row.get("article", "") or "").strip()
+        law_title = _get_str(row, "law_title")
+        article = _get_str(row, "article")
         url = str(row.get("url", "") or row.get("law_url", "") or "").strip()
         if not (law_title or article or url):
             continue
@@ -1269,20 +1287,20 @@ def _compact_raw_source_proof(proof: Any) -> dict:
         if str(url or "").strip()
     ]
     compact = {
-        "proof_status": str(proof.get("proof_status", "") or "").strip(),
-        "official_snapshot_note": str(proof.get("official_snapshot_note", "") or "").strip(),
-        "source_checksum": str(proof.get("source_checksum", "") or "").strip(),
+        "proof_status": _get_str(proof, "proof_status"),
+        "official_snapshot_note": _get_str(proof, "official_snapshot_note"),
+        "source_checksum": _get_str(proof, "source_checksum"),
         "source_urls": source_urls,
-        "source_url_total": _coerce_non_negative_int(proof.get("source_url_total", len(source_urls))),
+        "source_url_total": _get_int(proof, "source_url_total"),
     }
     capture_meta = proof.get("capture_meta") or {}
     if isinstance(capture_meta, dict) and capture_meta:
         compact["capture_meta"] = {
-            "captured_at": str(capture_meta.get("captured_at", "") or "").strip(),
-            "capture_kind": str(capture_meta.get("capture_kind", "") or "").strip(),
-            "scope_policy": str(capture_meta.get("scope_policy", "") or "").strip(),
-            "family_key": str(capture_meta.get("family_key", "") or "").strip(),
-            "catalog_source_kind": str(capture_meta.get("catalog_source_kind", "") or "").strip(),
+            "captured_at": _get_str(capture_meta, "captured_at"),
+            "capture_kind": _get_str(capture_meta, "capture_kind"),
+            "scope_policy": _get_str(capture_meta, "scope_policy"),
+            "family_key": _get_str(capture_meta, "family_key"),
+            "catalog_source_kind": _get_str(capture_meta, "catalog_source_kind"),
         }
     return {key: value for key, value in compact.items() if value not in ("", [], {})}
 
@@ -1292,7 +1310,7 @@ def _build_claim_packet_lookup(bundle: dict) -> dict[str, dict]:
     for family in list((bundle or {}).get("families") or []):
         if not isinstance(family, dict):
             continue
-        family_key = str(family.get("family_key", "") or "").strip()
+        family_key = _get_str(family, "family_key")
         claim_packet = family.get("claim_packet") or {}
         if family_key and isinstance(claim_packet, dict) and claim_packet:
             lookup[family_key] = claim_packet
@@ -1343,12 +1361,12 @@ def _build_row_claim_packet_summary(row: dict, claim_packet_lookup: dict[str, di
     ]
     compact = {
         "family_key": family_key,
-        "claim_id": str(claim_packet.get("claim_id", "") or "").strip(),
-        "claim_title": str(claim_packet.get("claim_title", "") or "").strip(),
-        "claim_statement": str(claim_packet.get("claim_statement", "") or "").strip(),
+        "claim_id": _get_str(claim_packet, "claim_id"),
+        "claim_title": _get_str(claim_packet, "claim_title"),
+        "claim_statement": _get_str(claim_packet, "claim_statement"),
         "required_input_domains": required_input_domains,
         "optional_input_domains": optional_input_domains,
-        "proof_coverage_ratio": str(source_proof_summary.get("proof_coverage_ratio", "") or "").strip(),
+        "proof_coverage_ratio": _get_str(source_proof_summary, "proof_coverage_ratio"),
         "checksum_sample_total": _coerce_non_negative_int(
             source_proof_summary.get("checksum_sample_total", len(checksum_samples))
         ),
@@ -1386,7 +1404,7 @@ def _build_review_case_preset_lookup(report: dict) -> dict[str, dict]:
     for family in list((report or {}).get("families") or []):
         if not isinstance(family, dict):
             continue
-        family_key = str(family.get("family_key", "") or "").strip()
+        family_key = _get_str(family, "family_key")
         if family_key:
             lookup[family_key] = family
     return lookup
@@ -1397,7 +1415,7 @@ def _build_case_story_surface_lookup(report: dict) -> dict[str, dict]:
     for family in list((report or {}).get("families") or []):
         if not isinstance(family, dict):
             continue
-        family_key = str(family.get("family_key", "") or "").strip()
+        family_key = _get_str(family, "family_key")
         if family_key:
             lookup[family_key] = family
     return lookup
@@ -1408,7 +1426,7 @@ def _build_operator_demo_lookup(report: dict) -> dict[str, dict]:
     for family in list((report or {}).get("families") or []):
         if not isinstance(family, dict):
             continue
-        family_key = str(family.get("family_key", "") or "").strip()
+        family_key = _get_str(family, "family_key")
         if family_key:
             lookup[family_key] = family
     return lookup
@@ -1418,18 +1436,18 @@ def _compact_review_case_preset(preset: dict) -> dict:
     input_payload = preset.get("input_payload") if isinstance(preset.get("input_payload"), dict) else {}
     expected_outcome = preset.get("expected_outcome") if isinstance(preset.get("expected_outcome"), dict) else {}
     compact = {
-        "preset_id": str(preset.get("preset_id", "") or "").strip(),
-        "case_id": str(preset.get("case_id", "") or "").strip(),
-        "case_kind": str(preset.get("case_kind", "") or "").strip(),
-        "preset_label": str(preset.get("preset_label", "") or "").strip(),
-        "service_code": str(preset.get("service_code", "") or "").strip(),
-        "service_name": str(preset.get("service_name", "") or "").strip(),
-        "legal_basis_title": str(preset.get("legal_basis_title", "") or "").strip(),
-        "operator_note": str(preset.get("operator_note", "") or "").strip(),
+        "preset_id": _get_str(preset, "preset_id"),
+        "case_id": _get_str(preset, "case_id"),
+        "case_kind": _get_str(preset, "case_kind"),
+        "preset_label": _get_str(preset, "preset_label"),
+        "service_code": _get_str(preset, "service_code"),
+        "service_name": _get_str(preset, "service_name"),
+        "legal_basis_title": _get_str(preset, "legal_basis_title"),
+        "operator_note": _get_str(preset, "operator_note"),
         "input_payload": {
-            "industry_selector": str(input_payload.get("industry_selector", "") or "").strip(),
+            "industry_selector": _get_str(input_payload, "industry_selector"),
             "capital_eok": round(_coerce_non_negative_float(input_payload.get("capital_eok", 0)), 2),
-            "technicians_count": _coerce_non_negative_int(input_payload.get("technicians_count", 0)),
+            "technicians_count": _get_int(input_payload, "technicians_count"),
             "other_requirement_checklist": (
                 dict(input_payload.get("other_requirement_checklist"))
                 if isinstance(input_payload.get("other_requirement_checklist"), dict)
@@ -1437,12 +1455,12 @@ def _compact_review_case_preset(preset: dict) -> dict:
             ),
         },
         "expected_outcome": {
-            "overall_status": str(expected_outcome.get("overall_status", "") or "").strip(),
+            "overall_status": _get_str(expected_outcome, "overall_status"),
             "capital_gap_eok": round(_coerce_non_negative_float(expected_outcome.get("capital_gap_eok", 0)), 2),
-            "technicians_gap": _coerce_non_negative_int(expected_outcome.get("technicians_gap", 0)),
-            "review_reason": str(expected_outcome.get("review_reason", "") or "").strip(),
+            "technicians_gap": _get_int(expected_outcome, "technicians_gap"),
+            "review_reason": _get_str(expected_outcome, "review_reason"),
             "manual_review_expected": bool(expected_outcome.get("manual_review_expected", False)),
-            "proof_coverage_ratio": str(expected_outcome.get("proof_coverage_ratio", "") or "").strip(),
+            "proof_coverage_ratio": _get_str(expected_outcome, "proof_coverage_ratio"),
         },
     }
     return {
@@ -1458,25 +1476,25 @@ def _compact_case_story_surface(family: dict) -> dict:
     for item in list(family.get("representative_cases") or []):
         if not isinstance(item, dict):
             continue
-        review_reason = str(item.get("review_reason", "") or "").strip()
+        review_reason = _get_str(item, "review_reason")
         if review_reason and review_reason not in review_reasons:
             review_reasons.append(review_reason)
         representative_cases.append(
             {
-                "preset_id": str(item.get("preset_id", "") or "").strip(),
-                "case_kind": str(item.get("case_kind", "") or "").strip(),
-                "service_code": str(item.get("service_code", "") or "").strip(),
-                "service_name": str(item.get("service_name", "") or "").strip(),
-                "expected_status": str(item.get("expected_status", "") or "").strip(),
+                "preset_id": _get_str(item, "preset_id"),
+                "case_kind": _get_str(item, "case_kind"),
+                "service_code": _get_str(item, "service_code"),
+                "service_name": _get_str(item, "service_name"),
+                "expected_status": _get_str(item, "expected_status"),
                 "review_reason": review_reason,
                 "manual_review_expected": bool(item.get("manual_review_expected", False)),
             }
         )
     compact = {
-        "family_key": str(family.get("family_key", "") or "").strip(),
-        "claim_id": str(family.get("claim_id", "") or "").strip(),
-        "preset_total": _coerce_non_negative_int(family.get("preset_total", 0)),
-        "manual_review_preset_total": _coerce_non_negative_int(family.get("manual_review_preset_total", 0)),
+        "family_key": _get_str(family, "family_key"),
+        "claim_id": _get_str(family, "claim_id"),
+        "preset_total": _get_int(family, "preset_total"),
+        "manual_review_preset_total": _get_int(family, "manual_review_preset_total"),
         "review_reason_total": len(review_reasons),
         "review_reasons": review_reasons,
         "representative_cases": representative_cases[:3],
@@ -1501,7 +1519,7 @@ def _compact_operator_demo_family(family: dict) -> dict:
     for item in list(family.get("demo_cases") or []):
         if not isinstance(item, dict):
             continue
-        review_reason = str(item.get("review_reason", "") or "").strip()
+        review_reason = _get_str(item, "review_reason")
         if review_reason and review_reason not in review_reasons:
             review_reasons.append(review_reason)
         service_name = str(item.get("service_name", "") or item.get("service_code", "") or "").strip()
@@ -1512,22 +1530,22 @@ def _compact_operator_demo_family(family: dict) -> dict:
             manual_review_demo_total += 1
         demo_cases.append(
             {
-                "preset_id": str(item.get("preset_id", "") or "").strip(),
-                "case_kind": str(item.get("case_kind", "") or "").strip(),
-                "service_code": str(item.get("service_code", "") or "").strip(),
-                "service_name": str(item.get("service_name", "") or "").strip(),
+                "preset_id": _get_str(item, "preset_id"),
+                "case_kind": _get_str(item, "case_kind"),
+                "service_code": _get_str(item, "service_code"),
+                "service_name": _get_str(item, "service_name"),
                 "review_reason": review_reason,
-                "expected_status": str(item.get("expected_status", "") or "").strip(),
+                "expected_status": _get_str(item, "expected_status"),
                 "manual_review_expected": manual_review_expected,
-                "proof_coverage_ratio": str(item.get("proof_coverage_ratio", "") or "").strip(),
-                "operator_note": str(item.get("operator_note", "") or "").strip(),
+                "proof_coverage_ratio": _get_str(item, "proof_coverage_ratio"),
+                "operator_note": _get_str(item, "operator_note"),
             }
         )
     compact = {
-        "family_key": str(family.get("family_key", "") or "").strip(),
-        "claim_id": str(family.get("claim_id", "") or "").strip(),
-        "claim_title": str(family.get("claim_title", "") or "").strip(),
-        "proof_coverage_ratio": str(family.get("proof_coverage_ratio", "") or "").strip(),
+        "family_key": _get_str(family, "family_key"),
+        "claim_id": _get_str(family, "claim_id"),
+        "claim_title": _get_str(family, "claim_title"),
+        "proof_coverage_ratio": _get_str(family, "proof_coverage_ratio"),
         "demo_case_total": len(demo_cases),
         "manual_review_demo_total": manual_review_demo_total,
         "review_reason_total": len(review_reasons),
@@ -1557,15 +1575,15 @@ def _compact_runtime_reasoning_ladder_map(report: dict) -> dict:
     for item in list(report.get("ladders") or []):
         if not isinstance(item, dict):
             continue
-        review_reason = str(item.get("review_reason", "") or "").strip()
+        review_reason = _get_str(item, "review_reason")
         if not review_reason:
             continue
         ladder_map[review_reason] = {
             key: value
             for key, value in {
                 "review_reason": review_reason,
-                "inspect_first": str(item.get("inspect_first", "") or "").strip(),
-                "next_action": str(item.get("next_action", "") or "").strip(),
+                "inspect_first": _get_str(item, "inspect_first"),
+                "next_action": _get_str(item, "next_action"),
                 "manual_review_gate": bool(item.get("manual_review_gate", False)),
                 "evidence_first": [
                     str(token or "").strip()
@@ -1649,28 +1667,28 @@ def _attach_operator_demo_artifacts(rows: list[dict], operator_demo_packet_repor
 
 def _compact_industry_row_for_client(row: dict) -> dict:
     compact = {
-        "service_code": str(row.get("service_code", "") or "").strip(),
-        "service_name": str(row.get("service_name", "") or "").strip(),
-        "major_code": str(row.get("major_code", "") or "").strip(),
-        "major_name": str(row.get("major_name", "") or "").strip(),
-        "group_name": str(row.get("group_name", "") or "").strip(),
+        "service_code": _get_str(row, "service_code"),
+        "service_name": _get_str(row, "service_name"),
+        "major_code": _get_str(row, "major_code"),
+        "major_name": _get_str(row, "major_name"),
+        "group_name": _get_str(row, "group_name"),
         "has_rule": bool(row.get("has_rule")),
         "is_rules_only": bool(row.get("is_rules_only")),
-        "candidate_criteria_count": _coerce_non_negative_int(row.get("candidate_criteria_count", 0)),
+        "candidate_criteria_count": _get_int(row, "candidate_criteria_count"),
     }
-    catalog_source_kind = str(row.get("catalog_source_kind", "") or "").strip()
+    catalog_source_kind = _get_str(row, "catalog_source_kind")
     if catalog_source_kind:
         compact["catalog_source_kind"] = catalog_source_kind
-    catalog_source_label = str(row.get("catalog_source_label", "") or "").strip()
+    catalog_source_label = _get_str(row, "catalog_source_label")
     if catalog_source_label:
         compact["catalog_source_label"] = catalog_source_label
-    law_title = str(row.get("law_title", "") or "").strip()
+    law_title = _get_str(row, "law_title")
     if law_title:
         compact["law_title"] = law_title
-    legal_basis_title = str(row.get("legal_basis_title", "") or "").strip()
+    legal_basis_title = _get_str(row, "legal_basis_title")
     if legal_basis_title:
         compact["legal_basis_title"] = legal_basis_title
-    criteria_source_type = str(row.get("criteria_source_type", "") or "").strip()
+    criteria_source_type = _get_str(row, "criteria_source_type")
     if criteria_source_type:
         compact["criteria_source_type"] = criteria_source_type
     quality_flags = [str(flag).strip() for flag in list(row.get("quality_flags") or []) if str(flag).strip()]
@@ -1691,13 +1709,13 @@ def _compact_industry_row_for_client(row: dict) -> dict:
     candidate_legal_basis = _compact_candidate_law_rows(row.get("candidate_legal_basis"))
     if candidate_legal_basis:
         compact["candidate_legal_basis"] = candidate_legal_basis
-    seed_rule_service_code = str(row.get("seed_rule_service_code", "") or "").strip()
+    seed_rule_service_code = _get_str(row, "seed_rule_service_code")
     if seed_rule_service_code:
         compact["seed_rule_service_code"] = seed_rule_service_code
-    seed_rule_id = str(row.get("seed_rule_id", "") or "").strip()
+    seed_rule_id = _get_str(row, "seed_rule_id")
     if seed_rule_id:
         compact["seed_rule_id"] = seed_rule_id
-    seed_law_family = str(row.get("seed_law_family", "") or "").strip()
+    seed_law_family = _get_str(row, "seed_law_family")
     if seed_law_family:
         compact["seed_law_family"] = seed_law_family
     raw_source_proof = _compact_raw_source_proof(row.get("raw_source_proof"))
@@ -1747,16 +1765,16 @@ def _build_major_categories_for_rows(rows: list[dict]) -> list[dict]:
     for row in list(rows or []):
         if not isinstance(row, dict):
             continue
-        code = str(row.get("major_code", "") or "").strip()
-        name = str(row.get("major_name", "") or "").strip()
+        code = _get_str(row, "major_code")
+        name = _get_str(row, "major_name")
         if not code or not name:
             continue
         category_counts[code] = int(category_counts.get(code, 0) or 0) + 1
         category_meta[code] = {"major_code": code, "major_name": name}
     out = [
         {
-            "major_code": str(meta.get("major_code", "") or "").strip(),
-            "major_name": str(meta.get("major_name", "") or "").strip(),
+            "major_code": _get_str(meta, "major_code"),
+            "major_name": _get_str(meta, "major_name"),
             "industry_count": int(category_counts.get(code, 0) or 0),
         }
         for code, meta in category_meta.items()
@@ -1767,7 +1785,7 @@ def _build_major_categories_for_rows(rows: list[dict]) -> list[dict]:
 
 def _build_selector_entry(row: dict, selector_kind: str) -> dict:
     compact = _compact_industry_row_for_client(row)
-    canonical_service_code = str(compact.get("service_code", "") or "").strip()
+    canonical_service_code = _get_str(compact, "service_code")
     selector_suffix = canonical_service_code
     if selector_suffix.startswith("FOCUS::"):
         selector_suffix = selector_suffix.split("FOCUS::", 1)[1]
@@ -1790,9 +1808,9 @@ def _build_selector_entry(row: dict, selector_kind: str) -> dict:
 
 def _build_selector_catalog_row(selector_entry: dict) -> dict:
     row = dict(selector_entry or {})
-    selector_code = str(row.get("selector_code", "") or "").strip()
-    selector_category_code = str(row.get("selector_category_code", "") or "").strip()
-    selector_category_name = str(row.get("selector_category_name", "") or "").strip()
+    selector_code = _get_str(row, "selector_code")
+    selector_category_code = _get_str(row, "selector_category_code")
+    selector_category_name = _get_str(row, "selector_category_name")
     canonical_service_code = str(
         row.get("canonical_service_code", row.get("service_code", "")) or ""
     ).strip()
@@ -1845,8 +1863,8 @@ def _build_selector_catalog(
 def _normalize_selector_alias(row: dict) -> dict:
     return {
         "selector_code": str(row.get("service_code", row.get("selector_code", "")) or "").strip(),
-        "service_name": str(row.get("service_name", "") or "").strip(),
-        "selector_kind": str(row.get("selector_kind", "") or "").strip(),
+        "service_name": _get_str(row, "service_name"),
+        "selector_kind": _get_str(row, "selector_kind"),
         "selector_category_code": str(row.get("selector_category_code", row.get("major_code", "")) or "").strip(),
         "selector_category_name": str(row.get("selector_category_name", row.get("major_name", "")) or "").strip(),
     }
@@ -1862,13 +1880,13 @@ def _build_platform_catalog(compact_rows: list[dict], selector_catalog: dict) ->
         if not isinstance(row, dict):
             continue
         out = dict(row)
-        canonical_service_code = str(out.get("service_code", "") or "").strip()
+        canonical_service_code = _get_str(out, "service_code")
         out["canonical_service_code"] = canonical_service_code
         out["platform_selector_aliases"] = []
         out["platform_has_focus_alias"] = False
         out["platform_has_inferred_alias"] = False
         out["is_platform_row"] = True
-        major_code = str(out.get("major_code", "") or "").strip()
+        major_code = _get_str(out, "major_code")
         if major_code == RULES_ONLY_CATEGORY_CODE:
             out["platform_row_origin"] = "focus_registry_source"
             focus_registry_rows.append(out)
@@ -1885,8 +1903,8 @@ def _build_platform_catalog(compact_rows: list[dict], selector_catalog: dict) ->
         if not isinstance(selector_row, dict):
             continue
         alias = _normalize_selector_alias(selector_row)
-        selector_code = str(alias.get("selector_code", "") or "").strip()
-        selector_kind = str(alias.get("selector_kind", "") or "").strip()
+        selector_code = _get_str(alias, "selector_code")
+        selector_kind = _get_str(alias, "selector_kind")
         canonical_service_code = str(
             selector_row.get("canonical_service_code", selector_row.get("service_code", "")) or ""
         ).strip()
@@ -1918,16 +1936,16 @@ def _build_platform_catalog(compact_rows: list[dict], selector_catalog: dict) ->
     category_meta: dict[str, dict] = {}
     category_counts: dict[str, int] = {}
     for row in platform_rows:
-        code = str(row.get("major_code", "") or "").strip()
-        name = str(row.get("major_name", "") or "").strip()
+        code = _get_str(row, "major_code")
+        name = _get_str(row, "major_name")
         if not code or not name:
             continue
         category_counts[code] = int(category_counts.get(code, 0) or 0) + 1
         category_meta[code] = {"major_code": code, "major_name": name}
     major_categories = [
         {
-            "major_code": str(meta.get("major_code", "") or "").strip(),
-            "major_name": str(meta.get("major_name", "") or "").strip(),
+            "major_code": _get_str(meta, "major_code"),
+            "major_name": _get_str(meta, "major_name"),
             "industry_count": int(category_counts.get(code, 0) or 0),
         }
         for code, meta in category_meta.items()
@@ -1978,7 +1996,7 @@ def _build_master_catalog(platform_catalog: dict, selector_catalog: dict) -> dic
         if not isinstance(row, dict):
             continue
         out = dict(row)
-        origin = str(out.get("platform_row_origin", "") or "").strip()
+        origin = _get_str(out, "platform_row_origin")
         canonical_service_code = str(
             out.get("canonical_service_code", out.get("service_code", "")) or ""
         ).strip()
@@ -1986,12 +2004,12 @@ def _build_master_catalog(platform_catalog: dict, selector_catalog: dict) -> dic
             out["service_code"] = canonical_service_code
             out["master_row_origin"] = "canonicalized_selector_promoted"
         elif origin == "focus_registry_source":
-            out["service_code"] = canonical_service_code or str(out.get("service_code", "") or "").strip()
-            out["canonical_service_code"] = canonical_service_code or str(out.get("service_code", "") or "").strip()
+            out["service_code"] = canonical_service_code or _get_str(out, "service_code")
+            out["canonical_service_code"] = canonical_service_code or _get_str(out, "service_code")
             out["master_row_origin"] = "focus_registry_source"
         elif origin == "focus_source_absorbed":
-            out["service_code"] = canonical_service_code or str(out.get("service_code", "") or "").strip()
-            out["canonical_service_code"] = canonical_service_code or str(out.get("service_code", "") or "").strip()
+            out["service_code"] = canonical_service_code or _get_str(out, "service_code")
+            out["canonical_service_code"] = canonical_service_code or _get_str(out, "service_code")
             out["master_row_origin"] = "focus_source_absorbed"
         else:
             out["master_row_origin"] = origin or "real_catalog"
@@ -2107,7 +2125,7 @@ def build_bootstrap_payload(catalog: dict, rule_catalog: dict) -> dict:
     selector_catalog = _build_selector_catalog(focus_selector_entries, inferred_selector_entries)
     platform_catalog = _build_platform_catalog(compact_rows, selector_catalog)
     master_catalog = _build_master_catalog(platform_catalog, selector_catalog)
-    scoped_rule_keys = {str(row.get("service_code", "") or "").strip() for row in compact_rows if str(row.get("service_code", "") or "").strip()}
+    scoped_rule_keys = {_get_str(row, "service_code") for row in compact_rows if _get_str(row, "service_code")}
     summary["focus_selector_entry_total"] = len(focus_selector_entries)
     summary["inferred_selector_entry_total"] = len(inferred_selector_entries)
     summary["scope_policy"] = "capital_and_technical_only"
@@ -2317,8 +2335,8 @@ def build_html(
             "notice_url": str(notice_url or "").strip(),
         },
     )
-    resolved_notice_url = str(branding.get("notice_url") or "").strip() or "https://seoulmna.co.kr/notice"
-    resolved_phone = str(branding.get("contact_phone") or "").strip() or "1668-3548"
+    resolved_notice_url = _get_str(branding, "notice_url") or "https://seoulmna.co.kr/notice"
+    resolved_phone = _get_str(branding, "contact_phone") or "1668-3548"
     resolved_phone_digits = "".join(ch for ch in resolved_phone if ch.isdigit()) or "16683548"
     resolved_data_url = str(data_url or "").strip()
     resolved_data_encoding = str(data_encoding or "").strip().lower()
@@ -7930,17 +7948,17 @@ def build_html(
         .replace("__NOTICE_URL__", escape(resolved_notice_url))
         .replace("__CONTACT_PHONE__", escape(resolved_phone))
         .replace("__CONTACT_PHONE_DIGITS__", escape(resolved_phone_digits))
-        .replace("__INDUSTRY_TOTAL__", str(_coerce_non_negative_int(summary.get("industry_total", 0))))
-        .replace("__MAJOR_TOTAL__", str(_coerce_non_negative_int(summary.get("major_category_total", 0))))
-        .replace("__WITH_RULE_TOTAL__", str(_coerce_non_negative_int(summary.get("with_registration_rule_total", 0))))
-        .replace("__FOCUS_TARGET_TOTAL__", str(_coerce_non_negative_int(summary.get("focus_target_total", 0))))
+        .replace("__INDUSTRY_TOTAL__", str(_get_int(summary, "industry_total")))
+        .replace("__MAJOR_TOTAL__", str(_get_int(summary, "major_category_total")))
+        .replace("__WITH_RULE_TOTAL__", str(_get_int(summary, "with_registration_rule_total")))
+        .replace("__FOCUS_TARGET_TOTAL__", str(_get_int(summary, "focus_target_total")))
         .replace(
             "__REAL_FOCUS_TARGET_TOTAL__",
-            str(_coerce_non_negative_int(summary.get("real_focus_target_total", 0))),
+            str(_get_int(summary, "real_focus_target_total")),
         )
         .replace(
             "__RULES_ONLY_FOCUS_TARGET_TOTAL__",
-            str(_coerce_non_negative_int(summary.get("rules_only_focus_target_total", 0))),
+            str(_get_int(summary, "rules_only_focus_target_total")),
         )
         .replace("__RULE_VERSION__", escape(version))
         .replace("__RULE_EFFECTIVE_DATE__", escape(effective_date))
