@@ -154,7 +154,11 @@ def _extract_meta_from_html(html: str) -> Dict[str, Any]:
 
 def _safe_json(data: Any) -> str:
     txt = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
-    return txt.replace("</", "<\\/")
+    return (
+        txt.replace("</", "<\\/")
+        .replace("\u2028", "\\u2028")
+        .replace("\u2029", "\\u2029")
+    )
 
 
 def _code_gs(dataset: List[Dict[str, Any]], meta: Dict[str, Any]) -> str:

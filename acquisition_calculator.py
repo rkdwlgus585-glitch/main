@@ -8,7 +8,11 @@ from core_engine.channel_branding import resolve_channel_branding
 
 def _safe_json(data):
     text = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
-    return text.replace("</", "<\\/")
+    return (
+        text.replace("</", "<\\/")
+        .replace("\u2028", "\\u2028")
+        .replace("\u2029", "\\u2029")
+    )
 
 
 def _sanitize_endpoint(url: str) -> str:

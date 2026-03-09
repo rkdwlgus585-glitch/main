@@ -586,7 +586,7 @@ def build_page_html(
         if enable_consult_widget
         else ""
     )
-    html = f"""<section id="seoulmna-yangdo-calculator" class="smna-wrap">
+    html = f"""<section id="seoulmna-yangdo-calculator" class="smna-wrap" role="region" aria-labelledby="yangdo-main-title">
   <style>
     #seoulmna-yangdo-calculator, #seoulmna-yangdo-calculator * {{ box-sizing: border-box; }}
     html.smna-embed-co #masthead .custom-logo-link img,
@@ -685,11 +685,21 @@ def build_page_html(
       --smna-accent-soft: rgba(0, 163, 255, 0.08);
       --smna-accent-border: rgba(0, 163, 255, 0.22);
       --smna-text: #1A1A2E;
-      --smna-sub: #6B7280;
+      --smna-sub: #4B5563;
       --smna-warning: #FFB800;
       --smna-success: #00C48C;
       --smna-error: #FF4757;
       --smna-border: #E5E7EB;
+      --smna-header-text: #f8fbff;
+      --smna-header-sub: #d8edf6;
+      --smna-teal: #0f9fb0;
+      --smna-teal-light: #36bad0;
+      --smna-teal-dark: #0f5f75;
+      --smna-badge-success-bg: #E6F9F1;
+      --smna-badge-warning-bg: #FFF8E1;
+      --smna-badge-error-bg: #FFEBEE;
+      --smna-badge-info-bg: #E3F2FD;
+      --smna-disabled-bg: #f0f4f9;
       font-family: "Pretendard", "Noto Sans KR", "Malgun Gothic", Arial, sans-serif;
       color: var(--smna-text);
       font-size: 19px;
@@ -778,7 +788,7 @@ def build_page_html(
       font-weight: 900;
       letter-spacing: -0.02em;
       line-height: 1.18;
-      color: #f8fbff !important;
+      color: var(--smna-header-text) !important;
       text-shadow: 0 8px 24px rgba(0,0,0,.18);
     }}
     #seoulmna-yangdo-calculator .smna-subtitle {{
@@ -789,7 +799,7 @@ def build_page_html(
       font-size: 20px;
       line-height: 1.6;
       font-weight: 700;
-      color: #d8edf6;
+      color: var(--smna-header-sub);
     }}
     #seoulmna-yangdo-calculator .smna-ratio {{
       position: relative;
@@ -804,7 +814,7 @@ def build_page_html(
     }}
     #seoulmna-yangdo-calculator .smna-ratio > div:nth-child(1) {{ background: #8dd8e3; }}
     #seoulmna-yangdo-calculator .smna-ratio > div:nth-child(2) {{ background: #dce8f1; }}
-    #seoulmna-yangdo-calculator .smna-ratio > div:nth-child(3) {{ background: #0f9fb0; }}
+    #seoulmna-yangdo-calculator .smna-ratio > div:nth-child(3) {{ background: var(--smna-teal); }}
     #seoulmna-yangdo-calculator .smna-body {{
       padding: 24px;
       background: var(--smna-bg);
@@ -888,7 +898,7 @@ def build_page_html(
       border: 1px solid rgba(0, 55, 100, 0.12);
     }}
     #seoulmna-yangdo-calculator .cta-button.chat {{
-      background: linear-gradient(135deg, var(--smna-accent), #36bad0);
+      background: linear-gradient(135deg, var(--smna-accent), var(--smna-teal-light));
       color: #fff;
       border: 1px solid rgba(4, 96, 108, 0.28);
     }}
@@ -919,7 +929,7 @@ def build_page_html(
       line-height: 1.22;
     }}
     #seoulmna-yangdo-calculator .panel.result h3 {{
-      background: linear-gradient(135deg, #033958, var(--smna-accent));
+      background: linear-gradient(135deg, var(--smna-primary-strong), var(--smna-accent));
     }}
     #seoulmna-yangdo-calculator .panel.result {{
       position: sticky;
@@ -987,6 +997,13 @@ def build_page_html(
       border-color: rgba(15, 159, 176, 0.46);
       box-shadow: 0 0 0 4px rgba(15, 159, 176, 0.12);
       background: #fff;
+    }}
+    #seoulmna-yangdo-calculator button:focus-visible,
+    #seoulmna-yangdo-calculator .license-chip:focus-visible,
+    #seoulmna-yangdo-calculator .reorg-choice-btn:focus-visible,
+    #seoulmna-yangdo-calculator .cta-button:focus-visible {{
+      outline: 3px solid var(--smna-accent-strong);
+      outline-offset: 2px;
     }}
     #seoulmna-yangdo-calculator select {{
       min-height: 52px;
@@ -1599,7 +1616,7 @@ def build_page_html(
       border-color: rgba(12, 84, 106, 0.24);
     }}
     #seoulmna-yangdo-calculator .draft-restore-action.is-primary {{
-      background: linear-gradient(135deg, #0f9fb0, #1b6aa8);
+      background: linear-gradient(135deg, var(--smna-teal), #1b6aa8);
       color: #ffffff;
       border-color: transparent;
       box-shadow: 0 14px 28px rgba(16, 116, 156, 0.2);
@@ -2153,7 +2170,7 @@ def build_page_html(
       height: 100%;
       width: 0%;
       border-radius: inherit;
-      background: linear-gradient(90deg, #0f5f75 0%, #003764 100%);
+      background: linear-gradient(90deg, var(--smna-teal-dark) 0%, var(--smna-primary) 100%);
       transition: width 0.22s ease;
     }}
     #seoulmna-yangdo-calculator .wizard-progress-meta {{
@@ -2267,7 +2284,7 @@ def build_page_html(
         position: absolute;
         height: 100%;
         border-radius: inherit;
-        background: linear-gradient(90deg, var(--smna-primary), #0f5f75);
+        background: linear-gradient(90deg, var(--smna-primary), var(--smna-teal-dark));
         transition: left 0.3s ease, width 0.3s ease;
       }}
       #seoulmna-yangdo-calculator .value-preview-text {{
@@ -2297,7 +2314,7 @@ def build_page_html(
         padding: 7px 10px;
         border-radius: 999px;
         background: rgba(0, 55, 100, 0.92);
-        color: #f8fbff;
+        color: var(--smna-header-text);
         font-size: 11px;
         line-height: 1.35;
         font-weight: 900;
@@ -2753,10 +2770,10 @@ def build_page_html(
     }}
 
     /* ── Design System Components (#003764) ── */
-    #seoulmna-yangdo-calculator .badge-success {{ background: #E6F9F1; color: var(--smna-success, #00C48C); padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; display: inline-block; }}
-    #seoulmna-yangdo-calculator .badge-warning {{ background: #FFF8E1; color: var(--smna-warning, #FFB800); padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; display: inline-block; }}
-    #seoulmna-yangdo-calculator .badge-error {{ background: #FFEBEE; color: var(--smna-error, #FF4757); padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; display: inline-block; }}
-    #seoulmna-yangdo-calculator .badge-info {{ background: #E3F2FD; color: var(--smna-primary, #003764); padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; display: inline-block; }}
+    #seoulmna-yangdo-calculator .badge-success {{ background: var(--smna-badge-success-bg); color: var(--smna-success, #00C48C); padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; display: inline-block; }}
+    #seoulmna-yangdo-calculator .badge-warning {{ background: var(--smna-badge-warning-bg); color: var(--smna-warning, #FFB800); padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; display: inline-block; }}
+    #seoulmna-yangdo-calculator .badge-error {{ background: var(--smna-badge-error-bg); color: var(--smna-error, #FF4757); padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; display: inline-block; }}
+    #seoulmna-yangdo-calculator .badge-info {{ background: var(--smna-badge-info-bg); color: var(--smna-primary, #003764); padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; display: inline-block; }}
     #seoulmna-yangdo-calculator .sector-chip {{ padding: 6px 14px; border-radius: 20px; background: var(--smna-neutral); color: var(--smna-sub, #6B7280); font-size: 14px; cursor: pointer; transition: all 0.2s ease; border: none; }}
     #seoulmna-yangdo-calculator .sector-chip:hover {{ background: var(--smna-border); }}
     #seoulmna-yangdo-calculator .sector-chip.active {{ background: var(--smna-primary, #003764); color: #FFFFFF; }}
@@ -2770,12 +2787,12 @@ def build_page_html(
 
   <div class="smna-header">
     <div class="smna-brand-row">
-      <div class="smna-brand" style="color:#e8f3ff;font-weight:800;">{escape(brand_label)}</div>
+      <div class="smna-brand" style="color:var(--smna-header-text);font-weight:800;">{escape(brand_label)}</div>
       <div class="smna-mode">{'실시간 고객 화면' if mode == "customer" else '내부 검수 화면(비공개)'}</div>
     </div>
     <div class="smna-badge">전국 최초</div>
-    <h2 style="color:#f8fbff !important;">{escape(title)}</h2>
-    <div class="smna-subtitle" style="color:#eaf4ff;">{escape(subtitle_text)}</div>
+    <h2 id="yangdo-main-title" style="color:var(--smna-header-text) !important;">{escape(title)}</h2>
+    <div class="smna-subtitle" style="color:var(--smna-header-sub);">{escape(subtitle_text)}</div>
     <div class="smna-ratio"><div></div><div></div><div></div></div>
   </div>
 
@@ -2828,8 +2845,8 @@ def build_page_html(
           <div class="avg-guide" id="avg-guide">평균 지표를 불러오는 중...</div>
           <div class="input-row">
             <div class="field wide required-field">
-              <label for="in-license">면허/업종 <span class="required-pill">필수</span></label>
-              <input id="in-license" type="text" maxlength="120" list="license-suggestions" placeholder="예: 토목, 상하, 철콘, 실내건축" />
+              <label for="in-license">면허/업종 <span class="required-pill" aria-hidden="true">필수</span></label>
+              <input id="in-license" type="text" maxlength="120" list="license-suggestions" placeholder="예: 토목, 상하, 철콘, 실내건축" aria-required="true" />
               <datalist id="license-suggestions"></datalist>
               <div class="field-sub">인기 면허를 바로 선택하거나 직접 입력하세요. 복수 면허는 쉼표로 구분합니다.</div>
               <div class="license-chip-row" id="license-quick-chips"></div>
@@ -3046,7 +3063,7 @@ def build_page_html(
           </div>
           <div class="yoy-compare" id="out-yoy-compare">동일 조건 전년 대비 비교는 계산 후 표시됩니다.</div>
           <div id="result-reason-chips" class="result-reason-chips" style="display:none"></div>
-          <div id="risk-note" class="risk-note">AI 산정 전: 면허/업종, 검색 기준(시평 또는 실적), 자본금, 필수 기준 충족 여부를 먼저 확인해 주세요.</div>
+          <div id="risk-note" class="risk-note" aria-live="polite" aria-atomic="true">AI 산정 전: 면허/업종, 검색 기준(시평 또는 실적), 자본금, 필수 기준 충족 여부를 먼저 확인해 주세요.</div>
           <div id="settlement-panel" class="settlement-panel" style="display:none">
             <div class="title">정산 안내</div>
                 <div class="sub" id="settlement-summary">총 거래가와 공제 활용분을 분리해 현금 정산액을 해석합니다.</div>
@@ -3290,6 +3307,13 @@ def build_page_html(
         : [];
 
       const $ = (id) => document.getElementById(id);
+      const _debounce = (fn, ms) => {{
+        let tid;
+        const d = (...a) => {{ clearTimeout(tid); tid = setTimeout(() => fn(...a), ms); }};
+        d.cancel = () => clearTimeout(tid);
+        d.flush = (...a) => {{ clearTimeout(tid); fn(...a); }};
+        return d;
+      }};
       const num = (v) => {{
         if (v === null || v === undefined) return null;
         const txt = String(v).replace(/,/g, "").trim();
@@ -3626,7 +3650,7 @@ def build_page_html(
           + '<div id="yangdoWizardProgressMeta" class="wizard-progress-meta">필수 0/3 완료 · 업종부터 입력하면 자동 제안이 시작됩니다.</div>'
           + '<button type="button" id="yangdoWizardNextAction" class="wizard-progress-action" data-yangdo-next-action><span class="wizard-progress-action-label">지금 할 일</span><span id="yangdoWizardNextActionText" class="wizard-progress-action-text">면허/업종부터 선택하세요.</span></button>'
           + '<div id="yangdoWizardActionReason" class="wizard-progress-support" role="button" tabindex="0" data-yangdo-action-reason data-actionable="1">업종이 정해져야 통상 자본금과 공제조합 기준을 자동 제안할 수 있습니다.</div>'
-          + '<div id="yangdoValuePreview" class="value-preview" aria-live="polite">'
+          + '<div id="yangdoValuePreview" class="value-preview" aria-live="polite" aria-atomic="true">'
           + '<div class="value-preview-label">현재 입력 기준 예상 양도가 범위</div>'
           + '<div class="value-preview-range">'
           + '<div class="value-preview-bar"><div id="yangdoValuePreviewFill" class="value-preview-fill" style="left:0%;width:100%"></div></div>'
@@ -8572,7 +8596,7 @@ def build_page_html(
           const node = $(id);
           if (!node) return;
           node.disabled = !!disabled;
-          node.style.background = disabled ? "#f0f4f9" : "";
+          node.style.background = disabled ? "var(--smna-disabled-bg)" : "";
           node.style.opacity = disabled ? "0.78" : "";
         }};
         const toggleGroup = (id, visible) => {{
@@ -8710,7 +8734,7 @@ def build_page_html(
             node.dataset.defaultPlaceholder = node.getAttribute("placeholder") || "";
           }}
           node.disabled = !!disabled;
-          node.style.background = disabled ? "#f0f4f9" : "";
+          node.style.background = disabled ? "var(--smna-disabled-bg)" : "";
           node.style.opacity = disabled ? "0.78" : "";
           if (disabled) {{
             node.dataset.splitLocked = "1";
@@ -10178,10 +10202,11 @@ def build_page_html(
         const ok = await copyText(payload.body);
         alert(ok ? "상담 요약이 복사되었습니다." : "상담 요약 복사에 실패했습니다.");
       }});
+      const _debouncedSyncConsult = _debounce(syncConsultSummary, 300);
       ["consult-name", "consult-phone", "consult-email", "consult-note", "in-reorg-mode", "in-balance-usage-mode", "in-company-type", "in-credit-level", "in-admin-history", "in-scale-search-mode", "in-specialty", "in-sales-input-mode", "in-sales3-total", "in-sales5-total", "in-y23", "in-y24", "in-y25", "in-balance", "in-capital", "in-surplus"].forEach((id) => {{
         const el = $(id);
         if (!el) return;
-        el.addEventListener("input", syncConsultSummary);
+        el.addEventListener("input", _debouncedSyncConsult);
         el.addEventListener("change", syncConsultSummary);
       }});
       on("in-license", "input", () => {{
@@ -10248,17 +10273,19 @@ def build_page_html(
         node.addEventListener("input", markManual);
         node.addEventListener("change", markManual);
       }});
+      const _debouncedPersistDraft = _debounce(persistDraft, 800);
       draftFieldIds.forEach((id) => {{
         const el = $(id);
         if (!el) return;
-        el.addEventListener("input", persistDraft);
+        el.addEventListener("input", _debouncedPersistDraft);
         el.addEventListener("change", persistDraft);
       }});
       ["in-specialty", "in-sales3-total", "in-balance", "in-capital"].forEach((id) => {{
         const el = $(id);
         if (!el) return;
         const handle = () => maybeRunRecommendAutoLoop(id);
-        el.addEventListener("input", handle);
+        const debouncedHandle = _debounce(handle, 500);
+        el.addEventListener("input", debouncedHandle);
         el.addEventListener("change", handle);
       }});
       draftToggleIds.forEach((id) => {{
@@ -10266,6 +10293,7 @@ def build_page_html(
         if (!el) return;
         el.addEventListener("change", persistDraft);
       }});
+      const _debouncedWizardSync = _debounce(syncYangdoWizard, 250);
       [
         "in-license", "in-specialty", "in-sales-input-mode", "in-y23", "in-y24", "in-y25",
         "in-sales3-total", "in-sales5-total", "in-balance", "in-capital", "in-reorg-mode",
@@ -10274,7 +10302,7 @@ def build_page_html(
       ].forEach((id) => {{
         const el = $(id);
         if (!el) return;
-        el.addEventListener("input", syncYangdoWizard);
+        el.addEventListener("input", _debouncedWizardSync);
         el.addEventListener("change", syncYangdoWizard);
       }});
       on("btn-reset", "click", resetForm);

@@ -37,7 +37,11 @@ OBJECTIVE_SOURCE_HOSTS = (
 
 def _safe_json(data) -> str:
     text = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
-    return text.replace("</", "<\\/")
+    return (
+        text.replace("</", "<\\/")
+        .replace("\u2028", "\\u2028")
+        .replace("\u2029", "\\u2029")
+    )
 
 
 def _gzip_base64_json(data) -> str:
@@ -2406,7 +2410,7 @@ def build_html(
       --smna-accent: #00A3FF;
       --smna-accent-strong: #0080CC;
       --smna-text: #1A1A2E;
-      --smna-sub: #6B7280;
+      --smna-sub: #4B5563;
       --smna-warning: #FFB800;
       --smna-success: #00C48C;
       --smna-error: #FF4757;
@@ -3084,6 +3088,12 @@ def build_html(
       border-color: var(--smna-accent-strong);
       box-shadow: 0 0 0 4px rgba(15, 82, 127, 0.12);
       transform: translateY(-1px);
+    }
+    button:focus-visible,
+    .chip:focus-visible,
+    .cta-btn:focus-visible {
+      outline: 3px solid var(--smna-accent-strong);
+      outline-offset: 2px;
     }
     .assist {
       margin-top: 8px;

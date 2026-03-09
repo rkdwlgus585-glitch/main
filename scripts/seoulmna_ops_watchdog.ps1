@@ -390,6 +390,9 @@ function Test-AdminMemoFinalizeReady([string]$statusPath) {
 }
 
 function Invoke-AdminMemoFinalizeIfReady([string]$statusPath, [string]$repoCommand) {
+    if (-not $enableAdminMemoCompactFinalize) {
+        return
+    }
     if (-not (Test-AdminMemoFinalizeReady $statusPath)) {
         return
     }
@@ -608,6 +611,7 @@ $adminMemoOutputDir = Join-Path ([Environment]::GetFolderPath('Desktop')) ([stri
 $cmdAdminMemoFinalize = (
     '{0} scripts\admin_memo_compact_finalize.py --state-file logs/admin_memo_sync_state.json --output-dir "{1}" --txt-name seoulmna_admin_memo_compact_latest.txt --marker-file logs/admin_memo_compact_finalize_marker.json --trim-log-path logs/auto_admin_memo_sync.log --trim-log-lines 200 >> logs\auto_admin_memo_finalize.log 2>&1' -f $pythonPrefix, $adminMemoOutputDir
 )
+$enableAdminMemoCompactFinalize = $false
 $enableMemoFull = $false
 $cmdQualityDaily = 'scripts\run_quality_daily.cmd'
 $cmdDailyDashboard = (
@@ -664,6 +668,7 @@ Write-Log "admin memo holiday scope: weekends + statutory/substitute holidays on
 Write-Log ("now-to-sheet weekly slot: Monday 18:00 / next={0}" -f $nextNowRun.ToString("s"))
 Write-Log "now-to-sheet policy: weekly full catchup (now scan + sheet sync + co.kr + reconcile)"
 Write-Log "admin memo full-run policy: disabled"
+Write-Log "admin memo compact export policy: disabled"
 Write-Log ("wp site guard interval={0}m / next={1}" -f [int](Get-SiteGuardIntervalMinutes (Get-Date)), $nextSiteGuardRun.ToString("s"))
 Write-Log ("rankmath detail interval={0}m / next={1}" -f [int](Get-RankMathDetailIntervalMinutes (Get-Date)), $nextRankMathDetailRun.ToString("s"))
 Write-Log ("site cx probe interval={0}m / next={1}" -f [int](Get-CXProbeIntervalMinutes (Get-Date)), $nextCxProbeRun.ToString("s"))
