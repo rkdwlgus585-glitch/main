@@ -482,18 +482,15 @@ $noticeArchiveIntervalMinutes = 180
 $loopSleepSeconds = 30
 
 function Get-NextNowToSheetRun([datetime]$ts) {
-    $targetDay = [System.DayOfWeek]::Monday
-    $targetHour = 18
+    $slotHours = @(12, 18)
     $base = $ts
-    $candidate = $base.Date.AddHours([double]$targetHour)
-    $dayOffset = ([int]$targetDay - [int]$base.DayOfWeek + 7) % 7
-    if ($dayOffset -eq 0 -and $base -lt $candidate) {
-        return $candidate
+    foreach ($hour in $slotHours) {
+        $candidate = $base.Date.AddHours([double]$hour)
+        if ($base -lt $candidate.AddMinutes(1)) {
+            return $candidate
+        }
     }
-    if ($dayOffset -eq 0) {
-        $dayOffset = 7
-    }
-    return $base.Date.AddDays([double]$dayOffset).AddHours([double]$targetHour)
+    return $base.Date.AddDays(1).AddHours([double]$slotHours[0])
 }
 
 function Get-PublishIntervalMinutes([datetime]$ts) {
@@ -665,8 +662,8 @@ Write-Log ("admin memo incremental interval={0}m" -f [int]$memoIntervalBoot)
 $memoCapacityMultiplier = Get-MemoCapacityMultiplier (Get-Date)
 Write-Log ("admin memo incremental policy: per-run-limit={0}, daily-cap={1}, capacity-multiplier={2}" -f [int](Get-MemoIncrementalLimit (Get-Date)), [int]$memoDailyCap, [int]$memoCapacityMultiplier)
 Write-Log "admin memo holiday scope: weekends + statutory/substitute holidays only (election/temp excluded)"
-Write-Log ("now-to-sheet weekly slot: Monday 18:00 / next={0}" -f $nextNowRun.ToString("s"))
-Write-Log "now-to-sheet policy: weekly full catchup (now scan + sheet sync + co.kr + reconcile)"
+Write-Log ("now-to-sheet fixed slots: 12:00, 18:00 / next={0}" -f $nextNowRun.ToString("s"))
+Write-Log "now-to-sheet policy: now scan + sheet sync always; seoul upload only when claim price exists; reconcile included"
 Write-Log "admin memo full-run policy: disabled"
 Write-Log "admin memo compact export policy: disabled"
 Write-Log ("wp site guard interval={0}m / next={1}" -f [int](Get-SiteGuardIntervalMinutes (Get-Date)), $nextSiteGuardRun.ToString("s"))
@@ -705,7 +702,7 @@ while ($true) {
     }
 
     if ($now -ge $nextNowRun) {
-        Write-Log "now-to-sheet slot=weekly Monday 18:00 mode=full-catchup"
+        Write-Log ("now-to-sheet slot=fixed trigger={0} mode=scheduled-catchup" -f $nextNowRun.ToString("HH:mm"))
         $rc = Invoke-RepoCommand "now_to_sheet_weekly" $cmdNowToSheet
         if ($rc -eq 0) { $nowFailStreak = 0 } else { $nowFailStreak += 1 }
         $nextNowRun = Get-NextNowToSheetRun ((Get-Date).AddMinutes(1))
@@ -835,4 +832,5 @@ while ($true) {
     Save-State $nextNowRun $nowFailStreak $nextPublishRun $nextNoticeArchiveRun $nextMemoIncrementalRun $lastMemoFullDate $nextSiteGuardRun $nextRankMathDetailRun $nextCxProbeRun $nextDomSnapshotRun $nextCxForceRecoverRun $nextCxHealthDigestRun $nextLocalSyncRun $memoDailyDate $memoDailyCount
     Start-Sleep -Seconds $loopSleepSeconds
 }
+
 

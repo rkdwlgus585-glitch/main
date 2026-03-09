@@ -25,7 +25,7 @@ logger = setup_logger(name="match_scheduler")
 try:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
-except Exception:
+except (AttributeError, OSError):
     pass
 
 
@@ -58,7 +58,7 @@ def _load_state():
         if "last_run" not in data or not isinstance(data["last_run"], dict):
             data["last_run"] = {}
         return data
-    except Exception:
+    except (json.JSONDecodeError, OSError):
         return {"last_run": {}}
 
 
@@ -74,7 +74,7 @@ def _same_local_day(iso_ts):
         return False
     try:
         dt = datetime.fromisoformat(str(iso_ts))
-    except Exception:
+    except (ValueError, TypeError):
         return False
     return dt.date() == datetime.now().date()
 
@@ -112,7 +112,7 @@ def _acquire_lock():
             with open(lock_file, "r", encoding="utf-8") as f:
                 old = json.load(f)
             old_pid = int(old.get("pid", 0))
-        except Exception:
+        except (json.JSONDecodeError, OSError, ValueError):
             old_pid = 0
 
         if old_pid > 0:
@@ -124,7 +124,7 @@ def _acquire_lock():
 
         try:
             os.remove(lock_file)
-        except Exception:
+        except OSError:
             pass
 
     with open(lock_file, "w", encoding="utf-8") as f:
@@ -142,7 +142,7 @@ def _release_lock():
     try:
         if os.path.exists(lock_file):
             os.remove(lock_file)
-    except Exception:
+    except OSError:
         pass
 
 
@@ -158,7 +158,7 @@ def run_match_once(reason="manual"):
     try:
         proc = subprocess.run(cmd, check=False)
         rc = int(proc.returncode)
-    except Exception as e:
+    except (OSError, ValueError) as e:
         err = str(e)
 
     success = (rc == 0 and not err)

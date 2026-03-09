@@ -1,5 +1,5 @@
 @echo off
-REM [ROLE] OPS_RUNNER - startup task: nowmna -> Google Sheet sync once
+REM [ROLE] OPS_RUNNER - canonical nowmna -> Google Sheet -> seoul catchup runner
 setlocal EnableExtensions EnableDelayedExpansion
 cd /d "%~dp0.."
 
@@ -57,6 +57,9 @@ if errorlevel 1 (
 set "ATTEMPT=0"
 set "RC=1"
 set "WAIT_SEC=%NOW_TO_SHEET_RETRY_BASE_SEC%"
+REM Canonical policy:
+REM - nowmna -> Google Sheet sync is always performed
+REM - seoul upload is attempted only for rows with claim price (enforced in all.py)
 set "SYNC_ARGS=--scheduled-catchup --catchup-full-reconcile"
 if /i "%NOW_TO_SHEET_SKIP_UPLOAD%"=="1" set "SYNC_ARGS=!SYNC_ARGS! --catchup-no-upload"
 if not "%NOW_TO_SHEET_EXTRA_ARGS%"=="" (
@@ -91,3 +94,4 @@ if exist "%LOCK_DIR%" (
     )
 )
 exit /b !RC!
+

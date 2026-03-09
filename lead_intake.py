@@ -36,7 +36,7 @@ logger = setup_logger(name="lead_intake")
 try:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
-except Exception:
+except (AttributeError, OSError):
     pass
 
 CONSULT_HEADERS = [
@@ -62,7 +62,7 @@ CONSULT_HEADERS = [
 def _cfg_int(key, default):
     try:
         return int(str(CONFIG.get(key, default)).strip())
-    except Exception:
+    except (ValueError, TypeError):
         return default
 
 
@@ -194,7 +194,7 @@ class LeadIntakeHub:
             if "fingerprints" not in data or not isinstance(data["fingerprints"], dict):
                 data["fingerprints"] = {}
             return data
-        except Exception:
+        except (json.JSONDecodeError, OSError):
             return {"fingerprints": {}}
 
     def _save_state(self):
@@ -336,7 +336,7 @@ class LeadIntakeHub:
                     reader = csv.DictReader(f)
                     data_rows = list(reader)
                 break
-            except Exception as e:
+            except (UnicodeDecodeError, csv.Error, OSError) as e:
                 last_error = e
 
         if data_rows is None:
@@ -492,7 +492,7 @@ def main():
             try:
                 result = subprocess.run([sys.executable, "match.py"], check=False)
                 print(f"match.py finished with exit code {result.returncode}")
-            except Exception as e:
+            except (OSError, ValueError) as e:
                 print(f"failed to run match.py: {e}")
 
 
