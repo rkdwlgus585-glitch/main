@@ -3,7 +3,8 @@
 import json
 from dataclasses import dataclass
 from typing import Dict, Iterable, List, Optional, Set
-from urllib.parse import urlparse
+
+from core_engine.host_utils import host_from_origin, normalize_host, to_bool
 
 
 @dataclass(frozen=True)
@@ -43,7 +44,7 @@ class TenantGateway:
                 continue
             self._tenants[tid] = tenant
             for host in tenant.hosts:
-                h = _normalize_host(host)
+                h = normalize_host(host)
                 if h:
                     self._by_host[h] = tenant
 
@@ -53,10 +54,10 @@ class TenantGateway:
 
     def resolve(self, host: str = "", origin: str = "") -> TenantResolution:
         candidates: List[tuple[str, str]] = []
-        h = _normalize_host(host)
+        h = normalize_host(host)
         if h:
             candidates.append((h, "host"))
-        oh = _host_from_origin(origin)
+        oh = host_from_origin(origin)
         if oh:
             candidates.append((oh, "origin"))
 
@@ -106,43 +107,6 @@ class TenantGateway:
         return value in set(tenant.blocked_api_tokens or set())
 
 
-def _normalize_host(raw: str) -> str:
-    src = str(raw or "").strip().lower()
-    if not src:
-        return ""
-    if "//" in src:
-        parsed = urlparse(src)
-        src = parsed.netloc.lower()
-    if "@" in src:
-        src = src.split("@", 1)[1]
-    if ":" in src:
-        src = src.split(":", 1)[0]
-    return src.strip()
-
-
-def _host_from_origin(origin: str) -> str:
-    src = str(origin or "").strip()
-    if not src:
-        return ""
-    try:
-        parsed = urlparse(src)
-        return _normalize_host(parsed.netloc)
-    except (ValueError, AttributeError):
-        return ""
-
-
-def _to_bool(value: object, default: bool = True) -> bool:
-    if value is None:
-        return default
-    if isinstance(value, bool):
-        return value
-    src = str(value).strip().lower()
-    if src in {"1", "true", "yes", "on", "y"}:
-        return True
-    if src in {"0", "false", "no", "off", "n"}:
-        return False
-    return default
-
 
 def tenant_from_json_entry(
     entry: dict,
@@ -159,12 +123,12 @@ def tenant_from_json_entry(
     hosts: List[str] = []
     if isinstance(hosts_raw, list):
         for h in hosts_raw:
-            nh = _normalize_host(str(h))
+            nh = normalize_host(str(h))
             if nh:
                 hosts.append(nh)
 
     plan = str(entry.get("plan") or "standard").strip().lower() or "standard"
-    enabled = _to_bool(entry.get("enabled"), True)
+    enabled = to_bool(entry.get("enabled"), True)
 
     features_raw = entry.get("allowed_features") or []
     features: Set[str] = set()

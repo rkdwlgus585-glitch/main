@@ -3,7 +3,8 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from typing import Dict, Iterable, List, Optional
-from urllib.parse import urlparse
+
+from core_engine.host_utils import host_from_origin, normalize_host, to_bool
 
 
 @dataclass(frozen=True)
@@ -53,7 +54,7 @@ class ChannelRouter:
                 continue
             self._profiles[channel_id] = profile
             for host in profile.channel_hosts:
-                norm = _normalize_host(host)
+                norm = normalize_host(host)
                 if norm:
                     self._by_host[norm] = profile
 
@@ -63,10 +64,10 @@ class ChannelRouter:
 
     def resolve(self, host: str = "", origin: str = "") -> ChannelResolution:
         candidates: List[tuple[str, str]] = []
-        host_norm = _normalize_host(host)
+        host_norm = normalize_host(host)
         if host_norm:
             candidates.append((host_norm, "host"))
-        origin_host = _host_from_origin(origin)
+        origin_host = host_from_origin(origin)
         if origin_host:
             candidates.append((origin_host, "origin"))
 
@@ -94,42 +95,6 @@ class ChannelRouter:
         return str(system or "").strip().lower() in exposed
 
 
-def _normalize_host(raw: str) -> str:
-    src = str(raw or "").strip().lower()
-    if not src:
-        return ""
-    if "://" in src:
-        src = urlparse(src).netloc.lower()
-    if "@" in src:
-        src = src.split("@", 1)[1]
-    if ":" in src:
-        src = src.split(":", 1)[0]
-    return src.strip()
-
-
-def _host_from_origin(origin: str) -> str:
-    src = str(origin or "").strip()
-    if not src:
-        return ""
-    try:
-        parsed = urlparse(src)
-    except (ValueError, AttributeError):
-        return ""
-    return _normalize_host(parsed.netloc)
-
-
-def _to_bool(value: object, default: bool = True) -> bool:
-    if value is None:
-        return default
-    if isinstance(value, bool):
-        return value
-    text = str(value or "").strip().lower()
-    if text in {"1", "true", "yes", "on", "y"}:
-        return True
-    if text in {"0", "false", "no", "off", "n"}:
-        return False
-    return default
-
 
 def channel_profile_from_json_entry(entry: dict) -> Optional[ChannelProfile]:
     if not isinstance(entry, dict):
@@ -147,17 +112,17 @@ def channel_profile_from_json_entry(entry: dict) -> Optional[ChannelProfile]:
     hosts: List[str] = []
     if isinstance(hosts_raw, list):
         for host in hosts_raw:
-            norm = _normalize_host(str(host))
+            norm = normalize_host(str(host))
             if norm:
                 hosts.append(norm)
     branding = entry.get("branding") if isinstance(entry.get("branding"), dict) else {}
-    canonical_public_host = _normalize_host(str(entry.get("canonical_public_host") or ""))
+    canonical_public_host = normalize_host(str(entry.get("canonical_public_host") or ""))
     if not canonical_public_host:
-        canonical_public_host = _normalize_host(str(branding.get("site_url") or ""))
+        canonical_public_host = normalize_host(str(branding.get("site_url") or ""))
     if not canonical_public_host and hosts:
         canonical_public_host = hosts[0]
-    platform_front_host = _normalize_host(str(entry.get("platform_front_host") or ""))
-    legacy_content_host = _normalize_host(str(entry.get("legacy_content_host") or ""))
+    platform_front_host = normalize_host(str(entry.get("platform_front_host") or ""))
+    legacy_content_host = normalize_host(str(entry.get("legacy_content_host") or ""))
     exposed_systems_raw = entry.get("exposed_systems") or []
     exposed_systems = set()
     if isinstance(exposed_systems_raw, list):
@@ -182,7 +147,7 @@ def channel_profile_from_json_entry(entry: dict) -> Optional[ChannelProfile]:
         default_tenant_id=str(entry.get("default_tenant_id") or "").strip().lower(),
         exposed_systems=frozenset(exposed_systems),
         rollout_stage=str(entry.get("rollout_stage") or "phased").strip().lower() or "phased",
-        enabled=_to_bool(entry.get("enabled"), True),
+        enabled=to_bool(entry.get("enabled"), True),
     )
 
 
