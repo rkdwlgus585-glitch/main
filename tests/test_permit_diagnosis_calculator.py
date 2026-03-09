@@ -687,6 +687,194 @@ class EvaluateRegistrationDiagnosisTest(unittest.TestCase):
         self.assertFalse(result["capital"]["ok"])
         self.assertFalse(result["technicians"]["ok"])
 
+    # --- typed_criteria integration scenarios ---
+
+    def _make_rule_with_typed(self, typed_criteria, **kwargs):
+        rule = self._make_rule(**kwargs)
+        rule["typed_criteria"] = typed_criteria
+        return rule
+
+    def test_typed_criteria_pass(self):
+        """With typed criteria that pass, overall_ok should be True."""
+        rule = self._make_rule_with_typed(
+            [
+                {
+                    "criterion_id": "office.secured.auto",
+                    "input_key": "office_secured",
+                    "operator": "truthy",
+                    "value_type": "bool",
+                    "blocking": True,
+                },
+            ],
+            capital=1.0,
+            tech=1,
+        )
+        result = evaluate_registration_diagnosis(
+            rule,
+            current_capital_eok=2.0,
+            current_technicians=3,
+            current_equipment_count=0,
+            base_date=date(2026, 1, 1),
+            extra_inputs={"office_secured": True},
+        )
+        self.assertTrue(result["overall_ok"])
+        self.assertEqual(result["typed_overall_status"], "pass")
+        self.assertEqual(result["blocking_failure_count"], 0)
+
+    def test_typed_criteria_fail_blocks_overall(self):
+        """A blocking typed criterion that fails should make overall_ok False."""
+        rule = self._make_rule_with_typed(
+            [
+                {
+                    "criterion_id": "office.secured.auto",
+                    "input_key": "office_secured",
+                    "operator": "truthy",
+                    "value_type": "bool",
+                    "blocking": True,
+                },
+            ],
+            capital=1.0,
+            tech=1,
+        )
+        result = evaluate_registration_diagnosis(
+            rule,
+            current_capital_eok=2.0,
+            current_technicians=3,
+            current_equipment_count=0,
+            base_date=date(2026, 1, 1),
+            extra_inputs={"office_secured": False},
+        )
+        self.assertFalse(result["overall_ok"])
+        self.assertEqual(result["blocking_failure_count"], 1)
+        self.assertEqual(result["typed_overall_status"], "shortfall")
+
+    def test_typed_criteria_missing_input(self):
+        """Missing input for a blocking criterion → manual_review."""
+        rule = self._make_rule_with_typed(
+            [
+                {
+                    "criterion_id": "office.secured.auto",
+                    "input_key": "office_secured",
+                    "operator": "truthy",
+                    "value_type": "bool",
+                    "blocking": True,
+                },
+            ],
+            capital=1.0,
+            tech=1,
+        )
+        result = evaluate_registration_diagnosis(
+            rule,
+            current_capital_eok=2.0,
+            current_technicians=3,
+            current_equipment_count=0,
+            base_date=date(2026, 1, 1),
+            # office_secured not provided
+        )
+        self.assertFalse(result["overall_ok"])
+        self.assertEqual(result["unknown_blocking_count"], 1)
+        self.assertEqual(result["typed_overall_status"], "manual_review")
+
+    def test_guarantee_secured_typed_criteria(self):
+        """Verify guarantee_secured input_key works correctly."""
+        rule = self._make_rule_with_typed(
+            [
+                {
+                    "criterion_id": "guarantee.secured.auto",
+                    "input_key": "guarantee_secured",
+                    "operator": "truthy",
+                    "value_type": "bool",
+                    "blocking": False,
+                },
+            ],
+            capital=1.0,
+            tech=1,
+        )
+        result = evaluate_registration_diagnosis(
+            rule,
+            current_capital_eok=2.0,
+            current_technicians=3,
+            current_equipment_count=0,
+            base_date=date(2026, 1, 1),
+            extra_inputs={"guarantee_secured": True},
+        )
+        self.assertTrue(result["overall_ok"])
+        criteria = result["criterion_results"]
+        self.assertEqual(len(criteria), 1)
+        self.assertTrue(criteria[0]["ok"])
+
+    def test_pending_lines_force_manual_review(self):
+        """pending_criteria_lines should force manual_review_required."""
+        rule = self._make_rule(capital=1.0, tech=1)
+        rule["typed_criteria"] = []
+        rule["pending_criteria_lines"] = [
+            {"category": "office", "text": "사무실 확보 필요"}
+        ]
+        result = evaluate_registration_diagnosis(
+            rule,
+            current_capital_eok=2.0,
+            current_technicians=3,
+            current_equipment_count=0,
+            base_date=date(2026, 1, 1),
+        )
+        self.assertTrue(result["manual_review_required"])
+        self.assertFalse(result["overall_ok"])
+
+    def test_candidate_rule_confidence_triggers_manual_review(self):
+        """mapping_confidence < 0.75 should trigger manual_review."""
+        rule = self._make_rule(capital=1.0, tech=1)
+        rule["typed_criteria"] = []
+        rule["mapping_meta"] = {
+            "mapping_confidence": 0.5,
+            "coverage_status": "candidate",
+        }
+        result = evaluate_registration_diagnosis(
+            rule,
+            current_capital_eok=2.0,
+            current_technicians=3,
+            current_equipment_count=0,
+            base_date=date(2026, 1, 1),
+        )
+        self.assertTrue(result["manual_review_required"])
+        self.assertFalse(result["overall_ok"])
+        self.assertEqual(result["coverage_status"], "candidate")
+
+    def test_multiple_typed_criteria_mixed(self):
+        """Mix of pass and fail criteria."""
+        rule = self._make_rule_with_typed(
+            [
+                {
+                    "criterion_id": "office.secured.auto",
+                    "input_key": "office_secured",
+                    "operator": "truthy",
+                    "value_type": "bool",
+                    "blocking": True,
+                },
+                {
+                    "criterion_id": "facility.secured.auto",
+                    "input_key": "facility_secured",
+                    "operator": "truthy",
+                    "value_type": "bool",
+                    "blocking": True,
+                },
+            ],
+            capital=1.0,
+            tech=1,
+        )
+        result = evaluate_registration_diagnosis(
+            rule,
+            current_capital_eok=2.0,
+            current_technicians=3,
+            current_equipment_count=0,
+            base_date=date(2026, 1, 1),
+            extra_inputs={"office_secured": True, "facility_secured": False},
+        )
+        self.assertFalse(result["overall_ok"])
+        self.assertEqual(result["blocking_failure_count"], 1)
+        self.assertEqual(result["typed_criteria_total"], 2)
+        # Evidence checklist should have entry for the failed criterion
+        self.assertGreaterEqual(len(result["evidence_checklist"]), 1)
+
 
 # ---------------------------------------------------------------------------
 # _compact_critical_prompt_lens
