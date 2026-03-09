@@ -76,7 +76,7 @@
 | `.co.kr` 브리지 | 100% | 정책/CTA/UTM 계약 확정, 5개 placement snippet 생성, Playwright MCP로 5/5 셀렉터 라이브 검증 완료, 인젝션 실행 계획 수립 |
 | 임대형 위젯/API | 99% | template -> scaffold -> validate -> activate 구조 완료 |
 | 특허 | 98% | canonical attorney handoff + claim 9건(양도5+아키텍처3+구조화1), typed_criteria 자동 구조화 특허 claim 추가 |
-| 품질 기준 | 100% | 1450 tests + 52 subtests 100% PASS, core_engine 11/11 모듈 테스트 100%, yangdo/permit/match/premium 순수함수 테스트 완비, XSS 전수 감사(+premium_auto slug XSS 수정), daily/weekly 자동 QA, except Exception 전 파일 구체화(양도/인허가/gabji/all/match/premium), DRY −449줄 |
+| 품질 기준 | 100% | 1560 tests + 52 subtests 100% PASS, core_engine 11/11 모듈 테스트 100%, yangdo API+JS+calculator/permit/match/premium 순수함수 테스트 완비, XSS 전수 감사, daily/weekly 자동 QA, except Exception 전 코어 파일 구체화, DRY −449줄 |
 
 ## 3-Tier Automation Architecture
 - **Tier 1: Orchestrator (Claude)**: 전체 전략 수립, 시스템 아키텍처 매핑, 하위 태스크 분할 및 에이전트 위임 제어.
@@ -300,7 +300,10 @@
   - `singleCorePublicationCap`: center NaN/<=0 가드 추가 (NaN 전파로 인한 publication cap 무시 방지)
   - `yearlyShapeSimilarity`: thin-data fallback 0.5→0.2 (데이터 불충분 시 유사도 과대평가 방지, 매칭 점수 −2.7p)
   - `collectSingleCoreRows`: dead code 수정 — `yearly.strength`/`.shape`가 number에서 항상 undefined여서 필터 미작동. `yearlySeries` 직접 호출로 연도패턴 불일치 행 정상 필터링 활성화
-- **Quality**: 1450 tests + 52 subtests PASS.
+- **인허가 KeyError 방지 + except 6건**: `_resolve_rule_for_industry` dict 접근 `.get()` 통일, `permit_precheck_api.py` except Exception 6건 구체화 (3건 의도적 유지).
+- **양도 API except 3건 + utils 1건**: wfile.write→OSError, _asdict→(TypeError,AttributeError), vars→TypeError, handler.close→OSError.
+- **yangdo_blackbox_api 순수함수 110개 테스트**: 통계, 업종판별, 정규화(reorg/balance/credit/admin), 정책(auto policy+override), 정산모드, JSON 직렬화, 데이터추출 18개 함수 전면 커버.
+- **Quality**: 1560 tests + 52 subtests PASS. (+110 from Session 12)
 
 ### [2026-03-09] Session 12
 - **양도 API 전기/정보통신 파라미터 동기화**: `yangdo_blackbox_api.py` 전기 업종 `min_auto_balance_share`(0.10) / `min_auto_balance_eok`(0.05) 누락 보완. 전기·정보통신 `reorg_overrides`(분할/합병) 추가. JS 엔진과 Python API 간 정산정책 완전 동기화 달성. 검증 테스트 8개 추가.
