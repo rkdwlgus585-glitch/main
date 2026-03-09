@@ -513,12 +513,9 @@ def build_page_html(
     estimate_endpoint_json = safe_json_for_script(estimate_endpoint_text)
     api_key_json = safe_json_for_script(str(api_key or "").strip())
     contact_phone_json = safe_json_for_script(contact_phone or "1668-3548")
-    contact_phone_digits_json = safe_json_for_script(contact_phone_digits or "16683548")
     openchat_url_json = safe_json_for_script(openchat_url_text)
     brand_name_json = safe_json_for_script(brand_name)
-    brand_label_json = safe_json_for_script(brand_label)
     consult_email_json = safe_json_for_script(consult_email)
-    notice_url_json = safe_json_for_script(brand_notice_url)
     source_tag_prefix_json = safe_json_for_script(source_tag_prefix)
     enable_consult_widget_json = safe_json_for_script(bool(enable_consult_widget))
     enable_usage_log_json = safe_json_for_script(bool(enable_usage_log))
@@ -847,7 +844,7 @@ def build_page_html(
       padding: 14px 16px;
       margin-bottom: 12px;
       font-size: 17px;
-      color: #1d415f;
+      color: var(--smna-primary);
       font-weight: 700;
       box-shadow: 0 16px 32px rgba(6, 32, 57, 0.06);
     }}
@@ -934,7 +931,7 @@ def build_page_html(
     }}
     #seoulmna-yangdo-calculator .avg-guide {{
       font-size: 16px;
-      color: #0f4b77;
+      color: var(--smna-primary-soft);
       background: rgba(235, 245, 250, 0.9);
       border: 1px solid rgba(0, 55, 100, 0.08);
       border-radius: 14px;
@@ -980,7 +977,7 @@ def build_page_html(
       border-radius: 14px;
       padding: 13px 15px;
       font-size: 17px;
-      color: #0f172a;
+      color: var(--smna-text);
       background: rgba(255,255,255,0.96);
       outline: none;
       line-height: 1.45;
@@ -1018,7 +1015,7 @@ def build_page_html(
       margin-top: 2px;
       font-size: 13px;
       line-height: 1.55;
-      color: #566e84;
+      color: var(--smna-sub);
     }}
     #seoulmna-yangdo-calculator .license-chip-row {{
       display: flex;
@@ -1051,14 +1048,14 @@ def build_page_html(
       border-radius: 18px;
       padding: 14px 15px;
       background: rgba(255,255,255,0.94);
-      color: #20425f;
+      color: var(--smna-primary);
       box-shadow: none;
     }}
     #seoulmna-yangdo-calculator .scale-mode-btn .eyebrow {{
       font-size: 11px;
       font-weight: 900;
       letter-spacing: .08em;
-      color: #607489;
+      color: var(--smna-sub);
       text-transform: uppercase;
     }}
     #seoulmna-yangdo-calculator .scale-mode-btn .title {{
@@ -1069,7 +1066,7 @@ def build_page_html(
     #seoulmna-yangdo-calculator .scale-mode-btn .desc {{
       font-size: 13px;
       line-height: 1.5;
-      color: #5a6d80;
+      color: var(--smna-sub);
       text-align: left;
     }}
     #seoulmna-yangdo-calculator .scale-mode-btn.active {{
@@ -1103,7 +1100,7 @@ def build_page_html(
       border: 1px solid rgba(0, 55, 100, 0.12);
       border-radius: 18px;
       background: rgba(255,255,255,0.96);
-      color: #20425f;
+      color: var(--smna-primary);
       text-align: left;
       cursor: pointer;
       transition: border-color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease, background 0.16s ease;
@@ -1117,7 +1114,7 @@ def build_page_html(
       font-size: 11px;
       font-weight: 900;
       letter-spacing: .08em;
-      color: #607489;
+      color: var(--smna-sub);
       text-transform: uppercase;
     }}
     #seoulmna-yangdo-calculator .reorg-choice-btn .title {{
@@ -1128,7 +1125,7 @@ def build_page_html(
     #seoulmna-yangdo-calculator .reorg-choice-btn .desc {{
       font-size: 13px;
       line-height: 1.5;
-      color: #5a6d80;
+      color: var(--smna-sub);
     }}
     #seoulmna-yangdo-calculator .reorg-choice-btn.is-active {{
       background: linear-gradient(135deg, rgba(0, 55, 100, 0.96), rgba(15, 90, 142, 0.96));
@@ -1160,7 +1157,7 @@ def build_page_html(
       border: 1px solid rgba(0, 55, 100, 0.10);
       border-radius: 18px;
       background: linear-gradient(180deg, rgba(250, 252, 253, 0.98), rgba(240, 247, 250, 0.96));
-      color: #1e405d;
+      color: var(--smna-primary);
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.92);
       transition: border-color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
     }}
@@ -1168,7 +1165,7 @@ def build_page_html(
       font-size: 11px;
       font-weight: 900;
       letter-spacing: .08em;
-      color: #607489;
+      color: var(--smna-sub);
       text-transform: uppercase;
     }}
     #seoulmna-yangdo-calculator .reorg-compare-card .title {{
@@ -1179,13 +1176,13 @@ def build_page_html(
     #seoulmna-yangdo-calculator .reorg-compare-card .desc {{
       font-size: 13px;
       line-height: 1.5;
-      color: #50677d;
+      color: var(--smna-sub);
     }}
     #seoulmna-yangdo-calculator .reorg-compare-card .meta {{
       margin-top: auto;
       font-size: 12px;
       font-weight: 800;
-      color: #6a4a1d;
+      color: var(--smna-warning);
     }}
     #seoulmna-yangdo-calculator .reorg-compare-card.is-active {{
       border-color: rgba(0, 55, 100, 0.26);
@@ -1225,7 +1222,7 @@ def build_page_html(
       margin: 4px 0 0;
       font-size: 13px;
       line-height: 1.5;
-      color: #577086;
+      color: var(--smna-sub);
     }}
     #seoulmna-yangdo-calculator .smart-panel .btn-mini {{
       padding: 9px 11px;
@@ -1253,7 +1250,7 @@ def build_page_html(
       display: block;
       font-size: 12px;
       font-weight: 800;
-      color: #607489;
+      color: var(--smna-sub);
       margin-bottom: 6px;
     }}
     #seoulmna-yangdo-calculator .smart-metric .v {{
@@ -1268,7 +1265,7 @@ def build_page_html(
       margin-top: 4px;
       font-size: 12px;
       line-height: 1.45;
-      color: #62758a;
+      color: var(--smna-sub);
     }}
     #seoulmna-yangdo-calculator .checks {{
       display: grid;
@@ -1280,7 +1277,7 @@ def build_page_html(
       display: flex;
       align-items: center;
       gap: 8px;
-      color: #194869;
+      color: var(--smna-primary);
       font-size: 16px;
       border: 1px solid rgba(15, 159, 176, 0.14);
       background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(241,248,250,0.94));
@@ -1347,7 +1344,7 @@ def build_page_html(
     }}
     #seoulmna-yangdo-calculator .btn-neutral {{
       background: rgba(255,255,255,0.98);
-      color: #102132;
+      color: var(--smna-text);
       border: 1px solid rgba(0, 55, 100, 0.1);
     }}
     #seoulmna-yangdo-calculator .btn-accent {{
@@ -1363,7 +1360,7 @@ def build_page_html(
     }}
     #seoulmna-yangdo-calculator .result-card {{
       background: #fff;
-      border: 1px solid #d2dce8;
+      border: 1px solid var(--smna-border);
       border-radius: 11px;
       padding: 10px 12px;
     }}
@@ -1381,20 +1378,20 @@ def build_page_html(
     }}
     #seoulmna-yangdo-calculator .yoy-compare {{
       margin-top: 8px;
-      border: 1px solid #d8e3ef;
+      border: 1px solid var(--smna-border);
       border-radius: 10px;
       padding: 9px 11px;
-      background: #eef4fb;
-      color: #173e64;
+      background: var(--smna-neutral);
+      color: var(--smna-primary);
       font-size: 15px;
       line-height: 1.5;
       word-break: keep-all;
     }}
     #seoulmna-yangdo-calculator .yoy-compare strong {{
       font-weight: 800;
-      color: #0f3356;
+      color: var(--smna-primary);
     }}
-    #seoulmna-yangdo-calculator .yoy-compare.up strong {{ color: #0e4f7d; }}
+    #seoulmna-yangdo-calculator .yoy-compare.up strong {{ color: var(--smna-primary-soft); }}
     #seoulmna-yangdo-calculator .yoy-compare.down strong {{ color: var(--smna-warning); }}
     #seoulmna-yangdo-calculator .risk-note {{
       background: var(--smna-accent-soft);
@@ -1402,7 +1399,7 @@ def build_page_html(
       border-radius: 16px;
       padding: 12px 13px;
       font-size: 17px;
-      color: #0f4b77;
+      color: var(--smna-primary-soft);
       margin-top: 8px;
       line-height: 1.55;
     }}
@@ -1418,25 +1415,25 @@ def build_page_html(
       gap: 6px;
       padding: 7px 11px;
       border-radius: 999px;
-      border: 1px solid #d8e3ef;
-      background: #f7fbff;
-      color: #17405f;
+      border: 1px solid var(--smna-border);
+      background: var(--smna-neutral);
+      color: var(--smna-primary);
       font-size: 13px;
       font-weight: 800;
       line-height: 1.35;
     }}
     #seoulmna-yangdo-calculator .result-reason-chip.publication {{
-      background: #f3f8ff;
-      color: #15476d;
+      background: var(--smna-neutral);
+      color: var(--smna-primary);
     }}
     #seoulmna-yangdo-calculator .result-reason-chip.settlement {{
       background: #f6fbf4;
-      color: #23513d;
+      color: var(--smna-success);
       border-color: #d5e8d5;
     }}
     #seoulmna-yangdo-calculator .settlement-panel {{
       margin-top: 10px;
-      border: 1px solid #d8e3ef;
+      border: 1px solid var(--smna-border);
       border-radius: 12px;
       padding: 10px 11px;
       background: linear-gradient(180deg, #fbfdff 0%, #f1f6fb 100%);
@@ -1444,12 +1441,12 @@ def build_page_html(
     #seoulmna-yangdo-calculator .settlement-panel .title {{
       font-size: 16px;
       font-weight: 800;
-      color: #183b5b;
+      color: var(--smna-primary);
     }}
     #seoulmna-yangdo-calculator .settlement-panel .sub {{
       margin-top: 4px;
       font-size: 14px;
-      color: #4b6478;
+      color: var(--smna-sub);
       line-height: 1.5;
     }}
     #seoulmna-yangdo-calculator .settlement-grid {{
@@ -1459,7 +1456,7 @@ def build_page_html(
       gap: 8px;
     }}
     #seoulmna-yangdo-calculator .settlement-item {{
-      border: 1px solid #d6e1eb;
+      border: 1px solid var(--smna-border);
       border-radius: 10px;
       background: #fff;
       padding: 8px 10px;
@@ -1467,19 +1464,19 @@ def build_page_html(
     #seoulmna-yangdo-calculator .settlement-item .k {{
       display: block;
       font-size: 13px;
-      color: #587086;
+      color: var(--smna-sub);
       margin-bottom: 2px;
     }}
     #seoulmna-yangdo-calculator .settlement-item .v {{
       display: block;
       font-size: 20px;
       font-weight: 800;
-      color: #163a59;
+      color: var(--smna-primary);
     }}
     #seoulmna-yangdo-calculator .settlement-notes {{
       margin: 8px 0 0;
       padding-left: 18px;
-      color: #50687d;
+      color: var(--smna-sub);
       font-size: 14px;
       line-height: 1.5;
     }}
@@ -1490,14 +1487,14 @@ def build_page_html(
       gap: 8px;
     }}
     #seoulmna-yangdo-calculator .settlement-scenario {{
-      border: 1px solid #d6e2ec;
+      border: 1px solid var(--smna-border);
       border-radius: 11px;
       background: #fff;
       padding: 10px 11px;
       box-shadow: 0 4px 12px rgba(16, 57, 88, 0.04);
     }}
     #seoulmna-yangdo-calculator .settlement-scenario.is-selected {{
-      border-color: #0f9fb0;
+      border-color: var(--smna-accent-strong);
       box-shadow: 0 0 0 2px rgba(15, 159, 176, 0.12);
     }}
     #seoulmna-yangdo-calculator .settlement-scenario .head {{
@@ -1509,7 +1506,7 @@ def build_page_html(
     #seoulmna-yangdo-calculator .settlement-scenario .name {{
       font-size: 14px;
       font-weight: 800;
-      color: #183b5b;
+      color: var(--smna-primary);
     }}
     #seoulmna-yangdo-calculator .settlement-scenario .badge {{
       border-radius: 999px;
@@ -1517,7 +1514,7 @@ def build_page_html(
       font-size: 12px;
       font-weight: 700;
       background: #e7f8f7;
-      color: #0a7b89;
+      color: var(--smna-accent-strong);
       white-space: nowrap;
     }}
     #seoulmna-yangdo-calculator .settlement-scenario .metric {{
@@ -1527,17 +1524,17 @@ def build_page_html(
     }}
     #seoulmna-yangdo-calculator .settlement-scenario .metric .k {{
       font-size: 12px;
-      color: #587086;
+      color: var(--smna-sub);
     }}
     #seoulmna-yangdo-calculator .settlement-scenario .metric .v {{
       font-size: 18px;
       font-weight: 800;
-      color: #163a59;
+      color: var(--smna-primary);
     }}
     #seoulmna-yangdo-calculator .settlement-scenario .sub {{
       margin-top: 6px;
       font-size: 12px;
-      color: #5d7488;
+      color: var(--smna-sub);
       line-height: 1.45;
     }}
     #seoulmna-yangdo-calculator .field.required-field {{
@@ -1551,7 +1548,7 @@ def build_page_html(
       margin-top: 6px;
       font-size: 14px;
       line-height: 1.45;
-      color: #4c7389;
+      color: var(--smna-sub);
     }}
     #seoulmna-yangdo-calculator .draft-restore-note {{
       display: none;
@@ -1560,7 +1557,7 @@ def build_page_html(
       border-radius: 14px;
       border: 1px solid rgba(15, 159, 176, 0.18);
       background: linear-gradient(180deg, rgba(15, 159, 176, 0.08), rgba(255,255,255,0.96));
-      color: #18536a;
+      color: var(--smna-primary-soft);
       font-size: 14px;
       line-height: 1.5;
       font-weight: 700;
@@ -1587,7 +1584,7 @@ def build_page_html(
       appearance: none;
       border: 1px solid rgba(12, 84, 106, 0.16);
       background: rgba(255,255,255,0.96);
-      color: #0f5f75;
+      color: var(--smna-accent-strong);
       border-radius: 999px;
       padding: 8px 12px;
       font-size: 13px;
@@ -1625,7 +1622,7 @@ def build_page_html(
     #seoulmna-yangdo-calculator .consult-title {{
       font-size: 20px;
       font-weight: 800;
-      color: #0f3052;
+      color: var(--smna-primary-strong);
       margin-bottom: 4px;
     }}
     #seoulmna-yangdo-calculator .consult-sub {{
@@ -1654,7 +1651,7 @@ def build_page_html(
       cursor: pointer;
       font-size: 22px;
       font-weight: 800;
-      color: #163b5f;
+      color: var(--smna-primary);
       list-style: none;
       outline: none;
       margin: 0;
@@ -1690,7 +1687,7 @@ def build_page_html(
     #seoulmna-yangdo-calculator details.consult-details > summary {{
       cursor: pointer;
       font-size: 14px;
-      color: #284a6b;
+      color: var(--smna-primary);
       font-weight: 700;
       list-style: none;
       outline: none;
@@ -1710,7 +1707,7 @@ def build_page_html(
       margin-top: 8px;
       border: 1px solid rgba(0, 55, 100, 0.08);
       border-radius: 14px;
-      background: #f8fbff;
+      background: var(--smna-neutral);
       overflow: hidden;
     }}
     #seoulmna-yangdo-calculator .neighbor-panel summary {{
@@ -1720,7 +1717,7 @@ def build_page_html(
       flex-direction: column;
       gap: 3px;
       padding: 11px 12px;
-      color: #123a5a;
+      color: var(--smna-primary);
       font-size: 14px;
       font-weight: 800;
       background: linear-gradient(180deg, rgba(243,249,253,0.98), rgba(255,255,255,0.98));
@@ -1729,15 +1726,15 @@ def build_page_html(
     #seoulmna-yangdo-calculator .neighbor-panel summary .sub {{
       font-size: 12px;
       font-weight: 700;
-      color: #5d7287;
+      color: var(--smna-sub);
       line-height: 1.45;
     }}
     #seoulmna-yangdo-calculator .neighbor-panel[open] summary {{
       border-bottom: 1px solid rgba(0, 55, 100, 0.08);
     }}
     #seoulmna-yangdo-calculator thead th {{
-      background: #ecf4f8;
-      color: #0f172a;
+      background: var(--smna-neutral);
+      color: var(--smna-text);
       font-size: 13px;
       text-align: left;
       padding: 8px;
@@ -1746,7 +1743,7 @@ def build_page_html(
     #seoulmna-yangdo-calculator tbody td {{
       padding: 8px;
       border-bottom: 1px solid rgba(0, 55, 100, 0.06);
-      color: #1e293b;
+      color: var(--smna-text);
       word-break: break-word;
       white-space: normal;
     }}
@@ -1755,13 +1752,13 @@ def build_page_html(
     #seoulmna-yangdo-calculator .foot {{
       margin-top: 10px;
       font-size: 13px;
-      color: #64748b;
+      color: var(--smna-sub);
     }}
     #seoulmna-yangdo-calculator .action-steps {{
       margin-top: 10px;
       border: 1px solid rgba(0, 55, 100, 0.08);
       border-radius: 16px;
-      background: #f4f8fb;
+      background: var(--smna-neutral);
       padding: 13px 14px;
     }}
     #seoulmna-yangdo-calculator .action-steps.compact-followup {{
@@ -1769,7 +1766,7 @@ def build_page_html(
       padding: 10px 11px;
     }}
     #seoulmna-yangdo-calculator .action-steps .title {{
-      color: #0f3052;
+      color: var(--smna-primary-strong);
       font-weight: 800;
       font-size: 17px;
       margin-bottom: 6px;
@@ -1777,7 +1774,7 @@ def build_page_html(
     #seoulmna-yangdo-calculator .action-steps ol {{
       margin: 0;
       padding-left: 18px;
-      color: #1f344a;
+      color: var(--smna-primary-strong);
       font-size: 15px;
     }}
     #seoulmna-yangdo-calculator .action-steps li {{ margin: 4px 0; }}
@@ -1785,7 +1782,7 @@ def build_page_html(
       margin-top: 10px;
       border: 1px solid rgba(0, 55, 100, 0.08);
       border-radius: 16px;
-      background: #f8fbff;
+      background: var(--smna-neutral);
       padding: 13px 14px;
     }}
     #seoulmna-yangdo-calculator .recommend-panel.priority-single {{
@@ -1798,13 +1795,13 @@ def build_page_html(
       margin-bottom: 6px;
     }}
     #seoulmna-yangdo-calculator .recommend-panel .title {{
-      color: #0f3052;
+      color: var(--smna-primary-strong);
       font-weight: 800;
       font-size: 17px;
       margin-bottom: 4px;
     }}
     #seoulmna-yangdo-calculator .recommend-panel .sub {{
-      color: #486076;
+      color: var(--smna-sub);
       font-size: 14px;
       line-height: 1.45;
       margin-bottom: 8px;
@@ -1816,7 +1813,7 @@ def build_page_html(
       border-radius: 12px;
       border: 1px solid rgba(15, 159, 176, 0.18);
       background: rgba(15, 159, 176, 0.08);
-      color: #0f4b77;
+      color: var(--smna-primary-soft);
       font-size: 14px;
       font-weight: 800;
       line-height: 1.5;
@@ -1828,7 +1825,7 @@ def build_page_html(
       border-radius: 12px;
       border: 1px dashed rgba(0, 55, 100, 0.14);
       background: rgba(0, 55, 100, 0.04);
-      color: #31526d;
+      color: var(--smna-primary);
       font-size: 13px;
       font-weight: 700;
       line-height: 1.45;
@@ -1839,7 +1836,7 @@ def build_page_html(
     #seoulmna-yangdo-calculator .recommend-panel .followup-note {{
       display: none;
       margin-top: 6px;
-      color: #5d748a;
+      color: var(--smna-sub);
       font-size: 12px;
       font-weight: 700;
       line-height: 1.5;
@@ -1859,15 +1856,15 @@ def build_page_html(
       border-radius: 999px;
       border: 1px solid rgba(15, 159, 176, 0.22);
       background: #ffffff;
-      color: #0f4b77;
+      color: var(--smna-primary-soft);
       font-size: 13px;
       font-weight: 800;
       cursor: pointer;
       transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
     }}
     #seoulmna-yangdo-calculator .recommend-panel .followup-action[data-rank="1"] {{
-      background: #003764;
-      border-color: #003764;
+      background: var(--smna-primary);
+      border-color: var(--smna-primary);
       color: #ffffff;
       box-shadow: 0 12px 28px rgba(0, 55, 100, 0.18);
     }}
@@ -1875,7 +1872,7 @@ def build_page_html(
       background: rgba(15, 159, 176, 0.08);
     }}
     #seoulmna-yangdo-calculator .recommend-panel .followup-action[data-rank="1"]:hover {{
-      background: #0f4b77;
+      background: var(--smna-primary-soft);
     }}
     #seoulmna-yangdo-calculator .recommend-focus-target {{
       border-color: rgba(0, 55, 100, 0.42) !important;
@@ -1907,14 +1904,14 @@ def build_page_html(
     #seoulmna-yangdo-calculator .recommend-card .name {{
       font-size: 18px;
       font-weight: 800;
-      color: #153a5c;
+      color: var(--smna-primary);
       line-height: 1.35;
     }}
     #seoulmna-yangdo-calculator .recommend-card .badge {{
       flex: 0 0 auto;
       border-radius: 999px;
       background: rgba(15, 159, 176, 0.08);
-      color: #155f6d;
+      color: var(--smna-accent-strong);
       font-size: 12px;
       font-weight: 800;
       padding: 4px 8px;
@@ -1926,7 +1923,7 @@ def build_page_html(
       margin-top: 6px;
       font-size: 16px;
       font-weight: 800;
-      color: #0f3052;
+      color: var(--smna-primary-strong);
     }}
     #seoulmna-yangdo-calculator .recommend-card .reason-chips {{
       margin-top: 6px;
@@ -1937,7 +1934,7 @@ def build_page_html(
     #seoulmna-yangdo-calculator .recommend-card .reason-chip {{
       border-radius: 999px;
       background: rgba(0, 55, 100, 0.06);
-      color: #1a496d;
+      color: var(--smna-primary-soft);
       font-size: 12px;
       font-weight: 800;
       line-height: 1;
@@ -1946,7 +1943,7 @@ def build_page_html(
     }}
     #seoulmna-yangdo-calculator .recommend-card .reason-chip.primary {{
       background: rgba(15, 159, 176, 0.12);
-      color: #0f5f6c;
+      color: var(--smna-accent-strong);
       border-color: rgba(15, 159, 176, 0.18);
       box-shadow: 0 8px 16px rgba(15, 159, 176, 0.12);
     }}
@@ -1954,20 +1951,20 @@ def build_page_html(
       margin-top: 6px;
       font-size: 14px;
       line-height: 1.5;
-      color: #425a70;
+      color: var(--smna-sub);
       word-break: keep-all;
     }}
     #seoulmna-yangdo-calculator .recommend-card .order-note {{
       margin-top: 5px;
       font-size: 12px;
       line-height: 1.45;
-      color: #5d7284;
+      color: var(--smna-sub);
       word-break: keep-all;
     }}
     #seoulmna-yangdo-calculator .recommend-card .owner-note {{
       margin-top: 5px;
       font-size: 12px;
-      color: #708396;
+      color: var(--smna-sub);
     }}
     #seoulmna-yangdo-calculator .recommend-card .actions {{
       margin-top: 8px;
@@ -1982,7 +1979,7 @@ def build_page_html(
     #seoulmna-yangdo-calculator .input-guide {{
       font-size: 16px;
       font-weight: 800;
-      color: #153e60;
+      color: var(--smna-primary);
       margin: 0 0 10px 0;
       line-height: 1.5;
       background: linear-gradient(180deg, rgba(235,245,250,0.92), rgba(255,255,255,0.96));
@@ -2011,7 +2008,7 @@ def build_page_html(
     }}
     #seoulmna-yangdo-calculator .wizard-rail-kicker {{
       margin: 0 0 4px 0;
-      color: #0f527f;
+      color: var(--smna-primary-soft);
       font-size: 11px;
       font-weight: 900;
       letter-spacing: 0.12em;
@@ -2019,7 +2016,7 @@ def build_page_html(
     }}
     #seoulmna-yangdo-calculator .wizard-rail-title {{
       margin: 0;
-      color: #123453;
+      color: var(--smna-primary);
       font-size: 20px;
       font-weight: 900;
       line-height: 1.32;
@@ -2027,7 +2024,7 @@ def build_page_html(
     }}
     #seoulmna-yangdo-calculator .wizard-rail-note {{
       margin: 6px 0 0;
-      color: #536d82;
+      color: var(--smna-sub);
       font-size: 13px;
       line-height: 1.48;
       font-weight: 700;
@@ -2047,14 +2044,14 @@ def build_page_html(
       border-radius: 999px;
       border: 1px solid rgba(0, 55, 100, 0.10);
       background: rgba(255,255,255,0.96);
-      color: #17405d;
+      color: var(--smna-primary);
       font-size: 12px;
       font-weight: 800;
       line-height: 1.35;
       box-shadow: 0 10px 20px rgba(8, 28, 49, 0.05);
     }}
     #seoulmna-yangdo-calculator .wizard-summary-chip.is-empty {{
-      color: #5a7186;
+      color: var(--smna-sub);
       border-style: dashed;
       box-shadow: none;
     }}
@@ -2063,7 +2060,7 @@ def build_page_html(
       border-radius: 16px;
       border: 1px solid rgba(183, 150, 114, 0.26);
       background: linear-gradient(180deg, rgba(250, 245, 238, 0.98), rgba(255,255,255,0.98));
-      color: #7b4b1d;
+      color: var(--smna-warning);
       font-size: 13px;
       font-weight: 800;
       line-height: 1.48;
@@ -2071,7 +2068,7 @@ def build_page_html(
     #seoulmna-yangdo-calculator .wizard-blocker.is-ready {{
       border-color: rgba(15, 159, 176, 0.22);
       background: linear-gradient(180deg, rgba(232, 247, 248, 0.98), rgba(255,255,255,0.98));
-      color: #0f5f75;
+      color: var(--smna-accent-strong);
     }}
     #seoulmna-yangdo-calculator .wizard-priority-hint {{
       margin-top: 12px;
@@ -2079,7 +2076,7 @@ def build_page_html(
       border-radius: 16px;
       border: 1px solid rgba(0, 55, 100, 0.08);
       background: linear-gradient(180deg, rgba(245, 249, 252, 0.98), rgba(255,255,255,0.98));
-      color: #264761;
+      color: var(--smna-primary);
       font-size: 13px;
       line-height: 1.5;
       font-weight: 700;
@@ -2100,7 +2097,7 @@ def build_page_html(
       min-width: 0;
     }}
     #seoulmna-yangdo-calculator .wizard-progress-label {{
-      color: #173652;
+      color: var(--smna-primary);
       font-size: 13px;
       font-weight: 900;
       line-height: 1.4;
@@ -2123,7 +2120,7 @@ def build_page_html(
       transition: width 0.22s ease;
     }}
     #seoulmna-yangdo-calculator .wizard-progress-meta {{
-      color: #5a7186;
+      color: var(--smna-sub);
       font-size: 12px;
       line-height: 1.5;
       font-weight: 700;
@@ -2145,7 +2142,7 @@ def build_page_html(
       text-align: left;
     }}
     #seoulmna-yangdo-calculator .wizard-progress-action-label {{
-      color: #003764;
+      color: var(--smna-primary);
       font-size: 11px;
       line-height: 1.3;
       font-weight: 900;
@@ -2153,14 +2150,14 @@ def build_page_html(
       text-transform: uppercase;
     }}
       #seoulmna-yangdo-calculator .wizard-progress-action-text {{
-        color: #173652;
+        color: var(--smna-primary);
         font-size: 12px;
         line-height: 1.5;
         font-weight: 800;
       }}
       #seoulmna-yangdo-calculator .wizard-progress-support {{
         margin-top: 8px;
-        color: #4f6679;
+        color: var(--smna-sub);
         font-size: 12px;
         line-height: 1.56;
         font-weight: 700;
@@ -2184,7 +2181,7 @@ def build_page_html(
         border-radius: 999px;
         background: rgba(255, 255, 255, 0.94);
         border: 1px solid rgba(0, 55, 100, 0.12);
-        color: #46627a;
+        color: var(--smna-sub);
         font-size: 11px;
         line-height: 1;
         font-weight: 900;
@@ -2200,7 +2197,7 @@ def build_page_html(
       #seoulmna-yangdo-calculator .guided-focus-target {{
         position: relative;
         box-shadow: 0 0 0 3px rgba(0, 55, 100, 0.16), 0 18px 34px rgba(0, 55, 100, 0.14);
-        border-color: #1f6aa5 !important;
+        border-color: var(--smna-accent-strong) !important;
         animation: yangdoGuidedFocusPulse 0.9s ease-out 1;
       }}
       #seoulmna-yangdo-calculator .guided-focus-target[data-guided-focus-copy]::after {{
@@ -2249,7 +2246,7 @@ def build_page_html(
       padding: 8px 10px;
       border-radius: 14px;
       background: rgba(0, 55, 100, 0.08);
-      color: #003764;
+      color: var(--smna-primary);
       font-size: 15px;
       font-weight: 900;
       letter-spacing: -0.01em;
@@ -2272,7 +2269,7 @@ def build_page_html(
       min-width: 0;
     }}
     #seoulmna-yangdo-calculator .wizard-mobile-sticky-label {{
-      color: #003764;
+      color: var(--smna-primary);
       font-size: 11px;
       line-height: 1.3;
       font-weight: 900;
@@ -2281,7 +2278,7 @@ def build_page_html(
     }}
     #seoulmna-yangdo-calculator .wizard-mobile-sticky-action {{
       margin-top: 3px;
-      color: #173652;
+      color: var(--smna-primary);
       font-size: 14px;
       line-height: 1.45;
       font-weight: 900;
@@ -2290,7 +2287,7 @@ def build_page_html(
     }}
     #seoulmna-yangdo-calculator .wizard-mobile-sticky-compact {{
       margin-top: 4px;
-      color: #4c6782;
+      color: var(--smna-sub);
       font-size: 12px;
       line-height: 1.42;
       font-weight: 800;
@@ -2298,7 +2295,7 @@ def build_page_html(
     }}
     #seoulmna-yangdo-calculator .wizard-mobile-sticky-meta {{
       display: none;
-      color: #5a7186;
+      color: var(--smna-sub);
       font-size: 12px;
       line-height: 1.45;
       font-weight: 700;
@@ -2306,7 +2303,7 @@ def build_page_html(
     }}
     #seoulmna-yangdo-calculator .wizard-mobile-sticky-reason {{
       display: none;
-      color: #36516c;
+      color: var(--smna-primary);
       font-size: 12px;
       line-height: 1.5;
       font-weight: 700;
@@ -2320,7 +2317,7 @@ def build_page_html(
       padding: 5px 10px;
       border-radius: 999px;
       background: rgba(0, 55, 100, 0.08);
-      color: #003764;
+      color: var(--smna-primary);
       font-size: 12px;
       font-weight: 900;
       letter-spacing: -0.01em;
@@ -2365,7 +2362,7 @@ def build_page_html(
     #seoulmna-yangdo-calculator .wizard-step-chip-label {{
       display: block;
       margin-bottom: 5px;
-      color: #0f527f;
+      color: var(--smna-primary-soft);
       font-size: 11px;
       font-weight: 900;
       letter-spacing: 0.12em;
@@ -2373,7 +2370,7 @@ def build_page_html(
     }}
     #seoulmna-yangdo-calculator .wizard-step-chip-title {{
       display: block;
-      color: #173652;
+      color: var(--smna-primary);
       font-size: 14px;
       font-weight: 900;
       line-height: 1.35;
@@ -2381,7 +2378,7 @@ def build_page_html(
     #seoulmna-yangdo-calculator .wizard-step-chip-meta {{
       display: block;
       margin-top: 4px;
-      color: #5a7186;
+      color: var(--smna-sub);
       font-size: 12px;
       line-height: 1.42;
       font-weight: 700;
@@ -2412,7 +2409,7 @@ def build_page_html(
       padding: 4px 9px;
       border-radius: 999px;
       background: rgba(183, 150, 114, 0.14);
-      color: #7b562d;
+      color: var(--smna-warning);
       font-size: 11px;
       font-weight: 900;
       letter-spacing: 0.08em;
@@ -2429,7 +2426,7 @@ def build_page_html(
     }}
     #seoulmna-yangdo-calculator .wizard-nav-copy {{
       flex: 1 1 180px;
-      color: #536d82;
+      color: var(--smna-sub);
       font-size: 13px;
       line-height: 1.48;
       font-weight: 700;
@@ -2445,7 +2442,7 @@ def build_page_html(
       appearance: none;
       border: 1px solid rgba(0, 55, 100, 0.12);
       background: rgba(255,255,255,0.98);
-      color: #0f3052;
+      color: var(--smna-primary-strong);
       min-height: 42px;
       padding: 10px 14px;
       border-radius: 999px;
@@ -2489,18 +2486,18 @@ def build_page_html(
     }}
     #seoulmna-yangdo-calculator .info-box.emphasis .k,
     #seoulmna-yangdo-calculator .info-box.emphasis .v {{
-      color: #f2f9fc;
+      color: var(--smna-neutral);
     }}
     #seoulmna-yangdo-calculator .info-box .k {{
       font-size: 14px;
       font-weight: 800;
-      color: #1a436a;
+      color: var(--smna-primary);
       margin-bottom: 5px;
     }}
     #seoulmna-yangdo-calculator .info-box .v {{
       font-size: 16px;
       line-height: 1.45;
-      color: #1d334a;
+      color: var(--smna-primary-strong);
       word-break: keep-all;
     }}
     #seoulmna-yangdo-calculator .lead-capture {{
@@ -2515,7 +2512,7 @@ def build_page_html(
       font-size: 16px;
       font-weight: 700;
       line-height: 1.45;
-      color: #153b61;
+      color: var(--smna-primary);
       margin-bottom: 8px;
       word-break: keep-all;
     }}
@@ -2527,7 +2524,7 @@ def build_page_html(
     #seoulmna-yangdo-calculator .lead-capture .help {{
       margin-top: 6px;
       font-size: 13px;
-      color: #4f647c;
+      color: var(--smna-sub);
     }}
     #seoulmna-yangdo-calculator .result-share-wrap {{
       margin-top: 10px;
@@ -2543,7 +2540,7 @@ def build_page_html(
     #seoulmna-yangdo-calculator .result-share-note {{
       font-size: 14px;
       line-height: 1.5;
-      color: #43637c;
+      color: var(--smna-sub);
       font-weight: 700;
     }}
     #seoulmna-yangdo-calculator .result-brief-wrap {{
@@ -2566,7 +2563,7 @@ def build_page_html(
       font-size: 13px;
       font-weight: 900;
       letter-spacing: -0.01em;
-      color: #123b60;
+      color: var(--smna-primary);
     }}
     #seoulmna-yangdo-calculator #result-brief {{
       width: 100%;
@@ -2574,8 +2571,8 @@ def build_page_html(
       resize: vertical;
       border-radius: 12px;
       border: 1px solid rgba(0, 55, 100, 0.12);
-      background: #f8fbfe;
-      color: #173a57;
+      background: var(--smna-neutral);
+      color: var(--smna-primary);
       font-size: 13px;
       line-height: 1.5;
       padding: 10px 11px;
@@ -2583,7 +2580,7 @@ def build_page_html(
     #seoulmna-yangdo-calculator .result-brief-meta {{
       font-size: 12px;
       line-height: 1.5;
-      color: #56748c;
+      color: var(--smna-sub);
       font-weight: 700;
     }}
     #seoulmna-yangdo-calculator .result-share-actions {{
@@ -2597,8 +2594,8 @@ def build_page_html(
       padding: 10px 11px;
       border: 1px solid rgba(0, 55, 100, 0.08);
       border-radius: 14px;
-      background: #f4f8fc;
-      color: #2b445e;
+      background: var(--smna-neutral);
+      color: var(--smna-primary);
       font-size: 14px;
       line-height: 1.55;
     }}
@@ -2609,7 +2606,7 @@ def build_page_html(
       margin-top: 8px;
       font-size: 14px;
       font-weight: 700;
-      color: #1d3550;
+      color: var(--smna-primary-strong);
     }}
     #seoulmna-yangdo-calculator .consent-check input {{
       width: 18px;
@@ -2671,14 +2668,14 @@ def build_page_html(
     #seoulmna-yangdo-calculator .badge-warning {{ background: #FFF8E1; color: var(--smna-warning, #FFB800); padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; display: inline-block; }}
     #seoulmna-yangdo-calculator .badge-error {{ background: #FFEBEE; color: var(--smna-error, #FF4757); padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; display: inline-block; }}
     #seoulmna-yangdo-calculator .badge-info {{ background: #E3F2FD; color: var(--smna-primary, #003764); padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; display: inline-block; }}
-    #seoulmna-yangdo-calculator .sector-chip {{ padding: 6px 14px; border-radius: 20px; background: #F3F4F6; color: var(--smna-sub, #6B7280); font-size: 14px; cursor: pointer; transition: all 0.2s ease; border: none; }}
-    #seoulmna-yangdo-calculator .sector-chip:hover {{ background: #E5E7EB; }}
+    #seoulmna-yangdo-calculator .sector-chip {{ padding: 6px 14px; border-radius: 20px; background: var(--smna-neutral); color: var(--smna-sub, #6B7280); font-size: 14px; cursor: pointer; transition: all 0.2s ease; border: none; }}
+    #seoulmna-yangdo-calculator .sector-chip:hover {{ background: var(--smna-border); }}
     #seoulmna-yangdo-calculator .sector-chip.active {{ background: var(--smna-primary, #003764); color: #FFFFFF; }}
     #seoulmna-yangdo-calculator .bottom-cta-wrap {{ position: sticky; bottom: 0; left: 0; right: 0; padding: 16px 20px; background: linear-gradient(to top, #fff 80%, transparent); z-index: 50; }}
     #seoulmna-yangdo-calculator .btn-primary {{ width: 100%; height: 52px; background: var(--smna-primary, #003764); color: white; border-radius: 12px; font-size: 17px; font-weight: 600; border: none; cursor: pointer; transition: background 0.2s; }}
     #seoulmna-yangdo-calculator .btn-primary:hover {{ background: var(--smna-primary-strong, #002244); }}
     #seoulmna-yangdo-calculator .alert-banner {{ background: var(--smna-neutral, #F8FAFB); border-left: 3px solid var(--smna-accent, #00A3FF); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 8px 0; font-size: 14px; }}
-    #seoulmna-yangdo-calculator .step-indicator {{ height: 4px; background: #E5E7EB; border-radius: 2px; overflow: hidden; }}
+    #seoulmna-yangdo-calculator .step-indicator {{ height: 4px; background: var(--smna-border); border-radius: 2px; overflow: hidden; }}
     #seoulmna-yangdo-calculator .step-indicator-fill {{ height: 100%; background: var(--smna-accent, #00A3FF); border-radius: 2px; transition: width 0.3s ease; }}
   </style>
 
@@ -3043,12 +3040,9 @@ def build_page_html(
       const estimateEndpointRaw = {estimate_endpoint_json};
       const apiKeyRaw = {api_key_json};
       const brandName = {brand_name_json};
-      const brandLabel = {brand_label_json};
       const consultPhone = {contact_phone_json};
-      const consultPhoneDigits = {contact_phone_digits_json};
       const consultOpenchatUrl = {openchat_url_json};
       const consultEmailDefault = {consult_email_json};
-      const noticeUrl = {notice_url_json};
       const sourceTagPrefix = {source_tag_prefix_json};
       const enableConsultWidget = !!{enable_consult_widget_json};
       const enableUsageLog = !!{enable_usage_log_json};
@@ -4345,7 +4339,7 @@ def build_page_html(
           }};
         }}
         if (
-          (licenseText === "정보통신" || licenseText === "소방")
+          (licenseText === "전기" || licenseText === "정보통신" || licenseText === "소방")
           && supportCount <= 2
           && scaleMissing
         ) {{

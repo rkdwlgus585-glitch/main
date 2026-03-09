@@ -2398,24 +2398,38 @@ def build_html(
   <title>__TITLE__</title>
   <style>
     :root {
-      --navy: #003764;
-      --navy-deep: #022640;
-      --navy-soft: #0f527f;
-      --sky: #d9e8f4;
+      /* ── shared design-system tokens ── */
+      --smna-primary: #003764;
+      --smna-primary-strong: #002244;
+      --smna-primary-soft: #0A4D8C;
+      --smna-neutral: #F8FAFB;
+      --smna-accent: #00A3FF;
+      --smna-accent-strong: #0080CC;
+      --smna-text: #1A1A2E;
+      --smna-sub: #6B7280;
+      --smna-warning: #FFB800;
+      --smna-success: #00C48C;
+      --smna-error: #FF4757;
+      --smna-border: #E5E7EB;
+      /* ── local aliases ── */
+      --navy: var(--smna-primary);
+      --navy-deep: var(--smna-primary-strong);
+      --navy-soft: var(--smna-primary-soft);
+      --sky: var(--smna-neutral);
       --sky-strong: #9bb9d1;
-      --sand: #b79672;
+      --sand: var(--smna-warning);
       --sand-soft: #efe3d4;
-      --bg: #eef3f8;
-      --bg-deep: #e4edf5;
+      --bg: var(--smna-neutral);
+      --bg-deep: var(--smna-neutral);
       --card: rgba(255, 255, 255, 0.94);
       --card-strong: #ffffff;
-      --ink: #162736;
-      --muted: #5b7286;
-      --line: #d5e1eb;
-      --line-strong: #b6c8d7;
-      --ok: #117547;
-      --warn: #8b5316;
-      --info: #235f8d;
+      --ink: var(--smna-text);
+      --muted: var(--smna-sub);
+      --line: var(--smna-border);
+      --line-strong: var(--smna-border);
+      --ok: var(--smna-success);
+      --warn: var(--smna-warning);
+      --info: var(--smna-primary-soft);
       --shadow-soft: 0 18px 44px rgba(4, 36, 60, 0.08);
       --shadow-strong: 0 28px 64px rgba(4, 36, 60, 0.18);
       --radius: 24px;
@@ -2623,7 +2637,7 @@ def build_html(
       padding: 4px 9px;
       border-radius: 999px;
       background: rgba(183, 150, 114, 0.14);
-      color: #7b562d;
+      color: var(--smna-warning);
       font-size: 11px;
       font-weight: 900;
       letter-spacing: 0.08em;
@@ -2702,7 +2716,7 @@ def build_html(
       border-radius: 16px;
       border: 1px solid rgba(183, 150, 114, 0.28);
       background: linear-gradient(180deg, rgba(250, 245, 238, 0.98) 0%, rgba(255, 255, 255, 0.98) 100%);
-      color: #7b4b1d;
+      color: var(--smna-warning);
       font-size: 13px;
       line-height: 1.48;
       font-weight: 800;
@@ -2710,7 +2724,7 @@ def build_html(
     .wizard-blocker.is-ready {
       border-color: rgba(17, 117, 71, 0.22);
       background: linear-gradient(180deg, rgba(237, 248, 241, 0.98) 0%, rgba(255, 255, 255, 0.98) 100%);
-      color: #0e5d39;
+      color: var(--smna-success);
     }
     .wizard-priority-hint {
       margin-top: 12px;
@@ -2762,7 +2776,7 @@ def build_html(
       transition: width 0.22s ease;
     }
     .wizard-progress-meta {
-      color: #577086;
+      color: var(--smna-sub);
       font-size: 12px;
       line-height: 1.5;
       font-weight: 700;
@@ -2800,7 +2814,7 @@ def build_html(
     .guided-focus-target {
       position: relative;
       box-shadow: 0 0 0 3px rgba(15, 82, 127, 0.16), 0 18px 34px rgba(15, 82, 127, 0.14);
-      border-color: #2e7db0 !important;
+      border-color: var(--smna-accent-strong) !important;
       animation: permitGuidedFocusPulse 0.9s ease-out 1;
     }
     .guided-focus-target[data-guided-focus-copy]::after {
@@ -2887,7 +2901,7 @@ def build_html(
     }
     .wizard-mobile-sticky-compact {
       margin-top: 4px;
-      color: #4d687f;
+      color: var(--smna-sub);
       font-size: 12px;
       line-height: 1.42;
       font-weight: 800;
@@ -2895,7 +2909,7 @@ def build_html(
     }
     .wizard-mobile-sticky-meta {
       display: none;
-      color: #577086;
+      color: var(--smna-sub);
       font-size: 12px;
       line-height: 1.45;
       font-weight: 700;
@@ -2965,7 +2979,7 @@ def build_html(
     .wizard-step-chip-meta {
       display: block;
       margin-top: 4px;
-      color: #577086;
+      color: var(--smna-sub);
       font-size: 12px;
       line-height: 1.42;
       font-weight: 700;
@@ -2990,7 +3004,7 @@ def build_html(
     }
     .wizard-nav-copy {
       flex: 1 1 180px;
-      color: #536d82;
+      color: var(--smna-sub);
       font-size: 13px;
       line-height: 1.46;
       font-weight: 700;
@@ -3063,17 +3077,17 @@ def build_html(
       transition: border-color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
     }
     .control:hover {
-      border-color: #8ba9c1;
+      border-color: var(--smna-border);
     }
     .control:focus {
       outline: none;
-      border-color: #5e90b4;
+      border-color: var(--smna-accent-strong);
       box-shadow: 0 0 0 4px rgba(15, 82, 127, 0.12);
       transform: translateY(-1px);
     }
     .assist {
       margin-top: 8px;
-      color: #4c6780;
+      color: var(--smna-sub);
       font-size: 14px;
       line-height: 1.46;
       font-weight: 700;
@@ -3111,7 +3125,7 @@ def build_html(
       border-radius: 999px;
       background: rgba(0, 55, 100, 0.08);
       border: 1px solid rgba(0, 55, 100, 0.14);
-      color: #003764;
+      color: var(--smna-primary);
       font-size: 11px;
       line-height: 1;
       font-weight: 900;
@@ -3127,22 +3141,22 @@ def build_html(
     .assist.auto-selection-reason[data-reason-tone="match"]::before {
       background: rgba(16, 132, 92, 0.10);
       border-color: rgba(16, 132, 92, 0.18);
-      color: #0f6a4b;
+      color: var(--smna-success);
     }
     .assist.auto-selection-reason[data-reason-tone="search"]::before {
       background: rgba(0, 55, 100, 0.08);
       border-color: rgba(0, 55, 100, 0.14);
-      color: #003764;
+      color: var(--smna-primary);
     }
     .assist.auto-selection-reason[data-reason-tone="direct"]::before {
       background: rgba(15, 82, 127, 0.10);
       border-color: rgba(15, 82, 127, 0.18);
-      color: #1d587f;
+      color: var(--smna-primary-soft);
     }
     .assist.auto-selection-reason[data-reason-tone="guide"]::before {
       background: rgba(84, 100, 118, 0.10);
       border-color: rgba(84, 100, 118, 0.16);
-      color: #5c6f83;
+      color: var(--smna-sub);
     }
     .assist.auto-selection-reason[data-actionable="1"]::after {
       content: "검색 수정";
@@ -3153,7 +3167,7 @@ def build_html(
       border-radius: 999px;
       background: rgba(255, 255, 255, 0.94);
       border: 1px solid rgba(0, 55, 100, 0.12);
-      color: #4e6982;
+      color: var(--smna-sub);
       font-size: 11px;
       line-height: 1;
       font-weight: 900;
@@ -3166,7 +3180,7 @@ def build_html(
       flex-wrap: wrap;
     }
     .auto-selection-reason-copy {
-      color: #47637d;
+      color: var(--smna-sub);
       font-size: 13px;
       line-height: 1.48;
       font-weight: 700;
@@ -3185,17 +3199,17 @@ def build_html(
     }
     .auto-selection-token {
       background: linear-gradient(180deg, rgba(0, 55, 100, 0.12), rgba(0, 55, 100, 0.05));
-      color: #003764;
+      color: var(--smna-primary);
       border: 1px solid rgba(0, 55, 100, 0.14);
     }
     .auto-selection-field {
       background: rgba(15, 82, 127, 0.08);
-      color: #1c587f;
+      color: var(--smna-primary-soft);
       border: 1px solid rgba(15, 82, 127, 0.12);
     }
     .guide {
       margin: 10px 0 0;
-      color: #627787;
+      color: var(--smna-sub);
       font-size: 13px;
       line-height: 1.5;
       font-weight: 700;
@@ -3308,7 +3322,7 @@ def build_html(
       padding: 4px 10px;
       border-radius: 999px;
       background: rgba(2, 38, 64, 0.06);
-      color: #284c68;
+      color: var(--smna-primary);
       font-size: 12px;
       font-weight: 800;
     }
@@ -3354,7 +3368,7 @@ def build_html(
     }
     .preset-hint {
       margin: 10px 0 0;
-      color: #4c6780;
+      color: var(--smna-sub);
       font-size: 13px;
       line-height: 1.46;
       font-weight: 700;
@@ -3401,7 +3415,7 @@ def build_html(
       font-size: 14px;
       font-weight: 700;
       line-height: 1.45;
-      color: #27465f;
+      color: var(--smna-primary);
       transition: border-color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease, background 0.16s ease, opacity 0.16s ease;
     }
     .check-item.is-priority {
@@ -3496,7 +3510,7 @@ def build_html(
     .result-banner span {
       font-size: 14px;
       line-height: 1.48;
-      color: #446278;
+      color: var(--smna-sub);
       font-weight: 700;
     }
     .result-meta-grid {
@@ -3543,7 +3557,7 @@ def build_html(
       font-size: clamp(20px, 3vw, 28px);
       font-weight: 900;
       line-height: 1.25;
-      color: #274f71;
+      color: var(--smna-primary);
       word-break: keep-all;
     }
     .status.ok { color: var(--ok); }
@@ -3554,7 +3568,7 @@ def build_html(
       border-radius: 14px;
       border: 1px solid rgba(182, 200, 215, 0.82);
       background: rgba(247, 250, 253, 0.98);
-      color: #38576f;
+      color: var(--smna-primary);
       font-size: 15px;
       line-height: 1.48;
       font-weight: 700;
@@ -3565,7 +3579,7 @@ def build_html(
       border-radius: 16px;
       border: 1px solid rgba(183, 150, 114, 0.34);
       background: linear-gradient(180deg, rgba(247, 242, 236, 0.98) 0%, rgba(252, 249, 245, 0.98) 100%);
-      color: #4f4538;
+      color: var(--smna-warning);
       font-size: 14px;
       line-height: 1.56;
       font-weight: 700;
@@ -3597,7 +3611,7 @@ def build_html(
     }
     .result-actions-note {
       margin: 0;
-      color: #577084;
+      color: var(--smna-sub);
       font-size: 14px;
       line-height: 1.46;
       font-weight: 700;
@@ -3633,14 +3647,14 @@ def build_html(
       border-radius: 12px;
       border: 1px solid rgba(15, 82, 127, 0.14);
       background: rgba(247, 251, 254, 0.98);
-      color: #153954;
+      color: var(--smna-primary);
       font-size: 13px;
       line-height: 1.5;
       padding: 10px 11px;
     }
     .result-brief-meta {
       margin: 0;
-      color: #5b7385;
+      color: var(--smna-sub);
       font-size: 12px;
       line-height: 1.5;
       font-weight: 700;
@@ -3691,7 +3705,7 @@ def build_html(
       margin: 0;
       font-size: 13px;
       line-height: 1.46;
-      color: #4b667d;
+      color: var(--smna-sub);
       font-weight: 700;
     }
     .mobile-quick-actions {
@@ -3756,7 +3770,7 @@ def build_html(
       border-radius: 16px;
       border: 1px solid rgba(183, 150, 114, 0.24);
       background: linear-gradient(180deg, rgba(243, 236, 228, 0.92) 0%, rgba(249, 245, 240, 0.98) 100%);
-      color: #5c4a37;
+      color: var(--smna-warning);
       font-size: 14px;
       line-height: 1.5;
       font-weight: 700;
