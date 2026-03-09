@@ -45,15 +45,12 @@ Register-ScheduledTask `
     -Trigger $trigger `
     -Principal $principal `
     -Settings $settings `
-    -Description "Run SeoulMNA unified startup jobs at logon (WP + Tistory + Sheet/Site watchdog)." `
+    -Description "Run SeoulMNA secure API startup helper at logon. co.kr watchdogs are managed by dedicated split tasks." `
     -Force | Out-Null
 
 if ($DisableLegacyTasks) {
     $legacy = @(
-        "SeoulMNA_Blog_StartupOnce",
-        "SeoulMNA_Tistory_DailyOnce",
-        "SeoulMNA_Ops_Watchdog",
-        "SeoulMNA_MnakrScheduler_Watchdog"
+        "SeoulMNA_Ops_Watchdog"
     )
     foreach ($name in $legacy) {
         try {

@@ -1,6 +1,6 @@
-# Startup runner (split-mode):
+﻿# Startup runner (split-mode):
 # - Unified all-at-once execution is disabled to reduce load/429 risk.
-# - Keep only listing/site ops watchdog here.
+# - Keep only secure API startup here.
 # - Blog/Tistory should be launched separately via their own launchers.
 param(
     [string]$RepoRoot = ""
@@ -51,8 +51,9 @@ $opsWatchdog = Join-Path $RepoRoot "scripts\seoulmna_ops_watchdog.ps1"
 $secureApiStack = Join-Path $RepoRoot "scripts\run_secure_api_stack.ps1"
 Write-Log "SPLIT mode enabled: skip all-in-one startup(blog/tistory/wp scheduler)"
 Write-Log "Use separate launchers: launchers\\launch_blog.bat, launchers\\launch_tistory_publish.bat"
-Write-Log "SKIP ops_watchdog: dedicated startup task owns watchdog lifecycle"
+Write-Log "SKIP co.kr watchdogs: dedicated split startup tasks own watchdog lifecycle"
 Ensure-Watchdog -scriptName "run_secure_api_stack.ps1" -scriptPath $secureApiStack -argLine "-RepoRoot `"$RepoRoot`"" -jobName "secure_api_stack"
 
 Write-Log "END unified startup"
 exit 0
+

@@ -15,6 +15,11 @@ $taskNames = @(
   "SeoulMNA_All_Startup",
   "SeoulMNA_Blog_StartupOnce",
   "SeoulMNA_MnakrScheduler_Watchdog",
+  "SeoulMNA_CoKr_Listing_Watchdog",
+  "SeoulMNA_CoKr_Notice_Watchdog",
+  "SeoulMNA_CoKr_AdminMemo_Watchdog",
+  "SeoulMNA_CoKr_SiteHealth_Watchdog",
+  "SeoulMNA_Permit_Data_Watchdog",
   "SeoulMNA_Ops_Watchdog",
   "SeoulMNA_Tistory_DailyOnce",
   "SeoulMNA_Resume_FromPause_Afternoon"
@@ -49,7 +54,14 @@ $rows | Format-Table -AutoSize
 Write-Host ""
 Write-Host "[2] Local Running Automation Processes"
 $procs = Get-CimInstance Win32_Process | Where-Object {
-  $_.CommandLine -and (($_.CommandLine -like "*mnakr.py --scheduler*") -or ($_.CommandLine -like "*mnakr_scheduler_watchdog*") -or ($_.CommandLine -like "*seoulmna_ops_watchdog*") -or ($_.CommandLine -like "*run_local_auto_state_bridge*") -or ($_.CommandLine -like "* all.py*")) -and ($_.CommandLine -notlike "*Get-CimInstance Win32_Process*")
+  $_.CommandLine -and (
+    ($_.CommandLine -like "*mnakr.py --scheduler*") -or
+    ($_.CommandLine -like "*mnakr_scheduler_watchdog*") -or
+    ($_.CommandLine -like "*seoulmna_watchdog_worker*") -or
+    ($_.CommandLine -like "*seoulmna_ops_watchdog*") -or
+    ($_.CommandLine -like "*run_local_auto_state_bridge*") -or
+    ($_.CommandLine -like "* all.py*")
+  ) -and ($_.CommandLine -notlike "*Get-CimInstance Win32_Process*")
 } | Select-Object ProcessId, Name, CommandLine
 if ($procs) {
   $procs | Format-Table -AutoSize

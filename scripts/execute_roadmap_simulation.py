@@ -272,7 +272,7 @@ def _env_checks(env_data: Dict[str, str]) -> List[Dict[str, Any]]:
 def _scan_warnings(step: Dict[str, Any]) -> List[str]:
     warnings: List[str] = []
     text = (step.get("stdout_tail") or "") + "\n" + (step.get("stderr_tail") or "")
-    if "❌" in text:
+    if "??" in text:
         warnings.append("output_contains_error_marker")
     if re.search(r"\bfailed\b", text, flags=re.IGNORECASE):
         warnings.append("output_contains_failed")
@@ -344,7 +344,11 @@ def build_report(skip_network: bool, timeout_sec: int) -> Dict[str, Any]:
     preflight.extend(_env_checks(env_data))
 
     scheduled_tasks = [
-        _query_task("SeoulMNA_Ops_Watchdog"),
+        _query_task("SeoulMNA_CoKr_Listing_Watchdog"),
+        _query_task("SeoulMNA_CoKr_Notice_Watchdog"),
+        _query_task("SeoulMNA_CoKr_AdminMemo_Watchdog"),
+        _query_task("SeoulMNA_CoKr_SiteHealth_Watchdog"),
+        _query_task("SeoulMNA_Permit_Data_Watchdog"),
         _query_task("SeoulMNA_MnakrScheduler_Watchdog"),
         _query_task("SeoulMNA_Blog_StartupOnce"),
         _query_task("SeoulMNA_Tistory_DailyOnce"),

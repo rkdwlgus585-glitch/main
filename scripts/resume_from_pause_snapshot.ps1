@@ -32,13 +32,24 @@ foreach ($v in $snap.githubVariables) {
 }
 
 # Restart core watchdog tasks immediately if they were enabled before pause.
-$restartCandidates = @(
-  "SeoulMNA_MnakrScheduler_Watchdog",
-  "SeoulMNA_Ops_Watchdog"
+$splitWatchdogTasks = @(
+  "SeoulMNA_CoKr_Listing_Watchdog",
+  "SeoulMNA_CoKr_Notice_Watchdog",
+  "SeoulMNA_CoKr_AdminMemo_Watchdog",
+  "SeoulMNA_CoKr_SiteHealth_Watchdog",
+  "SeoulMNA_Permit_Data_Watchdog"
 )
+$legacyOpsTask = $snap.tasks | Where-Object { $_.TaskName -eq "SeoulMNA_Ops_Watchdog" } | Select-Object -First 1
+$legacyOpsWasEnabled = [bool]($legacyOpsTask -and $legacyOpsTask.Exists -and $legacyOpsTask.Enabled -eq $true)
+$restartCandidates = @("SeoulMNA_MnakrScheduler_Watchdog") + $splitWatchdogTasks
 foreach ($name in $restartCandidates) {
-  $task = $snap.tasks | Where-Object { $_.TaskName -eq $name }
-  if ($task -and $task.Exists -and $task.Enabled -eq $true) {
+  $task = $snap.tasks | Where-Object { $_.TaskName -eq $name } | Select-Object -First 1
+  $shouldStart = [bool]($task -and $task.Exists -and $task.Enabled -eq $true)
+  if (-not $shouldStart -and $legacyOpsWasEnabled -and ($name -in $splitWatchdogTasks)) {
+    $liveTask = Get-ScheduledTask -TaskName $name -ErrorAction SilentlyContinue
+    $shouldStart = [bool]($liveTask -and $liveTask.Settings.Enabled)
+  }
+  if ($shouldStart) {
     Start-ScheduledTask -TaskName $name -ErrorAction SilentlyContinue
   }
 }
@@ -50,18 +61,26 @@ if (!(Test-Path $logDir)) {
 $stamp = Get-Date -Format "yyyyMMdd_HHmmss"
 $statusPath = Join-Path $logDir ("resume_from_pause_{0}.json" -f $stamp)
 
-$finalTasks = $snap.tasks | ForEach-Object {
-  $t = Get-ScheduledTask -TaskName $_.TaskName -ErrorAction SilentlyContinue
+$summaryTaskNames = @($snap.tasks | ForEach-Object { $_.TaskName })
+foreach ($name in ($splitWatchdogTasks + @("SeoulMNA_MnakrScheduler_Watchdog"))) {
+  if ($summaryTaskNames -notcontains $name) {
+    $summaryTaskNames += $name
+  }
+}
+
+$finalTasks = $summaryTaskNames | ForEach-Object {
+  $taskName = [string]$_
+  $t = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
   if ($null -eq $t) {
     [pscustomobject]@{
-      TaskName = $_.TaskName
+      TaskName = $taskName
       Exists = $false
       Enabled = $null
       State = $null
     }
   } else {
     [pscustomobject]@{
-      TaskName = $_.TaskName
+      TaskName = $taskName
       Exists = $true
       Enabled = [bool]$t.Settings.Enabled
       State = [string]$t.State

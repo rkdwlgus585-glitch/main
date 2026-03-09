@@ -130,18 +130,28 @@ Write-Output ("blog_startup_once={0}" -f ($(if ($EnableBlogStartupOnce) { "ENABL
 Write-Output ("tistory_daily_once={0}" -f ($(if ($EnableTistoryDailyOnce) { "ENABLED" } else { "DISABLED" })))
 Write-Output ("startup_artifact_cleanup={0}" -f ($(if ($SkipStartupArtifactCleanup) { "SKIP" } else { "ENABLED" })))
 Write-Output ""
+$cokrTaskNames = @(
+    "SeoulMNA_CoKr_Listing_Watchdog",
+    "SeoulMNA_CoKr_Notice_Watchdog",
+    "SeoulMNA_CoKr_AdminMemo_Watchdog",
+    "SeoulMNA_CoKr_SiteHealth_Watchdog",
+    "SeoulMNA_Permit_Data_Watchdog"
+)
 
-# 0) Cleanup legacy startup artifacts that cause "앱 선택" popup at logon.
+
+# 0) Cleanup legacy startup artifacts that can trigger popup noise at logon.
 Cleanup-LegacyStartupArtifacts
 
 # 1) Keep split mode: disable old unified startup task.
 Set-TaskEnabledState -name "SeoulMNA_All_Startup" -enableFlag:$false
 
-# 2) Register watchdog tasks with recommended startup delays.
-Invoke-RepoScript -relativePath "scripts\register_ops_watchdog_startup_task.ps1" -arguments @("-RepoRoot", $RepoRoot, "-StartupDelaySec", "0")
+# 2) Register split co.kr watchdog tasks with recommended startup delays.
+Invoke-RepoScript -relativePath "scripts\register_cokr_watchdog_tasks.ps1" -arguments @("-RepoRoot", $RepoRoot, "-BaseStartupDelaySec", "0")
 Invoke-RepoScript -relativePath "scripts\register_mnakr_scheduler_watchdog_task.ps1" -arguments @("-RepoRoot", $RepoRoot, "-StartupDelaySec", "60")
 
-Set-TaskEnabledState -name "SeoulMNA_Ops_Watchdog" -enableFlag:$true
+foreach ($taskName in $cokrTaskNames) {
+    Set-TaskEnabledState -name $taskName -enableFlag:$true
+}
 Set-TaskEnabledState -name "SeoulMNA_MnakrScheduler_Watchdog" -enableFlag:$true
 
 # 3) Optional startup-once tasks.
@@ -151,15 +161,16 @@ Invoke-RepoScript -relativePath "scripts\register_tistory_daily_startup_task.ps1
 Set-TaskEnabledState -name "SeoulMNA_Blog_StartupOnce" -enableFlag:$EnableBlogStartupOnce
 Set-TaskEnabledState -name "SeoulMNA_Tistory_DailyOnce" -enableFlag:$EnableTistoryDailyOnce
 
-Write-Output ""
-Write-Output "=== Task States (after profile plan/apply) ==="
-foreach ($taskName in @(
-    "SeoulMNA_Ops_Watchdog",
+$summaryTaskNames = $cokrTaskNames + @(
     "SeoulMNA_MnakrScheduler_Watchdog",
     "SeoulMNA_Blog_StartupOnce",
     "SeoulMNA_Tistory_DailyOnce",
     "SeoulMNA_All_Startup"
-)) {
+)
+
+Write-Output ""
+Write-Output "=== Task States (after profile plan/apply) ==="
+foreach ($taskName in $summaryTaskNames) {
     $state = Get-TaskState -name $taskName
     Write-Output ("- {0}: {1}" -f $taskName, $state)
 }
