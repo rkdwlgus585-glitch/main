@@ -76,7 +76,7 @@
 | `.co.kr` 브리지 | 100% | 정책/CTA/UTM 계약 확정, 5개 placement snippet 생성, Playwright MCP로 5/5 셀렉터 라이브 검증 완료, 인젝션 실행 계획 수립 |
 | 임대형 위젯/API | 99% | template -> scaffold -> validate -> activate 구조 완료 |
 | 특허 | 98% | canonical attorney handoff + claim 9건(양도5+아키텍처3+구조화1), typed_criteria 자동 구조화 특허 claim 추가 |
-| 품질 기준 | 100% | 1945 tests + 52 subtests PASS, permit 80/80+precheck_api 24/24+yangdo 22/22 함수 100% 커버리지, core_engine 11/11 모듈 100%, 순수함수 테스트 완비, XSS 전수 감사, except 전 코어 파일 구체화, DRY −449줄, AI 엔진 심층 감사 HIGH 5+MEDIUM 4 수정, 후보 업종 191개 진단 연동 |
+| 품질 기준 | 100% | 1937 tests + 52 subtests PASS, permit 80/80+precheck_api 24/24+yangdo 22/22 함수 100% 커버리지, core_engine 11/11 모듈 100%, 순수함수 테스트 완비, XSS 전수 감사, regex DoS 방어, except 전 코어 파일 구체화, DRY −449줄, AI 엔진 심층 감사 HIGH 5+MEDIUM 4 수정, 후보 업종 191개 진단 연동 |
 
 ## 3-Tier Automation Architecture
 - **Tier 1: Orchestrator (Claude)**: 전체 전략 수립, 시스템 아키텍처 매핑, 하위 태스크 분할 및 에이전트 위임 제어.
@@ -324,7 +324,8 @@
 - **alias 발견**: `_build_review_case_preset_lookup`/`_build_case_story_surface_lookup`/`_build_operator_demo_lookup`은 모두 `_build_family_key_lookup`의 alias
 - **permit_precheck_api 24/24 함수 100% 커버리지**: _env_*, 시간 유틸, 해석기 mock, 게이트웨이/채널 라우터, 응답 tier 필터링, partner_health, project_precheck_result 3-tier 검증
 - **evaluate_registration_diagnosis 통합 시나리오 7개**: typed_criteria pass/fail/missing_input, guarantee_secured, pending_lines→manual_review, candidate confidence, 다중 criteria 혼합
-- **Quality**: 1945 tests + 52 subtests PASS. (+107 from Session 15)
+- **보안 감사 처리 (5건)**: raw_capital_input regex DoS → [:64] 트렁케이션 FIXED, branding XSS → 이미 html.escape 방어 확인, usage_snapshot broad except → 의도적 .pyc fail-safe 설계 확인, input size validation → 다층 방어(64KB body+_compact+[:64]+rate limit) 확인
+- **Quality**: 1937 tests + 52 subtests PASS. (+110 from Session 15)
 
 ### [2026-03-10] Session 15 — 후보 업종 진단 활성화 + 코드 품질 개선
 - **후보(candidate) 업종 진단 엔진 연동**: 191개 후보 업종(의료/문화/식품/환경 등)의 `typed_criteria`를 진단 엔진에서 사용 가능하도록 `_build_candidate_rule()` 함수 추가. `mapping_confidence: 0.5`, `coverage_status: "candidate"`, `manual_review_required: true` 플래그로 신뢰도 표시.
