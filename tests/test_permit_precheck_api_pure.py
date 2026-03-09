@@ -404,5 +404,289 @@ class ProtectedTenantsTest(unittest.TestCase):
         self.assertEqual(result, {"valid"})
 
 
+# ===================================================================
+# _env_str / _env_int / _env_bool
+# ===================================================================
+class EnvStrTest(unittest.TestCase):
+    def test_existing_key(self):
+        # CONFIG always has PERMIT_PRECHECK_API_HOST
+        result = api._env_str("PERMIT_PRECHECK_API_HOST")
+        self.assertIsInstance(result, str)
+        self.assertTrue(len(result) > 0)
+
+    def test_missing_key_default(self):
+        self.assertEqual(api._env_str("__NONEXISTENT_KEY__", "fallback"), "fallback")
+
+
+class EnvIntTest(unittest.TestCase):
+    def test_valid_int(self):
+        result = api._env_int("PERMIT_PRECHECK_API_PORT", 9999)
+        self.assertEqual(result, 8792)
+
+    def test_missing_key_default(self):
+        result = api._env_int("__NONEXISTENT_INT_KEY__", 42)
+        self.assertEqual(result, 42)
+
+
+class EnvBoolTest(unittest.TestCase):
+    def test_true_values(self):
+        orig = api.CONFIG.get("__TEST_BOOL__")
+        for val in ("1", "true", "yes", "on", "y"):
+            api.CONFIG["__TEST_BOOL__"] = val
+            self.assertTrue(api._env_bool("__TEST_BOOL__", False))
+        if orig is None:
+            api.CONFIG.pop("__TEST_BOOL__", None)
+
+    def test_false_values(self):
+        orig = api.CONFIG.get("__TEST_BOOL__")
+        for val in ("0", "false", "no", "off", "n"):
+            api.CONFIG["__TEST_BOOL__"] = val
+            self.assertFalse(api._env_bool("__TEST_BOOL__", True))
+        if orig is None:
+            api.CONFIG.pop("__TEST_BOOL__", None)
+
+    def test_default_fallback(self):
+        result = api._env_bool("__NONEXISTENT_BOOL__", True)
+        self.assertTrue(result)
+
+
+# ===================================================================
+# _month_key / _now_iso
+# ===================================================================
+class MonthKeyTest(unittest.TestCase):
+    def test_format(self):
+        import re
+        key = api._month_key()
+        self.assertRegex(key, r"^\d{4}-\d{2}$")
+
+
+class NowIsoTest(unittest.TestCase):
+    def test_format(self):
+        import re
+        iso = api._now_iso()
+        self.assertRegex(iso, r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$")
+
+
+# ===================================================================
+# _channel_id_value / _tenant_id_value / _tenant_plan_key
+# ===================================================================
+class _MockProfile:
+    def __init__(self, channel_id=""):
+        self.channel_id = channel_id
+
+class _MockTenant:
+    def __init__(self, tenant_id="", plan=""):
+        self.tenant_id = tenant_id
+        self.plan = plan
+
+class _MockResolution:
+    def __init__(self, profile=None, tenant=None):
+        self.profile = profile
+        self.tenant = tenant
+
+
+class ChannelIdValueTest(unittest.TestCase):
+    def test_with_profile(self):
+        res = _MockResolution(profile=_MockProfile("ch-123"))
+        self.assertEqual(api._channel_id_value(res), "ch-123")
+
+    def test_none_profile(self):
+        res = _MockResolution(profile=None)
+        self.assertEqual(api._channel_id_value(res), "")
+
+    def test_no_profile_attr(self):
+        self.assertEqual(api._channel_id_value(object()), "")
+
+
+class TenantIdValueTest(unittest.TestCase):
+    def test_with_tenant(self):
+        res = _MockResolution(tenant=_MockTenant(tenant_id="t-001"))
+        self.assertEqual(api._tenant_id_value(res), "t-001")
+
+    def test_none_tenant(self):
+        res = _MockResolution(tenant=None)
+        self.assertEqual(api._tenant_id_value(res), "")
+
+
+class TenantPlanKeyTest(unittest.TestCase):
+    def test_with_plan(self):
+        res = _MockResolution(tenant=_MockTenant(plan="Premium"))
+        self.assertEqual(api._tenant_plan_key(res), "premium")
+
+    def test_none_tenant(self):
+        res = _MockResolution(tenant=None)
+        self.assertEqual(api._tenant_plan_key(res), "")
+
+
+# ===================================================================
+# _tenant_has_feature / _tenant_has_system / _channel_exposes_system
+# ===================================================================
+class _MockGateway:
+    def check_feature(self, resolution, feature):
+        return feature == "allowed_feature"
+    def check_system(self, resolution, system):
+        return system == "allowed_system"
+
+class _MockChannelRouter:
+    def check_system(self, resolution, system):
+        return system == "exposed_system"
+
+class _MockServer:
+    def __init__(self, gw_enabled=False, gateway=None, router=None):
+        self.tenant_gateway_enabled = gw_enabled
+        self.tenant_gateway = gateway
+        self.channel_router = router
+
+
+class TenantHasFeatureTest(unittest.TestCase):
+    def test_gateway_disabled_returns_true(self):
+        server = _MockServer(gw_enabled=False)
+        res = _MockResolution()
+        self.assertTrue(api._tenant_has_feature(server, res, "anything"))
+
+    def test_gateway_enabled_feature_allowed(self):
+        server = _MockServer(gw_enabled=True, gateway=_MockGateway())
+        res = _MockResolution()
+        self.assertTrue(api._tenant_has_feature(server, res, "allowed_feature"))
+
+    def test_gateway_enabled_feature_denied(self):
+        server = _MockServer(gw_enabled=True, gateway=_MockGateway())
+        res = _MockResolution()
+        self.assertFalse(api._tenant_has_feature(server, res, "denied_feature"))
+
+
+class TenantHasSystemTest(unittest.TestCase):
+    def test_gateway_disabled(self):
+        server = _MockServer(gw_enabled=False)
+        self.assertTrue(api._tenant_has_system(server, _MockResolution(), "x"))
+
+    def test_gateway_enabled_allowed(self):
+        server = _MockServer(gw_enabled=True, gateway=_MockGateway())
+        self.assertTrue(api._tenant_has_system(server, _MockResolution(), "allowed_system"))
+
+
+class ChannelExposesSystemTest(unittest.TestCase):
+    def test_no_router_returns_true(self):
+        server = _MockServer(router=None)
+        self.assertTrue(api._channel_exposes_system(server, _MockResolution(), "x"))
+
+    def test_router_exposed(self):
+        server = _MockServer(router=_MockChannelRouter())
+        self.assertTrue(api._channel_exposes_system(server, _MockResolution(), "exposed_system"))
+
+    def test_router_not_exposed(self):
+        server = _MockServer(router=_MockChannelRouter())
+        self.assertFalse(api._channel_exposes_system(server, _MockResolution(), "hidden_system"))
+
+
+# ===================================================================
+# _permit_response_tier
+# ===================================================================
+class PermitResponseTierTest(unittest.TestCase):
+    def test_gateway_disabled(self):
+        server = _MockServer(gw_enabled=False)
+        self.assertEqual(api._permit_response_tier(server, _MockResolution()), "internal")
+
+    def test_gateway_enabled_internal_feature(self):
+        class GW:
+            def check_feature(self, res, feat):
+                return feat == "permit_precheck_internal"
+        server = _MockServer(gw_enabled=True, gateway=GW())
+        self.assertEqual(api._permit_response_tier(server, _MockResolution()), "internal")
+
+
+# ===================================================================
+# _partner_health_payload
+# ===================================================================
+class PartnerHealthPayloadTest(unittest.TestCase):
+    def test_structure(self):
+        payload = api._partner_health_payload()
+        self.assertTrue(payload["ok"])
+        self.assertEqual(payload["service"], api.SERVICE_NAME)
+        self.assertEqual(payload["message"], "healthy")
+        self.assertIn("health_contract", payload)
+
+
+# ===================================================================
+# _project_precheck_result — response tier filtering
+# ===================================================================
+class ProjectPrecheckResultTest(unittest.TestCase):
+    def _server_tier(self, tier):
+        """Create a mock server that returns a fixed tier."""
+        class GW:
+            def check_feature(self, res, feat):
+                if tier == "internal":
+                    return feat == "permit_precheck_internal"
+                if tier == "detail":
+                    return feat == "permit_precheck_detail"
+                return False
+        return _MockServer(gw_enabled=True, gateway=GW())
+
+    def _resolution(self):
+        return _MockResolution(
+            tenant=_MockTenant(tenant_id="t-001", plan="pro"),
+        )
+
+    def test_error_result_includes_policy(self):
+        server = _MockServer(gw_enabled=False)
+        result = api._project_precheck_result(
+            server, self._resolution(), {"ok": False, "error": "test"}
+        )
+        self.assertIn("response_policy", result)
+        self.assertFalse(result["ok"])
+
+    def test_summary_tier_trims_fields(self):
+        server = self._server_tier("summary")
+        # Use a resolution with plan != "pro"/"pro_internal" to get summary tier
+        res = _MockResolution(tenant=_MockTenant(tenant_id="t-001", plan="basic"))
+        full_result = {
+            "ok": True,
+            "service_code": "SC1",
+            "industry_name": "Test",
+            "overall_status": "pass",
+            "overall_ok": True,
+            "manual_review_required": False,
+            "coverage_status": "full",
+            "typed_overall_status": "pass",
+            "typed_criteria_total": 3,
+            "pending_criteria_count": 0,
+            "blocking_failure_count": 0,
+            "unknown_blocking_count": 0,
+            "capital_input_suspicious": False,
+            "next_actions": [],
+            # Fields that should be trimmed in summary tier:
+            "criterion_results": [{"id": "1"}],
+            "evidence_checklist": [{"id": "2"}],
+            "pending_criteria_lines": [{"text": "x"}],
+        }
+        result = api._project_precheck_result(server, res, full_result)
+        # criterion_results should NOT be in summary tier
+        self.assertNotIn("criterion_results", result)
+        self.assertNotIn("evidence_checklist", result)
+        self.assertEqual(result["response_policy"]["tier"], "summary")
+
+    def test_internal_tier_includes_tenant_id(self):
+        server = _MockServer(gw_enabled=False)  # disabled → internal
+        result = api._project_precheck_result(
+            server, self._resolution(), {"ok": True, "data": "full"}
+        )
+        self.assertEqual(result.get("tenant_id"), "t-001")
+        self.assertEqual(result["response_policy"]["tier"], "internal")
+
+    def test_detail_tier_strips_pending_lines(self):
+        server = self._server_tier("detail")
+        result = api._project_precheck_result(
+            server, self._resolution(),
+            {"ok": True, "pending_criteria_lines": [{"text": "x"}], "data": "y"},
+        )
+        self.assertNotIn("pending_criteria_lines", result)
+        self.assertEqual(result["response_policy"]["tier"], "detail")
+
+    def test_none_result(self):
+        server = _MockServer(gw_enabled=False)
+        result = api._project_precheck_result(server, self._resolution(), None)
+        self.assertIsInstance(result, dict)
+
+
 if __name__ == "__main__":
     unittest.main()
