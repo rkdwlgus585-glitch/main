@@ -955,7 +955,7 @@ def evaluate_registration_diagnosis(
     expected_date = baseline + timedelta(days=deposit_days)
     date_label = expected_date.strftime("%Y-%m-%d")
 
-    raw_capital = str(raw_capital_input or "").strip().replace(",", "")
+    raw_capital = str(raw_capital_input or "").strip().replace(",", "")[:64]
     suspicious = False
     if raw_capital:
         over_three_x = required_capital > 0 and current_capital > required_capital * 3

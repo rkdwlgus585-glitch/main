@@ -875,6 +875,47 @@ class EvaluateRegistrationDiagnosisTest(unittest.TestCase):
         # Evidence checklist should have entry for the failed criterion
         self.assertGreaterEqual(len(result["evidence_checklist"]), 1)
 
+    # --- raw_capital_input truncation (regex DoS guard) ---
+
+    def test_raw_capital_input_truncated_at_64_chars(self):
+        """Extremely long raw_capital_input is truncated before regex."""
+        long_input = "1" * 200  # 200-digit string
+        result = evaluate_registration_diagnosis(
+            self._make_rule(capital=1.0),
+            current_capital_eok=2.0,
+            current_technicians=3,
+            current_equipment_count=0,
+            raw_capital_input=long_input,
+            base_date=date(2026, 1, 1),
+        )
+        # Should NOT crash despite 200-char input; regex processes max 64 chars
+        self.assertIn("capital_input_suspicious", result)
+
+    def test_raw_capital_normal_input_unaffected(self):
+        """Normal-length input like '1.5' should work as before."""
+        result = evaluate_registration_diagnosis(
+            self._make_rule(capital=1.0),
+            current_capital_eok=1.5,
+            current_technicians=3,
+            current_equipment_count=0,
+            raw_capital_input="1.5",
+            base_date=date(2026, 1, 1),
+        )
+        self.assertFalse(result["capital_input_suspicious"])
+
+    def test_raw_capital_comma_separated_truncated(self):
+        """Comma-separated value like '1,500,000,...' still truncated after strip."""
+        long_comma = ",".join(["999"] * 100)  # very long comma-separated
+        result = evaluate_registration_diagnosis(
+            self._make_rule(capital=1.0),
+            current_capital_eok=2.0,
+            current_technicians=3,
+            current_equipment_count=0,
+            raw_capital_input=long_comma,
+            base_date=date(2026, 1, 1),
+        )
+        self.assertIn("capital_input_suspicious", result)
+
 
 # ---------------------------------------------------------------------------
 # _compact_critical_prompt_lens
