@@ -153,7 +153,9 @@ def _evaluate_operator(current_value: Any, required_value: Any, operator: str, v
         ok = bool(req_set) and req_set.issubset(current_set)
         status = "pass" if ok else "fail"
     elif op == "in":
-        ok = current in set(_safe_list(required))
+        check_items = _safe_list(current)
+        req_list = _safe_list(required)
+        ok = all(c in req_list for c in check_items)
         status = "pass" if ok else "fail"
     elif op == "truthy":
         ok = bool(current)
