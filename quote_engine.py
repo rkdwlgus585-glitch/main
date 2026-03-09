@@ -31,7 +31,7 @@ logger = setup_logger(name="quote_engine")
 try:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
-except Exception:
+except (AttributeError, OSError):
     pass
 
 CONSULT_MIN_HEADERS = ["접수일시", "상담제목", "상담내용", "AI분석JSON", "매칭결과"]
@@ -80,7 +80,7 @@ INTENT_ALIASES = {
 def _cfg_int(key, default):
     try:
         return int(str(CONFIG.get(key, default)).strip())
-    except Exception:
+    except (ValueError, TypeError):
         return default
 
 
@@ -322,7 +322,7 @@ class QuoteSheetStore:
 
         try:
             self.ws_quote = self.sheet.worksheet(self.tab_quote)
-        except Exception:
+        except gspread.exceptions.WorksheetNotFound:
             self.ws_quote = self.sheet.add_worksheet(title=self.tab_quote, rows=1200, cols=24)
 
         self._ensure_quote_header()

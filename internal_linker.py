@@ -39,7 +39,7 @@ class InternalLinker:
                 data.setdefault("by_keyword", {})
                 data.setdefault("by_link", {})
                 return data
-        except Exception:
+        except (json.JSONDecodeError, OSError, UnicodeDecodeError):
             pass
         return {"by_keyword": {}, "by_link": {}}
 
@@ -47,7 +47,7 @@ class InternalLinker:
         try:
             with open(self.memory_file, "w", encoding="utf-8") as f:
                 json.dump(self.memory, f, ensure_ascii=False, indent=2)
-        except Exception as e:
+        except (OSError, TypeError) as e:
             self.logger.warning(f"내부링크 메모리 저장 실패: {e}")
 
     def _norm_key(self, text):
@@ -56,7 +56,7 @@ class InternalLinker:
     def _extract_host(self, url):
         try:
             return urlparse(str(url or "")).netloc.lower().split(":")[0]
-        except Exception:
+        except (ValueError, AttributeError):
             return ""
 
     def _is_same_host(self, host):
@@ -142,7 +142,7 @@ class InternalLinker:
             self.logger.info(f"내부링크용 기존 글 {len(all_posts)}건 로드")
             return all_posts
             
-        except Exception as e:
+        except (requests.exceptions.RequestException, json.JSONDecodeError, KeyError) as e:
             self.logger.error(f"글 목록 조회 실패: {e}")
             return []
     

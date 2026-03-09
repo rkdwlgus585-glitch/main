@@ -30,7 +30,7 @@ logger = setup_logger(name="listing_matcher")
 try:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
-except Exception:
+except (AttributeError, OSError):
     pass
 
 RECOMMEND_HEADERS = [
@@ -81,7 +81,7 @@ def _parse_ids(text):
 def _to_int(v, default=0):
     try:
         return int(str(v).strip())
-    except Exception:
+    except (ValueError, TypeError):
         return default
 
 
@@ -155,7 +155,7 @@ class ListingMatcher:
 
         try:
             self.ws_recommend = self.sheet.worksheet(self.tab_recommend)
-        except Exception:
+        except gspread.exceptions.WorksheetNotFound:
             self.ws_recommend = self.sheet.add_worksheet(title=self.tab_recommend, rows=1200, cols=12)
         self._ensure_recommend_header()
 

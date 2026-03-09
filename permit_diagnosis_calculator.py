@@ -8120,109 +8120,8 @@ def _repair_generated_permit_html(html: str) -> str:
     };
 ''',
     )
-    repaired = _replace_first_block(
-        repaired,
-        r'const evaluateTypedCriteriaLocal = \(rule, inputs\) => \{.*?\n    };\n',
-        '''const evaluateTypedCriteriaLocal = (rule, inputs) => {
-      const typed = Array.isArray(rule && rule.typed_criteria) ? rule.typed_criteria : [];
-      const pending = Array.isArray(rule && rule.pending_criteria_lines) ? rule.pending_criteria_lines : [];
-      const mappingMeta = rule && rule.mapping_meta ? rule.mapping_meta : {};
-      const coerce = (value, type) => {
-        const vt = String(type || "number").toLowerCase();
-        if (vt === "boolean" || vt === "bool") return !!value;
-        if (vt === "integer" || vt === "int") return Core.toInt(value);
-        if (vt === "string" || vt === "text") return String(value || "").trim();
-        return Number.isFinite(Number(value)) ? Number(value) : null;
-      };
-      const criterionResults = [];
-      const evidenceChecklist = [];
-      let blockingFailureCount = 0;
-      let unknownBlockingCount = 0;
-      typed.forEach((criterion) => {
-        const inputKey = String((criterion && criterion.input_key) || "");
-        if (!inputKey) return;
-        const currentRaw = Object.prototype.hasOwnProperty.call(inputs, inputKey) ? inputs[inputKey] : null;
-        const currentValue = coerce(currentRaw, criterion.value_type);
-        const requiredValue = coerce(criterion.required_value, criterion.value_type);
-        const operator = String(criterion.operator || ">=");
-        let status = "missing_input";
-        let ok = null;
-        let gap = null;
-        if (!(currentValue === null || currentValue === undefined || (String(criterion.value_type || '').toLowerCase() === 'number' && !Number.isFinite(Number(currentValue))))) {
-          if (operator === "==") {
-            ok = currentValue === requiredValue;
-          } else if (operator === ">=") {
-            ok = Number(currentValue) >= Number(requiredValue);
-            gap = Math.max(0, Number(requiredValue) - Number(currentValue));
-          } else {
-            ok = currentValue === requiredValue;
-          }
-          status = ok ? "pass" : "fail";
-        }
-        const blocking = !!criterion.blocking;
-        if (blocking && status === "fail") blockingFailureCount += 1;
-        if (blocking && status === "missing_input") unknownBlockingCount += 1;
-        const row = {
-          criterion_id: String(criterion.criterion_id || ""),
-          label: String(criterion.label || criterion.criterion_id || ""),
-          category: String(criterion.category || ""),
-          status,
-          ok,
-          gap,
-          blocking,
-          evidence_types: Array.isArray(criterion.evidence_types) ? criterion.evidence_types : [],
-          note: String(criterion.note || ""),
-        };
-        criterionResults.push(row);
-        if (status === "fail" || status === "missing_input") {
-          const reason = status === "fail" ? "보완 필요" : "입력 확인 필요";
-          const evidenceTypes = row.evidence_types.length ? row.evidence_types : ["증빙 자료 확인"];
-          evidenceTypes.forEach((label, idx) => {
-            evidenceChecklist.push({
-              doc_id: `${row.criterion_id}::${idx + 1}`,
-              label: String(label || ""),
-              criterion_id: row.criterion_id,
-              reason,
-            });
-          });
-        }
-      });
-      const mappingConfidence = Number(mappingMeta.mapping_confidence || 0) || null;
-      const coverageStatus = String(mappingMeta.coverage_status || (pending.length ? "partial" : "full"));
-      let manualReviewRequired = !!mappingMeta.manual_review_required || pending.length > 0;
-      if (mappingConfidence !== null && mappingConfidence < 0.75) manualReviewRequired = true;
-      let overallStatus = "pass";
-      if (blockingFailureCount > 0) overallStatus = "shortfall";
-      else if (unknownBlockingCount > 0 || manualReviewRequired || coverageStatus !== "full") overallStatus = "manual_review";
-      const nextActions = [];
-      const ctaMode = blockingFailureCount > 0 ? "shortfall" : (manualReviewRequired ? "manual_review" : "pass");
-      if (ctaMode === "shortfall") {
-        nextActions.push("부족한 요건부터 먼저 보완해 주세요.");
-        if (unknownBlockingCount > 0) nextActions.push("입력하지 않은 필수 항목을 확인해 주세요.");
-        nextActions.push("보완 완료 후 다시 진단하면 등록 가능 여부를 확인할 수 있습니다.");
-      } else if (ctaMode === "manual_review") {
-        if (unknownBlockingCount > 0) nextActions.push("일부 항목의 입력값이 누락되어 정확한 판단이 어렵습니다.");
-        if (pending.length > 0) nextActions.push("자동 구조화가 완료되지 않은 기준이 있어 법령 원문 대조가 필요합니다.");
-        if (mappingConfidence !== null && mappingConfidence < 0.75) nextActions.push("매핑 신뢰도가 낮아 전문 행정사의 확인을 권장합니다.");
-        nextActions.push("정밀 검토가 필요한 경우 전문 상담을 이용해 주세요.");
-      }
-      return {
-        typed_criteria_total: typed.length,
-        pending_criteria_count: pending.length,
-        criterion_results: criterionResults,
-        evidence_checklist: evidenceChecklist,
-        blocking_failure_count: blockingFailureCount,
-        unknown_blocking_count: unknownBlockingCount,
-        manual_review_required: manualReviewRequired,
-        coverage_status: coverageStatus,
-        mapping_confidence: mappingConfidence,
-        overall_status: overallStatus,
-        next_actions: nextActions,
-        pending_lines: pending,
-      };
-    };
-''',
-    )
+    # NOTE: evaluateTypedCriteriaLocal replacement removed — the canonical
+    # implementation lives in the build_html() template (single source of truth).
     repaired = _replace_first_block(
         repaired,
         r'const renderStructuredReview = \(typedEval\) => \{.*?\n    };\n',
@@ -8470,7 +8369,6 @@ def _repair_generated_permit_html(html: str) -> str:
             1,
         )
     repaired = repaired.replace("'''const renderCandidateFallback", "const renderCandidateFallback")
-    repaired = repaired.replace("'''const evaluateTypedCriteriaLocal", "const evaluateTypedCriteriaLocal")
     repaired = repaired.replace("'''const renderStructuredReview", "const renderStructuredReview")
     return repaired
 
