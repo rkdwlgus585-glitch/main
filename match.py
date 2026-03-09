@@ -21,7 +21,7 @@ CONFIG = load_config({
 try:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
-except Exception:
+except (AttributeError, OSError):
     pass
 
 
@@ -67,7 +67,7 @@ class ConsultantAI:
             return None
         try:
             return float(txt)
-        except Exception:
+        except (ValueError, TypeError):
             return None
 
     def _license_tokens(self, value):
@@ -110,7 +110,7 @@ class ConsultantAI:
             if val >= 100:
                 return val / 10000
             return val
-        except Exception:
+        except ValueError:
             return 0.0
 
     def _is_numeric_price(self, value):

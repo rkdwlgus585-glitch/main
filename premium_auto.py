@@ -45,7 +45,7 @@ CONFIG = load_config({
 try:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
-except Exception:
+except (AttributeError, OSError):
     pass
 
 
@@ -85,7 +85,7 @@ class PremiumCrawler:
         raw = str(CONFIG.get(name, default_value) or "").strip()
         try:
             return int(raw)
-        except Exception:
+        except (ValueError, TypeError):
             return int(default_value)
 
     @staticmethod
@@ -515,7 +515,7 @@ JSON으로 출력:
         """Render sanitized HTML for the premium post."""
         number_raw = str(data.get("\ubc88\ud638", "N/A")).strip()
         number = _safe_html(number_raw)
-        number_slug = re.sub(r"[^0-9]", "", number_raw) or number_raw
+        number_slug = re.sub(r"[^0-9]", "", number_raw) or number
         industry = _safe_html(data.get("\uc5c5\uc885", "Construction"))
 
         points = ai_content.get("summary_points", []) if isinstance(ai_content, dict) else []
@@ -1093,7 +1093,7 @@ def _write_premium_run_report(report):
         with open(latest_path, "w", encoding="utf-8") as f:
             f.write(payload)
         print(f"[premium-run] report saved: {out_path}")
-    except Exception as e:
+    except (OSError, TypeError, ValueError) as e:
         print(f"[premium-run] report save failed: {_safe_error_text(e)}")
 
 
