@@ -7443,7 +7443,7 @@ def build_html(
         || (Array.isArray(ladder && ladder.binding_questions) ? String((ladder.binding_questions[0] || "")).trim() : "");
       const _cardSections = [];
       _cardSections.push(`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;"><strong style="font-size:15px;">실시간 판단 카드</strong>${badges.map((item) => `<span style="background:var(--smna-badge-info-bg,#E3F2FD);color:var(--smna-primary,#003764);padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500;">${item}</span>`).join("")}</div>`);
-      _cardSections.push(`<div style="margin:6px 0;padding:8px 12px;background:var(--smna-badge-warning-bg,#FFF8E1);border-radius:6px;border-left:3px solid #FFB800;font-size:13px;"><strong>우선 확인:</strong> ${esc(inspectFirst)}</div>`);
+      _cardSections.push(`<div style="margin:6px 0;padding:8px 12px;background:var(--smna-badge-warning-bg,#FFF8E1);border-radius:6px;border-left:3px solid var(--smna-warning);font-size:13px;"><strong>우선 확인:</strong> ${esc(inspectFirst)}</div>`);
       if (evidenceFirst.length) {
         _cardSections.push(`<div style="margin:4px 0;font-size:13px;color:var(--smna-sub);"><strong>증빙 우선:</strong> ${evidenceFirst.join(", ")}</div>`);
       }
@@ -7683,7 +7683,7 @@ def build_html(
       if (nextRows.length) {
         const isManualReview = typedEval.overall_status === "manual_review";
         const ctaTitle = isManualReview ? "전문가 검토 안내" : "다음 단계";
-        const ctaStyle = isManualReview ? "background:#FFF8E1;border-left:3px solid #FFB800;padding:12px;border-radius:8px;" : "";
+        const ctaStyle = isManualReview ? "background:#FFF8E1;border-left:3px solid var(--smna-warning);padding:12px;border-radius:8px;" : "";
         ui.nextActionsBox.innerHTML = `<div style="${ctaStyle}"><strong>${ctaTitle}</strong><br>${nextRows.map((row) => `- ${esc(row)}`).join("<br>")}</div>`;
         ui.nextActionsBox.style.display = "block";
       }
@@ -8444,7 +8444,7 @@ def _repair_generated_permit_html(html: str) -> str:
       if (nextRows.length) {
         const isManualReview = typedEval.overall_status === "manual_review";
         const ctaTitle = isManualReview ? "전문가 검토 안내" : "다음 단계";
-        const ctaStyle = isManualReview ? "background:#FFF8E1;border-left:3px solid #FFB800;padding:12px;border-radius:8px;" : "";
+        const ctaStyle = isManualReview ? "background:#FFF8E1;border-left:3px solid var(--smna-warning);padding:12px;border-radius:8px;" : "";
         ui.nextActionsBox.innerHTML = `<div style="${ctaStyle}"><strong>${ctaTitle}</strong><br>${nextRows.map((row) => `- ${esc(row)}`).join("<br>")}</div>`;
         ui.nextActionsBox.style.display = "block";
       }
@@ -8633,7 +8633,7 @@ def _repair_generated_permit_html(html: str) -> str:
       if (nextRows.length) {
         const isManualReview = typedEval.overall_status === "manual_review";
         const ctaTitle = isManualReview ? "전문가 검토 안내" : "다음 단계";
-        const ctaStyle = isManualReview ? "background:#FFF8E1;border-left:3px solid #FFB800;padding:12px;border-radius:8px;" : "";
+        const ctaStyle = isManualReview ? "background:#FFF8E1;border-left:3px solid var(--smna-warning);padding:12px;border-radius:8px;" : "";
         ui.nextActionsBox.innerHTML = `<div style="${ctaStyle}"><strong>${ctaTitle}</strong><br>${nextRows.map((row) => `- ${esc(row)}`).join("<br>")}</div>`;
         ui.nextActionsBox.style.display = "block";
       }
