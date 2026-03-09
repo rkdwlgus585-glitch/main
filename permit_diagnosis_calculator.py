@@ -7441,23 +7441,25 @@ def build_html(
         : [];
       const bindingQuestion = String((preset && preset.binding_question) || "").trim()
         || (Array.isArray(ladder && ladder.binding_questions) ? String((ladder.binding_questions[0] || "")).trim() : "");
-      const cardLines = [
-        "<strong>실시간 판단 카드</strong>",
-        badges.length ? badges.map((item) => `[${item}]`).join(" ") : "",
-        `- inspect first: ${esc(inspectFirst)}`,
-        evidenceFirst.length ? `- evidence first: ${evidenceFirst.join(", ")}` : "",
-        `- next action: ${esc(nextAction)}`,
-        (criticalPromptLens && criticalPromptLens.lens_ready && criticalPromptLens.falsification_test)
-          ? `- critical lens: ${esc(criticalPromptLens.falsification_test)}`
-          : "",
-        bindingQuestion ? `- operator question: ${esc(bindingQuestion)}` : "",
-      ].filter(Boolean);
+      const _cardSections = [];
+      _cardSections.push(`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;"><strong style="font-size:15px;">실시간 판단 카드</strong>${badges.map((item) => `<span style="background:var(--smna-badge-info-bg,#E3F2FD);color:var(--smna-primary,#003764);padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500;">${item}</span>`).join("")}</div>`);
+      _cardSections.push(`<div style="margin:6px 0;padding:8px 12px;background:var(--smna-badge-warning-bg,#FFF8E1);border-radius:6px;border-left:3px solid #FFB800;font-size:13px;"><strong>우선 확인:</strong> ${esc(inspectFirst)}</div>`);
+      if (evidenceFirst.length) {
+        _cardSections.push(`<div style="margin:4px 0;font-size:13px;color:var(--smna-sub);"><strong>증빙 우선:</strong> ${evidenceFirst.join(", ")}</div>`);
+      }
+      _cardSections.push(`<div style="margin:4px 0;font-size:13px;"><strong>다음 단계:</strong> ${esc(nextAction)}</div>`);
+      if (criticalPromptLens && criticalPromptLens.lens_ready && criticalPromptLens.falsification_test) {
+        _cardSections.push(`<div style="margin:4px 0;font-size:12px;color:var(--smna-sub);"><strong>검증 렌즈:</strong> ${esc(criticalPromptLens.falsification_test)}</div>`);
+      }
+      if (bindingQuestion) {
+        _cardSections.push(`<div style="margin:4px 0;font-size:13px;color:var(--smna-primary,#003764);"><strong>확인 질문:</strong> ${esc(bindingQuestion)}</div>`);
+      }
       if (preset && preset.preset_id) {
-        cardLines.push(
-          `<button type="button" class="preset-action" data-runtime-preset-id="${esc(preset.preset_id)}">대표 보완 프리셋 적용</button>`
+        _cardSections.push(
+          `<button type="button" class="preset-action" data-runtime-preset-id="${esc(preset.preset_id)}" style="margin-top:8px;padding:8px 16px;border:none;border-radius:6px;background:var(--smna-primary,#003764);color:#fff;font-size:13px;cursor:pointer;">대표 보완 프리셋 적용</button>`
         );
       }
-      ui.runtimeReasoningCardBox.innerHTML = cardLines.join("<br>");
+      ui.runtimeReasoningCardBox.innerHTML = _cardSections.join("");
       ui.runtimeReasoningCardBox.style.display = "block";
       const button = ui.runtimeReasoningCardBox.querySelector("[data-runtime-preset-id]");
       if (button && preset && preset.preset_id) {
@@ -7669,10 +7671,11 @@ def build_html(
         const evidenceDesc = isShortfall
           ? "아래 서류를 준비하시면 등록 요건을 충족할 수 있습니다."
           : "아래 항목은 전문가 확인 시 필요할 수 있는 서류입니다.";
-        ui.evidenceChecklistBox.innerHTML = `<strong>${evidenceTitle}</strong><br><small style="color:var(--smna-sub)">${evidenceDesc}</small><br>${evidenceRows.map((row) => {
-          const icon = row.reason === "보완 필요" ? "⚠️" : "📋";
-          return `${icon} ${esc(row.label)} <span style="color:var(--smna-sub)">(${esc(row.reason || "확인 필요")})</span>`;
-        }).join("<br>")}`;
+        const _evBorder = isShortfall ? "border-left:3px solid #D32F2F;" : "border-left:3px solid var(--smna-accent-strong,#0078D4);";
+        ui.evidenceChecklistBox.innerHTML = `<div style="${_evBorder}padding:12px;border-radius:8px;background:${isShortfall ? "var(--smna-badge-error-bg,#FFEBEE)" : "var(--smna-badge-info-bg,#E3F2FD)"};"><strong style="display:block;margin-bottom:6px;">${evidenceTitle}</strong><small style="color:var(--smna-sub);display:block;margin-bottom:8px;">${evidenceDesc}</small>${evidenceRows.map((row) => {
+          const _evStyle = row.reason === "보완 필요" ? "color:#D32F2F;font-weight:600;" : "color:var(--smna-sub);";
+          return `<div style="margin:4px 0;display:flex;align-items:flex-start;gap:6px;"><span style="flex-shrink:0;width:18px;text-align:center;">${row.reason === "보완 필요" ? "⚠️" : "📋"}</span><span>${esc(row.label)} <span style="${_evStyle}font-size:12px;">(${esc(row.reason || "확인 필요")})</span></span></div>`;
+        }).join("")}</div>`;
         ui.evidenceChecklistBox.style.display = "block";
       }
 
@@ -8429,10 +8432,11 @@ def _repair_generated_permit_html(html: str) -> str:
         const evidenceDesc = isShortfall
           ? "아래 서류를 준비하시면 등록 요건을 충족할 수 있습니다."
           : "아래 항목은 전문가 확인 시 필요할 수 있는 서류입니다.";
-        ui.evidenceChecklistBox.innerHTML = `<strong>${evidenceTitle}</strong><br><small style="color:var(--smna-sub)">${evidenceDesc}</small><br>${evidenceRows.map((row) => {
-          const icon = row.reason === "보완 필요" ? "⚠️" : "📋";
-          return `${icon} ${esc(row.label)} <span style="color:var(--smna-sub)">(${esc(row.reason || "확인 필요")})</span>`;
-        }).join("<br>")}`;
+        const _evBorder = isShortfall ? "border-left:3px solid #D32F2F;" : "border-left:3px solid var(--smna-accent-strong,#0078D4);";
+        ui.evidenceChecklistBox.innerHTML = `<div style="${_evBorder}padding:12px;border-radius:8px;background:${isShortfall ? "var(--smna-badge-error-bg,#FFEBEE)" : "var(--smna-badge-info-bg,#E3F2FD)"};"><strong style="display:block;margin-bottom:6px;">${evidenceTitle}</strong><small style="color:var(--smna-sub);display:block;margin-bottom:8px;">${evidenceDesc}</small>${evidenceRows.map((row) => {
+          const _evStyle = row.reason === "보완 필요" ? "color:#D32F2F;font-weight:600;" : "color:var(--smna-sub);";
+          return `<div style="margin:4px 0;display:flex;align-items:flex-start;gap:6px;"><span style="flex-shrink:0;width:18px;text-align:center;">${row.reason === "보완 필요" ? "⚠️" : "📋"}</span><span>${esc(row.label)} <span style="${_evStyle}font-size:12px;">(${esc(row.reason || "확인 필요")})</span></span></div>`;
+        }).join("")}</div>`;
         ui.evidenceChecklistBox.style.display = "block";
       }
 
@@ -8617,10 +8621,11 @@ def _repair_generated_permit_html(html: str) -> str:
         const evidenceDesc = isShortfall
           ? "아래 서류를 준비하시면 등록 요건을 충족할 수 있습니다."
           : "아래 항목은 전문가 확인 시 필요할 수 있는 서류입니다.";
-        ui.evidenceChecklistBox.innerHTML = `<strong>${evidenceTitle}</strong><br><small style="color:var(--smna-sub)">${evidenceDesc}</small><br>${evidenceRows.map((row) => {
-          const icon = row.reason === "보완 필요" ? "⚠️" : "📋";
-          return `${icon} ${esc(row.label)} <span style="color:var(--smna-sub)">(${esc(row.reason || "확인 필요")})</span>`;
-        }).join("<br>")}`;
+        const _evBorder = isShortfall ? "border-left:3px solid #D32F2F;" : "border-left:3px solid var(--smna-accent-strong,#0078D4);";
+        ui.evidenceChecklistBox.innerHTML = `<div style="${_evBorder}padding:12px;border-radius:8px;background:${isShortfall ? "var(--smna-badge-error-bg,#FFEBEE)" : "var(--smna-badge-info-bg,#E3F2FD)"};"><strong style="display:block;margin-bottom:6px;">${evidenceTitle}</strong><small style="color:var(--smna-sub);display:block;margin-bottom:8px;">${evidenceDesc}</small>${evidenceRows.map((row) => {
+          const _evStyle = row.reason === "보완 필요" ? "color:#D32F2F;font-weight:600;" : "color:var(--smna-sub);";
+          return `<div style="margin:4px 0;display:flex;align-items:flex-start;gap:6px;"><span style="flex-shrink:0;width:18px;text-align:center;">${row.reason === "보완 필요" ? "⚠️" : "📋"}</span><span>${esc(row.label)} <span style="${_evStyle}font-size:12px;">(${esc(row.reason || "확인 필요")})</span></span></div>`;
+        }).join("")}</div>`;
         ui.evidenceChecklistBox.style.display = "block";
       }
 
