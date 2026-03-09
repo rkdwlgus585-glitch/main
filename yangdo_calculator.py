@@ -4151,7 +4151,7 @@ def build_page_html(
       const yearlyShapeSimilarity = (target, cand) => {{
         const t = yearlySeries(target);
         const c = yearlySeries(cand);
-        if (t.count < 2 || c.count < 2 || t.sum <= 0 || c.sum <= 0) return 0.5;
+        if (t.count < 2 || c.count < 2 || t.sum <= 0 || c.sum <= 0) return 0.2;
         const w = [0.34, 0.33, 0.33];
         let wSum = 0;
         let diff = 0;
@@ -4165,7 +4165,7 @@ def build_page_html(
           diff += Math.abs(tr - cr) * tw;
           wSum += tw;
         }}
-        if (wSum <= 0.2) return 0.5;
+        if (wSum <= 0.2) return 0.2;
         const norm = diff / wSum;
         return clamp(1 - Math.min(1, norm / 0.9), 0, 1);
       }};
@@ -4381,6 +4381,7 @@ def build_page_html(
           else singleCoreMid = Math.max(singleCoreMid, singleCorePlainMid);
         }}
         if (!Number.isFinite(singleCoreMid) || singleCoreMid <= 0) return null;
+        if (!Number.isFinite(Number(center)) || Number(center) <= 0) return null;
         const centerRatio = Number(center) / Math.max(singleCoreMid, 0.1);
         const dispersionRatio = num(target.single_core_dispersion_ratio);
         const specialty = num(target.specialty);
@@ -6241,7 +6242,10 @@ def build_page_html(
           if (isSingleTokenCrossCombo(target.tokens, candTokens, rec && rec.license_text ? rec.license_text : "")) return false;
           if (!isSingleTokenSameCore(target.tokens, candTokens, rec && rec.license_text ? rec.license_text : "")) return false;
           const yearly = yearlyShapeSimilarity(target, rec);
-          if (yearly.strength >= 0.60 && yearly.shape < 0.44) return false;
+          const tYearSeries = yearlySeries(target);
+          const cYearSeries = yearlySeries(rec);
+          const hasYearlyBasis = tYearSeries.count >= 2 && cYearSeries.count >= 2 && tYearSeries.sum > 0 && cYearSeries.sum > 0;
+          if (hasYearlyBasis && yearly < 0.44) return false;
           return true;
         }});
         let singleCoreReferenceRows = [];
