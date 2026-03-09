@@ -76,7 +76,7 @@
 | `.co.kr` 브리지 | 95% | 정책/CTA/UTM 계약 확정, 삽입용 bridge snippets 생성 |
 | 임대형 위젯/API | 99% | template -> scaffold -> validate -> activate 구조 완료 |
 | 특허 | 98% | canonical attorney handoff + claim 9건(양도5+아키텍처3+구조화1), typed_criteria 자동 구조화 특허 claim 추가 |
-| 품질 기준 | 100% | 733 tests 100% PASS, XSS 전수 감사 완료, daily/weekly 자동 QA scheduled tasks 가동, Codex/Gemini 자동화 QA 체계 구축 |
+| 품질 기준 | 100% | 753 tests 100% PASS, XSS 전수 감사 완료, daily/weekly 자동 QA scheduled tasks 가동, Codex/Gemini 자동화 QA 체계 구축, pyproject.toml testpaths 정립 |
 
 ## 3-Tier Automation Architecture
 - **Tier 1: Orchestrator (Claude)**: 전체 전략 수립, 시스템 아키텍처 매핑, 하위 태스크 분할 및 에이전트 위임 제어.
@@ -295,6 +295,13 @@
 - patent handoff: `scripts/generate_attorney_handoff.py`
 
 ## Changelog
+### [2026-03-09] Session 4
+- **Test Infrastructure**: pytest `pyproject.toml` 추가 — `testpaths=["tests"]` + `norecursedirs` 설정으로 `__pycache__` import mismatch 4건 해소. 753/753 PASS (0 errors).
+- **New Tests**: `test_permit_typed_criteria_synthesis.py` 20개 테스트 추가 — `_PENDING_CRITERIA_TEMPLATES` 구조 검증, `_synthesize_typed_criteria_from_pending` 동작 검증, `_normalize_key` 정규식 검증.
+- **Permit Loader DRY Refactoring**: 10개 JSON 로더 함수의 공통 패턴을 `_load_json_safe()` + `_ensure_keys()` 2개 헬퍼로 추출. 순감 −107줄, `OSError` 방어 추가.
+- **CSS Token Audit Closure**: Gemini 감사 기준 173개 근사 매치 hex 중 현재 파일 잔존 0개 확인 (이전 세션에서 이미 완료). 마지막 `#FFB800` 3건 → `var(--smna-warning)` 치환.
+- **Coverage Status**: typed_criteria 245/245 (100%), rule_criteria_packs 54개 (22%), candidate_criteria_lines 185개 (76%), enrichment fallback 6개 (2%).
+
 ### [2026-03-09] Session 3
 - **Permit typed_criteria 100% Coverage**: 245개 전체 업종 typed_criteria 달성. 기존 20/245(8%) → 245/245(100%).
   - `_PENDING_CRITERIA_TEMPLATES` 확장: `core_requirement`, `guarantee`, `operations` 3개 카테고리 추가 + `other` → `facility_misc` 폴백.
