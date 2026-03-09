@@ -84,7 +84,7 @@ COMPONENT_TO_CRITERIA = {
         "criterion_id": "guarantee.secured.auto",
         "category": "guarantee",
         "label": "보증금·이행보증 확인",
-        "input_key": "insurance_secured",
+        "input_key": "guarantee_secured",
         "value_type": "boolean",
         "operator": "==",
         "required_value": True,

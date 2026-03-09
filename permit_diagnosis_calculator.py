@@ -736,7 +736,7 @@ _PENDING_CRITERIA_TEMPLATES = {
         "criterion_id": "guarantee.secured.auto",
         "category": "guarantee",
         "label": "보증금·이행보증 확인",
-        "input_key": "insurance_secured",
+        "input_key": "guarantee_secured",
         "value_type": "boolean",
         "operator": "==",
         "required_value": True,
@@ -7412,14 +7412,18 @@ def build_html(
       }
     };
 
-    const buildAdditionalInputs = () => ({
-      office_secured: !!(ui.officeSecuredInput && ui.officeSecuredInput.checked),
-      facility_secured: !!(ui.facilitySecuredInput && ui.facilitySecuredInput.checked),
-      qualification_secured: !!(ui.qualificationSecuredInput && ui.qualificationSecuredInput.checked),
-      insurance_secured: !!(ui.insuranceSecuredInput && ui.insuranceSecuredInput.checked),
-      safety_secured: !!(ui.safetySecuredInput && ui.safetySecuredInput.checked),
-      document_ready: !!(ui.documentReadyInput && ui.documentReadyInput.checked),
-    });
+    const buildAdditionalInputs = () => {
+      const insChecked = !!(ui.insuranceSecuredInput && ui.insuranceSecuredInput.checked);
+      return {
+        office_secured: !!(ui.officeSecuredInput && ui.officeSecuredInput.checked),
+        facility_secured: !!(ui.facilitySecuredInput && ui.facilitySecuredInput.checked),
+        qualification_secured: !!(ui.qualificationSecuredInput && ui.qualificationSecuredInput.checked),
+        insurance_secured: insChecked,
+        guarantee_secured: insChecked,
+        safety_secured: !!(ui.safetySecuredInput && ui.safetySecuredInput.checked),
+        document_ready: !!(ui.documentReadyInput && ui.documentReadyInput.checked),
+      };
+    };
 
     const evaluateTypedCriteriaLocal = (rule, inputs) => {
       const typed = Array.isArray(rule && rule.typed_criteria) ? rule.typed_criteria : [];

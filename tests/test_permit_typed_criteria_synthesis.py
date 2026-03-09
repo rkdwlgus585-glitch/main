@@ -29,10 +29,10 @@ class PendingCriteriaTemplatesTest(unittest.TestCase):
             for key in required_keys:
                 self.assertIn(key, template, f"Template '{cat}' missing key: {key}")
 
-    def test_guarantee_uses_insurance_secured_input_key(self):
-        """guarantee.secured.auto should map to insurance_secured (matching JS UI checkbox)."""
+    def test_guarantee_uses_guarantee_secured_input_key(self):
+        """guarantee.secured.auto should map to guarantee_secured (JS sends both guarantee_secured and insurance_secured)."""
         tmpl = pdc._PENDING_CRITERIA_TEMPLATES["guarantee"]
-        self.assertEqual(tmpl["input_key"], "insurance_secured")
+        self.assertEqual(tmpl["input_key"], "guarantee_secured")
 
     def test_core_requirement_maps_to_facility_secured(self):
         """core_requirement is a facility variant, should use facility_secured."""
@@ -76,7 +76,7 @@ class SynthesizeTypedCriteriaTest(unittest.TestCase):
         result = pdc._synthesize_typed_criteria_from_pending(pending)
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]["criterion_id"], "guarantee.secured.auto")
-        self.assertEqual(result[0]["input_key"], "insurance_secured")
+        self.assertEqual(result[0]["input_key"], "guarantee_secured")
 
     def test_synthesize_operations_category(self):
         pending = [{"category": "operations", "text": "운영 계획서 필요"}]
