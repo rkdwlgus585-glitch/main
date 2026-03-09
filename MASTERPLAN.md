@@ -295,6 +295,12 @@
 - patent handoff: `scripts/generate_attorney_handoff.py`
 
 ## Changelog
+### [2026-03-09] Session 10
+- **보안: 차단 외부 링크 가드**: `BLOCKED_OUTBOUND_HOSTS` 6개 악성 도메인(slzlj.xyz, rpbwb.xyz, capiture.net), seoulmna.co.kr 게시 시 payload 스캔 → 차단 URL 발견 시 게시 중단. `seoulmna_banned_link_guard.py` 독립 스캔 스크립트.
+- **ops: watchdog 프로파일 분리**: 모놀리식 watchdog → legacy shim + 프로파일별 워커 (−807줄). co.kr 워커 태스크 관리 스크립트 추가.
+- **yangdo_consult_api except Exception 9건 구체화**: ImportError, sqlite3.Error, BrokenPipeError 등. 외부 API 4건 의도적 유지.
+- **Quality**: 1067 tests + 52 subtests PASS.
+
 ### [2026-03-09] Session 9
 - **host_utils 공통 모듈 추출**: `channel_profiles.py` + `tenant_gateway.py` 동일 3함수 → `core_engine/host_utils.py` 통합 (−70줄). normalize_host protocol-relative URL 지원, to_bool int(0) 올바른 처리.
 - **host_utils 테스트**: 27개 단위 테스트 추가. core_engine 11/11 모듈.
