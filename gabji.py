@@ -509,7 +509,7 @@ class ListingSheetLookup:
                 resp.encoding = resp.apparent_encoding or "utf-8"
             soup = BeautifulSoup(resp.text, "html.parser")
             return self._parse_live_industry_rows(soup)
-        except Exception:
+        except (requests.RequestException, ValueError, AttributeError, KeyError):
             return []
 
     def _find_td_value_by_labels(self, soup, labels):
@@ -818,7 +818,7 @@ class ListingSheetLookup:
             detail["원본UID"] = str(source_uid)
             detail["원본URL"] = url
             return detail
-        except Exception:
+        except (requests.RequestException, ValueError, AttributeError, KeyError):
             return {}
 
     def _industry_key(self, row):
