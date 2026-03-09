@@ -52,7 +52,7 @@ def _load_raw_channel_config(config_path: str = "") -> Dict[str, Any]:
         return {}
     try:
         return json.loads(path.read_text(encoding="utf-8-sig"))
-    except Exception:
+    except (json.JSONDecodeError, OSError, UnicodeDecodeError):
         return {}
 
 

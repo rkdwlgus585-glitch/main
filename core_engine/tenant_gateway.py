@@ -127,7 +127,7 @@ def _host_from_origin(origin: str) -> str:
     try:
         parsed = urlparse(src)
         return _normalize_host(parsed.netloc)
-    except Exception:
+    except (ValueError, AttributeError):
         return ""
 
 

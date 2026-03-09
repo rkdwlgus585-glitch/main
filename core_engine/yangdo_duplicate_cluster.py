@@ -8,7 +8,7 @@ def _to_float(value: Any) -> Optional[float]:
         if value is None:
             return None
         out = float(value)
-    except Exception:
+    except (ValueError, TypeError):
         return None
     if out != out:
         return None

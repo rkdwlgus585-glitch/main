@@ -76,7 +76,7 @@
 | `.co.kr` 브리지 | 100% | 정책/CTA/UTM 계약 확정, 5개 placement snippet 생성, Playwright MCP로 5/5 셀렉터 라이브 검증 완료, 인젝션 실행 계획 수립 |
 | 임대형 위젯/API | 99% | template -> scaffold -> validate -> activate 구조 완료 |
 | 특허 | 98% | canonical attorney handoff + claim 9건(양도5+아키텍처3+구조화1), typed_criteria 자동 구조화 특허 claim 추가 |
-| 품질 기준 | 100% | 795 tests 100% PASS, XSS 전수 감사 완료, daily/weekly 자동 QA scheduled tasks 가동, Codex/Gemini 자동화 QA 체계 구축, pyproject.toml testpaths 정립, eval 제거 보안 강화 |
+| 품질 기준 | 100% | 1008 tests 100% PASS, core_engine 전 모듈 테스트 커버리지 100%, XSS 전수 감사 완료, daily/weekly 자동 QA scheduled tasks 가동, Codex/Gemini 자동화 QA 체계 구축, pyproject.toml testpaths 정립, eval 제거 보안 강화, except Exception→구체적 예외 전환 완료 |
 
 ## 3-Tier Automation Architecture
 - **Tier 1: Orchestrator (Claude)**: 전체 전략 수립, 시스템 아키텍처 매핑, 하위 태스크 분할 및 에이전트 위임 제어.
@@ -295,6 +295,17 @@
 - patent handoff: `scripts/generate_attorney_handoff.py`
 
 ## Changelog
+### [2026-03-09] Session 6
+- **core_engine 전 모듈 테스트 100%**: 기존 테스트 없던 5개 모듈에 직접 단위 테스트 추가.
+  - `permit_criteria_schema` (50 tests): type coercion, alias resolution, operator evaluation, full pipeline
+  - `yangdo_listing_recommender` (72 tests): scoring, labeling, diversity rerank, integration with stub ops
+  - `yangdo_duplicate_cluster` (53 tests): jaccard, affinity, cluster collapse pipeline
+  - `channel_branding` (17 tests): digits_only, slugify, default branding resolution
+  - `api_contract` (21 tests): compact, normalize_v1_request wrapper/flat/header fallback
+- **Bug Fix: `_evaluate_operator` "in" 연산자**: `set()` 에 list(unhashable) 삽입 → `_safe_list` 기반 `all()` 검사로 교체. 테스트가 발견한 프로덕션 버그.
+- **Exception Narrowing**: core_engine/ 6개 `except Exception` → `(ValueError, TypeError)`, `(json.JSONDecodeError, OSError, UnicodeDecodeError)`, `(ValueError, AttributeError)` 등 구체적 예외로 전환.
+- **Quality**: 1008 tests PASS (795 → 1008, +213).
+
 ### [2026-03-09] Session 5
 - **Dict Extraction Helpers**: `_get_str()` / `_get_int()` 헬퍼 도입 — permit_diagnosis_calculator.py 전역 178건 `str(x.get("k","") or "").strip()` 보일러플레이트 치환. 가독성 대폭 개선.
 - **Security: eval 제거 (양도+인허가)**: yangdo `_collapse_script_whitespace`의 `(0,eval)(code)` → 줄별 trim 방식 전환. permit `_wrap_wordpress_safe_scripts`의 Base64+`new Function()` → pass-through (nowprocket 속성이 이미 WP Rocket 우회 처리). CSP unsafe-eval 불필요.
