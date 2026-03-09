@@ -199,7 +199,14 @@ STRICT_DOMAIN_GUARD = _cfg_bool("STRICT_DOMAIN_GUARD", True)
 LISTING_ALLOWED_HOSTS = {"seoulmna.co.kr", "www.seoulmna.co.kr"}
 BLOG_HOSTS = {"seoulmna.kr", "www.seoulmna.kr"}
 NOWMNA_ALLOWED_HOSTS = {"nowmna.com", "www.nowmna.com"}
-
+BLOCKED_OUTBOUND_HOSTS = {
+    "modern.slzlj.xyz",
+    "slzlj.xyz",
+    "ai.rpbwb.xyz",
+    "rpbwb.xyz",
+    "www.capiture.net",
+    "capiture.net",
+}
 
 def _parse_uid_set(raw):
     out = set()
@@ -313,6 +320,58 @@ def _is_allowed_nowmna_url(url):
     if not src:
         return False
     return _host_of(src) in NOWMNA_ALLOWED_HOSTS
+
+
+def _is_blocked_outbound_host(host):
+    normalized = _host_of(host)
+    if not normalized:
+        return False
+    for blocked in BLOCKED_OUTBOUND_HOSTS:
+        blocked_host = _host_of(blocked)
+        if not blocked_host:
+            continue
+        if normalized == blocked_host or normalized.endswith("." + blocked_host):
+            return True
+    return False
+
+
+def _extract_blocked_urls_from_text(text):
+    src = str(text or "")
+    if not src:
+        return []
+    found = []
+    seen = set()
+    for m in re.finditer(r"https?://[^\s<>'\"\)]+", src, flags=re.I):
+        candidate = str(m.group(0) or "").strip().rstrip(".,;:!?")
+        host = _host_of(candidate)
+        if not host or (not _is_blocked_outbound_host(host)):
+            continue
+        key = (candidate, host)
+        if key in seen:
+            continue
+        seen.add(key)
+        found.append({"url": candidate, "host": host})
+    return found
+
+
+def _find_blocked_urls_in_payload(payload):
+    hits = []
+    if not isinstance(payload, dict):
+        return hits
+    for key, value in payload.items():
+        if value is None:
+            continue
+        values = value if isinstance(value, list) else [value]
+        for item in values:
+            for blocked in _extract_blocked_urls_from_text(item):
+                hits.append(
+                    {
+                        "field": str(key or "").strip(),
+                        "url": str(blocked.get("url", "")).strip(),
+                        "host": str(blocked.get("host", "")).strip(),
+                    }
+                )
+    return hits
 
 
 _validate_domain_separation()
@@ -4524,6 +4583,18 @@ class MnaBoardPublisher:
                     + ",".join(diag.get("errors", []))
                     + f" (uid={diag.get('uid','')}, url={diag.get('url','')})"
                 )
+
+        blocked_hits = _find_blocked_urls_in_payload(payload)
+        if blocked_hits:
+            hosts = ", ".join(sorted({str(x.get("host", "")).strip() for x in blocked_hits if str(x.get("host", "")).strip()}))
+            details = "; ".join(
+                f"{hit.get('field','')}={hit.get('url','')}" for hit in blocked_hits[:5]
+            )
+            raise ValueError(
+                "차단된 외부 링크가 감지되어 seoulmna.co.kr 게시를 중단합니다"
+                + (f": {hosts}" if hosts else "")
+                + (f" ({details})" if details else "")
+            )
 
         res = self.post(
             action_url,
@@ -10075,6 +10146,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
