@@ -296,10 +296,12 @@
 
 ## Changelog
 ### [2026-03-09] Session 12
-- **gabji.py + all.py except 36건 구체화**: gabji 9건(reconfigure/parse/timeout/ratio/remove), all.py 27건(cfg/parse/json/remove).
-- **match.py 테스트 69개 + except 3건**: ConsultantAI 순수함수(credit scoring, price parsing, matching logic, license tokens) 전면 커버. reconfigure/float/money parse 예외 구체화.
-- **premium_auto.py 테스트 41개 + except 3건 + XSS 수정**: sanitize/extract/render 함수 커버. `render_html()` number_slug 폴백에서 raw 값 → escaped 값 전환 (href XSS 취약점 수정). reconfigure/int_config/report write 예외 구체화.
-- **Quality**: 1437 tests + 52 subtests PASS. (+110 from Session 11)
+- **양도 API 전기/정보통신 파라미터 동기화**: `yangdo_blackbox_api.py` 전기 업종 `min_auto_balance_share`(0.10) / `min_auto_balance_eok`(0.05) 누락 보완. 전기·정보통신 `reorg_overrides`(분할/합병) 추가. JS 엔진과 Python API 간 정산정책 완전 동기화 달성. 검증 테스트 8개 추가.
+- **인허가 criteria 엣지케이스 3건 수정**: `_evaluate_operator()` required=None 시 TypeError→`manual_review` 안전 반환. "in" 연산자 빈 리스트 vacuous truth 방지. operator 대소문자 무관 처리. 검증 테스트 7개 추가.
+- **premium_auto XSS 취약점 수정**: `render_html()` number_slug 폴백에서 raw→escaped 전환 (href 컨텍스트 XSS). 순수함수 41개 테스트 추가.
+- **match.py 테스트 69개**: ConsultantAI 순수함수(credit scoring, price parsing, matching) 전면 커버.
+- **except Exception 42건 구체화**: gabji 9건, all.py 27건, match 3건, premium_auto 3건.
+- **Quality**: 1452 tests + 52 subtests (11 WinError6 pre-existing). (+125 from Session 11)
 
 ### [2026-03-09] Session 11
 - **yangdo_calculator Python 함수 132개 테스트**: 가격 파싱(_price_token_to_eok, _extract_price_values_eok), 통계(calc_quantile, mean_or_none, build_meta), 업종별 폴백값(_fallback_capital/surplus/min_balance), 라이선스 정규화, 보안 필터, HTML 축소, 데이터 파이프라인 등 21개 함수 포괄 커버.
