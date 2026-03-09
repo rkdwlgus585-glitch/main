@@ -35,6 +35,21 @@ OBJECTIVE_SOURCE_HOSTS = (
 )
 
 
+def _load_json_safe(path: Path, default_factory) -> dict:
+    """Load JSON from *path*; return ``default_factory()`` on any failure."""
+    if not path.exists():
+        return default_factory()
+    try:
+        loaded = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return default_factory()
+    if not isinstance(loaded, dict):
+        return default_factory()
+    base = default_factory()
+    base.update(loaded)
+    return base
+
+
 def _safe_json(data) -> str:
     text = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
     return (
@@ -189,23 +204,8 @@ def _blank_critical_prompt_surface_packet() -> dict:
 
 
 def _load_catalog_file(path: Path) -> dict:
-    if not path.exists():
-        return _blank_catalog()
-    try:
-        loaded = json.loads(path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        return _blank_catalog()
-    if not isinstance(loaded, dict):
-        return _blank_catalog()
-    base = _blank_catalog()
-    base.update(loaded)
-    if not isinstance(base.get("major_categories"), list):
-        base["major_categories"] = []
-    if not isinstance(base.get("industries"), list):
-        base["industries"] = []
-    if not isinstance(base.get("summary"), dict):
-        base["summary"] = {"industry_total": 0, "major_category_total": 0}
-    return base
+    base = _load_json_safe(path, _blank_catalog)
+    return _ensure_keys(base, dict_keys=("summary",), list_keys=("major_categories", "industries"))
 
 
 def _merge_catalog_payloads(base_catalog: dict, *overlay_layers: tuple[str, dict]) -> dict:
@@ -303,19 +303,10 @@ def _load_catalog(
 
 
 def _load_rule_catalog(path: Path) -> dict:
-    if not path.exists():
-        return _blank_rule_catalog()
-    try:
-        loaded = json.loads(path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        return _blank_rule_catalog()
-    if not isinstance(loaded, dict):
-        return _blank_rule_catalog()
-    base = _blank_rule_catalog()
-    base.update(loaded)
-    groups = loaded.get("rule_groups")
+    base = _load_json_safe(path, _blank_rule_catalog)
+    groups = base.get("rule_groups")
     if not isinstance(groups, list):
-        groups = loaded.get("rules")
+        groups = base.get("rules")
     if not isinstance(groups, list):
         groups = []
     base["rule_groups"] = groups
@@ -324,132 +315,49 @@ def _load_rule_catalog(path: Path) -> dict:
 
 
 def _load_expanded_criteria_catalog(path: Path) -> dict:
-    if not path.exists():
-        return _blank_expanded_criteria_catalog()
-    try:
-        loaded = json.loads(path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        return _blank_expanded_criteria_catalog()
-    if not isinstance(loaded, dict):
-        return _blank_expanded_criteria_catalog()
-    base = _blank_expanded_criteria_catalog()
-    base.update(loaded)
-    packs = loaded.get("rule_criteria_packs")
-    if not isinstance(packs, list):
-        packs = []
-    industries = loaded.get("industries")
-    if not isinstance(industries, list):
-        industries = []
-    base["industries"] = industries
-    base["rule_criteria_packs"] = packs
-    return base
+    base = _load_json_safe(path, _blank_expanded_criteria_catalog)
+    return _ensure_keys(base, list_keys=("industries", "rule_criteria_packs"))
 
 
 def _load_focus_scope_overrides(path: Path) -> dict:
-    if not path.exists():
-        return _blank_focus_scope_overrides()
-    try:
-        loaded = json.loads(path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        return _blank_focus_scope_overrides()
-    if not isinstance(loaded, dict):
-        return _blank_focus_scope_overrides()
-    base = _blank_focus_scope_overrides()
-    base.update(loaded)
-    if not isinstance(base.get("manual_rule_groups"), list):
-        base["manual_rule_groups"] = []
-    if not isinstance(base.get("profile_overrides"), list):
-        base["profile_overrides"] = []
+    base = _load_json_safe(path, _blank_focus_scope_overrides)
+    return _ensure_keys(base, list_keys=("manual_rule_groups", "profile_overrides"))
+
+
+def _ensure_keys(base: dict, dict_keys: tuple = (), list_keys: tuple = ()) -> dict:
+    """Ensure *base* has expected key types; fix in-place and return."""
+    for k in dict_keys:
+        if not isinstance(base.get(k), dict):
+            base[k] = {}
+    for k in list_keys:
+        if not isinstance(base.get(k), list):
+            base[k] = []
     return base
 
 
 def _load_patent_evidence_bundle(path: Path) -> dict:
-    if not path.exists():
-        return _blank_patent_evidence_bundle()
-    try:
-        loaded = json.loads(path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        return _blank_patent_evidence_bundle()
-    if not isinstance(loaded, dict):
-        return _blank_patent_evidence_bundle()
-    base = _blank_patent_evidence_bundle()
-    base.update(loaded)
-    if not isinstance(base.get("summary"), dict):
-        base["summary"] = {}
-    if not isinstance(base.get("families"), list):
-        base["families"] = []
-    return base
+    base = _load_json_safe(path, _blank_patent_evidence_bundle)
+    return _ensure_keys(base, dict_keys=("summary",), list_keys=("families",))
 
 
 def _load_review_case_presets_report(path: Path) -> dict:
-    if not path.exists():
-        return _blank_review_case_presets_report()
-    try:
-        loaded = json.loads(path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        return _blank_review_case_presets_report()
-    if not isinstance(loaded, dict):
-        return _blank_review_case_presets_report()
-    base = _blank_review_case_presets_report()
-    base.update(loaded)
-    if not isinstance(base.get("summary"), dict):
-        base["summary"] = {}
-    if not isinstance(base.get("families"), list):
-        base["families"] = []
-    return base
+    base = _load_json_safe(path, _blank_review_case_presets_report)
+    return _ensure_keys(base, dict_keys=("summary",), list_keys=("families",))
 
 
 def _load_case_story_surface_report(path: Path) -> dict:
-    if not path.exists():
-        return _blank_case_story_surface_report()
-    try:
-        loaded = json.loads(path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        return _blank_case_story_surface_report()
-    if not isinstance(loaded, dict):
-        return _blank_case_story_surface_report()
-    base = _blank_case_story_surface_report()
-    base.update(loaded)
-    if not isinstance(base.get("summary"), dict):
-        base["summary"] = {}
-    if not isinstance(base.get("families"), list):
-        base["families"] = []
-    return base
+    base = _load_json_safe(path, _blank_case_story_surface_report)
+    return _ensure_keys(base, dict_keys=("summary",), list_keys=("families",))
 
 
 def _load_operator_demo_packet_report(path: Path) -> dict:
-    if not path.exists():
-        return _blank_operator_demo_packet_report()
-    try:
-        loaded = json.loads(path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        return _blank_operator_demo_packet_report()
-    if not isinstance(loaded, dict):
-        return _blank_operator_demo_packet_report()
-    base = _blank_operator_demo_packet_report()
-    base.update(loaded)
-    if not isinstance(base.get("summary"), dict):
-        base["summary"] = {}
-    if not isinstance(base.get("source_paths"), dict):
-        base["source_paths"] = {}
-    if not isinstance(base.get("families"), list):
-        base["families"] = []
-    return base
+    base = _load_json_safe(path, _blank_operator_demo_packet_report)
+    return _ensure_keys(base, dict_keys=("summary", "source_paths"), list_keys=("families",))
 
 
 def _load_review_reason_decision_ladder_report(path: Path) -> dict:
-    if not path.exists():
-        return _blank_review_reason_decision_ladder_report()
-    try:
-        loaded = json.loads(path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        return _blank_review_reason_decision_ladder_report()
-    if not isinstance(loaded, dict):
-        return _blank_review_reason_decision_ladder_report()
-    base = _blank_review_reason_decision_ladder_report()
-    base.update(loaded)
-    if not isinstance(base.get("summary"), dict):
-        base["summary"] = {}
+    base = _load_json_safe(path, _blank_review_reason_decision_ladder_report)
+    _ensure_keys(base, dict_keys=("summary",))
     ladders = base.get("ladders")
     if not isinstance(ladders, list):
         base["ladders"] = list(base.get("decision_ladder") or []) if isinstance(base.get("decision_ladder"), list) else []
@@ -457,23 +365,8 @@ def _load_review_reason_decision_ladder_report(path: Path) -> dict:
 
 
 def _load_critical_prompt_surface_packet(path: Path) -> dict:
-    if not path.exists():
-        return _blank_critical_prompt_surface_packet()
-    try:
-        loaded = json.loads(path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        return _blank_critical_prompt_surface_packet()
-    if not isinstance(loaded, dict):
-        return _blank_critical_prompt_surface_packet()
-    base = _blank_critical_prompt_surface_packet()
-    base.update(loaded)
-    if not isinstance(base.get("summary"), dict):
-        base["summary"] = {}
-    if not isinstance(base.get("critical_prompt_block"), dict):
-        base["critical_prompt_block"] = {}
-    if not isinstance(base.get("compact_decision_lens"), dict):
-        base["compact_decision_lens"] = {}
-    return base
+    base = _load_json_safe(path, _blank_critical_prompt_surface_packet)
+    return _ensure_keys(base, dict_keys=("summary", "critical_prompt_block", "compact_decision_lens"))
 
 
 def _build_expanded_industry_lookup(expanded_catalog: dict) -> dict:
