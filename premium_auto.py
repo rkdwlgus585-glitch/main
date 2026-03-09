@@ -13,7 +13,14 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
-from selenium.common.exceptions import InvalidSessionIdException, WebDriverException
+from selenium.common.exceptions import (
+    InvalidSessionIdException,
+    NoAlertPresentException,
+    NoSuchElementException,
+    NoSuchWindowException,
+    TimeoutException,
+    WebDriverException,
+)
 from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
 import requests
@@ -182,7 +189,7 @@ class PremiumCrawler:
             nums = [int(x) for x in re.findall(r"/mna/(\d+)", resp.text)]
             nums = [n for n in nums if 7000 <= n <= 9999]
             return max(nums) if nums else 0
-        except Exception:
+        except (requests.RequestException, ValueError):
             return 0
 
     def get_existing_premium_numbers(self):
@@ -209,7 +216,7 @@ class PremiumCrawler:
                         num = int(raw)
                         if 7000 <= num <= 9999:
                             existing_numbers.add(num)
-            except Exception as e:
+            except (WebDriverException, ValueError) as e:
                 print(f"⚠️ premium 번호 fallback 수집 오류: {_safe_error_text(e)}")
 
         print(f"✅ premium에 이미 작성된 번호: {sorted(existing_numbers)}")
@@ -241,7 +248,7 @@ class PremiumCrawler:
 
                 if not matches:
                     break
-            except Exception as e:
+            except (requests.RequestException, ValueError) as e:
                 print(f"Warning: mna page scan failed (page={page}): {_safe_error_text(e)}")
                 break
 
@@ -323,7 +330,7 @@ class PremiumCrawler:
                 latest = max(numbers)
                 print(f"✅ 최신 mna 번호: {latest}")
                 return latest
-        except Exception as e:
+        except (WebDriverException, ValueError) as e:
             print(f"⚠️ mna 번호 검색 오류: {_safe_error_text(e)}")
 
         return None
@@ -706,7 +713,7 @@ class ThumbnailMaker:
             container.screenshot(abs_output)
             print(f"✅ 썸네일 생성: {abs_output}")
             return abs_output
-        except Exception as e:
+        except (WebDriverException, OSError, ValueError) as e:
             fallback = os.path.abspath("summary_thumb.jpg")
             if os.path.exists(fallback):
                 print(f"⚠️ 썸네일 생성 실패, fallback 사용: {fallback} ({_safe_error_text(e)})")
@@ -717,12 +724,12 @@ class ThumbnailMaker:
             try:
                 if driver:
                     driver.quit()
-            except Exception:
+            except WebDriverException:
                 pass
             try:
                 if os.path.exists(temp_html):
                     os.remove(temp_html)
-            except Exception:
+            except OSError:
                 pass
 
 class PremiumPublisher:
@@ -748,7 +755,7 @@ class PremiumPublisher:
                 return False
             _ = self.driver.title
             return True
-        except Exception:
+        except (WebDriverException, AttributeError):
             return False
 
     def _ensure_session(self, step_name):
@@ -779,7 +786,7 @@ class PremiumPublisher:
             alert.accept()
             time.sleep(0.5)
             return True
-        except Exception:
+        except (NoAlertPresentException, WebDriverException):
             return False
 
     def login(self):
@@ -812,7 +819,7 @@ class PremiumPublisher:
                     if cand and cand.is_displayed():
                         id_input = cand
                         break
-                except Exception:
+                except (NoSuchElementException, WebDriverException):
                     continue
             if id_input is None:
                 for cand in self.driver.find_elements(By.CSS_SELECTOR, "input[type='text']"):
@@ -831,7 +838,7 @@ class PremiumPublisher:
                     if cand and cand.is_displayed():
                         pw_input = cand
                         break
-                except Exception:
+                except (NoSuchElementException, WebDriverException):
                     continue
             if pw_input is None:
                 for cand in self.driver.find_elements(By.CSS_SELECTOR, "input[type='password']"):
@@ -898,7 +905,7 @@ class PremiumPublisher:
             title_input.send_keys(title)
             print(f"✅ 제목 입력: {title[:50]}...")
             return True
-        except Exception as e:
+        except (TimeoutException, WebDriverException) as e:
             print(f"⚠️ 제목 입력 실패: {_safe_error_text(e)}")
             return False
 
@@ -917,7 +924,7 @@ class PremiumPublisher:
                         print("✅ 본문 HTML 입력 완료")
                         self.driver.switch_to.default_content()
                         return True
-                except Exception:
+                except (NoSuchElementException, WebDriverException):
                     self.driver.switch_to.default_content()
                     continue
 
@@ -960,7 +967,7 @@ class PremiumPublisher:
                     if cand:
                         photo_btn = cand
                         break
-                except Exception:
+                except (NoSuchElementException, WebDriverException):
                     continue
 
             if photo_btn is None:
@@ -1018,7 +1025,7 @@ class PremiumPublisher:
                 try:
                     if popup_window in self.driver.window_handles:
                         self.driver.close()
-                except Exception:
+                except WebDriverException:
                     pass
 
                 self.driver.switch_to.window(main_window)
@@ -1035,12 +1042,12 @@ class PremiumPublisher:
             self._set_error("session")
             print(f"⚠️ 이미지 업로드 중 세션 오류: {_safe_error_text(e)}")
             return False
-        except Exception as e:
+        except (NoSuchElementException, TimeoutException, WebDriverException, OSError) as e:
             print(f"⚠️ 이미지 업로드 실패: {_safe_error_text(e)}")
             try:
                 if main_window and self._session_alive():
                     self.driver.switch_to.window(main_window)
-            except Exception:
+            except (NoSuchWindowException, WebDriverException):
                 pass
             return False
 
@@ -1054,7 +1061,7 @@ class PremiumPublisher:
             time.sleep(2)
             print("✅ 글 제출 완료")
             return True
-        except Exception as e:
+        except (NoSuchElementException, WebDriverException) as e:
             print(f"⚠️ 제출 실패: {_safe_error_text(e)}")
             return False
 
@@ -1063,7 +1070,7 @@ class PremiumPublisher:
             return
         try:
             self.driver.quit()
-        except Exception:
+        except WebDriverException:
             pass
         finally:
             self.driver = None
@@ -1268,12 +1275,12 @@ def run_automation(start_from=7611, headless=False, verify_publish=True):
         try:
             if remove_thumb and thumb_path and os.path.exists(thumb_path):
                 os.remove(thumb_path)
-        except Exception:
+        except OSError:
             pass
         try:
             if publisher:
                 publisher.close()
-        except Exception:
+        except WebDriverException:
             pass
 
         run_report["finished_at"] = datetime.now(timezone.utc).isoformat()
@@ -1338,7 +1345,7 @@ class PremiumAutoApp:
             self._log(f"다음 타겟 번호: {next_target}")
             if next_target:
                 self.number_var.set(str(next_target))
-        except Exception as e:
+        except (ValueError, AttributeError, KeyError) as e:
             self._log(f"조회 실패: {_safe_error_text(e)}")
     def _run(self):
         number = self.number_var.get().strip()
