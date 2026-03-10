@@ -2,15 +2,10 @@ from __future__ import annotations
 
 from typing import Any, Dict, Mapping
 
+from core_engine.api_response import _compact  # noqa: F401 — canonical location
+
 
 RESERVED_WRAPPER_KEYS = {"request", "inputs", "input", "selector", "target", "meta", "context"}
-
-
-def _compact(value: Any, limit: int = 2000) -> str:
-    text = " ".join(str(value or "").split()).strip()
-    if limit > 0 and len(text) > limit:
-        return text[:limit].rstrip()
-    return text
 
 
 def _dict(value: Any) -> Dict[str, Any]:

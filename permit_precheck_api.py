@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any, Dict
 
 from core_engine.api_contract import normalize_v1_request
-from core_engine.api_response import build_response_envelope
+from core_engine.api_response import _compact, build_response_envelope
 from core_engine.tenant_gateway import TenantGateway
 from core_engine.channel_profiles import ChannelRouter
 from permit_diagnosis_calculator import (
@@ -62,13 +62,6 @@ CONFIG = load_config(
 logger = setup_logger(name="permit_precheck_api")
 
 SERVICE_NAME = "permit_precheck_api"
-
-
-def _compact(value: Any, limit: int = 2000) -> str:
-    text = " ".join(("" if value is None else str(value)).split()).strip()
-    if limit > 0 and len(text) > limit:
-        return text[:limit].rstrip()
-    return text
 
 
 def _json_dumps_compact(value: Any) -> str:

@@ -4,7 +4,7 @@ from typing import Any, Dict
 
 
 def _compact(value: Any, limit: int = 2000) -> str:
-    text = " ".join(str(value or "").split()).strip()
+    text = " ".join(("" if value is None else str(value)).split()).strip()
     if limit > 0 and len(text) > limit:
         return text[:limit].rstrip()
     return text

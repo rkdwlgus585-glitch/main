@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Dict, List, Tuple
 
+from core_engine.api_response import _compact
 from core_engine.tenant_gateway import TenantGateway
 from tenant_config.loader import load_gateway
 
@@ -78,13 +79,6 @@ def _cfg_int(key, default):
 
 def _now_iso():
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
-
-
-def _compact(value, limit=2000):
-    text = re.sub(r"\s+", " ", str(value or "")).strip()
-    if limit > 0 and len(text) > limit:
-        return text[:limit].rstrip()
-    return text
 
 
 def _parse_confidence_score(raw):
