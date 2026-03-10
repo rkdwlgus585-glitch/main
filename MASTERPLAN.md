@@ -363,6 +363,17 @@
 - **_repair 완전 제거 (8→0 패치)**: renderProofClaim/renderResult 동기화 후 제거(−120줄), typography 3+fallback 1 dead code 제거(−335줄), 마지막 2패치(checkbox-meta-box+tip-text) template 직접 반영 후 `_repair_generated_permit_html`+`_replace_first_block`+`_repair_log` 완전 삭제(−50줄). 총 −505줄. Template이 유일 source of truth.
 - **Quality**: 2025 tests + 94 subtests PASS. (dead code 테스트 21개+3 subtests 정리, 실질 커버리지 유지)
 
+### [2026-03-10] Session 22 — core_engine 테스트 보강 +121 / 플랫폼 프론트 전면 재설계
+- **permit_mapping_pipeline 테스트 2→60** (+58): MappingBatch, _normalize_text, _is_pending_row, _chunk, apply_mapping_pipeline 엣지케이스 전수 테스트
+- **tenant_gateway 테스트 8→71** (+63): constructor, resolve, check_feature/check_system, is_token_blocked, tenant_from_json_entry (colon-split, auto-detect, plan defaults), load_from_file 엣지케이스
+- **BUG FIX**: `load_tenant_gateway_from_file` JSON root가 list일 때 `AttributeError: 'list' has no attribute 'get'` 크래시. isinstance guard 추가.
+- **seoulmna.kr 플랫폼 프론트 전면 재설계**: 개발자 대시보드→고객 대면 전문 플랫폼 전환 (/2 directive 실행)
+  - 신규: trust-signals.tsx, pricing-comparison.tsx, consultation-cta.tsx
+  - 재설계: hero (고객 헤드라인+통계), site-header (전화번호 CTA), site-footer (3단 법적고지), capability-strip (사용자 혜택), workflow-grid (3단계 이용방법), platform-topology (데이터 출처 공개)
+  - CSS: design system 색상 반영 (Navy+Blue+Mint), Pretendard 폰트, 3단계 반응형
+  - 벤치마크: admini.kr (가격비교), superlawyer.co.kr (신뢰시그널), Toss (1-thing-per-page)
+- **Quality**: 2219 tests + 94 subtests PASS. Next.js 16.1.6 빌드 검증 완료.
+
 ### [2026-03-10] Session 21 — API 데이터 격리 버그 수정 + 엣지케이스 테스트 강화 + DRY canonical화 완결
 - **build_response_envelope shallow→deep copy 버그 수정**: `dict(business_payload)` → `copy.deepcopy(business_payload)`. 중첩 객체 참조 공유로 인한 응답 데이터 오염 방지. 테스트가 발견한 프로덕션 버그.
 - **API response contract 엣지케이스 +6**: None/empty payload, channel_id fallback, deep copy 격리, response_meta 필수 키 검증, 긴 channel_id 절삭
