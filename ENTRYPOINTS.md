@@ -27,15 +27,15 @@ This file defines launcher roles so operators can distinguish user launchers fro
 
 ## Canonical Real Launchers
 
-- `launchers/launch_gabji.bat` -> `gabji.py`
-- `launchers/launch_quote_engine.bat` -> `quote_engine.py`
-- `launchers/launch_listing_pipeline.bat` -> `all.py` (default) / `all.py --reconcile-published` (`reconcile`) / `all.py --reconcile-published --reconcile-sheet-only` (`reconcile-sheet`) / `reconcile-menu`
-- `launchers/launch_blog.bat` -> `mnakr.py` (`gui`, `--cli`, `--scheduler`, `--schedule-check`)
-- `launchers/launch_tistory_publish.bat` -> `tistory_ops/run.py publish-listing ...` (browser automation)
-- `launchers/launch_consult_match_scheduler.bat` -> `consult_match_scheduler.py --scheduler`
-- `launchers/launch_sales_pipeline.bat` -> `sales_pipeline.py`
-- `launchers/launch_listing_matcher.bat` -> `listing_matcher.py`
-- `launchers/launch_premium_auto.bat` -> `premium_auto.py`
+- `launchers/launch_gabji.bat` -> `../ALL/gabji.py`
+- `launchers/launch_quote_engine.bat` -> `../ALL/quote_engine.py`
+- `launchers/launch_listing_pipeline.bat` -> `../ALL/all.py` (default) / `../ALL/all.py --reconcile-published` (`reconcile`) / `../ALL/all.py --reconcile-published --reconcile-sheet-only` (`reconcile-sheet`) / `reconcile-menu`
+- `launchers/launch_blog.bat` -> `../ALL/mnakr.py` (`gui`, `--cli`, `--scheduler`, `--schedule-check`)
+- `launchers/launch_tistory_publish.bat` -> `../ALL/tistory_ops/run.py publish-listing ...` (browser automation)
+- `launchers/launch_consult_match_scheduler.bat` -> `../ALL/consult_match_scheduler.py --scheduler`
+- `launchers/launch_sales_pipeline.bat` -> `../ALL/sales_pipeline.py`
+- `launchers/launch_listing_matcher.bat` -> `../ALL/listing_matcher.py`
+- `launchers/launch_premium_auto.bat` -> `../ALL/premium_auto.py`
 - `launchers/launch_calculator_autodrive.bat` -> start/status/stop autodrive scripts
 
 ## Root Wrapper Behavior
@@ -96,7 +96,7 @@ py -3 scripts/show_entrypoints.py --json
 Check current blog publish schedule and run conditions:
 
 ```powershell
-py -3 mnakr.py --schedule-check
+py -3 ../ALL/mnakr.py --schedule-check
 ```
 
 ## Gate Verification

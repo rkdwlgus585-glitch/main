@@ -28,7 +28,10 @@ IGNORE_PARTS = {
 
 CALL_RE = re.compile(r'^\s*call\s+"%~dp0launchers\\([^"]+\.bat)"(?:\s+(.*))?$', re.IGNORECASE)
 GROUP_RE = re.compile(r"^\s*::\s*\[GROUP\]\s*([A-Za-z0-9_ -]+)\s*$", re.IGNORECASE)
-PY_RE = re.compile(r"^\s*python\s+([^\s]+\.py)\b(.*)$", re.IGNORECASE)
+PY_RE = re.compile(
+    r"^\s*(?:python|%PY(?:_CMD)?%|py\s+-3)\s+([^\s]+\.py)\b(.*)$",
+    re.IGNORECASE,
+)
 PY_REF_RE = re.compile(r"([A-Za-z0-9_./\\-]+\.py)\b")
 DELEGATE_BATCH_RE = re.compile(
     r"^\s*(?:call\s+)?(?:\"([^\"]+\.bat)\"|([^\"\s]+\.bat))(?:\s+.*)?$",

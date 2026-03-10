@@ -11,11 +11,11 @@ Use rule:
 ## Blog launcher
 
 Use `launchers/launch_blog.bat`:
-- `gui`: open GUI (`python mnakr.py`)
-- `auto`: one-shot auto publish (`python mnakr.py --cli`)
-- `scheduler`: continuous scheduler loop (`python mnakr.py --scheduler`)
-- `status`: schedule plan check (`python mnakr.py --schedule-check`)
-- `startup-once`: hidden startup runner (executes `mnakr.py --startup-once`, once/day)
+- `gui`: open GUI (`python ../ALL/mnakr.py`)
+- `auto`: one-shot auto publish (`python ../ALL/mnakr.py --cli`)
+- `scheduler`: continuous scheduler loop (`python ../ALL/mnakr.py --scheduler`)
+- `status`: schedule plan check (`python ../ALL/mnakr.py --schedule-check`)
+- `startup-once`: hidden startup runner (executes `../ALL/mnakr.py --startup-once`, once/day)
 - no args: menu prompt
 
 `블로그자동발행.bat` now forwards to `startup-once` mode by default.
@@ -74,7 +74,7 @@ Root wrappers:
 ## Listing launcher modes
 
 Use root `매물수집기.bat`:
-- no args: default collector (`launchers/launch_listing_pipeline.bat` -> `python all.py %*`)
+- no args: default collector (`launchers/launch_listing_pipeline.bat` -> `python ../ALL/all.py %*`)
 - `menu`: interactive mode select
 - `reconcile`: reconcile (sheet + seoul)
 - `reconcile-sheet`: reconcile sheet-only (no seoul login)
