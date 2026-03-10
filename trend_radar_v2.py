@@ -162,7 +162,7 @@ class TrendRadarV2:
             try:
                 with open(self.HISTORY_FILE, "r", encoding="utf-8") as f:
                     return json.load(f)
-            except Exception:
+            except (json.JSONDecodeError, OSError, ValueError):
                 return {"keywords": [], "topics": {}}
         return {"keywords": [], "topics": {}}
 
@@ -195,7 +195,7 @@ class TrendRadarV2:
                     if cached:
                         posts = cached
                         logger.info(f"cache hit: WP {len(posts)} posts")
-            except Exception:
+            except (json.JSONDecodeError, OSError, ValueError, TypeError):
                 pass
 
         if not posts:
@@ -381,7 +381,7 @@ class TrendRadarV2:
             try:
                 candidates.update(self._get_google(seed))
                 candidates.update(self._get_naver(seed))
-            except Exception:
+            except (requests.RequestException, ValueError, TypeError):
                 pass
             time.sleep(0.12)
 

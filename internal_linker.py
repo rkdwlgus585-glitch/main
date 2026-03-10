@@ -364,7 +364,6 @@ def generate_faq_schema(faqs):
             }
         })
     
-    import json
     return f'<script type="application/ld+json">{json.dumps(schema, ensure_ascii=False)}</script>'
 
 

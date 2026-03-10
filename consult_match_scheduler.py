@@ -81,6 +81,8 @@ def _same_local_day(iso_ts):
 
 def _parse_hhmm(value):
     raw = str(value or "").strip()
+    if ":" not in raw:
+        raise ValueError(f"invalid HH:MM time: {raw!r}")
     hh, mm = raw.split(":", 1)
     hh_i = int(hh)
     mm_i = int(mm)
