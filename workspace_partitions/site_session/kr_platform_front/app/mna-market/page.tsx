@@ -45,7 +45,7 @@ export default function MnaMarketPage() {
         ← 플랫폼 홈으로
       </Link>
 
-      <section className="market-hero">
+      <section className="market-hero" aria-label="매물 소개">
         <p className="eyebrow">양도양수 매물</p>
         <h1>건설업 면허 매물,<br />한 곳에서 비교하세요</h1>
         <p className="market-hero-body">
@@ -61,7 +61,7 @@ export default function MnaMarketPage() {
         </a>
       </section>
 
-      <section className="market-stats">
+      <section className="market-stats" aria-label="매물 통계">
         {stats.map((s) => (
           <div key={s.label} className="market-stat-card">
             <span className="market-stat-value">
@@ -72,7 +72,7 @@ export default function MnaMarketPage() {
         ))}
       </section>
 
-      <section className="market-features">
+      <section className="market-features" aria-label="주요 기능">
         <div className="section-header">
           <p className="eyebrow">주요 기능</p>
           <h2>실시간 매물이 특별한 이유</h2>
@@ -88,7 +88,7 @@ export default function MnaMarketPage() {
         </div>
       </section>
 
-      <section className="market-bridge">
+      <section className="market-bridge" aria-label="양도가 산정 안내">
         <div className="bridge-card">
           <div className="bridge-content">
             <h2>매물을 찾기 전에,<br />적정 가격부터 확인하세요</h2>

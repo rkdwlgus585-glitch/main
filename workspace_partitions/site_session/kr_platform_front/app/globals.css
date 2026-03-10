@@ -277,7 +277,6 @@ img { max-width: 100%; display: block; }
   margin: 0;
   font-size: clamp(1.4rem, 3vw, 1.8rem);
   font-weight: 800;
-  color: white;
 }
 
 .cta-content p {
@@ -422,11 +421,13 @@ img { max-width: 100%; display: block; }
 .page-shell section {
   margin-bottom: 28px;
 }
+/* No explicit color — h2 inherits from parent (body --ink or dark-bg white).
+   Previous `color: var(--ink)` at specificity (0,1,2) caused invisible h2s
+   inside dark-bg sections (.bridge-card, .consult-start, .cta-section). */
 .page-shell section h2 {
   margin: 0 0 8px;
   font-size: 1.1rem;
   font-weight: 700;
-  color: var(--ink);
 }
 .page-shell section p {
   margin: 0 0 8px;

@@ -61,7 +61,7 @@ export default function ConsultPage() {
         ← 플랫폼 홈으로
       </Link>
 
-      <section className="consult-hero">
+      <section className="consult-hero" aria-label="고객센터 소개">
         <p className="eyebrow">고객센터</p>
         <h1>AI 분석 다음 단계,<br />전문가가 이어갑니다</h1>
         <p className="consult-hero-body">
@@ -78,7 +78,7 @@ export default function ConsultPage() {
         </div>
       </section>
 
-      <section className="consult-benefits">
+      <section className="consult-benefits" aria-label="상담 장점">
         <div className="section-header">
           <p className="eyebrow">상담 장점</p>
           <h2>왜 서울건설정보인가요?</h2>
@@ -94,7 +94,7 @@ export default function ConsultPage() {
         </div>
       </section>
 
-      <section className="consult-steps">
+      <section className="consult-steps" aria-label="진행 절차">
         <div className="section-header">
           <p className="eyebrow">진행 절차</p>
           <h2>상담은 이렇게 진행됩니다</h2>
@@ -112,7 +112,7 @@ export default function ConsultPage() {
         </div>
       </section>
 
-      <section className="consult-start">
+      <section className="consult-start" aria-label="상담 시작 안내">
         <h2>지금 바로 시작하세요</h2>
         <p>
           AI 분석을 아직 안 해보셨다면, 먼저 무료 분석부터 시작하세요.

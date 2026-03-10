@@ -62,7 +62,7 @@ export default function KnowledgePage() {
         ← 플랫폼 홈으로
       </Link>
 
-      <section className="knowledge-hero">
+      <section className="knowledge-hero" aria-label="건설실무 소개">
         <p className="eyebrow">건설실무</p>
         <h1>건설업 전문가 수준의 지식,<br />누구나 쉽게 이해하도록</h1>
         <p className="knowledge-hero-body">
@@ -71,7 +71,7 @@ export default function KnowledgePage() {
         </p>
       </section>
 
-      <div className="knowledge-grid">
+      <div className="knowledge-grid" role="region" aria-label="지식 카테고리">
         {categories.map((cat) => (
           <div key={cat.title} className="knowledge-card">
             <div className="knowledge-card-header">
@@ -95,7 +95,7 @@ export default function KnowledgePage() {
         ))}
       </div>
 
-      <section className="knowledge-cta">
+      <section className="knowledge-cta" aria-label="블로그 안내">
         <p>
           더 많은 건설실무 콘텐츠는 블로그에서 확인하세요.
         </p>
