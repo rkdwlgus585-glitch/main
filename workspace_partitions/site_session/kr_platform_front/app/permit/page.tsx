@@ -171,7 +171,7 @@ export default function PermitPage() {
             {platformConfig.contactPhone} 전화 상담
           </a>
           <Link className="cta-secondary" href="/consult">
-            상담 안내 보기
+            고객센터 보기
           </Link>
         </div>
       </section>

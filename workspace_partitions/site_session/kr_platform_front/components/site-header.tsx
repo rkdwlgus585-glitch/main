@@ -4,6 +4,14 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { platformConfig } from "@/components/platform-config";
 
+const navItems = [
+  { href: "/mna-market", label: "실시간 매물" },
+  { href: "/permit", label: "건설업등록" },
+  { href: "/yangdo", label: "양도가 산정" },
+  { href: "/knowledge", label: "건설실무" },
+  { href: "/consult", label: "고객센터" },
+];
+
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
 
@@ -37,11 +45,11 @@ export function SiteHeader() {
         className={`site-nav${open ? " site-nav--open" : ""}`}
         aria-label="주요 메뉴"
       >
-        <Link href="/yangdo" onClick={() => setOpen(false)}>양도가 산정</Link>
-        <Link href="/permit" onClick={() => setOpen(false)}>인허가 사전검토</Link>
-        <Link href="/knowledge" onClick={() => setOpen(false)}>건설업 지식</Link>
-        <Link href="/mna-market" onClick={() => setOpen(false)}>매물 시장</Link>
-        <Link href="/consult" onClick={() => setOpen(false)}>상담</Link>
+        {navItems.map((item) => (
+          <Link key={item.href} href={item.href} onClick={() => setOpen(false)}>
+            {item.label}
+          </Link>
+        ))}
         <a href={`tel:${platformConfig.contactPhone}`} className="nav-phone">
           {platformConfig.contactPhone}
         </a>

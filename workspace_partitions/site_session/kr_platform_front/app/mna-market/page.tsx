@@ -3,7 +3,7 @@ import Link from "next/link";
 import { platformConfig } from "@/components/platform-config";
 
 export const metadata: Metadata = {
-  title: "양도양수 매물 시장 | 서울건설정보",
+  title: "실시간 매물 | 서울건설정보",
   description:
     "건설업 면허 양도양수 매물을 한눈에 확인하세요. 전문 행정사가 검증한 실매물과 AI 양도가 분석을 함께 제공합니다.",
 };
@@ -57,7 +57,7 @@ export default function MnaMarketPage() {
           href={platformConfig.listingHost}
           rel="noreferrer noopener"
         >
-          매물 시장 바로가기 →
+          실시간 매물 바로가기 →
         </a>
       </section>
 
@@ -75,7 +75,7 @@ export default function MnaMarketPage() {
       <section className="market-features">
         <div className="section-header">
           <p className="eyebrow">주요 기능</p>
-          <h2>매물 시장이 특별한 이유</h2>
+          <h2>실시간 매물이 특별한 이유</h2>
         </div>
         <div className="features-grid">
           {marketFeatures.map((f) => (
@@ -105,7 +105,7 @@ export default function MnaMarketPage() {
                 href={platformConfig.listingHost}
                 rel="noreferrer noopener"
               >
-                매물 시장 둘러보기
+                실시간 매물 둘러보기
               </a>
             </div>
           </div>

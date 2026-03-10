@@ -19,7 +19,7 @@ export function Hero() {
             무료 양도가 산정 시작
           </Link>
           <Link className="cta-secondary" href="/permit">
-            인허가 사전검토 시작
+            건설업등록 시작
           </Link>
         </div>
       </div>

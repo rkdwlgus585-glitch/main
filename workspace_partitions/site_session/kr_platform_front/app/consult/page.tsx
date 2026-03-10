@@ -3,7 +3,7 @@ import Link from "next/link";
 import { platformConfig } from "@/components/platform-config";
 
 export const metadata: Metadata = {
-  title: "전문 상담 | 서울건설정보",
+  title: "고객센터 | 서울건설정보",
   description:
     "건설업 양도양수, 인허가, 면허 관리까지 — AI 분석 결과를 바탕으로 건설업 전문 행정사가 직접 상담합니다.",
 };
@@ -62,7 +62,7 @@ export default function ConsultPage() {
       </Link>
 
       <section className="consult-hero">
-        <p className="eyebrow">전문 상담</p>
+        <p className="eyebrow">고객센터</p>
         <h1>AI 분석 다음 단계,<br />전문가가 이어갑니다</h1>
         <p className="consult-hero-body">
           AI가 산정한 양도가와 인허가 진단 결과를 바탕으로
@@ -123,7 +123,7 @@ export default function ConsultPage() {
             양도가 산정하기
           </Link>
           <Link className="cta-secondary" href="/permit">
-            인허가 사전검토하기
+            건설업등록 검토하기
           </Link>
           <a className="cta-secondary" href={`tel:${platformConfig.contactPhone}`}>
             📞 바로 전화하기

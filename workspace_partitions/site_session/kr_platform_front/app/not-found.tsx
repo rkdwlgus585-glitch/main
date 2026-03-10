@@ -16,7 +16,7 @@ export default function NotFound() {
       <div className="not-found-links">
         <Link href="/" className="cta-primary">홈으로 돌아가기</Link>
         <Link href="/yangdo" className="cta-secondary not-found-secondary">AI 양도가 산정</Link>
-        <Link href="/permit" className="cta-secondary not-found-secondary">AI 인허가 사전검토</Link>
+        <Link href="/permit" className="cta-secondary not-found-secondary">건설업등록</Link>
       </div>
     </main>
   );
