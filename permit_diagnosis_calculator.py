@@ -4,6 +4,7 @@ import gzip
 import json
 import re
 from datetime import date, timedelta
+from urllib.parse import urlparse
 from html import escape
 from pathlib import Path
 from typing import Any, Dict
@@ -658,7 +659,8 @@ def _is_objective_source_url(url: str) -> bool:
     src = str(url or "").strip().lower()
     if not src.startswith("http"):
         return False
-    return any(host in src for host in OBJECTIVE_SOURCE_HOSTS)
+    netloc = urlparse(src).netloc.split(":")[0]
+    return any(netloc == host or netloc.endswith("." + host) for host in OBJECTIVE_SOURCE_HOSTS)
 
 
 def _coerce_non_negative_float(value) -> float:

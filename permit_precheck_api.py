@@ -739,7 +739,7 @@ class PermitUsageStore:
                 """,
                 (
                     key,
-                    _month_key(),
+                    received_at[:7],
                     int(estimated_tokens),
                     1 if status == "ok" else 0,
                     1 if status != "ok" else 0,
@@ -1284,7 +1284,6 @@ class Handler(BaseHTTPRequestHandler):
                     {
                         "ok": False,
                         "error": "plan_usage_limit_exceeded",
-                        "tenant_id": str(usage_before.get("tenant_id") or ""),
                         "tenant_plan": str(usage_before.get("plan") or "unknown"),
                         "usage_events": int(usage_before.get("usage_events", 0) or 0),
                         "max_usage_events": int(usage_before.get("max_usage_events", 0) or 0),

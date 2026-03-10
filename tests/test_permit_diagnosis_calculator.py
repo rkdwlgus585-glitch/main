@@ -226,6 +226,19 @@ class IsObjectiveSourceUrlTest(unittest.TestCase):
     def test_no_http(self):
         self.assertFalse(_is_objective_source_url("ftp://law.go.kr"))
 
+    def test_spoofed_host_rejected(self):
+        """Crafted URL that contains 'gov.kr' as substring but is not a .gov.kr host."""
+        self.assertFalse(_is_objective_source_url("https://evil-gov.kr.attacker.com/page"))
+
+    def test_spoofed_subdomain_rejected(self):
+        self.assertFalse(_is_objective_source_url("https://notgov.kr/page"))
+
+    def test_exact_host_match(self):
+        self.assertTrue(_is_objective_source_url("https://gov.kr/page"))
+
+    def test_deep_subdomain(self):
+        self.assertTrue(_is_objective_source_url("https://portal.law.go.kr/path"))
+
 
 # ---------------------------------------------------------------------------
 # _coerce_non_negative_float / _coerce_non_negative_int

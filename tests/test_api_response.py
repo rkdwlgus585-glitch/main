@@ -120,6 +120,10 @@ class SafeJsonForScriptTest(unittest.TestCase):
         result = safe_json_for_script({"t": "a\u2029b"})
         self.assertNotIn("\u2029", result)
 
+    def test_html_comment_escape(self):
+        result = safe_json_for_script({"t": "<!-- comment -->"})
+        self.assertNotIn("<!--", result)
+
     def test_roundtrip(self):
         import json
         data = {"key": "value", "num": 42}

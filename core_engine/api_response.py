@@ -15,6 +15,7 @@ def safe_json_for_script(data: Any) -> str:
     text = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
     return (
         text.replace("</", "<\\/")
+        .replace("<!--", "<\\!--")
         .replace("\u2028", "\\u2028")
         .replace("\u2029", "\\u2029")
     )

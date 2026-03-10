@@ -46,27 +46,29 @@ def _safe_list(values: Any) -> List[Any]:
     return [values]
 
 
+_INPUT_ALIASES: Dict[str, List[str]] = {
+    "capital_eok": ["current_capital_eok"],
+    "technicians": ["technicians_count", "current_technicians"],
+    "technicians_count": ["technicians", "current_technicians"],
+    "equipment_count": ["current_equipment_count"],
+    "deposit_days": ["current_deposit_days"],
+    "office_secured": ["current_office_secured"],
+    "facility_secured": ["current_facility_secured"],
+    "guarantee_secured": ["current_guarantee_secured"],
+    "insurance_secured": ["current_insurance_secured"],
+    "qualification_secured": ["current_qualification_secured"],
+    "document_ready": ["current_document_ready"],
+    "safety_secured": ["current_safety_secured"],
+    "qualification_count": ["current_qualification_count"],
+}
+
+
 def _resolve_input(inputs: Dict[str, Any], key: str) -> Any:
     if not key:
         return None
     if key in inputs:
         return inputs.get(key)
-    aliases = {
-        "capital_eok": ["capital_eok", "current_capital_eok"],
-        "technicians": ["technicians", "technicians_count", "current_technicians"],
-        "technicians_count": ["technicians_count", "technicians", "current_technicians"],
-        "equipment_count": ["equipment_count", "current_equipment_count"],
-        "deposit_days": ["deposit_days", "current_deposit_days"],
-        "office_secured": ["office_secured", "current_office_secured"],
-        "facility_secured": ["facility_secured", "current_facility_secured"],
-        "guarantee_secured": ["guarantee_secured", "current_guarantee_secured"],
-        "insurance_secured": ["insurance_secured", "current_insurance_secured"],
-        "qualification_secured": ["qualification_secured", "current_qualification_secured"],
-        "document_ready": ["document_ready", "current_document_ready"],
-        "safety_secured": ["safety_secured", "current_safety_secured"],
-        "qualification_count": ["qualification_count", "current_qualification_count"],
-    }
-    for alias in aliases.get(key, []):
+    for alias in _INPUT_ALIASES.get(key, []):
         if alias in inputs:
             return inputs.get(alias)
     return None

@@ -228,9 +228,10 @@ def _build_tags(payload) -> list[str]:
 
 class ConsultStore:
     def __init__(self, db_path) -> None:
-        self.db_path = db_path
-        os.makedirs(os.path.dirname(self.db_path) or ".", exist_ok=True)
-        self._init_db()
+        self.db_path = str(db_path or "").strip()
+        if self.db_path:
+            os.makedirs(os.path.dirname(self.db_path) or ".", exist_ok=True)
+            self._init_db()
 
     def _init_db(self) -> None:
         conn = sqlite3.connect(self.db_path, timeout=30)

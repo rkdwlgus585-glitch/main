@@ -1,8 +1,7 @@
 ﻿import os
 import re
-from datetime import datetime
 from html import escape
-from core_engine.api_response import safe_json_for_script
+from core_engine.api_response import now_iso, safe_json_for_script
 from core_engine.channel_branding import resolve_channel_branding
 def _round4(value):
     if value is None:
@@ -232,7 +231,7 @@ def build_meta(all_records, train_dataset):
     all_count = len(list(all_records or []))
     train_count = len(list(train_dataset or []))
     return {
-        "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "generated_at": now_iso(),
         "all_record_count": all_count,
         "train_count": train_count,
         "priced_ratio": _round4((train_count / max(1, all_count)) * 100.0),
