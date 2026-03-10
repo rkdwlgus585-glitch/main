@@ -78,6 +78,33 @@
 | 특허 | 98% | canonical attorney handoff + claim 9건(양도5+아키텍처3+구조화1), typed_criteria 자동 구조화 특허 claim 추가 |
 | 품질 기준 | 100% | 2068 tests + 94 subtests PASS, permit 80/80+precheck_api 24/24+yangdo 22/22 함수 100% 커버리지, 전 코어 파일 return type 100%(241 함수), core_engine 11/11 모듈 100%, HTML 통합 41, _repair 완전 제거(8→0, template single source of truth), a11y WCAG AA 검증 7+3, 글로벌 JS 에러 경계 6, XSS 전수 감사, regex DoS 방어, broad except 코어 0건(외부 API 3건 유지), DRY −1030줄, safe_json+now_iso+_METADATA_MERGE_KEYS+sanitize_endpoint canonical화, build_response_envelope deep copy 수정, P1 보안(tenant_id/URL spoofing/ConsultStore)+SSRF+CRM 정보누출 차단, UTF-8 BOM 전수 정리+.editorconfig+.gitattributes |
 
+## 영업 준비 상태 (Business Readiness Assessment — Session 21)
+
+### 백분율 요약
+| 영업 범위 | 완성도 | 핵심 병목 |
+|-----------|--------|----------|
+| ① seoulmna.kr 완벽 배포 | 92% | 서버 live 반영 미실행 (코드 100%, 인프라 배포 미완) |
+| ② seoulmna.co.kr 이식 (CTA 브리지) | 88% | .kr live 선행 필요 + 브리지 JS 실 삽입 미완 |
+| ③ 타사 임대 (위젯/API) | 78% | 파트너 입력값 0건 + 공개 API 문서 부재 + WSGI 미구축 |
+
+### 최적 배포 형태
+- **① .kr 직접 배포**: WordPress/Astra + Reverse Proxy + Python API 백엔드 (1일 내 가능)
+- **② .co.kr 이식**: CTA 브리지만 (계산기 미임베드, `.kr` 서비스 페이지로 유도)
+- **③-1 위젯 임대**: iframe + API키 인증 (파트너 개발 불필요, 1주 내 데모 가능)
+- **③-2 API 직접 연동**: REST API + JSON + OpenAPI spec (파트너 자체 UI, 1개월 내)
+
+### 즉시 영업까지 남은 작업
+| 작업 | 분류 | 예상 소요 | 선행 조건 |
+|------|------|----------|----------|
+| WordPress live 반영 (`--confirm-live YES`) | 배포 | 1~2시간 | 없음 |
+| Reverse proxy 실 설정 (nginx/CloudFlare) | 인프라 | 30분~1시간 | 서버 접근 |
+| `/_calc/*` SSL + 캐시 바이패스 | 인프라 | 15분 | proxy 설정 |
+| .co.kr 브리지 JS 실 삽입 | 배포 | 30분 | ① 완료 |
+| 공개 API 문서 (OpenAPI/Swagger) | 개발 | 4~8시간 | 없음 |
+| 프로덕션 서버 (gunicorn + systemd/docker) | 인프라 | 2~4시간 | 없음 |
+| 파트너 데모/샌드박스 | 개발 | 4~8시간 | API 문서 |
+| 결제 연동 (Stripe/토스페이먼츠) | 개발 | 1~2주 | 사업자 계약 |
+
 ## 3-Tier Automation Architecture
 - **Tier 1: Orchestrator (Claude)**: 전체 전략 수립, 시스템 아키텍처 매핑, 하위 태스크 분할 및 에이전트 위임 제어.
 - **Tier 2: Documenter (Gemini CLI)**: 배포 로그, 문서화 갱신, 구조화된 리포트 생성 및 headless pipe 모드 연동.
