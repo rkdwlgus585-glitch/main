@@ -1067,7 +1067,7 @@ _BaseYangdoUsageStore = globals()["YangdoUsageStore"]
 
 
 class YangdoUsageStore(_BaseYangdoUsageStore):
-    def usage_snapshot(self, *args, **kwargs):
+    def usage_snapshot(self, *args, **kwargs) -> Dict[str, Any]:
         try:
             return super().usage_snapshot(*args, **kwargs)
         except (sqlite3.Error, OSError, TypeError, KeyError, ValueError):
@@ -1086,7 +1086,7 @@ class YangdoUsageStore(_BaseYangdoUsageStore):
                 "blocked": False,
             }
 
-    def insert_estimate_usage(self, *args, **kwargs):
+    def insert_estimate_usage(self, *args, **kwargs) -> Optional[Dict[str, Any]]:
         try:
             return super().insert_estimate_usage(*args, **kwargs)
         except (sqlite3.Error, OSError, TypeError, KeyError, ValueError):
@@ -1095,15 +1095,15 @@ class YangdoUsageStore(_BaseYangdoUsageStore):
 
 class YangdoBlackboxEstimator(_BaseYangdoBlackboxEstimator):
     @classmethod
-    def _is_separate_balance_group_token(cls, raw):
+    def _is_separate_balance_group_token(cls, raw) -> bool:
         return _is_special_license_text(raw)
 
     @classmethod
-    def _is_balance_separate_paid_group(cls, target):
+    def _is_balance_separate_paid_group(cls, target) -> bool:
         target = target or {}
         return _is_special_license_text(target.get("license_text") or target.get("raw_license_key") or target.get("license_tokens"))
 
-    def _target_from_payload(self, payload):
+    def _target_from_payload(self, payload) -> Dict[str, Any]:
         data = dict(payload or {})
         out = super()._target_from_payload(data)
         license_text = _normalize_license_text(data.get("license_text") or out.get("license_text"))
@@ -1146,7 +1146,7 @@ class YangdoBlackboxEstimator(_BaseYangdoBlackboxEstimator):
         out["buyer_takes_balance_as_credit"] = balance_mode == "credit_transfer"
         return out
 
-    def estimate(self, payload):
+    def estimate(self, payload) -> Dict[str, Any]:
         data = dict(payload or {})
         target = self._target_from_payload(data)
         result = dict(super().estimate(data) or {})
@@ -1269,7 +1269,7 @@ class YangdoBlackboxEstimator(_BaseYangdoBlackboxEstimator):
 _ORIGINAL_HANDLER_DO_GET = getattr(Handler, "do_GET", None)
 
 
-def _patched_handler_do_get(self):  # noqa: ANN001
+def _patched_handler_do_get(self) -> None:  # noqa: ANN001
     path = str(getattr(self, "path", "") or "").split("?", 1)[0]
     if path in {"/health", "/v1/health"}:
         if hasattr(self, "_allow_request") and not self._allow_request():
