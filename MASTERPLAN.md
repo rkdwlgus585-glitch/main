@@ -379,15 +379,15 @@
 - **_repair 완전 제거 (8→0 패치)**: renderProofClaim/renderResult 동기화 후 제거(−120줄), typography 3+fallback 1 dead code 제거(−335줄), 마지막 2패치(checkbox-meta-box+tip-text) template 직접 반영 후 `_repair_generated_permit_html`+`_replace_first_block`+`_repair_log` 완전 삭제(−50줄). 총 −505줄. Template이 유일 source of truth.
 - **Quality**: 2025 tests + 94 subtests PASS. (dead code 테스트 21개+3 subtests 정리, 실질 커버리지 유지)
 
-### [2026-03-11] Session 37 — AI 시스템 가시성 강화 + 영상 희망 분위기 개선
-- **Hero 텍스트 고객 대면 전환**: badge/kicker/h1/body 전체 → 개발자 언어에서 고객 대면 AI 시스템 중심 문구로 전면 교체
-- **hero-ai-pills**: 2개 AI 시스템(양도가 산정·인허가 사전검토) glass-morphism pill 미니카드를 Hero 영역에 직접 노출 (무료 태그 포함, seoulmna.kr 외부 링크)
-- **AiToolBridge 상향 배치**: 6번째→2번째 섹션(trust-strip 직후)으로 이동, `featured` prop+CSS 변형(accent 그라데이션, 56px 아이콘, glow hover)
-- **비디오 오버레이 희망 분위기**: `.co.kr` + `.kr` 양쪽 모두 mint 힌트(rgba(13,187,146,0.06)) + 밝은 그라데이션으로 성공/희망 분위기 전환
-- **비디오 캡션**: "현장감 있는 메인 비주얼…" → "성공적인 건설 사업의 시작" 고객 메시지
-- **하단 CTA + Operating Flow**: 개발자 언어 → AI 시스템 중심 고객 대면 문구로 교체
-- **콘텐츠 인프라 강화**: normalizeImportedHref() URL 정규화, MNA 가이드 연결, 타이틀 중복 방어, sitemap/manifest 확장
-- **Quality**: .co.kr 빌드 클린 (1900+ SSG pages), .kr 빌드 검증 대기, Python 2678+94 PASS
+### [2026-03-11] Session 37 — 시스템 품질·보안·플랫폼 5건 + AI 가시성 강화
+- **인허가 config drift 감지 테스트** (12개): 245 업종 JSON 구조 무결성, typed_criteria 카테고리 유효성, evaluate_typed_criteria 전 업종 crash-free 검증, rule_criteria_packs 54팩 참조 해결 ≥80%
+- **성능 회귀 테스트** (7개): build_html 레이턴시 baseline (permit <8s, yangdo <5s), HTML 구조 검증, estimateRemote sanitizePlain 적용 회귀 방어
+- **양도 estimateRemote 입력 방어**: 7개 텍스트 필드(license_text/sales_input_mode/reorg_mode/balance_usage_mode/company_type/credit_level/admin_history)에 sanitizePlain 적용 — defense-in-depth 완성
+- **Widget PostMessage 핸드셰이크**: origin 검증(null+engine origins), nonce 기반 handshake, widget-ready/widget-resize/widget-error 3종 메시지 프로토콜, 동적 iframe 높이(hardcoded 1400px→자동)
+- **특허 증거 번들 버전 앵커**: git_commit hash + expanded_criteria/focus_seed/focus_family SHA-256 digest 주입 — 코드↔증거 동기화 보장
+- **Hero 텍스트 고객 대면 전환**: badge/kicker/h1/body → AI 시스템 중심 문구 (.co.kr, Cursor 별도 관리)
+- **비디오 오버레이 희망 분위기**: `.kr` mint 힌트 + 밝은 그라데이션
+- **Quality**: 2697 tests + 94 subtests PASS (+19), .kr 19/19 pages 빌드 검증
 
 ### [2026-03-10] Session 36 — .co.kr JSON-LD 전면 확장 + 코드 품질 감사
 - **JSON-LD Service schema (4페이지)**: `ServiceDetailPage` 컴포넌트에 `Service` 스키마 내장 — registration, corporate, split-merger, practice 4개 서비스 페이지에 자동 적용 (DRY)
