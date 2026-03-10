@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function PermitWidgetPage() {
   return (
-    <main className="product-page">
+    <main id="main" className="product-page">
       <Link className="back-link" href="/permit">
         인허가 안내 페이지로
       </Link>

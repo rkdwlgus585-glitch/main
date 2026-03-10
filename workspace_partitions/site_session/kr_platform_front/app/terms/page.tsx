@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <main className="page-shell">
+    <main id="main" className="page-shell">
       <h1>이용약관</h1>
 
       <section>

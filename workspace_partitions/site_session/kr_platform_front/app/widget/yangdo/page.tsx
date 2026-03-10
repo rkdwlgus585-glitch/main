@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function YangdoWidgetPage() {
   return (
-    <main className="product-page">
+    <main id="main" className="product-page">
       <Link className="back-link" href="/yangdo">
         양도가 안내 페이지로
       </Link>

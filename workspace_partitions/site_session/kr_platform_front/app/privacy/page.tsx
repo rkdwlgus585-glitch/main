@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <main className="page-shell">
+    <main id="main" className="page-shell">
       <h1>개인정보처리방침</h1>
 
       <section>
