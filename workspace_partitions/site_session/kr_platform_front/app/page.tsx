@@ -62,7 +62,7 @@ function HomeJsonLd() {
 
 export default function HomePage() {
   return (
-    <main className="page-shell page-shell--home">
+    <main id="main" className="page-shell page-shell--home">
       <HomeJsonLd />
       <PlatformStatus />
       <HomeHero />

@@ -19,7 +19,7 @@ const steps = [
 
 export function HomeProcess() {
   return (
-    <section className="home-process-section">
+    <section className="home-process-section" aria-label="이용 절차">
       <div className="section-header">
         <p className="eyebrow">이용 절차</p>
         <h2>4단계로 완료되는 건설업 양도양수</h2>

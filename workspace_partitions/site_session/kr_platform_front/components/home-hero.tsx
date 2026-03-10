@@ -10,7 +10,7 @@ const metrics = [
 
 export function HomeHero() {
   return (
-    <section className="home-hero">
+    <section className="home-hero" aria-label="메인 소개">
       <div className="home-hero-grid">
         <div className="home-hero-copy">
           <p className="home-hero-kicker">건설업 양도양수 · 건설업등록 전문 플랫폼</p>

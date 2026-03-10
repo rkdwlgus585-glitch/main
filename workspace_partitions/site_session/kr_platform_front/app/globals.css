@@ -37,6 +37,7 @@
 
 /* ── Reset ─────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
 html, body { margin: 0; padding: 0; }
 body {
   color: var(--ink);
@@ -222,7 +223,8 @@ img { max-width: 100%; display: block; }
   color: white;
 }
 
-.cta-primary:hover {
+.cta-primary:hover,
+.cta-primary:focus-visible {
   background: #0090E0;
   transform: translateY(-1px);
   box-shadow: 0 4px 16px rgba(0, 163, 255, 0.3);
@@ -468,6 +470,7 @@ img { max-width: 100%; display: block; }
 
 /* ── Reduced motion ──────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
@@ -1005,10 +1008,12 @@ img { max-width: 100%; display: block; }
   position: relative;
   z-index: 1;
   margin: 0;
-  font-size: clamp(2.2rem, 4vw, 3.7rem);
+  font-size: clamp(2rem, 3.6vw, 3.2rem);
   font-weight: 800;
-  line-height: 1.08;
-  letter-spacing: -0.04em;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+  word-break: keep-all;
 }
 
 .home-hero-copy h1 span {
@@ -1142,7 +1147,8 @@ img { max-width: 100%; display: block; }
   transition: transform 220ms var(--ease), box-shadow 220ms var(--ease), border-color 220ms var(--ease);
 }
 
-.home-shortcut-card:hover {
+.home-shortcut-card:hover,
+.home-shortcut-card:focus-visible {
   transform: translateY(-3px);
   border-color: rgba(0, 163, 255, 0.22);
   box-shadow: var(--shadow-md);
@@ -1266,6 +1272,14 @@ img { max-width: 100%; display: block; }
   background: rgba(255, 255, 255, 0.95);
   border: 1px solid var(--line);
   box-shadow: var(--shadow-sm);
+  transition: transform 220ms var(--ease), box-shadow 220ms var(--ease), border-color 220ms var(--ease);
+}
+
+.home-operation-card:hover,
+.home-process-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(0, 163, 255, 0.18);
+  box-shadow: var(--shadow-md);
 }
 
 .home-operations-layout {
@@ -1275,6 +1289,9 @@ img { max-width: 100%; display: block; }
 }
 
 .home-operations-spotlight {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   padding: 30px;
   background:
     radial-gradient(circle at top right, rgba(0, 163, 255, 0.14), transparent 34%),
@@ -1401,19 +1418,40 @@ img { max-width: 100%; display: block; }
 
 @media (max-width: 640px) {
   .home-hero-copy h1 {
-    font-size: 2rem;
+    font-size: 1.75rem;
+  }
+
+  .home-hero-copy {
+    padding: 28px 20px;
   }
 
   .home-video-frame {
-    min-height: 320px;
+    min-height: 260px;
   }
 
-  .home-hero-metrics,
+  .home-hero-metrics {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .home-metric-card {
+    padding: 12px 10px;
+  }
+
+  .home-metric-card strong {
+    font-size: 1.1rem;
+  }
+
   .home-shortcuts-grid,
   .home-operations-grid,
   .home-process-grid,
   .market-highlights-grid {
     grid-template-columns: 1fr;
+  }
+
+  .market-brief-header {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 

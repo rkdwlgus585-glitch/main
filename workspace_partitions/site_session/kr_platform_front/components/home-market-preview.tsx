@@ -26,7 +26,7 @@ const highlights = [
 
 export function HomeMarketPreview() {
   return (
-    <section className="market-brief-section" id="market-brief">
+    <section className="market-brief-section" id="market-brief" aria-label="실시간 매물 안내">
       <div className="market-brief-header">
         <div className="section-header">
           <p className="eyebrow">실시간 매물</p>

@@ -30,7 +30,7 @@ const operations: Array<{
 
 export function HomeOperations() {
   return (
-    <section className="home-operations-section">
+    <section className="home-operations-section" aria-label="서비스 안내">
       <div className="home-operations-layout">
         <div className="home-operations-spotlight">
           <p className="eyebrow">서비스 안내</p>

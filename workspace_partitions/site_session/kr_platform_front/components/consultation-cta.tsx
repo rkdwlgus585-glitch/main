@@ -2,7 +2,7 @@ import { platformConfig } from "@/components/platform-config";
 
 export function ConsultationCTA() {
   return (
-    <section className="cta-section">
+    <section className="cta-section" aria-label="전문 상담 안내">
       <div className="cta-content">
         <h2>건설업 면허 양도양수, 전문 상담이 필요하신가요?</h2>
         <p>
