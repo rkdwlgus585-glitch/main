@@ -14,15 +14,15 @@ export default function YangdoWidgetPage() {
   return (
     <main className="product-page">
       <Link className="back-link" href="/yangdo">
-        {"\uc591\ub3c4\uac00 \uc548\ub0b4 \ud398\uc774\uc9c0\ub85c"}
+        양도가 안내 페이지로
       </Link>
       <WidgetFrame
-        title={"\uac74\uc124\uc5c5 AI \uc591\ub3c4\uac00 \uc0b0\uc815"}
-        description={"\uc591\ub3c4\uac00 \ubc94\uc704\ub97c \ucd94\uc815\ud558\ub294 \uc804\uc6a9 \uc2e4\ud589 \ud654\uba74\uc785\ub2c8\ub2e4."}
+        title="건설업 AI 양도가 산정"
+        description="양도가 범위를 추정하는 전용 실행 화면입니다."
         widgetUrl={widgetUrl("yangdo")}
-        eyebrow={"\uc804\uc6a9 \uc2e4\ud589 \ud654\uba74"}
-        launchLabel={"\uc804\uc6a9 \ud654\uba74\uc5d0\uc11c \uc591\ub3c4\uac00 \uc2e4\ud589"}
-        gateNote={"\uac80\uc0c9 \ubd07\uacfc \uc6d0\uce58 \uc54a\ub294 \ud638\ucd9c\uc744 \ub9c9\uae30 \uc704\ud574, \uc774 \ud398\uc774\uc9c0\ub3c4 \uc2e4\ud589 \ubc84\ud2bc\uc744 \ub204\ub978 \ud6c4\uc5d0\ub9cc iframe\uc744 \uc5fd\ub2c8\ub2e4."}
+        eyebrow="전용 실행 화면"
+        launchLabel="전용 화면에서 양도가 실행"
+        gateNote="검색 봇과 원치 않는 호출을 막기 위해, 이 페이지도 실행 버튼을 누른 후에만 iframe을 엽니다."
       />
     </main>
   );

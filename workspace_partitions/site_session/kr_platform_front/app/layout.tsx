@@ -37,9 +37,7 @@ export const metadata: Metadata = {
     "면허 가격",
     "서울건설정보",
   ],
-  other: {
-    "google-site-verification": "",
-  },
+  /* google-site-verification: add token when Search Console is verified */
 };
 
 function JsonLd() {
@@ -67,8 +65,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="ko">
       <body>
         <JsonLd />
+        <a className="skip-link" href="#main-content">
+          본문 바로가기
+        </a>
         <SiteHeader />
-        {children}
+        <div id="main-content">{children}</div>
         <SiteFooter />
       </body>
     </html>

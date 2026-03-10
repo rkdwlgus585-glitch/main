@@ -3,7 +3,7 @@ export const platformConfig = {
   brandTagline: "건설업 AI 전문 플랫폼",
   platformFrontHost: process.env.NEXT_PUBLIC_PLATFORM_FRONT_HOST || "https://seoulmna.kr",
   listingHost: process.env.NEXT_PUBLIC_LISTING_HOST || "https://seoulmna.co.kr",
-  contentHost: process.env.NEXT_PUBLIC_LISTING_HOST || "https://seoulmna.co.kr",
+  contentHost: process.env.NEXT_PUBLIC_CONTENT_HOST || "https://seoulmna.co.kr",
   widgetConsumerHost: process.env.NEXT_PUBLIC_LISTING_HOST || "https://seoulmna.co.kr",
   calculatorMountBase:
     process.env.NEXT_PUBLIC_CALCULATOR_MOUNT_BASE || "https://seoulmna.kr/_calc",

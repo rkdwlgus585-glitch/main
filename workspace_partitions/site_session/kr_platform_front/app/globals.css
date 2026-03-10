@@ -810,6 +810,16 @@ img { max-width: 100%; display: block; }
 .widget-gate p { margin: 0; color: var(--muted); }
 .widget-launch-button { min-height: 52px; border: 0; border-radius: var(--radius-pill); background: var(--brand); color: white; font-weight: 700; font-size: 0.95rem; padding: 0 24px; cursor: pointer; justify-self: start; transition: all 200ms var(--ease); }
 .widget-launch-button:hover { background: var(--brand-light); transform: translateY(-1px); }
+.widget-viewport { position: relative; min-height: 200px; }
+.widget-loading { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 48px 24px; }
+.widget-loading p { margin: 0; color: var(--muted); font-weight: 500; }
+.widget-spinner { width: 36px; height: 36px; border: 3px solid var(--line); border-top-color: var(--point); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.widget-error { display: grid; gap: 10px; padding: 32px 24px; text-align: center; border: 1px dashed var(--red); border-radius: var(--radius-lg); background: rgba(255, 71, 87, 0.04); }
+.widget-error p { margin: 0; color: var(--ink); font-weight: 600; }
+.widget-error-hint { color: var(--muted) !important; font-weight: 400 !important; font-size: 0.875rem; }
+.widget-retry-button { min-height: 44px; border: 0; border-radius: var(--radius-pill); background: var(--brand); color: white; font-weight: 700; font-size: 0.875rem; padding: 0 20px; cursor: pointer; justify-self: center; transition: all 200ms var(--ease); }
+.widget-retry-button:hover { background: var(--brand-light); transform: translateY(-1px); }
 .widget-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
 .widget-header h1 { margin: 0; font-size: 1.5rem; font-weight: 800; line-height: 1.2; }
 .widget-header p { color: var(--muted); margin: 4px 0 0; }
@@ -847,11 +857,39 @@ img { max-width: 100%; display: block; }
   line-height: 1.7;
 }
 
+/* ── Skip Link (accessibility) ────────────────────────────── */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 9999;
+  padding: 8px 16px;
+  background: var(--brand);
+  color: white;
+  font-weight: 700;
+  font-size: 0.88rem;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  text-decoration: none;
+}
+.skip-link:focus {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
 /* ── Focus visible (accessibility) ────────────────────────── */
 :focus-visible {
   outline: 2px solid var(--point);
   outline-offset: 2px;
   border-radius: 2px;
+}
+
+/* ── Reduced motion ──────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* ── Legal pages: effective date ─────────────────────────── */
