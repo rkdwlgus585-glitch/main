@@ -4088,7 +4088,7 @@ def build_html(
         {
           id: "permitWizardStep4",
           shortLabel: "STEP 4",
-          title: "선택 준비 상태",
+          title: "기타 준비 상태",
           meta: "체크 항목 · 서류 준비도",
           note: "결과 보정에 쓰이는 선택 정보입니다.",
           optional: true,
@@ -6771,7 +6771,7 @@ def build_html(
       if (hasWarn) {
         if (optionalReadiness.count > 0) {
           return {
-            actionNote: "보완 항목과 선택 준비 상태를 함께 전달하면 상담 우선순위를 더 빨리 잡을 수 있습니다.",
+            actionNote: "보완 항목과 기타 준비 상태를 함께 전달하면 상담 우선순위를 더 빨리 잡을 수 있습니다.",
             briefMeta: "보완 포인트와 선택 준비 체크를 함께 정리한 브리프입니다.",
             copyLabel: "보완 브리프 복사",
           };

@@ -174,7 +174,7 @@ class PermitDiagnosisCalculatorRulesTest(unittest.TestCase):
         self.assertIn("permitWizardBlocker", html)
         self.assertIn("permitWizardStep1", html)
         self.assertIn("permitWizardStep4", html)
-        self.assertIn("선택 준비 상태", html)
+        self.assertIn("기타 준비 상태", html)
         self.assertIn("업종명 우선 검색", html)
         self.assertIn('id="categorySelect"', html)
         self.assertIn('id="industrySelect"', html)

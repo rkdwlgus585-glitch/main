@@ -1625,10 +1625,10 @@ const btn = document.querySelector('[data-permit-wizard-next="2"]');
 if (btn && !btn.disabled) btn.click();
             """
         )
-        wait.until(lambda d: "선택 준비 상태" in _text(d, "permitWizardStepTitle"))
+        wait.until(lambda d: "기타 준비 상태" in _text(d, "permitWizardStepTitle"))
         wizard_optional_title = _text(driver, "permitWizardStepTitle")
         wizard_progress_step4 = _text(driver, "permitWizardProgressLabel")
-        wizard_optional_state = "선택" in wizard_optional_title
+        wizard_optional_state = "기타" in wizard_optional_title
         optional_priority_hint = _text(driver, "optionalPriorityHint")
         optional_toggle_label_collapsed = _text(driver, "optionalChecklistToggle")
         optional_visible_count_collapsed = int(
@@ -2250,7 +2250,7 @@ if (btn && !btn.disabled) btn.click();
             and "검색" in wizard_blocker_initial
             and "현재 보유 현황" in wizard_step3_title
             and wizard_progress_step3 == "현재 3/4 단계"
-            and "선택 준비 상태" in wizard_optional_title
+            and "기타 준비 상태" in wizard_optional_title
             and wizard_progress_step4 == "현재 4/4 단계"
             and wizard_optional_state
             and "안전" in optional_priority_hint
@@ -2325,7 +2325,7 @@ if (btn && !btn.disabled) btn.click();
             and filled_capital_value not in {"", "-"}
             and filled_technician_value not in {"", "-"}
             and filled_equipment_value not in {"", "-"}
-            and "선택 준비 상태" in wizard_post_fill_title
+            and "기타 준비 상태" in wizard_post_fill_title
             and wizard_progress_after_fill == "현재 4/4 단계"
             and "현재 보유 3/3 입력" in permit_summary_after_fill
             and "필수 입력은 끝났습니다." in permit_blocker_after_fill
