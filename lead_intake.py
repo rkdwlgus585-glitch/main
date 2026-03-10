@@ -8,6 +8,8 @@ import subprocess
 import re
 import sys
 from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Any, Dict, Sequence, Tuple
 
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
@@ -59,22 +61,22 @@ CONSULT_HEADERS = [
 ]
 
 
-def _cfg_int(key, default):
+def _cfg_int(key: str, default: int) -> int:
     try:
         return int(str(CONFIG.get(key, default)).strip())
     except (ValueError, TypeError):
         return default
 
 
-def _compact_text(text):
+def _compact_text(text: object) -> str:
     return re.sub(r"\s+", " ", str(text or "")).strip()
 
 
-def _normalize_token(text):
+def _normalize_token(text: object) -> str:
     return re.sub(r"[^0-9a-z가-힣]+", "", str(text or "").lower())
 
 
-def _safe_contact(value):
+def _safe_contact(value: object) -> str:
     s = str(value or "").strip()
     if not s:
         return ""
@@ -86,12 +88,12 @@ def _safe_contact(value):
     return s
 
 
-def _lead_id(now=None):
+def _lead_id(now: datetime | None = None) -> str:
     now = now or datetime.now()
     return f"LD{now.strftime('%Y%m%d%H%M%S')}{random.randint(100, 999)}"
 
 
-def _infer_intent(text):
+def _infer_intent(text: object) -> str:
     t = _normalize_token(text)
     rules = [
         ("양도양수", ["양도양수", "양도", "양수", "매물", "mna"]),
@@ -109,7 +111,7 @@ def _infer_intent(text):
     return "기타"
 
 
-def _normalize_intent_label(value):
+def _normalize_intent_label(value: object) -> str:
     text = _compact_text(value)
     token = _normalize_token(text)
     if any(k in token for k in ["인허가", "사전검토", "신규등록", "면허등록", "등록기준"]):
@@ -119,7 +121,7 @@ def _normalize_intent_label(value):
     return text or "기타"
 
 
-def _infer_urgency(text):
+def _infer_urgency(text: object) -> str:
     t = _normalize_token(text)
     urgent = ["급함", "오늘", "당장", "바로", "긴급", "내일", "마감", "이번주"]
     medium = ["빠르게", "가능하면", "검토", "문의", "상담"]
@@ -130,7 +132,7 @@ def _infer_urgency(text):
     return "일반"
 
 
-def _default_next_action(intent, urgency):
+def _default_next_action(intent: str, urgency: str) -> str:
     base = {
         "양도양수": "고객 조건(업종/예산/지역) 확인 후 추천 매물 3건 송부",
         "인허가(신규등록)": "업종별 인허가 등록기준 체크리스트와 필요서류 안내 송부",
@@ -148,7 +150,7 @@ def _default_next_action(intent, urgency):
     return action
 
 
-def _fingerprint(record):
+def _fingerprint(record: Dict[str, str]) -> str:
     parts = [
         _normalize_token(record.get("title", "")),
         _normalize_token(record.get("content", "")),
@@ -159,7 +161,7 @@ def _fingerprint(record):
     return hashlib.sha1(base.encode("utf-8")).hexdigest()
 
 
-def _pick(source, keys):
+def _pick(source: Dict[str, Any], keys: Sequence[str]) -> str:
     for key in keys:
         if key in source and str(source.get(key, "")).strip():
             return str(source[key]).strip()
@@ -167,7 +169,7 @@ def _pick(source, keys):
 
 
 class LeadIntakeHub:
-    def __init__(self):
+    def __init__(self) -> None:
         require_config(CONFIG, ["JSON_FILE", "SHEET_NAME", "TAB_CONSULT"], context="lead_intake:init")
         self.json_file = str(CONFIG["JSON_FILE"]).strip()
         self.sheet_name = str(CONFIG["SHEET_NAME"]).strip()
@@ -183,7 +185,7 @@ class LeadIntakeHub:
 
         self.state = self._load_state()
 
-    def _load_state(self):
+    def _load_state(self) -> Dict[str, Any]:
         if not self.state_file or not os.path.exists(self.state_file):
             return {"fingerprints": {}}
         try:
@@ -197,12 +199,12 @@ class LeadIntakeHub:
         except (json.JSONDecodeError, OSError):
             return {"fingerprints": {}}
 
-    def _save_state(self):
+    def _save_state(self) -> None:
         self.state["updated_at"] = datetime.now().isoformat(timespec="seconds")
         with open(self.state_file, "w", encoding="utf-8") as f:
             json.dump(self.state, f, ensure_ascii=False, indent=2)
 
-    def connect(self):
+    def connect(self) -> None:
         scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
         creds = ServiceAccountCredentials.from_json_keyfile_name(self.json_file, scope)
         self.client = gspread.authorize(creds)
@@ -210,7 +212,7 @@ class LeadIntakeHub:
         self.ws = self.sheet.worksheet(self.tab_consult)
         self._ensure_header()
 
-    def _ensure_header(self):
+    def _ensure_header(self) -> None:
         row1 = self.ws.row_values(1)
         if not row1:
             self.ws.update(range_name="A1:P1", values=[CONSULT_HEADERS])
@@ -231,7 +233,7 @@ class LeadIntakeHub:
                 merged[i] = CONSULT_HEADERS[i]
             self.ws.update(range_name="A1:P1", values=[merged[:16]])
 
-    def _is_duplicate(self, record):
+    def _is_duplicate(self, record: Dict[str, str]) -> Tuple[bool, str]:
         fp = _fingerprint(record)
         if fp in self.state.get("fingerprints", {}):
             return True, fp
@@ -256,7 +258,7 @@ class LeadIntakeHub:
 
         return False, fp
 
-    def intake_one(self, payload, dry_run=False):
+    def intake_one(self, payload: Dict[str, Any], dry_run: bool = False) -> Dict[str, Any]:
         now = datetime.now()
         title = _compact_text(payload.get("title", ""))
         content = _compact_text(payload.get("content", ""))
@@ -322,7 +324,7 @@ class LeadIntakeHub:
 
         return {"status": "inserted", "lead_id": lead_id}
 
-    def intake_csv(self, path, default_channel="", dry_run=False, limit=0):
+    def intake_csv(self, path: str, default_channel: str = "", dry_run: bool = False, limit: int = 0) -> Dict[str, int]:
         if not os.path.exists(path):
             raise FileNotFoundError(path)
 
@@ -379,7 +381,7 @@ class LeadIntakeHub:
         }
 
 
-def _build_parser():
+def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="상담 인입 허브: 상담 기록을 Google Sheet 상담관리 탭에 적재")
     parser.add_argument("--title", help="상담 제목")
     parser.add_argument("--content", help="상담 내용")
@@ -398,7 +400,7 @@ def _build_parser():
     return parser
 
 
-def _write_sample_csv(path):
+def _write_sample_csv(path: str) -> None:
     rows = [
         {
             "상담제목": "전기공사업 양도양수 문의",
@@ -426,7 +428,7 @@ def _write_sample_csv(path):
         writer.writerows(rows)
 
 
-def main():
+def main() -> None:
     parser = _build_parser()
     args = parser.parse_args()
 
