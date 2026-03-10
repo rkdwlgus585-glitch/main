@@ -363,6 +363,14 @@
 - **_repair 완전 제거 (8→0 패치)**: renderProofClaim/renderResult 동기화 후 제거(−120줄), typography 3+fallback 1 dead code 제거(−335줄), 마지막 2패치(checkbox-meta-box+tip-text) template 직접 반영 후 `_repair_generated_permit_html`+`_replace_first_block`+`_repair_log` 완전 삭제(−50줄). 총 −505줄. Template이 유일 source of truth.
 - **Quality**: 2025 tests + 94 subtests PASS. (dead code 테스트 21개+3 subtests 정리, 실질 커버리지 유지)
 
+### [2026-03-10] Session 25 — SEO·UX 강화 + broad except 6건 구체화 + 플랫폼 프론트 P1 해소
+- **플랫폼 프론트 SEO**: layout.tsx에 JSON-LD Organization 구조화 데이터 + Twitter card + OG locale 추가. yangdo/permit 페이지별 고유 Metadata 설정 (title+description). Unicode escape→한글 가독성 개선.
+- **robots.ts**: /widget/ /api/ 크롤러 차단 추가. sitemap.ts에 terms/privacy 추가 + 날짜 갱신.
+- **커스텀 404 페이지**: not-found.tsx 생성. 404 코드 + 홈/양도가/인허가 링크 + 디자인 시스템 반영.
+- **접근성**: :focus-visible 글로벌 스타일 추가 (outline 2px solid var(--point)). 법적 페이지 인라인 스타일→CSS 클래스 추출 (.legal-effective-date).
+- **broad except 구체화 6건**: consult_match_scheduler _parse_hhmm 검증 + trend_radar_v2 3건 + match.py 2건 (Gemini JSON+gspread) + utils.py Notifier _post_with_retry + internal_linker 중복 import 제거
+- **Quality**: 2517 tests + 94 subtests PASS. Next.js 빌드 검증 (13 routes 정상).
+
 ### [2026-03-10] Session 24 — maemul +42 / sales_pipeline +32 / scheduler +47 / 모바일 네비 + favicon + 법적 고지
 - **maemul.py 테스트 0→42**: extract_listing_ids(중복제거/순서/nested/extra-path), extract_listing_summary(table 파싱/행 길이 guard/지역 감지), build_display_text(제목 truncation 경계값 70자), generate_html(li 구조/target_blank/URL 포맷), fetch_page(성공/실패/재시도 횟수/재시도 성공), extract_detail_title(sub_title 스킵/공통헤더 스킵/짧은h1 스킵/페이지타이틀 fallback)
 - **sales_pipeline.py 테스트 0→32**: _build_parser(9개 플래그 기본값+결합), _run(exit code 전달/check=False), main 커맨드 구성(match/recommend/quote 선택적 실행, lead_id/consult_row/top/dry_run/no_files/no_sheet 전달, top 최소값 clamp), exit code 집계(all success/any failure→SystemExit/no steps/match failure)
