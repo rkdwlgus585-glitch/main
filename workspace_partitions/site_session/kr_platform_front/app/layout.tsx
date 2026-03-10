@@ -4,7 +4,7 @@ import { platformConfig } from "@/components/platform-config";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 
-const siteTitle = "서울건설정보 | 건설업 AI 양도가 산정 · 인허가 사전검토 전문 플랫폼";
+const siteTitle = "서울건설정보 | 건설업 AI 양도가 산정 · 건설업등록 전문 플랫폼";
 const siteDescription =
   "건설업 면허 양도가격을 AI가 무료로 산정합니다. 191개 업종 등록기준 사전검토와 신규 취득 비용 계산까지 원스톱으로 제공하는 건설업 전문 플랫폼.";
 
@@ -63,6 +63,22 @@ function JsonLd() {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko">
+      <head>
+        {/* Pretendard Variable — Korean optimized sans-serif */}
+        <link
+          rel="stylesheet"
+          as="style"
+          crossOrigin="anonymous"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+        />
+        {/* Noto Sans KR — fallback */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap"
+        />
+      </head>
       <body>
         <JsonLd />
         <a className="skip-link" href="#main-content">
