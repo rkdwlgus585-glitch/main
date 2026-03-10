@@ -336,6 +336,17 @@
 - **_repair 완전 제거 (8→0 패치)**: renderProofClaim/renderResult 동기화 후 제거(−120줄), typography 3+fallback 1 dead code 제거(−335줄), 마지막 2패치(checkbox-meta-box+tip-text) template 직접 반영 후 `_repair_generated_permit_html`+`_replace_first_block`+`_repair_log` 완전 삭제(−50줄). 총 −505줄. Template이 유일 source of truth.
 - **Quality**: 2025 tests + 94 subtests PASS. (dead code 테스트 21개+3 subtests 정리, 실질 커버리지 유지)
 
+### [2026-03-10] Session 20 — Deep Audit P1~P4 보안·품질 수정 7건
+- **P1-01 tenant_id 정보누출 차단**: 429 rate-limit 응답에서 `tenant_id` 제거 (정보 노출 방어)
+- **P1-02 URL 스푸핑 방어**: `_is_objective_source_url` substring 매칭 → `urlparse` netloc 파싱으로 교체. `evil-gov.kr.attacker.com` 등 위조 도메인 차단.
+- **P1-03 ConsultStore empty db_path**: `sqlite3.connect("")` 무성 데이터 손실 → `if self.db_path:` guard 추가
+- **P2-01 naive datetime → UTC**: `yangdo_calculator.build_meta` `datetime.now()` → `now_iso()` UTC 통일. dead import 제거.
+- **P2-02 _INPUT_ALIASES 호이스팅**: per-call dict 재생성 → 모듈 상수. dead first element(key=self) 제거.
+- **P2-06 _month_key race condition**: 월 경계 시점 2회 호출 불일치 → `received_at[:7]` 유도로 일관성 확보
+- **P4-03 safe_json_for_script `<!--` 이스케이프**: HTML 코멘트 인젝션 방어 추가
+- **테스트 +5**: URL 스푸핑 회귀 4 + HTML 코멘트 이스케이프 1
+- **Quality**: 2044 tests + 94 subtests PASS.
+
 ### [2026-03-10] Session 19 — P1 버그 수정 + DRY canonical화 + 정보누출 차단
 - **P1 dead except 재정렬**: `json.JSONDecodeError`(ValueError 서브클래스) except 순서 수정 — ValueError 가 먼저 잡아 JSONDecodeError 도달불가 해소.
 - **P1 _read_json non-dict guard**: `json.loads`가 list/int 반환 시 `.get()` AttributeError 방어 (`isinstance(payload, dict) else {}`)
