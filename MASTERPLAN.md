@@ -76,7 +76,7 @@
 | `.co.kr` 브리지 | 100% | 정책/CTA/UTM 계약 확정, 5개 placement snippet 생성, Playwright MCP로 5/5 셀렉터 라이브 검증 완료, 인젝션 실행 계획 수립 |
 | 임대형 위젯/API | 99% | template -> scaffold -> validate -> activate 구조 완료 |
 | 특허 | 98% | canonical attorney handoff + claim 9건(양도5+아키텍처3+구조화1), typed_criteria 자동 구조화 특허 claim 추가 |
-| 품질 기준 | 100% | 1988 tests + 52 subtests PASS, permit 80/80+precheck_api 24/24+yangdo 22/22 함수 100% 커버리지, yangdo_blackbox_api 순수함수 69, core_engine 11/11 모듈 100%, XSS 전수 감사, regex DoS 방어, except 전 코어 파일 구체화, DRY −449줄, AI 엔진 심층 감사 HIGH 5+MEDIUM 4 수정, 후보 업종 191개 진단 연동 |
+| 품질 기준 | 100% | 1991 tests + 55 subtests PASS, permit 80/80+precheck_api 24/24+yangdo 22/22 함수 100% 커버리지, yangdo_blackbox_api 순수함수 69, core_engine 11/11 모듈 100%, HTML 통합 20, XSS 전수 감사, regex DoS 방어, except 전 코어 파일 구체화, DRY −449줄, AI 엔진 심층 감사 HIGH 5+MEDIUM 4 수정, 후보 업종 191개 진단 연동 |
 
 ## 3-Tier Automation Architecture
 - **Tier 1: Orchestrator (Claude)**: 전체 전략 수립, 시스템 아키텍처 매핑, 하위 태스크 분할 및 에이전트 위임 제어.
