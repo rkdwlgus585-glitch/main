@@ -5,7 +5,7 @@ import os
 import time
 from collections import deque
 from threading import Lock
-from typing import Deque, Dict, Iterable, Optional, Sequence, Set, Tuple
+from typing import Deque, Dict, Iterable, Sequence, Set, Tuple
 
 
 DEFAULT_SECURITY_HEADERS: Tuple[Tuple[str, str], ...] = (
