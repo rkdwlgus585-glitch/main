@@ -1,0 +1,17 @@
+{
+  "source": "https://seoulmna.co.kr",
+  "generatedAt": "2026-03-10T23:11:15+09:00",
+  "counts": {
+    "tl_faq": 1,
+    "mna": 1467,
+    "notice": 349,
+    "premium": 35,
+    "news": 1,
+    "pages": 26
+  },
+  "options": {
+    "workers": 6,
+    "limit": null,
+    "skipAssets": false
+  }
+}
