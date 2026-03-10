@@ -1,0 +1,510 @@
+openapi: "3.0.3"
+info:
+  title: "서울건설정보 AI 플랫폼 API"
+  version: "1.0.0"
+  description: |
+    건설업 면허 양도가 산정(Track A) 및 인허가 사전검토(Track B) API.
+    독립 시스템으로 운영되며, 공유 플랫폼 레이어(tenant/channel/usage)를 통해 접근합니다.
+  contact:
+    name: "서울건설정보"
+    url: "https://seoulmna.kr"
+
+servers:
+  - url: "https://seoulmna.kr/_calc"
+    description: "Production (reverse proxy)"
+  - url: "http://localhost:8100"
+    description: "Permit API local dev"
+  - url: "http://localhost:8200"
+    description: "Yangdo API local dev"
+
+paths:
+  /v1/health:
+    get:
+      summary: "Health Check"
+      description: "서버 상태 확인. 양도가/인허가 양쪽 모두 동일 경로 사용."
+      operationId: healthCheck
+      tags: [Common]
+      responses:
+        "200":
+          description: "서버 정상"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  service:
+                    type: string
+                    example: "permit_precheck"
+
+  /v1/yangdo/estimate:
+    post:
+      summary: "양도가 산정"
+      description: |
+        건설업 면허 양도 대상의 정보를 입력하면 양도가 범위와 유사 매물 추천을 반환합니다.
+        - 비교군 오염 제거 포함
+        - 신뢰도 기반 공개수준 제어
+        - 유사 매물 추천 및 추천 사유 생성
+      operationId: yangdoEstimate
+      tags: [Yangdo]
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/YangdoEstimateRequest"
+            examples:
+              basic:
+                summary: "기본 토목건축공사업 양도가 산정"
+                value:
+                  request:
+                    channel_id: "seoul_default"
+                    source: "partner_widget"
+                  selector:
+                    license_text: "토목건축공사업"
+                  inputs:
+                    capital_eok: 10.0
+                    surplus_eok: 1.5
+                    specialty: 800
+                    sales3_eok: 30.0
+                    license_year: 2015
+                    ok_capital: true
+                    ok_engineer: true
+                    ok_office: true
+      responses:
+        "200":
+          description: "산정 성공"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/YangdoEstimateResponse"
+          headers:
+            X-Usage-Month:
+              description: "과금 기준월 (YYYY-MM)"
+              schema:
+                type: string
+            X-Usage-Events-Remaining:
+              description: "잔여 사용량"
+              schema:
+                type: integer
+        "400":
+          description: "입력 오류"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: "인증 실패 또는 시스템 차단"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: "요청 한도 초과"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /v1/permit/precheck:
+    post:
+      summary: "인허가 사전검토"
+      description: |
+        업종 식별정보와 신청인 정보를 입력하면 등록기준 충족여부,
+        부족항목, 증빙 체크리스트를 반환합니다.
+        - 객관 출처 규칙카탈로그 매핑
+        - typed criteria 기반 항목별 판정
+        - 판정보류(manual review) 제어
+      operationId: permitPrecheck
+      tags: [Permit]
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PermitPrecheckRequest"
+            examples:
+              basic:
+                summary: "건축공사업 인허가 사전검토"
+                value:
+                  request:
+                    channel_id: "seoul_default"
+                    source: "partner_widget"
+                  selector:
+                    license_text: "건축공사업"
+                    service_code: "construction-general-geonchuk"
+                  inputs:
+                    capital_eok: 5.0
+                    technician_count: 3
+                    has_office: true
+      responses:
+        "200":
+          description: "검토 성공"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PermitPrecheckResponse"
+          headers:
+            X-Usage-Month:
+              description: "과금 기준월 (YYYY-MM)"
+              schema:
+                type: string
+        "400":
+          description: "입력 오류"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: "인증 실패 또는 시스템 차단"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: "요청 한도 초과"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /v1/permit/meta:
+    get:
+      summary: "인허가 메타데이터 조회"
+      description: "엔진 메타데이터(업종 수, 커버리지 등) 조회. Admin API key 필요."
+      operationId: permitMeta
+      tags: [Permit]
+      security:
+        - AdminApiKeyAuth: []
+      responses:
+        "200":
+          description: "메타 조회 성공"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  meta:
+                    type: object
+                    description: "엔진 메타데이터"
+
+  /v1/permit/reload:
+    post:
+      summary: "규칙카탈로그 리로드"
+      description: "규칙카탈로그를 파일에서 다시 로드. Admin API key 필요."
+      operationId: permitReload
+      tags: [Permit]
+      security:
+        - AdminApiKeyAuth: []
+      responses:
+        "200":
+          description: "리로드 성공"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  meta:
+                    type: object
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: "파트너 API Key (Bearer token도 지원: Authorization: Bearer <key>)"
+    AdminApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: "관리자 API Key"
+
+  schemas:
+    CommonRequestWrapper:
+      type: object
+      properties:
+        request:
+          type: object
+          description: "요청 메타데이터"
+          properties:
+            channel_id:
+              type: string
+              description: "채널 식별자"
+            tenant_id:
+              type: string
+              description: "테넌트 식별자"
+            source:
+              type: string
+              description: "요청 출처"
+            page_url:
+              type: string
+              description: "요청 페이지 URL"
+            requested_at:
+              type: string
+              description: "요청 시각 (ISO 8601)"
+            request_id:
+              type: string
+              description: "요청 ID (클라이언트 제공 시 라운드트립)"
+        selector:
+          type: object
+          description: "업종/면허 선택자"
+        inputs:
+          type: object
+          description: "산정/검토 입력값"
+
+    YangdoEstimateRequest:
+      allOf:
+        - $ref: "#/components/schemas/CommonRequestWrapper"
+        - type: object
+          properties:
+            selector:
+              type: object
+              properties:
+                license_text:
+                  type: string
+                  description: "면허명 (예: 토목건축공사업)"
+                  example: "토목건축공사업"
+            inputs:
+              type: object
+              properties:
+                capital_eok:
+                  type: number
+                  description: "자본금 (억원)"
+                  example: 10.0
+                surplus_eok:
+                  type: number
+                  description: "이익잉여금 (억원)"
+                  example: 1.5
+                specialty:
+                  type: number
+                  description: "시공능력평가액 (억원)"
+                  example: 800
+                sales3_eok:
+                  type: number
+                  description: "최근 3년 매출 합계 (억원)"
+                license_year:
+                  type: integer
+                  description: "면허 취득 연도"
+                  example: 2015
+                ok_capital:
+                  type: boolean
+                  description: "자본금 충족 여부"
+                ok_engineer:
+                  type: boolean
+                  description: "기술인력 충족 여부"
+                ok_office:
+                  type: boolean
+                  description: "사무실 충족 여부"
+                balance_eok:
+                  type: number
+                  description: "공제조합 잔액 (억원)"
+                debt_ratio:
+                  type: number
+                  description: "부채비율 (%)"
+                liq_ratio:
+                  type: number
+                  description: "유동비율 (%)"
+                reorg_mode:
+                  type: string
+                  description: "재편 유형 (포괄양수, 분할/합병, 일반양수도)"
+                  enum: ["포괄양수", "분할/합병", "일반양수도"]
+
+    YangdoEstimateResponse:
+      type: object
+      required: [ok, service, api_version, request_id, data]
+      properties:
+        ok:
+          type: boolean
+        service:
+          type: string
+          example: "yangdo_estimate"
+        api_version:
+          type: string
+          example: "v1"
+        request_id:
+          type: string
+          description: "요청 ID (서버 생성 또는 클라이언트 라운드트립)"
+        response_meta:
+          type: object
+          properties:
+            channel_id:
+              type: string
+            tenant_plan:
+              type: string
+            response_tier:
+              type: string
+              description: "공개 등급 (summary, detail, consult, internal)"
+            status:
+              type: string
+        data:
+          type: object
+          description: "산정 결과"
+          properties:
+            center_eok:
+              type: number
+              description: "중심값 (억원)"
+            low_eok:
+              type: number
+              description: "하한값 (억원)"
+            high_eok:
+              type: number
+              description: "상한값 (억원)"
+            confidence:
+              type: number
+              description: "신뢰도 (0-100)"
+            confidence_label:
+              type: string
+              description: "신뢰도 라벨"
+            recommended_listings:
+              type: array
+              description: "유사 매물 추천 목록"
+              items:
+                type: object
+                properties:
+                  license_text:
+                    type: string
+                  recommendation_score:
+                    type: number
+                  recommendation_reason:
+                    type: string
+                  precision_label:
+                    type: string
+            risk_notes:
+              type: array
+              items:
+                type: string
+              description: "위험 요소 노트"
+
+    PermitPrecheckRequest:
+      allOf:
+        - $ref: "#/components/schemas/CommonRequestWrapper"
+        - type: object
+          properties:
+            selector:
+              type: object
+              properties:
+                license_text:
+                  type: string
+                  description: "업종명 (예: 건축공사업)"
+                  example: "건축공사업"
+                service_code:
+                  type: string
+                  description: "서비스코드 (선택)"
+                  example: "construction-general-geonchuk"
+            inputs:
+              type: object
+              properties:
+                capital_eok:
+                  type: number
+                  description: "현재 자본금 (억원)"
+                  example: 5.0
+                technician_count:
+                  type: integer
+                  description: "기술인력 수"
+                  example: 3
+                has_office:
+                  type: boolean
+                  description: "사무실 보유 여부"
+                has_facility:
+                  type: boolean
+                  description: "장비/시설 보유 여부"
+
+    PermitPrecheckResponse:
+      type: object
+      required: [ok, service, api_version, request_id, data]
+      properties:
+        ok:
+          type: boolean
+        service:
+          type: string
+          example: "permit_precheck"
+        api_version:
+          type: string
+          example: "v1"
+        request_id:
+          type: string
+        response_meta:
+          type: object
+          properties:
+            channel_id:
+              type: string
+            tenant_plan:
+              type: string
+            response_tier:
+              type: string
+            status:
+              type: string
+        data:
+          type: object
+          description: "검토 결과"
+          properties:
+            overall_status:
+              type: string
+              description: "전체 판정 (pass, shortfall, manual_review)"
+              enum: ["pass", "shortfall", "manual_review"]
+            coverage_status:
+              type: string
+              description: "커버리지 상태"
+            shortfall_items:
+              type: array
+              description: "부족항목 목록"
+              items:
+                type: object
+                properties:
+                  category:
+                    type: string
+                    description: "기준항목 카테고리"
+                    enum: [capital, technician, office, facility, deposit, qualification, duration]
+                  label:
+                    type: string
+                    description: "항목 이름"
+                  required_value:
+                    type: string
+                    description: "기준값"
+                  current_value:
+                    type: string
+                    description: "현재값"
+                  shortfall:
+                    type: string
+                    description: "부족량"
+            evidence_checklist:
+              type: array
+              description: "증빙 체크리스트"
+              items:
+                type: object
+                properties:
+                  document_type:
+                    type: string
+                  reason:
+                    type: string
+            basis_refs:
+              type: array
+              description: "근거 법령 참조"
+              items:
+                type: string
+
+    ErrorResponse:
+      type: object
+      required: [ok, error]
+      properties:
+        ok:
+          type: boolean
+          example: false
+        error:
+          type: string
+          description: "오류 코드"
+          example: "invalid_input"
+        message:
+          type: string
+          description: "오류 메시지 (선택)"
