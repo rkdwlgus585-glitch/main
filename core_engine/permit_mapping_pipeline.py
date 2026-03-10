@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from collections import defaultdict
 from dataclasses import dataclass
-from datetime import datetime
 from typing import Any, Dict, Iterable, List, Tuple
+
+from core_engine.api_response import now_iso
 
 
 @dataclass(frozen=True)
@@ -120,7 +121,7 @@ def apply_mapping_pipeline(
     )
 
     meta = {
-        "generated_at": datetime.now().isoformat(timespec="seconds"),
+        "generated_at": now_iso(),
         "batch_size": max(1, int(batch_size)),
         "pending_total": int(pending_total),
         "mapped_total": int(mapped_total),
