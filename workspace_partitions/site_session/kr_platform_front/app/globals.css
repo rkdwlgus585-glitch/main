@@ -10,7 +10,7 @@
   --ink: #1A1A2E;
   --muted: #6B7280;
   --surface: rgba(255, 255, 255, 0.96);
-  --line: rgba(26, 26, 46, 0.08);
+  --line: rgba(26, 26, 46, 0.10);
 
   --brand: #003764;
   --brand-light: #0A4D8C;
@@ -1545,9 +1545,7 @@ img { max-width: 100%; display: block; }
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+/* @keyframes spin — defined once in widget section above */
 .loading-text {
   color: var(--muted);
   font-size: 0.9rem;

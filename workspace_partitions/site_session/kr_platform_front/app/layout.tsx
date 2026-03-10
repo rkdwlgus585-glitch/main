@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     locale: "ko_KR",
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "서울건설정보 | 건설업 AI 전문 플랫폼",
     description: siteDescription,
   },

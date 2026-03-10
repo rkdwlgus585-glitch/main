@@ -169,7 +169,7 @@ export default function ConsultPage() {
             건설업등록 검토하기
           </Link>
           <a className="cta-secondary" href={`tel:${platformConfig.contactPhone}`}>
-            📞 바로 전화하기
+            <span aria-hidden="true">📞</span> 바로 전화하기
           </a>
         </div>
       </section>

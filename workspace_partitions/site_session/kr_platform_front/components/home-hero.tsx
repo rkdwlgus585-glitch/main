@@ -28,13 +28,13 @@ export function HomeHero() {
           <div className="home-hero-actions">
             <Link className="cta-primary home-cta-primary" href="/yangdo">
               양도가 무료 산정
-              <ArrowRight size={18} strokeWidth={2.2} />
+              <ArrowRight size={18} strokeWidth={2.2} aria-hidden="true" />
             </Link>
             <Link className="cta-secondary home-cta-secondary" href="/permit">
               건설업등록 검토
             </Link>
             <a className="home-call-link" href={`tel:${platformConfig.contactPhone}`}>
-              <Phone size={16} />
+              <Phone size={16} aria-hidden="true" />
               {platformConfig.contactPhone}
             </a>
           </div>

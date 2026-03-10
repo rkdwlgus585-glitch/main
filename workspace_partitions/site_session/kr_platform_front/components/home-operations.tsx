@@ -44,7 +44,7 @@ export function HomeOperations() {
         <div className="home-operations-grid">
           {operations.map(({ title, body, icon: Icon }) => (
             <article key={title} className="home-operation-card">
-              <span className="home-operation-icon">
+              <span className="home-operation-icon" aria-hidden="true">
                 <Icon size={20} />
               </span>
               <h3>{title}</h3>

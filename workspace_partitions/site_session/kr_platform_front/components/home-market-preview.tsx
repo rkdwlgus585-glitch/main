@@ -41,7 +41,7 @@ export function HomeMarketPreview() {
       <div className="market-highlights-grid">
         {highlights.map(({ icon: Icon, title, body }) => (
           <article key={title} className="market-highlight-card">
-            <span className="market-highlight-icon">
+            <span className="market-highlight-icon" aria-hidden="true">
               <Icon size={20} />
             </span>
             <h3>{title}</h3>
@@ -53,7 +53,7 @@ export function HomeMarketPreview() {
       <div className="market-brief-cta">
         <Link href="/mna-market" className="cta-primary">
           매물 현황 보기
-          <ArrowRight size={18} strokeWidth={2.2} />
+          <ArrowRight size={18} strokeWidth={2.2} aria-hidden="true" />
         </Link>
         <Link href="/yangdo" className="cta-secondary market-cta-secondary">
           AI 양도가 산정 먼저 해보기

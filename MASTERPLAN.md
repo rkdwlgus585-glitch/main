@@ -114,7 +114,7 @@
 ## What Is Actually Done
 1. `.kr` WordPress/Astra 플랫폼 자산 + Next.js 프론트
 - IA 6페이지 전체 구현: `/`, `/yangdo`, `/permit`, `/knowledge`, `/consult`, `/mna-market` + `/terms`, `/privacy`
-- Next.js 16.1.6 플랫폼 프론트: 17 static pages(+manifest.webmanifest), 디자인 시스템 CSS 1670줄, homepage 7-component 아키텍처(HomeHero+Shortcuts+MarketPreview+Operations+Process+CTA+Status), widget frame(3-state loading), 글로벌 네비/푸터(data-driven nav array), error boundary(dev-only logging), skip-link, prefers-reduced-motion, smooth scroll, loading.tsx, sitemap 8 routes, canonical URL 전 페이지, WebSite/SiteNavigationElement/Service/FAQPage/CollectionPage/ProfessionalService/WebPage JSON-LD 8종, Pretendard Variable+Noto Sans KR CDN(dns-prefetch+preconnect), 서비스 페이지 FAQ 5+5/특징 4+4/하단 CTA, nav label 전 페이지 통일(실시간 매물/건설업등록/건설실무/고객센터), 카드 hover/focus-visible 인터랙션+border-color 전이, 전 페이지 h1 한글 text-wrap:balance+word-break:keep-all, 전 페이지 section aria-label 완성(25개), WCAG 44px 터치타겟 전면 달성, 장식 emoji aria-hidden(16곳), footer contrast 0.85, 640px+360px 모바일 반응형 전 서브페이지 확장, dark-bg h2 color specificity 버그 수정, 전 제품 페이지 OG+Twitter Card 메타데이터, 보안 헤더 4종(next.config.mjs), CSS 중복 제거, dead config 제거
+- Next.js 16.1.6 플랫폼 프론트: 19 pages(17 static+OG/Twitter 이미지), 디자인 시스템 CSS 1680줄, homepage 7-component 아키텍처(HomeHero+Shortcuts+MarketPreview+Operations+Process+CTA+Status), widget frame(3-state loading+aria-busy), 글로벌 네비/푸터(data-driven nav array, 푸터 Next.js Link SPA전환), error boundary(dev-only logging), skip-link, prefers-reduced-motion, smooth scroll, loading.tsx, sitemap 8 routes, canonical URL 전 페이지, WebSite/SiteNavigationElement/Service/FAQPage/CollectionPage/ProfessionalService/WebPage JSON-LD 8종, OG+Twitter 이미지 자동생성(Noto Sans KR Bold, 1200x630, summary_large_image), Pretendard Variable+Noto Sans KR CDN(dns-prefetch+preconnect), 서비스 페이지 FAQ 5+5/특징 4+4/하단 CTA, nav label 전 페이지 통일, 카드 hover/focus-visible 인터랙션+border-color 전이, 전 페이지 h1 한글 text-wrap:balance+word-break:keep-all, 전 페이지 section aria-label 완성(25개), WCAG 44px 터치타겟 전면 달성, 장식 aria-hidden 전면 완성(emoji 16+Lucide icon 16=32곳), footer contrast 0.85, border contrast 0.10, 640px+360px 모바일 반응형 전 서브페이지 확장, dark-bg h2 color specificity 버그 수정, 전 제품 페이지 OG+Twitter Card 메타데이터, 보안 헤더 4종(next.config.mjs), CSS 중복 제거(features-grid+keyframes spin), dead config 제거
 - Gutenberg blueprint 생성 완료
 - child theme / lazy gate bridge plugin 생성 완료
 - `php fallback runtime -> apply -> verify` canonical cycle 녹색
@@ -378,6 +378,16 @@
 - **runtimeReasoningCardBox aria-live**: 동적 결과 영역 aria-live="polite" 누락 보완.
 - **_repair 완전 제거 (8→0 패치)**: renderProofClaim/renderResult 동기화 후 제거(−120줄), typography 3+fallback 1 dead code 제거(−335줄), 마지막 2패치(checkbox-meta-box+tip-text) template 직접 반영 후 `_repair_generated_permit_html`+`_replace_first_block`+`_repair_log` 완전 삭제(−50줄). 총 −505줄. Template이 유일 source of truth.
 - **Quality**: 2025 tests + 94 subtests PASS. (dead code 테스트 21개+3 subtests 정리, 실질 커버리지 유지)
+
+### [2026-03-10] Session 34 — OG 이미지 생성 + 접근성 전면 완성 + 푸터 SPA 전환
+- **OG 이미지 자동 생성**: `opengraph-image.tsx`+`twitter-image.tsx` 추가. Noto Sans KR Bold 폰트 로드, 브랜드 gradient 배경, 1200x630 PNG 정적 생성. Twitter card `summary`→`summary_large_image` 승격
+- **장식 아이콘 aria-hidden 전면 완성 (16곳)**: home-shortcuts 5 + home-operations 4 + home-market-preview 4+ArrowRight + home-hero ArrowRight+Phone + consult 📞 line 172. Lucide-react SVG 컨테이너와 인라인 emoji 모두 스크린리더 제외
+- **widget-frame aria-busy**: 로딩 상태에서 `aria-busy="true"` 추가, 로드 완료 시 `false` 자동 전환
+- **footer SPA 전환**: 내부 경로 7곳 `<a href>`→Next.js `<Link href>` 변경 (전체 페이지 리로드 제거, client-side navigation 활성화)
+- **CSS `--line` border contrast 강화**: `rgba(26,26,46,0.08)`→`0.10` (WCAG 비텍스트 대비비 개선)
+- **CSS 중복 `@keyframes spin` 제거**: widget 섹션과 loading 섹션 이중 정의→단일 정의+주석 참조
+- **Python core 품질 확인**: TODO/FIXME 0건, unsafe str(e) API 노출 0건, broad except 3건은 의도적 external-dep. 2678 tests + 94 subtests PASS
+- **Quality**: Next.js 빌드 19/19 (OG+Twitter 이미지 포함). Python 2678+94.
 
 ### [2026-03-10] Session 33 — WCAG 터치타겟 44px + canonical URL + JSON-LD + 코드 품질
 - **WCAG 터치타겟 44px 전면 달성**: nav links 39→44, footer links 29→44, nav-toggle 40→44, site-brand 40→44, skip-link 39→44px. `min-height: 44px` + `display: inline-flex/flex; align-items: center` 패턴

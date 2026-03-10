@@ -81,7 +81,7 @@ export function WidgetFrame({
           </button>
         </div>
       ) : (
-        <div className="widget-viewport" data-traffic-gate="open">
+        <div className="widget-viewport" data-traffic-gate="open" aria-busy={loadState === "loading"}>
           {loadState === "loading" && (
             <div className="widget-loading" role="status" aria-label="로딩 중">
               <div className="widget-spinner" />

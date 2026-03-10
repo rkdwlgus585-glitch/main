@@ -52,7 +52,7 @@ export function HomeShortcuts() {
       <div className="home-shortcuts-grid">
         {shortcuts.map(({ title, description, href, icon: Icon }) => (
           <Link key={title} href={href} className="home-shortcut-card">
-            <span className="home-shortcut-icon">
+            <span className="home-shortcut-icon" aria-hidden="true">
               <Icon size={18} />
             </span>
             <strong>{title}</strong>

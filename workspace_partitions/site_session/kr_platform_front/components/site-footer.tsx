@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { platformConfig } from "@/components/platform-config";
 
 export function SiteFooter() {
@@ -11,21 +12,21 @@ export function SiteFooter() {
         <div className="footer-links">
           <div>
             <h4>서비스</h4>
-            <a href="/mna-market">실시간 매물</a>
-            <a href="/permit">건설업등록</a>
-            <a href="/yangdo">양도가 산정</a>
+            <Link href="/mna-market">실시간 매물</Link>
+            <Link href="/permit">건설업등록</Link>
+            <Link href="/yangdo">양도가 산정</Link>
           </div>
           <div>
             <h4>정보 · 상담</h4>
-            <a href="/knowledge">건설실무</a>
-            <a href="/consult">고객센터</a>
+            <Link href="/knowledge">건설실무</Link>
+            <Link href="/consult">고객센터</Link>
             <a href={`tel:${platformConfig.contactPhone}`}>{platformConfig.contactPhone}</a>
             <a href={`mailto:${platformConfig.contactEmail}`}>{platformConfig.contactEmail}</a>
           </div>
           <div>
             <h4>법적 고지</h4>
-            <a href="/terms">이용약관</a>
-            <a href="/privacy">개인정보처리방침</a>
+            <Link href="/terms">이용약관</Link>
+            <Link href="/privacy">개인정보처리방침</Link>
           </div>
         </div>
         <div className="footer-bottom">
