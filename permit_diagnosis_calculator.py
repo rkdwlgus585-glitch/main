@@ -3958,6 +3958,31 @@ def build_html(
     const inlineBootstrap = __PERMIT_BOOTSTRAP_JSON__;
     const inlineBootstrapCompressed = "__PERMIT_BOOTSTRAP_GZIP_BASE64__";
 
+    /* ── global error boundary ─────────────────────────────────── */
+    window.addEventListener("error", (event) => {
+      const node = document.getElementById("fallbackGuide");
+      if (node && !node.dataset.errorShown) {
+        node.dataset.errorShown = "1";
+        node.style.display = "block";
+        node.textContent = "인허가 사전검토 도구에서 예기치 않은 오류가 발생했습니다. 페이지를 새로고침해 주세요.";
+      }
+      if (window.console) {
+        try { console.error("[permit-precheck] unhandled error:", event.error || event.message); } catch (_e) {}
+      }
+    });
+    window.addEventListener("unhandledrejection", (event) => {
+      const node = document.getElementById("fallbackGuide");
+      if (node && !node.dataset.errorShown) {
+        node.dataset.errorShown = "1";
+        node.style.display = "block";
+        node.textContent = "인허가 데이터 처리 중 오류가 발생했습니다. 페이지를 새로고침해 주세요.";
+      }
+      if (window.console) {
+        try { console.error("[permit-precheck] unhandled rejection:", event.reason); } catch (_e) {}
+      }
+    });
+    /* ── /global error boundary ────────────────────────────────── */
+
     const decodeBase64ToBytes = (text) => {
       const source = String(text || "");
       if (!source) return new Uint8Array();

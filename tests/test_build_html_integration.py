@@ -157,6 +157,17 @@ class PermitBuildHtmlTest(unittest.TestCase):
         self.assertNotIn("<!doctype html>", fragment)
         self.assertIn("renderResult", fragment)
 
+    # -- Global error boundary -------------------------------------------------
+    def test_global_error_handler_present(self):
+        self.assertIn('addEventListener("error"', self._html)
+        self.assertIn('addEventListener("unhandledrejection"', self._html)
+
+    def test_error_handler_shows_user_message(self):
+        self.assertIn("페이지를 새로고침해 주세요", self._html)
+
+    def test_error_handler_logs_to_console(self):
+        self.assertIn("[permit-precheck] unhandled error", self._html)
+
     # -- Overall size sanity --------------------------------------------------
     def test_html_minimum_size(self):
         self.assertGreater(len(self._html), 100_000, "HTML should be >100KB")
@@ -424,6 +435,17 @@ class YangdoBuildPageHtmlTest(unittest.TestCase):
     def test_wcag_text_safe_color_variables(self):
         self.assertIn("--smna-success-text", self._html)
         self.assertIn("--smna-warning-text", self._html)
+
+    # -- Global error boundary -------------------------------------------------
+    def test_global_error_handler_present(self):
+        self.assertIn('addEventListener("error"', self._html)
+        self.assertIn('addEventListener("unhandledrejection"', self._html)
+
+    def test_error_handler_shows_user_message(self):
+        self.assertIn("페이지를 새로고침해 주세요", self._html)
+
+    def test_error_handler_logs_to_console(self):
+        self.assertIn("[yangdo] unhandled error", self._html)
 
     # -- Overall size ---------------------------------------------------------
     def test_html_minimum_size(self):

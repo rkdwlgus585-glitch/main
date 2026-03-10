@@ -3134,6 +3134,27 @@ def build_page_html(
 
   <script nowprocket data-nowprocket>
     // nowprocket
+    /* ── global error boundary ─────────────────────────────────── */
+    window.addEventListener("error", function(event) {{
+      var node = document.getElementById("seoulmna-yangdo-calculator");
+      var fb = node && node.querySelector(".yangdo-error-banner");
+      if (!fb) {{
+        fb = document.createElement("div");
+        fb.className = "yangdo-error-banner";
+        fb.style.cssText = "padding:12px 16px;background:#FFF3CD;border:1px solid #FFD54F;border-radius:8px;margin:12px 0;font-size:14px;color:#664D03;";
+        fb.textContent = "양도가 산정 도구에서 예기치 않은 오류가 발생했습니다. 페이지를 새로고침해 주세요.";
+        if (node) node.prepend(fb);
+      }}
+      if (window.console) {{
+        try {{ console.error("[yangdo] unhandled error:", event.error || event.message); }} catch (_e) {{}}
+      }}
+    }});
+    window.addEventListener("unhandledrejection", function(event) {{
+      if (window.console) {{
+        try {{ console.error("[yangdo] unhandled rejection:", event.reason); }} catch (_e) {{}}
+      }}
+    }});
+    /* ── /global error boundary ────────────────────────────────── */
     // DOMContentLoaded
     (function() {{
       const datasetRaw = {dataset_json};
