@@ -72,7 +72,7 @@
 |---|---:|---|
 | AI 양도가 산정/추천 | 99% | 코어/위젯/QA/게이트 구조 완료, 추천 정밀도·집중도 감사·공개계약·서비스-매물 브리지·서비스 카피·UX 정렬·임대 lane ladder까지 canonical화, 전기/정보통신/소방 정산정책·confidence cap·reorgOverrides 정밀화, CSS 디자인 시스템 토큰화 완료 |
 | AI 인허가 사전검토 | 99% | typed_criteria 245/245 업종 100% 커버리지 달성, 3계층 파이프라인(수작업+런타임합성+자동생성) 완성, 색상 배지 UX, _PENDING_CRITERIA_TEMPLATES 9개 카테고리, CTA mode separation(shortfall/manual/pass) 및 증거 기반 분기 완료 |
-| `.kr` 플랫폼화 | 100% | IA 6페이지 전체 구현(/, /yangdo, /permit, /knowledge, /consult, /mna-market + /terms, /privacy), Next.js 16.1.6 빌드 17 static pages, homepage 7-component 재설계(HomeHero+Shortcuts+MarketPreview+Operations+Process+CTA+Status), 구 component 7개 dead code 삭제(−751줄), nav label 전 페이지 통일(실시간 매물/건설업등록/건설실무/고객센터), 디자인 시스템 CSS 1620줄, widget-frame 3-state 로딩, PWA manifest, Pretendard Variable+Noto Sans KR 폰트 CDN, 접근성(skip-link+prefers-reduced-motion+error boundary+loading.tsx+전 페이지 section aria-label 완성+smooth scroll+focus-visible), SEO(sitemap 8+WebSite/SiteNavigationElement/Service/FAQPage JSON-LD+전 제품 페이지 OG/Twitter Card), 서비스 페이지 전환율 강화(FAQ 5+5+특징 4+4+하단 CTA), 카드 hover/focus 인터랙션 전면 적용, 전 페이지 h1 word-break:keep-all+text-wrap:balance, 640px 모바일 반응형 전 서브페이지 확장, dark-bg h2 specificity 버그 수정(3섹션), 보안 헤더 4종(X-Content-Type-Options/X-Frame-Options/Referrer-Policy/Permissions-Policy), Cursor 개입 가짜 매물/내부 용어 정리 완료 |
+| `.kr` 플랫폼화 | 100% | IA 6페이지 전체 구현(/, /yangdo, /permit, /knowledge, /consult, /mna-market + /terms, /privacy), Next.js 16.1.6 빌드 17 static pages, homepage 7-component 재설계(HomeHero+Shortcuts+MarketPreview+Operations+Process+CTA+Status), 구 component 7개 dead code 삭제(−751줄), nav label 전 페이지 통일(실시간 매물/건설업등록/건설실무/고객센터), 디자인 시스템 CSS 1670줄, widget-frame 3-state 로딩, PWA manifest, Pretendard Variable+Noto Sans KR 폰트 CDN(dns-prefetch+preconnect), 접근성(skip-link+prefers-reduced-motion+error boundary+loading.tsx+전 페이지 section aria-label 완성+smooth scroll+focus-visible+WCAG 44px 터치타겟 전면 달성+장식 emoji aria-hidden+footer contrast 0.85), SEO(sitemap 8+canonical URL 전 페이지+WebSite/SiteNavigationElement/Service/FAQPage/CollectionPage/ProfessionalService/WebPage JSON-LD 8종+전 제품 페이지 OG/Twitter Card), 서비스 페이지 전환율 강화(FAQ 5+5+특징 4+4+하단 CTA), 카드 hover/focus 인터랙션 전면 적용, 전 페이지 h1 word-break:keep-all+text-wrap:balance, 640px+360px 모바일 반응형 전 서브페이지 확장, dark-bg h2 specificity 버그 수정(3섹션), 보안 헤더 4종(X-Content-Type-Options/X-Frame-Options/Referrer-Policy/Permissions-Policy), CSS 중복 제거(features-grid/card padding), dead config 제거(widgetConsumerHost), Cursor 개입 가짜 매물/내부 용어 정리 완료 |
 | `.co.kr` 브리지 | 100% | 정책/CTA/UTM 계약 확정, 5개 placement snippet 생성, Playwright MCP로 5/5 셀렉터 라이브 검증 완료, 인젝션 실행 계획 수립 |
 | 임대형 위젯/API | 100% | template -> scaffold -> validate -> activate 구조 완료, OpenAPI 3.0 spec(5 endpoints+6 schemas) 생성 |
 | 특허 | 100% | canonical attorney handoff + claim 9건(양도5+아키텍처3+구조화1), KIPO 형식 명세서 초안 A+B 완성(발명의설명+청구범위+요약서+도면설명), system_brief 경로 갱신+추천 claim 동기화, claim_map 경로 갱신, permit evidence bundle 7 family 증빙 완료 |
@@ -114,7 +114,7 @@
 ## What Is Actually Done
 1. `.kr` WordPress/Astra 플랫폼 자산 + Next.js 프론트
 - IA 6페이지 전체 구현: `/`, `/yangdo`, `/permit`, `/knowledge`, `/consult`, `/mna-market` + `/terms`, `/privacy`
-- Next.js 16.1.6 플랫폼 프론트: 17 static pages(+manifest.webmanifest), 디자인 시스템 CSS 1620줄, homepage 7-component 아키텍처(HomeHero+Shortcuts+MarketPreview+Operations+Process+CTA+Status), widget frame(3-state loading), 글로벌 네비/푸터(data-driven nav array), error boundary, skip-link, prefers-reduced-motion, smooth scroll, loading.tsx, sitemap 8 routes, WebSite/SiteNavigationElement/Service/FAQPage JSON-LD, Pretendard Variable+Noto Sans KR CDN, 서비스 페이지 FAQ 5+5/특징 4+4/하단 CTA, nav label 전 페이지 통일(실시간 매물/건설업등록/건설실무/고객센터), 카드 hover/focus-visible 인터랙션+border-color 전이, 전 페이지 h1 한글 text-wrap:balance+word-break:keep-all, 전 페이지 section aria-label 완성(home 6+yangdo 4+permit 4+knowledge 3+consult 4+mna-market 4=25개), 640px 모바일 반응형 전 서브페이지 확장, dark-bg h2 color specificity 버그 수정, 전 제품 페이지 OG+Twitter Card 메타데이터, 보안 헤더 4종(next.config.mjs)
+- Next.js 16.1.6 플랫폼 프론트: 17 static pages(+manifest.webmanifest), 디자인 시스템 CSS 1670줄, homepage 7-component 아키텍처(HomeHero+Shortcuts+MarketPreview+Operations+Process+CTA+Status), widget frame(3-state loading), 글로벌 네비/푸터(data-driven nav array), error boundary(dev-only logging), skip-link, prefers-reduced-motion, smooth scroll, loading.tsx, sitemap 8 routes, canonical URL 전 페이지, WebSite/SiteNavigationElement/Service/FAQPage/CollectionPage/ProfessionalService/WebPage JSON-LD 8종, Pretendard Variable+Noto Sans KR CDN(dns-prefetch+preconnect), 서비스 페이지 FAQ 5+5/특징 4+4/하단 CTA, nav label 전 페이지 통일(실시간 매물/건설업등록/건설실무/고객센터), 카드 hover/focus-visible 인터랙션+border-color 전이, 전 페이지 h1 한글 text-wrap:balance+word-break:keep-all, 전 페이지 section aria-label 완성(25개), WCAG 44px 터치타겟 전면 달성, 장식 emoji aria-hidden(16곳), footer contrast 0.85, 640px+360px 모바일 반응형 전 서브페이지 확장, dark-bg h2 color specificity 버그 수정, 전 제품 페이지 OG+Twitter Card 메타데이터, 보안 헤더 4종(next.config.mjs), CSS 중복 제거, dead config 제거
 - Gutenberg blueprint 생성 완료
 - child theme / lazy gate bridge plugin 생성 완료
 - `php fallback runtime -> apply -> verify` canonical cycle 녹색
@@ -378,6 +378,19 @@
 - **runtimeReasoningCardBox aria-live**: 동적 결과 영역 aria-live="polite" 누락 보완.
 - **_repair 완전 제거 (8→0 패치)**: renderProofClaim/renderResult 동기화 후 제거(−120줄), typography 3+fallback 1 dead code 제거(−335줄), 마지막 2패치(checkbox-meta-box+tip-text) template 직접 반영 후 `_repair_generated_permit_html`+`_replace_first_block`+`_repair_log` 완전 삭제(−50줄). 총 −505줄. Template이 유일 source of truth.
 - **Quality**: 2025 tests + 94 subtests PASS. (dead code 테스트 21개+3 subtests 정리, 실질 커버리지 유지)
+
+### [2026-03-10] Session 33 — WCAG 터치타겟 44px + canonical URL + JSON-LD + 코드 품질
+- **WCAG 터치타겟 44px 전면 달성**: nav links 39→44, footer links 29→44, nav-toggle 40→44, site-brand 40→44, skip-link 39→44px. `min-height: 44px` + `display: inline-flex/flex; align-items: center` 패턴
+- **canonical URL 전 서브페이지 추가**: yangdo/permit/knowledge/consult/mna-market + 루트 6곳에 `alternates.canonical` 추가. Next.js metadataBase 자동 병합으로 `https://seoulmna.kr/양도` 등 절대 URL 렌더
+- **JSON-LD 구조화 데이터 3페이지 신규**: knowledge(CollectionPage), consult(ProfessionalService+telephone+email), mna-market(WebPage+Service). 기존 Organization(layout)+FAQPage+Service(yangdo/permit)와 합산 총 8종
+- **접근성 개선 6건**: 장식 emoji aria-hidden(knowledge 4+consult 4+mna-market 4=12곳), phone emoji aria-hidden(consult 2곳), video overlay aria-hidden, status-dot aria-hidden
+- **footer link contrast 개선**: 0.75→0.85 불투명도 (WCAG AA 대비비 4.2:1→5.0:1+)
+- **CSS 중복 제거 2건**: `.features-grid` 이중 정의 통합(gap 20/16→16 단일), `.home-process-card`/`.home-operation-card` padding→공유 셀렉터 병합
+- **dead config 제거**: `widgetConsumerHost` 미사용 속성 삭제(listingHost와 중복), platform-status API 필드명 정리
+- **error.tsx production 로깅 제한**: console.error를 NODE_ENV=development에서만 출력
+- **font preconnect 최적화**: cdn.jsdelivr.net dns-prefetch+preconnect 추가, 불필요한 as="style" 제거
+- **360px 초소형 화면 반응형**: market-stats 1열 레이아웃 추가
+- **Quality**: 2678 tests + 94 subtests PASS. Next.js 빌드 17/17 pages.
 
 ### [2026-03-10] Session 32 — dark-bg h2 버그 수정 + SEO 메타데이터 + 보안 헤더
 - **dark-bg h2 색상 불가시 버그 수정 (3섹션)**: `.page-shell section h2 { color: var(--ink) }` 규칙이 specificity (0,1,2)로 dark-background 섹션(.cta-section, .bridge-card, .consult-start)의 h2를 덮어씌워 dark navy 텍스트가 dark navy 배경에 보이지 않던 버그. 해당 규칙에서 color 선언 제거하여 body `--ink` 상속 + 부모 white 상속 자연 전파
