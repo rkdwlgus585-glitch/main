@@ -76,7 +76,7 @@
 | `.co.kr` 브리지 | 100% | 정책/CTA/UTM 계약 확정, 5개 placement snippet 생성, Playwright MCP로 5/5 셀렉터 라이브 검증 완료, 인젝션 실행 계획 수립 |
 | 임대형 위젯/API | 99% | template -> scaffold -> validate -> activate 구조 완료 |
 | 특허 | 98% | canonical attorney handoff + claim 9건(양도5+아키텍처3+구조화1), typed_criteria 자동 구조화 특허 claim 추가 |
-| 품질 기준 | 100% | 2068 tests + 94 subtests PASS, permit 80/80+precheck_api 24/24+yangdo 22/22 함수 100% 커버리지, 전 코어 파일 return type 100%(241 함수), core_engine 11/11 모듈 100%, HTML 통합 41, _repair 완전 제거(8→0, template single source of truth), a11y WCAG AA 검증 7+3, 글로벌 JS 에러 경계 6, XSS 전수 감사, regex DoS 방어, broad except 코어 0건(외부 API 3건 유지), DRY −1030줄, safe_json+now_iso+_METADATA_MERGE_KEYS+sanitize_endpoint canonical화, build_response_envelope deep copy 수정, P1 보안(tenant_id/URL spoofing/ConsultStore)+SSRF+CRM 정보누출 차단, UTF-8 BOM 전수 정리+.editorconfig+.gitattributes |
+| 품질 기준 | 100% | 2396 tests + 94 subtests PASS, permit 80/80+precheck_api 24/24+yangdo 22/22 함수 100% 커버리지, 전 코어 파일 return type 100%(241 함수), core_engine 11/11 모듈 100%, HTML 통합 41, _repair 완전 제거(8→0, template single source of truth), a11y WCAG AA 검증 7+3, 글로벌 JS 에러 경계 6, XSS 전수 감사, regex DoS 방어, broad except 코어 0건(외부 API 3건 유지), DRY −1030줄, safe_json+now_iso+_METADATA_MERGE_KEYS+sanitize_endpoint canonical화, build_response_envelope deep copy 수정, P1 보안(tenant_id/URL spoofing/ConsultStore)+SSRF+CRM 정보누출 차단, UTF-8 BOM 전수 정리+.editorconfig+.gitattributes |
 
 ## 영업 준비 상태 (Business Readiness Assessment — Session 21)
 
@@ -362,6 +362,14 @@
 - **runtimeReasoningCardBox aria-live**: 동적 결과 영역 aria-live="polite" 누락 보완.
 - **_repair 완전 제거 (8→0 패치)**: renderProofClaim/renderResult 동기화 후 제거(−120줄), typography 3+fallback 1 dead code 제거(−335줄), 마지막 2패치(checkbox-meta-box+tip-text) template 직접 반영 후 `_repair_generated_permit_html`+`_replace_first_block`+`_repair_log` 완전 삭제(−50줄). 총 −505줄. Template이 유일 source of truth.
 - **Quality**: 2025 tests + 94 subtests PASS. (dead code 테스트 21개+3 subtests 정리, 실질 커버리지 유지)
+
+### [2026-03-10] Session 23 — security_http +72 / quote_engine +94 / 인허가 시스템 설명 재정의
+- **security_http.py 테스트 0→72**: parse_origin_allowlist, resolve_allow_origin, header_token, parse_key_values, is_authorized_any/is_authorized, safe_client_ip, SlidingWindowRateLimiter (window expiry, max_keys overflow, retry_after), SecurityEventLogger (file I/O, nested dir, ts handling), DEFAULT_SECURITY_HEADERS 전수 테스트
+- **quote_engine.py 순수함수 테스트 0→94**: _compact/_norm/_parse_phone/_parse_eok(억/만/plain/경계값), _infer_intent(21 keyword 분류), _normalize_intent(INTENT_ALIASES 전수+fallback), _infer_urgency, _quote_id, _estimate_fee(7개 intent×urgency×deal_value×license_count×due_diligence 교차), _build_assumptions/summary/messages, _write_quote_files, _generate_quote 통합
+- **인허가 시스템 설명 재정의**: "등록기준 진단" → "건설업·유사 업종 등록기준 파악 + 신규 취득 비용 계산"
+  - hero, page (ProductCard), capability-strip, workflow-grid, trust-signals, consultation-cta, site-footer, layout.tsx 일괄 반영
+  - 내부/특허 명칭: "AI 양도가 산정 시스템" / "AI 인허가 사전검토 시스템" 기준 정비
+- **Quality**: 2396 tests + 94 subtests PASS. Next.js 16.1.6 빌드 검증 + 데스크톱/모바일 시각 검증 완료.
 
 ### [2026-03-10] Session 22 — core_engine 테스트 보강 +121 / 플랫폼 프론트 전면 재설계
 - **permit_mapping_pipeline 테스트 2→60** (+58): MappingBatch, _normalize_text, _is_pending_row, _chunk, apply_mapping_pipeline 엣지케이스 전수 테스트
