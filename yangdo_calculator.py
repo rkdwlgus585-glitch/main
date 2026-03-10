@@ -682,7 +682,9 @@ def build_page_html(
       --smna-text: #1A1A2E;
       --smna-sub: #4B5563;
       --smna-warning: #FFB800;
+      --smna-warning-text: #946200;
       --smna-success: #00C48C;
+      --smna-success-text: #008756;
       --smna-error: #FF4757;
       --smna-border: #E5E7EB;
       --smna-header-text: #f8fbff;
@@ -1194,7 +1196,7 @@ def build_page_html(
       margin-top: auto;
       font-size: 12px;
       font-weight: 800;
-      color: var(--smna-warning);
+      color: var(--smna-warning-text);
     }}
     #seoulmna-yangdo-calculator .reorg-compare-card.is-active {{
       border-color: rgba(0, 55, 100, 0.26);
@@ -1404,7 +1406,7 @@ def build_page_html(
       color: var(--smna-primary);
     }}
     #seoulmna-yangdo-calculator .yoy-compare.up strong {{ color: var(--smna-primary-soft); }}
-    #seoulmna-yangdo-calculator .yoy-compare.down strong {{ color: var(--smna-warning); }}
+    #seoulmna-yangdo-calculator .yoy-compare.down strong {{ color: var(--smna-warning-text); }}
     #seoulmna-yangdo-calculator .risk-note {{
       background: var(--smna-accent-soft);
       border: 1px solid var(--smna-accent-border);
@@ -1440,7 +1442,7 @@ def build_page_html(
     }}
     #seoulmna-yangdo-calculator .result-reason-chip.settlement {{
       background: #f6fbf4;
-      color: var(--smna-success);
+      color: var(--smna-success-text);
       border-color: #d5e8d5;
     }}
     #seoulmna-yangdo-calculator .settlement-panel {{
@@ -2109,7 +2111,7 @@ def build_page_html(
       border-radius: 16px;
       border: 1px solid rgba(183, 150, 114, 0.26);
       background: linear-gradient(180deg, rgba(250, 245, 238, 0.98), rgba(255,255,255,0.98));
-      color: var(--smna-warning);
+      color: var(--smna-warning-text);
       font-size: 13px;
       font-weight: 800;
       line-height: 1.48;
@@ -2509,7 +2511,7 @@ def build_page_html(
       padding: 4px 9px;
       border-radius: 999px;
       background: rgba(183, 150, 114, 0.14);
-      color: var(--smna-warning);
+      color: var(--smna-warning-text);
       font-size: 11px;
       font-weight: 900;
       letter-spacing: 0.08em;

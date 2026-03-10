@@ -419,6 +419,11 @@ class YangdoBuildPageHtmlTest(unittest.TestCase):
             f"Possible f-string escape leaks: {truly_suspicious[:5]}"
         )
 
+    # -- WCAG AA color contrast: text-safe CSS vars ---
+    def test_wcag_text_safe_color_variables(self):
+        self.assertIn("--smna-success-text", self._html)
+        self.assertIn("--smna-warning-text", self._html)
+
     # -- Overall size ---------------------------------------------------------
     def test_html_minimum_size(self):
         self.assertGreater(len(self._html), 50_000, "HTML should be >50KB")
