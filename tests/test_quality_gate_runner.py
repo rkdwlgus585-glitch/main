@@ -99,7 +99,7 @@ class QualityGateRunnerTest(unittest.TestCase):
                     {
                         "id": "exists_check",
                         "type": "file_exists",
-                        "paths": ["all.py"]
+                        "paths": ["utils.py"]
                     }
                 ],
             }

@@ -10,6 +10,9 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
+_ALL_ROOT = REPO_ROOT.parent / "ALL"               # H:\ALL (non-core modules)
+if str(_ALL_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ALL_ROOT))
 
 import all as app
 

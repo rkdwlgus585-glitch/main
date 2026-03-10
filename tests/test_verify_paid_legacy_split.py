@@ -3,7 +3,7 @@ import pathlib
 import unittest
 
 
-SCRIPT_PATH = pathlib.Path(__file__).resolve().parents[1] / "paid_ops" / "verify_paid_legacy_split.py"
+SCRIPT_PATH = pathlib.Path(__file__).resolve().parents[1].parent / "ALL" / "paid_ops" / "verify_paid_legacy_split.py"
 SPEC = importlib.util.spec_from_file_location("verify_paid_legacy_split", SCRIPT_PATH)
 MOD = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MOD)

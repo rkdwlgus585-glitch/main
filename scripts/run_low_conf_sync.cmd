@@ -1,4 +1,4 @@
-@echo off
+﻿@echo off
 :: [ROLE] OPS_RUNNER - scheduled low-confidence sheet sync maintenance job
 setlocal
 chcp 65001 >nul
@@ -18,5 +18,5 @@ if not defined PY_CMD (
     exit /b 1
 )
 
-%PY_CMD% all.py --sync-low-confidence-sheet --low-limit 500 --low-recent-numbers 2000 --low-skip-reviewed >> logs\price_low_conf_scheduler.log 2>&1
+%PY_CMD% ..\ALL\all.py --sync-low-confidence-sheet --low-limit 500 --low-recent-numbers 2000 --low-skip-reviewed >> logs\price_low_conf_scheduler.log 2>&1
 exit /b %errorlevel%

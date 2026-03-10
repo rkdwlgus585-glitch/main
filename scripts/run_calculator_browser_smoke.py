@@ -18,6 +18,9 @@ from bs4 import BeautifulSoup
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
+_ALL_ROOT = ROOT.parent / "ALL"                    # H:\ALL (non-core modules)
+if str(_ALL_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ALL_ROOT))
 OUTPUT_DIR = ROOT / "output"
 LOG_DIR = ROOT / "logs"
 OWNER_OUTPUT = OUTPUT_DIR / "yangdo_price_calculator_owner_internal_v11.html"

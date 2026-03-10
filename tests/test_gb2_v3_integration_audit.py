@@ -5,7 +5,7 @@ import types
 import unittest
 
 
-SCRIPT_PATH = pathlib.Path(__file__).resolve().parents[1] / "paid_ops" / "audit_gb2_v3_integration.py"
+SCRIPT_PATH = pathlib.Path(__file__).resolve().parents[1].parent / "ALL" / "paid_ops" / "audit_gb2_v3_integration.py"
 SPEC = importlib.util.spec_from_file_location("audit_gb2_v3_integration", SCRIPT_PATH)
 MOD = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MOD)

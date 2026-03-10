@@ -3,7 +3,7 @@ import pathlib
 import unittest
 
 
-SCRIPT_PATH = pathlib.Path(__file__).resolve().parents[1] / "paid_ops" / "build_gabji_analysis_report.py"
+SCRIPT_PATH = pathlib.Path(__file__).resolve().parents[1].parent / "ALL" / "paid_ops" / "build_gabji_analysis_report.py"
 SPEC = importlib.util.spec_from_file_location("build_gabji_analysis_report", SCRIPT_PATH)
 MOD = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MOD)

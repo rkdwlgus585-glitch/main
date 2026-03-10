@@ -4,7 +4,7 @@ import types
 import unittest
 
 
-SCRIPT_PATH = pathlib.Path(__file__).resolve().parents[1] / "tistory_ops" / "publish_browser.py"
+SCRIPT_PATH = pathlib.Path(__file__).resolve().parents[1].parent / "ALL" / "tistory_ops" / "publish_browser.py"
 SPEC = importlib.util.spec_from_file_location("tistory_publish_browser_auto_login", SCRIPT_PATH)
 MOD = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MOD)

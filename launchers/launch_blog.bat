@@ -1,4 +1,4 @@
-@echo off
+﻿@echo off
 :: [ROLE] REAL_LAUNCHER - blog entrypoint (gui/auto/scheduler/status)
 :: [GROUP] BLOG_CONTENT
 setlocal
@@ -30,15 +30,15 @@ pause
 exit /b 1
 
 :gui
-python mnakr.py
+python ..\ALL\mnakr.py
 goto done
 
 :auto_once
-python mnakr.py --cli
+python ..\ALL\mnakr.py --cli
 goto done
 
 :schedule_check
-python mnakr.py --schedule-check
+python ..\ALL\mnakr.py --schedule-check
 goto done
 
 :startup_once
@@ -48,7 +48,7 @@ goto done
 :scheduler
 echo.
 echo [AUTO-PUBLISH SCHEDULE]
-python mnakr.py --schedule-check
+python ..\ALL\mnakr.py --schedule-check
 echo.
 echo [RUN CONDITIONS]
 echo 1. Keep this computer powered on.
@@ -57,7 +57,7 @@ echo 3. Disable sleep/hibernate during schedule window.
 echo 4. Keep internet connection active.
 echo 5. Ensure WP auth is valid (WP_USER+WP_APP_PASSWORD or WP_JWT_TOKEN).
 echo.
-python mnakr.py --scheduler
+python ..\ALL\mnakr.py --scheduler
 goto done
 
 :done

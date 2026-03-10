@@ -1,4 +1,4 @@
-@echo off
+﻿@echo off
 REM [ROLE] REAL_LAUNCHER - wr_20 admin memo restore from sheet basis
 REM [GROUP] LISTING_PIPELINE
 setlocal
@@ -21,7 +21,7 @@ if /i "%MODE%"=="help" goto usage_info
 if /i "%MODE%"=="usage" goto usage_info
 if "%MODE%"=="" goto menu
 
-python all.py %RAW_ARGS%
+python ..\ALL\all.py %RAW_ARGS%
 goto done
 
 :menu
@@ -42,19 +42,19 @@ if "%MODE_CHOICE%"=="4" goto apply_all
 goto done
 
 :plan
-python all.py --fix-admin-memo --fix-admin-memo-plan-only --fix-admin-memo-all --fix-admin-memo-pages 0 --fix-admin-memo-request-buffer 120 --fix-admin-memo-write-buffer 12 %EXTRA_ARGS%
+python ..\ALL\all.py --fix-admin-memo --fix-admin-memo-plan-only --fix-admin-memo-all --fix-admin-memo-pages 0 --fix-admin-memo-request-buffer 120 --fix-admin-memo-write-buffer 12 %EXTRA_ARGS%
 goto done
 
 :dry
-python all.py --fix-admin-memo --fix-admin-memo-dry-run --fix-admin-memo-all --fix-admin-memo-pages 3 --fix-admin-memo-limit 30 --fix-admin-memo-request-buffer 120 --fix-admin-memo-write-buffer 12 %EXTRA_ARGS%
+python ..\ALL\all.py --fix-admin-memo --fix-admin-memo-dry-run --fix-admin-memo-all --fix-admin-memo-pages 3 --fix-admin-memo-limit 30 --fix-admin-memo-request-buffer 120 --fix-admin-memo-write-buffer 12 %EXTRA_ARGS%
 goto done
 
 :apply
-python all.py --fix-admin-memo --fix-admin-memo-all --fix-admin-memo-pages 3 --fix-admin-memo-limit 20 --fix-admin-memo-delay-sec 2.0 --fix-admin-memo-request-buffer 120 --fix-admin-memo-write-buffer 12 %EXTRA_ARGS%
+python ..\ALL\all.py --fix-admin-memo --fix-admin-memo-all --fix-admin-memo-pages 3 --fix-admin-memo-limit 20 --fix-admin-memo-delay-sec 2.0 --fix-admin-memo-request-buffer 120 --fix-admin-memo-write-buffer 12 %EXTRA_ARGS%
 goto done
 
 :apply_all
-python all.py --fix-admin-memo --fix-admin-memo-all --fix-admin-memo-pages 0 --fix-admin-memo-limit 0 --fix-admin-memo-delay-sec 1.8 --fix-admin-memo-request-buffer 120 --fix-admin-memo-write-buffer 12 %EXTRA_ARGS%
+python ..\ALL\all.py --fix-admin-memo --fix-admin-memo-all --fix-admin-memo-pages 0 --fix-admin-memo-limit 0 --fix-admin-memo-delay-sec 1.8 --fix-admin-memo-request-buffer 120 --fix-admin-memo-write-buffer 12 %EXTRA_ARGS%
 goto done
 
 :usage_info

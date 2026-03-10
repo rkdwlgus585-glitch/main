@@ -25,7 +25,7 @@ class TistoryPublishDryRunTest(unittest.TestCase):
             proc = subprocess.run(
                 [
                     sys.executable,
-                    str(ROOT / "tistory_ops" / "publish_listing.py"),
+                    str(ROOT.parent / "ALL" / "tistory_ops" / "publish_listing.py"),
                     "--json-input",
                     str(src_path),
                     "--dry-run",

@@ -1,4 +1,4 @@
-@echo off
+﻿@echo off
 :: [ROLE] REAL_LAUNCHER - runs gabji automation directly
 setlocal
 cd /d "%~dp0.."
@@ -13,5 +13,5 @@ if not defined PY_CMD (
     echo [ERROR] Python launcher not found.
     exit /b 1
 )
-%PY_CMD% gabji.py %*
+%PY_CMD% ..\ALL\gabji.py %*
 exit /b %errorlevel%

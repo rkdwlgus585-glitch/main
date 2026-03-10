@@ -2,10 +2,12 @@ import re
 import unittest
 from pathlib import Path
 
+_MNAKR = Path(__file__).resolve().parents[1].parent / "ALL" / "mnakr.py"
+
 
 class EncodingGuardTest(unittest.TestCase):
     def test_no_mojibake_in_runtime_critical_lines(self):
-        src = Path("mnakr.py").read_text(encoding="utf-8")
+        src = _MNAKR.read_text(encoding="utf-8")
         hints = (
             "logger.",
             "messagebox",
@@ -35,7 +37,7 @@ class EncodingGuardTest(unittest.TestCase):
         )
 
     def test_columnist_prompt_contains_clear_contract(self):
-        src = Path("mnakr.py").read_text(encoding="utf-8")
+        src = _MNAKR.read_text(encoding="utf-8")
         self.assertIn("Target keyword", src)
         self.assertIn("Return valid JSON only", src)
 

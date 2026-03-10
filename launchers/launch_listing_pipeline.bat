@@ -1,4 +1,4 @@
-@echo off
+﻿@echo off
 REM [ROLE] REAL_LAUNCHER - canonical listing pipeline launcher (collector + reconcile)
 REM [GROUP] LISTING_PIPELINE
 setlocal
@@ -20,7 +20,7 @@ if /i "%MODE%"=="collect" goto run_default_args
 if /i "%MODE%"=="default" goto run_default_args
 if /i "%MODE%"=="help" goto help
 
-python all.py %RAW_ARGS%
+python ..\ALL\all.py %RAW_ARGS%
 goto done
 
 :menu
@@ -39,15 +39,15 @@ echo Invalid selection.
 goto done
 
 :run_default
-python all.py
+python ..\ALL\all.py
 goto done
 
 :reconcile_full_menu
-python all.py --reconcile-published --reconcile-seoul-pages 0
+python ..\ALL\all.py --reconcile-published --reconcile-seoul-pages 0
 goto done
 
 :reconcile_sheet_menu
-python all.py --reconcile-published --reconcile-seoul-pages 0 --reconcile-sheet-only
+python ..\ALL\all.py --reconcile-published --reconcile-seoul-pages 0 --reconcile-sheet-only
 goto done
 
 :reconcile_menu
@@ -70,31 +70,31 @@ echo Invalid selection.
 goto done
 
 :full_apply
-python all.py --reconcile-published --reconcile-seoul-pages 0
+python ..\ALL\all.py --reconcile-published --reconcile-seoul-pages 0
 goto done
 
 :sheet_apply
-python all.py --reconcile-published --reconcile-seoul-pages 0 --reconcile-sheet-only
+python ..\ALL\all.py --reconcile-published --reconcile-seoul-pages 0 --reconcile-sheet-only
 goto done
 
 :full_dry
-python all.py --reconcile-published --reconcile-seoul-pages 0 --reconcile-dry-run
+python ..\ALL\all.py --reconcile-published --reconcile-seoul-pages 0 --reconcile-dry-run
 goto done
 
 :sheet_dry
-python all.py --reconcile-published --reconcile-seoul-pages 0 --reconcile-sheet-only --reconcile-dry-run
+python ..\ALL\all.py --reconcile-published --reconcile-seoul-pages 0 --reconcile-sheet-only --reconcile-dry-run
 goto done
 
 :reconcile_full
-python all.py --reconcile-published --reconcile-seoul-pages 0 %EXTRA_ARGS%
+python ..\ALL\all.py --reconcile-published --reconcile-seoul-pages 0 %EXTRA_ARGS%
 goto done
 
 :reconcile_sheet
-python all.py --reconcile-published --reconcile-seoul-pages 0 --reconcile-sheet-only %EXTRA_ARGS%
+python ..\ALL\all.py --reconcile-published --reconcile-seoul-pages 0 --reconcile-sheet-only %EXTRA_ARGS%
 goto done
 
 :run_default_args
-python all.py %EXTRA_ARGS%
+python ..\ALL\all.py %EXTRA_ARGS%
 goto done
 
 :help

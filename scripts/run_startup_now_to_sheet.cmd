@@ -1,4 +1,4 @@
-@echo off
+﻿@echo off
 REM [ROLE] OPS_RUNNER - canonical nowmna -> Google Sheet -> seoul catchup runner
 setlocal EnableExtensions EnableDelayedExpansion
 cd /d "%~dp0.."
@@ -13,6 +13,7 @@ if not defined NOW_TO_SHEET_RETRY_MAX_SEC set "NOW_TO_SHEET_RETRY_MAX_SEC=1800"
 if not defined NOW_TO_SHEET_LOCK_STALE_MIN set "NOW_TO_SHEET_LOCK_STALE_MIN=120"
 if not defined NOW_TO_SHEET_SKIP_UPLOAD set "NOW_TO_SHEET_SKIP_UPLOAD=0"
 if not defined NOW_TO_SHEET_EXTRA_ARGS set "NOW_TO_SHEET_EXTRA_ARGS="
+if not defined SCHEDULE_TARGET_HOURS set "SCHEDULE_TARGET_HOURS=12,18"
 if not defined SCHEDULE_TARGET_HOUR set "SCHEDULE_TARGET_HOUR=18"
 
 echo. >>"%LOG_FILE%"
@@ -59,7 +60,7 @@ set "RC=1"
 set "WAIT_SEC=%NOW_TO_SHEET_RETRY_BASE_SEC%"
 REM Canonical policy:
 REM - nowmna -> Google Sheet sync is always performed
-REM - seoul upload is attempted only for rows with claim price (enforced in all.py)
+REM - seoul upload is attempted only for rows with claim price (enforced in ..\ALL\all.py)
 set "SYNC_ARGS=--scheduled-catchup --catchup-full-reconcile"
 if /i "%NOW_TO_SHEET_SKIP_UPLOAD%"=="1" set "SYNC_ARGS=!SYNC_ARGS! --catchup-no-upload"
 if not "%NOW_TO_SHEET_EXTRA_ARGS%"=="" (
@@ -69,7 +70,7 @@ if not "%NOW_TO_SHEET_EXTRA_ARGS%"=="" (
 :retry_loop
 set /a ATTEMPT+=1
 echo [%date% %time%] START now-to-sheet sync attempt=!ATTEMPT! args=!SYNC_ARGS! >>"%LOG_FILE%"
-%PY_CMD% all.py !SYNC_ARGS! >>"%LOG_FILE%" 2>&1
+%PY_CMD% ..\ALL\all.py !SYNC_ARGS! >>"%LOG_FILE%" 2>&1
 set "RC=!errorlevel!"
 if "!RC!"=="0" goto done
 if !ATTEMPT! GEQ %NOW_TO_SHEET_MAX_RETRIES% goto done

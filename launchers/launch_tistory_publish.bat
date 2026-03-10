@@ -25,12 +25,12 @@ if not defined REG goto daily_mode
 if /i "%REG%"=="daily" goto daily_mode
 
 echo [INFO] publish start: registration=%REG%
-%PY_CMD% tistory_ops\run.py publish-listing --registration %REG% --open-browser --auto-login --interactive-login --login-wait-sec 300 --draft-policy discard --audit-tag launcher
+%PY_CMD% ..\ALL\tistory_ops\run.py publish-listing --registration %REG% --open-browser --auto-login --interactive-login --login-wait-sec 300 --draft-policy discard --audit-tag launcher
 goto after_run
 
 :daily_mode
 echo [INFO] daily-once publish start (sheet sequence, start 7540)
-%PY_CMD% tistory_ops\run.py daily-once --start-registration 7540 --audit-tag launcher_daily
+%PY_CMD% ..\ALL\tistory_ops\run.py daily-once --start-registration 7540 --audit-tag launcher_daily
 goto after_run
 
 :startup_once

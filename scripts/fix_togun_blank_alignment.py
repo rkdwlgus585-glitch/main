@@ -16,6 +16,9 @@ from webdriver_manager.chrome import ChromeDriverManager
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
+_ALL_DIR = os.path.abspath(os.path.join(ROOT_DIR, "..", "ALL"))  # H:\ALL (non-core modules)
+if _ALL_DIR not in sys.path:
+    sys.path.insert(0, _ALL_DIR)
 
 import all
 

@@ -10,7 +10,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 class TistoryRunCliTest(unittest.TestCase):
     def test_help_includes_commands(self):
         proc = subprocess.run(
-            [sys.executable, str(ROOT / "tistory_ops" / "run.py"), "help"],
+            [sys.executable, str(ROOT.parent / "ALL" / "tistory_ops" / "run.py"), "help"],
             cwd=str(ROOT),
             capture_output=True,
             text=True,

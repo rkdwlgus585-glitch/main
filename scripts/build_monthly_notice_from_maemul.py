@@ -28,6 +28,9 @@ from oauth2client.service_account import ServiceAccountCredentials
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
+_ALL_ROOT = ROOT.parent / "ALL"                    # H:\ALL (non-core modules)
+if str(_ALL_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ALL_ROOT))
 
 import maemul  # noqa: E402
 import all as listing_ops  # noqa: E402

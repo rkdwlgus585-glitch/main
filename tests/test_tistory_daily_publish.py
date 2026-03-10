@@ -8,7 +8,7 @@ import unittest
 from unittest import mock
 
 
-SCRIPT_PATH = pathlib.Path(__file__).resolve().parents[1] / "tistory_ops" / "daily_publish.py"
+SCRIPT_PATH = pathlib.Path(__file__).resolve().parents[1].parent / "ALL" / "tistory_ops" / "daily_publish.py"
 SPEC = importlib.util.spec_from_file_location("tistory_daily_publish", SCRIPT_PATH)
 MOD = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MOD)

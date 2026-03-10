@@ -1,4 +1,4 @@
-@echo off
+﻿@echo off
 chcp 65001 >nul 2>nul
 cd /d "%~dp0"
 
@@ -18,14 +18,14 @@ echo   9. exit
 echo.
 set /p choice="Select (1-9): "
 
-if "%choice%"=="1" python run.py all
-if "%choice%"=="2" python run.py maemul
-if "%choice%"=="3" python run.py match
-if "%choice%"=="4" python run.py premium
-if "%choice%"=="5" python run.py blog-cli
-if "%choice%"=="6" python run.py notice-monthly
-if "%choice%"=="7" python run.py notice-archive --min-uid 7684
-if "%choice%"=="8" python run.py help
+if "%choice%"=="1" python ..\ALL\run.py all
+if "%choice%"=="2" python ..\ALL\run.py maemul
+if "%choice%"=="3" python ..\ALL\run.py match
+if "%choice%"=="4" python ..\ALL\run.py premium
+if "%choice%"=="5" python ..\ALL\run.py blog-cli
+if "%choice%"=="6" python ..\ALL\run.py notice-monthly
+if "%choice%"=="7" python ..\ALL\run.py notice-archive --min-uid 7684
+if "%choice%"=="8" python ..\ALL\run.py help
 if "%choice%"=="9" exit /b 0
 
 echo.

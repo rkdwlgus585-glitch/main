@@ -47,7 +47,7 @@ def _build_import_cmd(py_rel: str) -> list[str]:
         return [
             sys.executable,
             "-c",
-            "import runpy,sys; runpy.run_path(sys.argv[1], run_name='__smoke__')",
+            "import sys,os; sys.path.insert(0,os.path.dirname(os.path.abspath(sys.argv[1]))); import runpy; runpy.run_path(sys.argv[1], run_name='__smoke__')",
             py_rel,
         ]
     module_name = pathlib.Path(py_rel).stem
@@ -75,7 +75,10 @@ def _normalize_ref_token(token: str) -> str:
     normalized = str(token or "").strip().strip("\"'")
     normalized = normalized.replace("%cd%\\", "").replace("%cd%/", "")
     normalized = normalized.replace("%~dp0", "")
-    normalized = normalized.replace("\\", "/").lstrip("./")
+    normalized = normalized.replace("\\", "/")
+    # Strip leading ./ (current-dir) but preserve ../ (parent-dir traversal)
+    while normalized.startswith("./"):
+        normalized = normalized[2:]
     normalized = normalized.lstrip("/")
     return normalized
 

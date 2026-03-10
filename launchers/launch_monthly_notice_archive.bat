@@ -1,9 +1,9 @@
-@echo off
+﻿@echo off
 REM [ROLE] REAL_LAUNCHER - monthly notice archive generator
 REM [GROUP] NOTICE_ARCHIVE
 setlocal
 cd /d "%~dp0.."
 
-python run.py notice-monthly --monthly-archive %*
+python ..\ALL\run.py notice-monthly --monthly-archive %*
 exit /b %errorlevel%
 

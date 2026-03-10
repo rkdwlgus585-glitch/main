@@ -148,7 +148,7 @@ def _build_import_cmd(py_rel: str) -> list[str]:
         return [
             sys.executable,
             "-c",
-            "import runpy,sys; runpy.run_path(sys.argv[1], run_name='__smoke__')",
+            "import sys,os; sys.path.insert(0,os.path.dirname(os.path.abspath(sys.argv[1]))); import runpy; runpy.run_path(sys.argv[1], run_name='__smoke__')",
             py_rel,
         ]
     module_name = pathlib.Path(py_rel).stem
