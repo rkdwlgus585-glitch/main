@@ -203,7 +203,7 @@ img { max-width: 100%; display: block; }
 }
 
 /* ── Buttons ───────────────────────────────────────────────── */
-.cta-primary, .cta-secondary, .product-link, .back-link {
+.cta-primary, .cta-secondary, .back-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
