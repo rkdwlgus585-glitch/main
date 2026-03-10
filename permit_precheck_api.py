@@ -581,7 +581,7 @@ class PermitUsageStore:
         key = _compact(tenant_id).lower() or "unknown"
         status = "ok" if bool(result.get("ok")) else "error"
         estimated_tokens = self._token_estimate(status == "ok")
-        request_key = _compact(request_id, 80) or str(uuid.uuid4())
+        request_key = _compact(request_id, 80) or uuid.uuid4().hex
         received_at = now_iso()
         input_snapshot = _canonical_permit_input_snapshot(inputs, result)
         result_summary = _result_summary_payload(result)

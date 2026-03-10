@@ -86,6 +86,41 @@ def _gzip_base64_json(data) -> str:
     return base64.b64encode(compressed).decode("ascii")
 
 
+_METADATA_MERGE_KEYS: tuple[str, ...] = (
+    "collection_status",
+    "status",
+    "mapping_status",
+    "mapping_batch_id",
+    "mapping_batch_seq",
+    "mapping_group_key",
+    "additional_criteria_count",
+    "rule_pack_ref",
+    "law_title",
+    "legal_basis_title",
+    "legal_basis",
+    "criteria_summary",
+    "criteria_additional",
+    "criteria_source_type",
+    "auto_law_candidates",
+    "auto_collection_at",
+    "auto_collection_error",
+    "candidate_criteria_status",
+    "candidate_criteria_count",
+    "candidate_criteria_lines",
+    "candidate_additional_criteria_lines",
+    "candidate_legal_basis",
+    "candidate_law_fetch_meta",
+    "candidate_raw_text_preview",
+    "candidate_extracted_at",
+    "quality_flags",
+    "registration_requirement_profile",
+    "seed_rule_service_code",
+    "seed_rule_id",
+    "seed_law_family",
+    "raw_source_proof",
+)
+
+
 def _blank_catalog() -> dict:
     return {
         "summary": {"industry_total": 0, "major_category_total": 0},
@@ -1064,76 +1099,12 @@ def _prepare_ui_payload(catalog: dict, rule_catalog: dict) -> dict:
             "catalog_source_label": _get_str(row, "catalog_source_label"),
             "has_rule": bool(row.get("has_rule", False)),
         }
-        for key in (
-            "collection_status",
-            "status",
-            "mapping_status",
-            "mapping_batch_id",
-            "mapping_batch_seq",
-            "mapping_group_key",
-            "additional_criteria_count",
-            "rule_pack_ref",
-            "law_title",
-            "legal_basis_title",
-            "legal_basis",
-            "criteria_summary",
-            "criteria_additional",
-            "criteria_source_type",
-            "auto_law_candidates",
-            "auto_collection_at",
-            "auto_collection_error",
-            "candidate_criteria_status",
-            "candidate_criteria_count",
-            "candidate_criteria_lines",
-            "candidate_additional_criteria_lines",
-            "candidate_legal_basis",
-            "candidate_law_fetch_meta",
-            "candidate_raw_text_preview",
-            "candidate_extracted_at",
-            "quality_flags",
-            "registration_requirement_profile",
-            "seed_rule_service_code",
-            "seed_rule_id",
-            "seed_law_family",
-            "raw_source_proof",
-        ):
+        for key in _METADATA_MERGE_KEYS:
             if key in row:
                 industry[key] = row.get(key)
         expanded_row = expanded_lookup.get(service_code) or {}
         if expanded_row:
-            for key in (
-                "collection_status",
-                "status",
-                "mapping_status",
-                "mapping_batch_id",
-                "mapping_batch_seq",
-                "mapping_group_key",
-                "additional_criteria_count",
-                "rule_pack_ref",
-                "law_title",
-                "legal_basis_title",
-                "legal_basis",
-                "criteria_summary",
-                "criteria_additional",
-                "criteria_source_type",
-                "auto_law_candidates",
-                "auto_collection_at",
-                "auto_collection_error",
-                "candidate_criteria_status",
-                "candidate_criteria_count",
-                "candidate_criteria_lines",
-                "candidate_additional_criteria_lines",
-                "candidate_legal_basis",
-                "candidate_law_fetch_meta",
-                "candidate_raw_text_preview",
-                "candidate_extracted_at",
-                "quality_flags",
-                "registration_requirement_profile",
-                "seed_rule_service_code",
-                "seed_rule_id",
-                "seed_law_family",
-                "raw_source_proof",
-            ):
+            for key in _METADATA_MERGE_KEYS:
                 if key in expanded_row:
                     industry[key] = expanded_row.get(key)
         rule = _resolve_rule_for_industry(industry, rule_index)
