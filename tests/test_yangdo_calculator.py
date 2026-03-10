@@ -4,6 +4,7 @@ import json
 import math
 import unittest
 
+from core_engine.api_response import safe_json_for_script
 from yangdo_calculator import (
     _collapse_script_whitespace,
     _compact_train_row,
@@ -24,7 +25,6 @@ from yangdo_calculator import (
     calc_quantile,
     listing_detail_url,
     mean_or_none,
-    safe_json_for_script,
 )
 
 

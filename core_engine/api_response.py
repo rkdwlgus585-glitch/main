@@ -1,6 +1,17 @@
 from __future__ import annotations
 
+import json
 from typing import Any, Dict
+
+
+def safe_json_for_script(data: Any) -> str:
+    """Serialize *data* to a JSON string safe for embedding in ``<script>``."""
+    text = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
+    return (
+        text.replace("</", "<\\/")
+        .replace("\u2028", "\\u2028")
+        .replace("\u2029", "\\u2029")
+    )
 
 
 def _compact(value: Any, limit: int = 2000) -> str:

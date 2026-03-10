@@ -2,13 +2,13 @@ import argparse
 import base64
 import gzip
 import json
-import logging
 import re
 from datetime import date, timedelta
 from html import escape
 from pathlib import Path
 from typing import Any, Dict
 
+from core_engine.api_response import safe_json_for_script
 from core_engine.channel_branding import resolve_channel_branding
 from core_engine.permit_criteria_schema import evaluate_typed_criteria
 
@@ -78,15 +78,6 @@ def _get_int(data: dict, key: str, default: int = 0) -> int:
         return 0
     return max(out, 0)
 # ───────────────────────────────────────────────────────────────────────
-
-
-def _safe_json(data) -> str:
-    text = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
-    return (
-        text.replace("</", "<\\/")
-        .replace("\u2028", "\\u2028")
-        .replace("\u2029", "\\u2029")
-    )
 
 
 def _gzip_base64_json(data) -> str:
@@ -7970,7 +7961,7 @@ def build_html(
         .replace("__PERMIT_DATA_ENCODING__", escape(resolved_data_encoding))
         .replace(
             "__PERMIT_BOOTSTRAP_JSON__",
-            _safe_json(inline_bootstrap_json),
+            safe_json_for_script(inline_bootstrap_json),
         )
         .replace("__PERMIT_BOOTSTRAP_GZIP_BASE64__", inline_bootstrap_gzip_base64)
     )

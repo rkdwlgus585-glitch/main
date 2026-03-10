@@ -3,6 +3,7 @@ import os
 import re
 from datetime import datetime
 from html import escape
+from core_engine.api_response import safe_json_for_script
 from core_engine.channel_branding import resolve_channel_branding
 def _round4(value):
     if value is None:
@@ -11,13 +12,6 @@ def _round4(value):
         return round(float(value), 4)
     except (ValueError, TypeError):
         return None
-def safe_json_for_script(data):
-    text = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
-    return (
-        text.replace("</", "<\\/")
-        .replace("\u2028", "\\u2028")
-        .replace("\u2029", "\\u2029")
-    )
 
 
 def _sanitize_endpoint(url):

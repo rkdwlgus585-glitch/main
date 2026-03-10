@@ -562,9 +562,9 @@ class CrmBridge:
         normalized = _normalize_business_payload(payload)
         try:
             hub = self._connect()
-        except Exception as e:
+        except Exception:
             logger.exception("crm connect failed")
-            return {"status": f"crm_connect_error:{e}", "lead_id": ""}
+            return {"status": "crm_connect_error", "lead_id": ""}
 
         contact = _compact(normalized.get("customer_phone")) or _compact(normalized.get("customer_email"))
         title = _compact(normalized.get("subject")) or "서울건설정보 AI 산정 상담 요청"
@@ -590,9 +590,9 @@ class CrmBridge:
                 },
                 dry_run=False,
             )
-        except Exception as e:
+        except Exception:
             logger.exception("crm intake failed")
-            return {"status": f"crm_insert_error:{e}", "lead_id": ""}
+            return {"status": "crm_insert_error", "lead_id": ""}
 
         status = _compact(out.get("status"), limit=40) or "unknown"
         lead_id = _compact(out.get("lead_id"), limit=80)
@@ -729,7 +729,8 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
         if length > int(self.server.max_body_bytes):
             raise ValueError("payload_too_large")
         raw = self.rfile.read(length)
-        return json.loads(raw.decode("utf-8"))
+        payload = json.loads(raw.decode("utf-8"))
+        return payload if isinstance(payload, dict) else {}
 
     def do_OPTIONS(self) -> None:
         if not self._allow_request():
@@ -848,11 +849,11 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
             return
         try:
             payload = self._read_json()
-        except ValueError as e:
-            self._write_json(400, {"ok": False, "error": str(e)})
-            return
         except (json.JSONDecodeError, UnicodeDecodeError, OSError):
             self._write_json(400, {"ok": False, "error": "invalid_json"})
+            return
+        except ValueError as e:
+            self._write_json(400, {"ok": False, "error": str(e)})
             return
 
         if path == "/consult":

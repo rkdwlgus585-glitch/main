@@ -6,6 +6,7 @@ import json
 import unittest
 from datetime import date, timedelta
 
+from core_engine.api_response import safe_json_for_script
 from permit_diagnosis_calculator import (
     _blank_catalog,
     _blank_rule_catalog,
@@ -32,7 +33,6 @@ from permit_diagnosis_calculator import (
     _prompt_surface_excerpt_lines,
     _resolve_rule_for_industry,
     _row_claim_family_key,
-    _safe_json,
     _scope_embed_css,
     _synthesize_document_templates,
     _synthesize_typed_criteria_from_pending,
@@ -114,15 +114,15 @@ class GetIntTest(unittest.TestCase):
 
 
 # ---------------------------------------------------------------------------
-# _safe_json / _gzip_base64_json
+# safe_json_for_script / _gzip_base64_json
 # ---------------------------------------------------------------------------
 class SafeJsonTest(unittest.TestCase):
     def test_script_escape(self):
-        result = _safe_json({"html": "</script>"})
+        result = safe_json_for_script({"html": "</script>"})
         self.assertNotIn("</script>", result)
 
     def test_unicode_separators(self):
-        result = _safe_json({"t": "a\u2028b"})
+        result = safe_json_for_script({"t": "a\u2028b"})
         self.assertNotIn("\u2028", result)
 
 
