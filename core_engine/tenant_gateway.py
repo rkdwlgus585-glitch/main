@@ -212,5 +212,6 @@ def load_tenant_gateway_from_file(path: str, *, strict: bool = False, default_te
             if profile is not None:
                 tenants.append(profile)
 
-    default_id = str(default_tenant_id or "").strip() or str(data.get("default_tenant_id") or "").strip()
+    file_default = str(data.get("default_tenant_id") or "").strip() if isinstance(data, dict) else ""
+    default_id = str(default_tenant_id or "").strip() or file_default
     return TenantGateway(tenants, strict=strict, default_tenant_id=default_id)
