@@ -76,7 +76,7 @@
 | `.co.kr` 브리지 | 100% | 정책/CTA/UTM 계약 확정, 5개 placement snippet 생성, Playwright MCP로 5/5 셀렉터 라이브 검증 완료, 인젝션 실행 계획 수립 |
 | 임대형 위젯/API | 99% | template -> scaffold -> validate -> activate 구조 완료 |
 | 특허 | 98% | canonical attorney handoff + claim 9건(양도5+아키텍처3+구조화1), typed_criteria 자동 구조화 특허 claim 추가 |
-| 품질 기준 | 100% | 2033 tests + 94 subtests PASS, permit 80/80+precheck_api 24/24+yangdo 22/22 함수 100% 커버리지, yangdo_blackbox_api 45/45+yangdo_consult_api 37/37 return type 100%, core_engine 11/11 모듈 100%, HTML 통합 41, _repair 완전 제거(8→0, template single source of truth), a11y WCAG AA 검증 7+3, 글로벌 JS 에러 경계 6, XSS 전수 감사, regex DoS 방어, WCAG AA 색상 대비 수정, broad except 코어 전파일 0건(외부 API 3건 의도적 유지), DRY −977줄, AI 엔진 심층 감사 HIGH 5+MEDIUM 4 수정, 후보 업종 191개 진단 연동 |
+| 품질 기준 | 100% | 2039 tests + 94 subtests PASS, permit 80/80+precheck_api 24/24+yangdo 22/22 함수 100% 커버리지, 전 코어 파일 return type 100%(241 함수), core_engine 11/11 모듈 100%, HTML 통합 41, _repair 완전 제거(8→0, template single source of truth), a11y WCAG AA 검증 7+3, 글로벌 JS 에러 경계 6, XSS 전수 감사, regex DoS 방어, broad except 코어 0건(외부 API 3건 유지), DRY −1006줄, safe_json+now_iso+_METADATA_MERGE_KEYS canonical화, P1 dead except/non-dict guard 수정, CRM 정보누출 차단 |
 
 ## 3-Tier Automation Architecture
 - **Tier 1: Orchestrator (Claude)**: 전체 전략 수립, 시스템 아키텍처 매핑, 하위 태스크 분할 및 에이전트 위임 제어.
@@ -335,6 +335,18 @@
 - **runtimeReasoningCardBox aria-live**: 동적 결과 영역 aria-live="polite" 누락 보완.
 - **_repair 완전 제거 (8→0 패치)**: renderProofClaim/renderResult 동기화 후 제거(−120줄), typography 3+fallback 1 dead code 제거(−335줄), 마지막 2패치(checkbox-meta-box+tip-text) template 직접 반영 후 `_repair_generated_permit_html`+`_replace_first_block`+`_repair_log` 완전 삭제(−50줄). 총 −505줄. Template이 유일 source of truth.
 - **Quality**: 2025 tests + 94 subtests PASS. (dead code 테스트 21개+3 subtests 정리, 실질 커버리지 유지)
+
+### [2026-03-10] Session 19 — P1 버그 수정 + DRY canonical화 + 정보누출 차단
+- **P1 dead except 재정렬**: `json.JSONDecodeError`(ValueError 서브클래스) except 순서 수정 — ValueError 가 먼저 잡아 JSONDecodeError 도달불가 해소.
+- **P1 _read_json non-dict guard**: `json.loads`가 list/int 반환 시 `.get()` AttributeError 방어 (`isinstance(payload, dict) else {}`)
+- **P2 CRM 정보누출 차단**: `str(e)` → 고정 문자열 (`crm_connect_error`/`crm_insert_error`) — 내부 스택트레이스 응답 노출 방지
+- **P3 dead import 제거**: `permit_diagnosis_calculator.py`의 미사용 `import logging` 삭제
+- **P4 DRY safe_json_for_script**: `yangdo_calculator`+`permit_diagnosis_calculator` 로컬 정의 → `core_engine/api_response.py` canonical화. 테스트 4파일 import 정규화.
+- **P4 DRY now_iso()**: `permit_precheck_api`(strftime, offset 없음)+`yangdo_consult_api`(isoformat, +00:00) → `core_engine/api_response.py` canonical화. UTC ISO-8601 `+00:00` 포맷으로 통일. dead `datetime`/`timezone` import 제거.
+- **P4 DRY _METADATA_MERGE_KEYS**: `_prepare_ui_payload` 내 32-key 튜플 2회 반복 → 모듈 상수 1곳 추출 (−62줄)
+- **P6 UUID hex 포맷 통일**: `permit_precheck_api` request_key fallback `str(uuid4())`→`uuid4().hex` (request_id 생성과 동일 포맷)
+- **테스트 +6**: `test_api_response.py`에 `now_iso` 2 + `safe_json_for_script` 4 추가
+- **Quality**: 2039 tests + 94 subtests PASS. DRY −29줄 (safe_json 14 + now_iso 6 + metadata 62 − constant 35 − tests 18 = net −29).
 
 ### [2026-03-10] Session 18 — broad except 전면 구체화 + return type annotation 100%
 - **broad except 9건 구체화**:
