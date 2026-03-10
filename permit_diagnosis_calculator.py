@@ -15,6 +15,12 @@ from core_engine.permit_criteria_schema import evaluate_typed_criteria
 
 
 ROOT = Path(__file__).resolve().parent
+
+# ── defaults for branding & input guards ────────────────────────
+RAW_CAPITAL_INPUT_MAX_LEN: int = 64
+DEFAULT_NOTICE_URL: str = "https://seoulmna.co.kr/notice"
+DEFAULT_CONTACT_PHONE: str = "1668-3548"
+DEFAULT_CONTACT_PHONE_DIGITS: str = "16683548"
 DEFAULT_CATALOG_PATH = ROOT / "config" / "kr_permit_industries_localdata.json"
 DEFAULT_RULES_PATH = ROOT / "config" / "permit_registration_rules_law.json"
 DEFAULT_EXPANDED_CRITERIA_PATH = ROOT / "config" / "permit_registration_criteria_expanded.json"
@@ -984,7 +990,7 @@ def evaluate_registration_diagnosis(
     expected_date = baseline + timedelta(days=deposit_days)
     date_label = expected_date.strftime("%Y-%m-%d")
 
-    raw_capital = str(raw_capital_input or "").strip().replace(",", "")[:64]
+    raw_capital = str(raw_capital_input or "").strip().replace(",", "")[:RAW_CAPITAL_INPUT_MAX_LEN]
     suspicious = False
     if raw_capital:
         over_three_x = required_capital > 0 and current_capital > required_capital * 3
@@ -2319,9 +2325,9 @@ def build_html(
             "notice_url": str(notice_url or "").strip(),
         },
     )
-    resolved_notice_url = _get_str(branding, "notice_url") or "https://seoulmna.co.kr/notice"
-    resolved_phone = _get_str(branding, "contact_phone") or "1668-3548"
-    resolved_phone_digits = "".join(ch for ch in resolved_phone if ch.isdigit()) or "16683548"
+    resolved_notice_url = _get_str(branding, "notice_url") or DEFAULT_NOTICE_URL
+    resolved_phone = _get_str(branding, "contact_phone") or DEFAULT_CONTACT_PHONE
+    resolved_phone_digits = "".join(ch for ch in resolved_phone if ch.isdigit()) or DEFAULT_CONTACT_PHONE_DIGITS
     resolved_data_url = str(data_url or "").strip()
     resolved_data_encoding = str(data_encoding or "").strip().lower()
     inline_bootstrap_json = {}

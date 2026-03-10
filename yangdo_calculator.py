@@ -7511,11 +7511,11 @@ def build_page_html(
           page_mode: YANGDO_PAGE_MODE,
           source_tag: YANGDO_SOURCE_TAG,
           scale_search_mode: effectiveScaleMode,
-          reorg_mode: compact(val("in-reorg-mode")),
-          balance_usage_mode: compact(val("in-balance-usage-mode")),
-          company_type: compact(val("in-company-type")),
-          credit_level: compact(val("in-credit-level")),
-          admin_history: compact(val("in-admin-history")),
+          reorg_mode: sanitizePlain(val("in-reorg-mode"), 20),
+          balance_usage_mode: sanitizePlain(val("in-balance-usage-mode"), 40),
+          company_type: sanitizePlain(val("in-company-type"), 40),
+          credit_level: sanitizePlain(val("in-credit-level"), 40),
+          admin_history: sanitizePlain(val("in-admin-history"), 40),
         }};
       }};
 
