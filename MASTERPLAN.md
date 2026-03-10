@@ -383,8 +383,9 @@
 - **JSON-LD Service schema (4페이지)**: `ServiceDetailPage` 컴포넌트에 `Service` 스키마 내장 — registration, corporate, split-merger, practice 4개 서비스 페이지에 자동 적용 (DRY)
 - **JSON-LD WebSite schema (홈)**: `PublicHome` 컴포넌트에 `WebSite` 스키마 추가 — 홈페이지 SEO 보강
 - **afterContent 래퍼 해킹 제거**: 4개 서비스 페이지에서 `style={{ paddingTop: 0 }}` 인라인 스타일 + 불필요한 `page-shell` 래퍼 div 제거 — 깔끔한 컴포넌트 구조로 정리
-- **코어 Python 품질 감사 완료**: broad except 3건(yangdo_consult_api, 의도적 외부 의존성 fail-safe), str(e) 코어 0건 info leak, TODO/FIXME 코어 0건 — 전부 기존 수준 확인
-- **JSON-LD 총 커버리지**: 8개 주입점 (LocalBusiness+BreadcrumbList+WebSite+Service×4+ItemList+ItemPage+ContactPage+FAQPage) — 모든 라우트 유형 커버
+- **코어 Python 품질 감사 완료**: broad except 3건(yangdo_consult_api, 의도적 외부 의존성 fail-safe), str(e) 코어 0건 info leak, TODO/FIXME 코어 0건, 미사용 import 1건(Optional) 제거 — 16개 코어 파일 전면 클린
+- **JSON-LD Article schema (387+ 게시글)**: `LegacyContentPage` 컴포넌트에 `Article` 스키마 내장 — notice/premium/news 전체 보드 게시물 자동 적용
+- **JSON-LD 총 커버리지**: 9개 주입점 (LocalBusiness+BreadcrumbList+WebSite+Service×4+Article+ItemList+ItemPage+ContactPage+FAQPage) — 모든 라우트 유형 100% 커버
 - **Quality**: .co.kr 빌드 클린 (1900+ SSG pages), Python 2678+94 PASS
 
 ### [2026-03-10] Session 35 — .co.kr CTA 브리지 완성 + 코드베이스 Git 추적
