@@ -796,32 +796,32 @@ class RepairIntegrationTest(unittest.TestCase):
             self._html,
         )
 
-    # --- Patch 3: renderProofClaim ---
-    def test_patch3_renderProofClaim_has_claim_packet_summary(self):
-        """Patched renderProofClaim references claim_packet_summary."""
+    # --- Template: renderProofClaim (patches removed — template is source of truth) ---
+    def test_renderProofClaim_has_claim_packet_summary(self):
+        """Template renderProofClaim references claim_packet_summary."""
         self.assertIn("claim_packet_summary", self._html)
 
-    def test_patch3_renderProofClaim_has_proof_domain_labels(self):
-        """Patched version uses proofDomainLabels lookup."""
+    def test_renderProofClaim_has_proof_domain_labels(self):
+        """Template renderProofClaim uses proofDomainLabels lookup."""
         self.assertIn("proofDomainLabels", self._html)
 
-    def test_patch3_renderProofClaim_has_checksum(self):
+    def test_renderProofClaim_has_checksum(self):
         self.assertIn("checksum_sample_total", self._html)
 
-    # --- Patch 4: renderResult ---
-    def test_patch4_renderResult_has_syncHoldings(self):
-        """Patched renderResult calls syncHoldingsInputVisibility."""
+    # --- Template: renderResult (patches removed — template is source of truth) ---
+    def test_renderResult_has_syncHoldings(self):
+        """Template renderResult calls syncHoldingsInputVisibility."""
         self.assertIn("syncHoldingsInputVisibility", self._html)
 
-    def test_patch4_renderResult_has_candidateFallback(self):
-        """Patched renderResult calls renderCandidateFallback."""
+    def test_renderResult_has_candidateFallback(self):
+        """Template renderResult calls renderCandidateFallback."""
         self.assertIn("renderCandidateFallback", self._html)
 
-    def test_patch4_renderResult_has_structured_review(self):
-        """Patched renderResult calls renderStructuredReview(typedEval)."""
+    def test_renderResult_has_structured_review(self):
+        """Template renderResult calls renderStructuredReview(typedEval)."""
         self.assertIn("renderStructuredReview(typedEval)", self._html)
 
-    def test_patch4_renderResult_has_crossValidation(self):
+    def test_renderResult_has_crossValidation(self):
         self.assertIn("detectSuspiciousCapitalInput", self._html)
 
     # --- Patches 5-7: typography labels ---
@@ -845,7 +845,7 @@ class RepairIntegrationTest(unittest.TestCase):
 
     # --- No silent failures ---
     def test_no_repair_warnings_on_real_html(self):
-        """All 7 patches should match on real build_html output — no warnings."""
+        """All 5 active patches should match on real build_html output — no warnings."""
         logger = logging.getLogger("permit_diagnosis_calculator.repair")
         # Build raw HTML (before repair), then apply repair manually
         raw = build_html(
