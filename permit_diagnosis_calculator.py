@@ -1150,28 +1150,7 @@ def _prepare_ui_payload(catalog: dict, rule_catalog: dict) -> dict:
         expanded_row = expanded_lookup.get(virtual_code) or {}
         if expanded_row:
             rules_only_rows[-1].update(
-                {
-                    key: expanded_row.get(key)
-                    for key in (
-                        "collection_status",
-                        "status",
-                        "mapping_status",
-                        "mapping_batch_id",
-                        "mapping_batch_seq",
-                        "mapping_group_key",
-                        "additional_criteria_count",
-                        "rule_pack_ref",
-                        "law_title",
-                        "legal_basis_title",
-                        "legal_basis",
-                        "criteria_summary",
-                        "criteria_additional",
-                        "criteria_source_type",
-                        "quality_flags",
-                        "registration_requirement_profile",
-                    )
-                    if key in expanded_row
-                }
+                {key: expanded_row[key] for key in _METADATA_MERGE_KEYS if key in expanded_row}
             )
         rules_lookup[virtual_code] = rule
 
