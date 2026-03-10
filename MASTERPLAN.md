@@ -76,7 +76,7 @@
 | `.co.kr` 브리지 | 100% | 정책/CTA/UTM 계약 확정, 5개 placement snippet 생성, Playwright MCP로 5/5 셀렉터 라이브 검증 완료, 인젝션 실행 계획 수립 |
 | 임대형 위젯/API | 99% | template -> scaffold -> validate -> activate 구조 완료 |
 | 특허 | 98% | canonical attorney handoff + claim 9건(양도5+아키텍처3+구조화1), typed_criteria 자동 구조화 특허 claim 추가 |
-| 품질 기준 | 100% | 2039 tests + 94 subtests PASS, permit 80/80+precheck_api 24/24+yangdo 22/22 함수 100% 커버리지, 전 코어 파일 return type 100%(241 함수), core_engine 11/11 모듈 100%, HTML 통합 41, _repair 완전 제거(8→0, template single source of truth), a11y WCAG AA 검증 7+3, 글로벌 JS 에러 경계 6, XSS 전수 감사, regex DoS 방어, broad except 코어 0건(외부 API 3건 유지), DRY −1006줄, safe_json+now_iso+_METADATA_MERGE_KEYS canonical화, P1 dead except/non-dict guard 수정, CRM 정보누출 차단 |
+| 품질 기준 | 100% | 2068 tests + 94 subtests PASS, permit 80/80+precheck_api 24/24+yangdo 22/22 함수 100% 커버리지, 전 코어 파일 return type 100%(241 함수), core_engine 11/11 모듈 100%, HTML 통합 41, _repair 완전 제거(8→0, template single source of truth), a11y WCAG AA 검증 7+3, 글로벌 JS 에러 경계 6, XSS 전수 감사, regex DoS 방어, broad except 코어 0건(외부 API 3건 유지), DRY −1030줄, safe_json+now_iso+_METADATA_MERGE_KEYS+sanitize_endpoint canonical화, build_response_envelope deep copy 수정, P1 보안(tenant_id/URL spoofing/ConsultStore)+SSRF+CRM 정보누출 차단, UTF-8 BOM 전수 정리+.editorconfig+.gitattributes |
 
 ## 3-Tier Automation Architecture
 - **Tier 1: Orchestrator (Claude)**: 전체 전략 수립, 시스템 아키텍처 매핑, 하위 태스크 분할 및 에이전트 위임 제어.
@@ -335,6 +335,18 @@
 - **runtimeReasoningCardBox aria-live**: 동적 결과 영역 aria-live="polite" 누락 보완.
 - **_repair 완전 제거 (8→0 패치)**: renderProofClaim/renderResult 동기화 후 제거(−120줄), typography 3+fallback 1 dead code 제거(−335줄), 마지막 2패치(checkbox-meta-box+tip-text) template 직접 반영 후 `_repair_generated_permit_html`+`_replace_first_block`+`_repair_log` 완전 삭제(−50줄). 총 −505줄. Template이 유일 source of truth.
 - **Quality**: 2025 tests + 94 subtests PASS. (dead code 테스트 21개+3 subtests 정리, 실질 커버리지 유지)
+
+### [2026-03-10] Session 21 — API 데이터 격리 버그 수정 + 엣지케이스 테스트 강화 + DRY canonical화 완결
+- **build_response_envelope shallow→deep copy 버그 수정**: `dict(business_payload)` → `copy.deepcopy(business_payload)`. 중첩 객체 참조 공유로 인한 응답 데이터 오염 방지. 테스트가 발견한 프로덕션 버그.
+- **API response contract 엣지케이스 +6**: None/empty payload, channel_id fallback, deep copy 격리, response_meta 필수 키 검증, 긴 channel_id 절삭
+- **API request contract 멀티테넌트 엣지케이스 +6**: tenant_id 추출(request block+flat), timestamp→requested_at 매핑, X-Correlation-Id 폴백, 긴 page_url 절삭, 깊은 중첩 payload 보존
+- **DRY _sanitize_endpoint 완결**: yangdo_calculator + acquisition_calculator 로컬 정의 → `core_engine/host_utils.sanitize_endpoint` 1곳 canonical화. canonical 테스트 9개 추가.
+- **DRY acquisition_calculator**: 로컬 `_safe_json` → `safe_json_for_script` canonical alias + `datetime.now()` → `now_iso()`
+- **SSRF 방어 강화**: `169.254.x`(link-local) + `0.0.0.0`(unspecified) 차단. 테스트 +3.
+- **permit_mapping_pipeline naive datetime 제거**: core_engine 마지막 `datetime.now()` → `now_iso()` 전환. 전 코어 파일 naive datetime 0건.
+- **UTF-8 BOM 전수 정리**: core_engine+tests+API 49파일 BOM 제거. `.editorconfig`(UTF-8 no-BOM, LF 강제) + `.gitattributes`(줄바꿈 정규화) 추가로 재유입 방지.
+- **테스트 +29**: deep copy 6 + request contract 6 + SSRF 3 + canonical sanitize 9 + URL spoofing 4 + HTML comment 1
+- **Quality**: 2068 tests + 94 subtests PASS. DRY −30줄. 전 코어 파일 naive datetime 0건, BOM 0건, broad except 0건(외부 3 유지).
 
 ### [2026-03-10] Session 20 — Deep Audit P1~P4 보안·품질 수정 7건
 - **P1-01 tenant_id 정보누출 차단**: 429 rate-limit 응답에서 `tenant_id` 제거 (정보 노출 방어)
