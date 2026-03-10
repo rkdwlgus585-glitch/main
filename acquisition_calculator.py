@@ -1,18 +1,12 @@
 ﻿import argparse
 import json
-from datetime import datetime
 from html import escape
 from pathlib import Path
+from core_engine.api_response import now_iso, safe_json_for_script
 from core_engine.channel_branding import resolve_channel_branding
 
 
-def _safe_json(data):
-    text = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
-    return (
-        text.replace("</", "<\\/")
-        .replace("\u2028", "\\u2028")
-        .replace("\u2029", "\\u2029")
-    )
+_safe_json = safe_json_for_script
 
 
 def _sanitize_endpoint(url: str) -> str:
@@ -1774,7 +1768,7 @@ def main() -> int:
             {
                 "saved": str(out_path),
                 "bytes": len(html.encode("utf-8")),
-                "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "generated_at": now_iso(),
                 "title": str(args.title or default_title),
             },
             ensure_ascii=False,
