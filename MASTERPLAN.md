@@ -72,7 +72,7 @@
 |---|---:|---|
 | AI 양도가 산정/추천 | 99% | 코어/위젯/QA/게이트 구조 완료, 추천 정밀도·집중도 감사·공개계약·서비스-매물 브리지·서비스 카피·UX 정렬·임대 lane ladder까지 canonical화, 전기/정보통신/소방 정산정책·confidence cap·reorgOverrides 정밀화, CSS 디자인 시스템 토큰화 완료 |
 | AI 인허가 사전검토 | 99% | typed_criteria 245/245 업종 100% 커버리지 달성, 3계층 파이프라인(수작업+런타임합성+자동생성) 완성, 색상 배지 UX, _PENDING_CRITERIA_TEMPLATES 9개 카테고리, CTA mode separation(shortfall/manual/pass) 및 증거 기반 분기 완료 |
-| `.kr` 플랫폼화 | 100% | IA 6페이지 전체 구현(/, /yangdo, /permit, /knowledge, /consult, /mna-market + /terms, /privacy), Next.js 16.1.6 빌드 17 static pages(+manifest.webmanifest), 글로벌 네비+푸터 완전 연결, 디자인 시스템 CSS 1500줄+, widget-frame 3-state 로딩(idle→loading→loaded/error), PWA manifest, 접근성(skip-link+prefers-reduced-motion+error boundary+loading.tsx), SEO(sitemap 8 routes+contentHost env 수정+Service/FAQPage JSON-LD), 서비스 페이지 전환율 강화(FAQ 5+5+특징 4+4+하단 CTA), WordPress/Astra-first 경로 IA/blueprint/apply/verify/operator checklist 완료 |
+| `.kr` 플랫폼화 | 100% | IA 6페이지 전체 구현(/, /yangdo, /permit, /knowledge, /consult, /mna-market + /terms, /privacy), Next.js 16.1.6 빌드 17 static pages, homepage 7-component 재설계(HomeHero+Shortcuts+MarketPreview+Operations+Process+CTA+Status), 구 component 7개 dead code 삭제(−751줄), nav label 전 페이지 통일(실시간 매물/건설업등록/건설실무/고객센터), 디자인 시스템 CSS 1566줄, widget-frame 3-state 로딩, PWA manifest, Pretendard Variable+Noto Sans KR 폰트 CDN, 접근성(skip-link+prefers-reduced-motion+error boundary+loading.tsx), SEO(sitemap 8+WebSite/SiteNavigationElement/Service/FAQPage JSON-LD), 서비스 페이지 전환율 강화(FAQ 5+5+특징 4+4+하단 CTA), Cursor 개입 가짜 매물/내부 용어 정리 완료 |
 | `.co.kr` 브리지 | 100% | 정책/CTA/UTM 계약 확정, 5개 placement snippet 생성, Playwright MCP로 5/5 셀렉터 라이브 검증 완료, 인젝션 실행 계획 수립 |
 | 임대형 위젯/API | 100% | template -> scaffold -> validate -> activate 구조 완료, OpenAPI 3.0 spec(5 endpoints+6 schemas) 생성 |
 | 특허 | 100% | canonical attorney handoff + claim 9건(양도5+아키텍처3+구조화1), KIPO 형식 명세서 초안 A+B 완성(발명의설명+청구범위+요약서+도면설명), system_brief 경로 갱신+추천 claim 동기화, claim_map 경로 갱신, permit evidence bundle 7 family 증빙 완료 |
@@ -114,7 +114,7 @@
 ## What Is Actually Done
 1. `.kr` WordPress/Astra 플랫폼 자산 + Next.js 프론트
 - IA 6페이지 전체 구현: `/`, `/yangdo`, `/permit`, `/knowledge`, `/consult`, `/mna-market` + `/terms`, `/privacy`
-- Next.js 16.1.6 플랫폼 프론트: 17 static pages(+manifest.webmanifest), 디자인 시스템 CSS 1500줄+, 9-section 홈, widget frame(3-state loading), 글로벌 네비/푸터, error boundary, skip-link, prefers-reduced-motion, loading.tsx, sitemap 8 routes, Service/FAQPage JSON-LD(양도+인허가), 서비스 페이지 FAQ 5+5/특징 4+4/하단 CTA
+- Next.js 16.1.6 플랫폼 프론트: 17 static pages(+manifest.webmanifest), 디자인 시스템 CSS 1566줄, homepage 7-component 아키텍처(HomeHero+Shortcuts+MarketPreview+Operations+Process+CTA+Status), widget frame(3-state loading), 글로벌 네비/푸터(data-driven nav array), error boundary, skip-link, prefers-reduced-motion, loading.tsx, sitemap 8 routes, WebSite/SiteNavigationElement/Service/FAQPage JSON-LD, Pretendard Variable+Noto Sans KR CDN, 서비스 페이지 FAQ 5+5/특징 4+4/하단 CTA, nav label 전 페이지 통일(실시간 매물/건설업등록/건설실무/고객센터)
 - Gutenberg blueprint 생성 완료
 - child theme / lazy gate bridge plugin 생성 완료
 - `php fallback runtime -> apply -> verify` canonical cycle 녹색
@@ -378,6 +378,16 @@
 - **runtimeReasoningCardBox aria-live**: 동적 결과 영역 aria-live="polite" 누락 보완.
 - **_repair 완전 제거 (8→0 패치)**: renderProofClaim/renderResult 동기화 후 제거(−120줄), typography 3+fallback 1 dead code 제거(−335줄), 마지막 2패치(checkbox-meta-box+tip-text) template 직접 반영 후 `_repair_generated_permit_html`+`_replace_first_block`+`_repair_log` 완전 삭제(−50줄). 총 −505줄. Template이 유일 source of truth.
 - **Quality**: 2025 tests + 94 subtests PASS. (dead code 테스트 21개+3 subtests 정리, 실질 커버리지 유지)
+
+### [2026-03-10] Session 30 — Homepage 재설계 + nav label 통일 + SEO 강화 + Cursor 정리
+- **Homepage 7-component 재설계**: 구 홈페이지(Hero+ProductCard+TrustSignals+WorkflowGrid+PricingComparison+CapabilityStrip+PlatformTopology) → 신규 7-component(HomeHero+HomeShortcuts+HomeMarketPreview+HomeOperations+HomeProcess+ConsultationCTA+PlatformStatus) 전면 교체. 구 component 7개 파일 삭제(−751줄)
+- **Nav label 전 페이지 통일**: site-header 변경(매물 시장→실시간 매물, 인허가 사전검토→건설업등록, 건설업 지식→건설실무, 상담→고객센터)에 맞춰 8개 페이지(hero/not-found/knowledge/mna-market/consult/yangdo/permit + layout) 타이틀·CTA·eyebrow 텍스트 일괄 정렬
+- **SEO 강화**: home page WebSite schema(SearchAction 포함) + SiteNavigationElement JSON-LD 추가, layout.tsx site title 브랜딩 통일
+- **Pretendard 폰트 CDN**: Pretendard Variable(dynamic-subset) + Noto Sans KR Google Fonts preconnect + 로딩 추가. 디자인 시스템 spec 준수
+- **Dead CSS 정리**: 구 component CSS 441줄 + Cursor 가짜 매물/내부 용어 요소 CSS 307줄 제거. 2314→1566줄(−748줄)
+- **Cursor 개입 정리**: home-market-preview 가짜 매물 6건(SM-2401~2426)+가격+등록번호 제거 → 서비스 가치 4카드+CTA 교체, hero/operations/process 내부 디자인 브리프 언어("운영형 메인","브리프 운영 중") → 고객 대면 카피로 전환
+- **.gitignore**: tsconfig.tsbuildinfo 추가
+- **Quality**: 2678 tests + 94 subtests PASS. Next.js 빌드 17 static pages 검증.
 
 ### [2026-03-10] Session 29 — 서비스 페이지 전환율 강화 + info leak 수정 + tenant_config 테스트
 - **서비스 페이지 전환율 강화**: yangdo/permit 서비스 페이지에 서비스 소개 섹션, 4개 특징 카드, 5개 FAQ, Service+FAQPage JSON-LD 구조화 데이터, 하단 상담 CTA 추가. 빈약한 "뒤로가기+위젯" 구성→rich content 서비스 페이지로 전환
