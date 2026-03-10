@@ -11,7 +11,7 @@ export function Hero() {
           <span className="hero-accent">AI가 바로 산정합니다</span>
         </h1>
         <p className="hero-body">
-          건설업 면허 양도가 산정부터 인허가 등록기준 사전검토까지.
+          기존 면허 양도가 산정부터 신규 등록 비용 계산까지.
           행정사 방문 없이, 데이터 기반으로 즉시 확인하세요.
         </p>
         <div className="hero-actions">

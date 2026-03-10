@@ -5,7 +5,7 @@ const signals = [
     icon: Database,
     metric: "6.3MB",
     label: "등록기준 마스터 데이터",
-    detail: "건설산업기본법 기반 191개 업종의 등록기준을 체계화",
+    detail: "건설업·유사 업종 191개의 등록기준과 취득 비용 체계를 구축",
   },
   {
     icon: TrendingUp,

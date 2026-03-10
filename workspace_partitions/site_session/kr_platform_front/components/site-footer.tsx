@@ -6,7 +6,7 @@ export function SiteFooter() {
       <div className="footer-inner">
         <div className="footer-brand">
           <strong>{platformConfig.companyName}</strong>
-          <p>건설업 AI 양도가 산정 &middot; 인허가 사전검토 전문 플랫폼</p>
+          <p>AI 양도가 산정 &middot; AI 인허가 사전검토 전문 플랫폼</p>
         </div>
         <div className="footer-links">
           <div>
@@ -30,7 +30,7 @@ export function SiteFooter() {
           <p>&copy; {new Date().getFullYear()} {platformConfig.companyName}. All rights reserved.</p>
           <p className="footer-disclaimer">
             본 서비스의 AI 분석 결과는 참고용이며, 법적 효력이 있는 공식 감정 결과가 아닙니다.
-            정확한 양도가 확정 및 인허가 절차는 반드시 전문가와 상담하시기 바랍니다.
+            정확한 양도가 확정, 신규 등록 비용 및 인허가 절차는 반드시 전문가와 상담하시기 바랍니다.
           </p>
         </div>
       </div>
