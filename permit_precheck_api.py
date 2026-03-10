@@ -10,6 +10,7 @@ from typing import Any, Dict
 
 from core_engine.api_contract import normalize_v1_request
 from core_engine.api_response import _compact, build_response_envelope, now_iso
+from core_engine.sandbox import is_sandbox_request, sandbox_permit_response
 from core_engine.tenant_gateway import TenantGateway
 from core_engine.channel_profiles import ChannelRouter
 from permit_diagnosis_calculator import (
@@ -1255,6 +1256,9 @@ class Handler(BaseHTTPRequestHandler):
 
         if path in {"/precheck", "/v1/permit/precheck"}:
             if self.server.api_keys and not self._require_api_key(admin=False):
+                return
+            if is_sandbox_request(self.headers, api_key=header_token(self.headers)):
+                self._write_json(200, sandbox_permit_response())
                 return
             if not self._require_channel_system("permit"):
                 return

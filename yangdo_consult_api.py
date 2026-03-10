@@ -529,9 +529,9 @@ class UsageSheetWriter:
             ]
             ws.append_row(row, value_input_option="USER_ENTERED")
             return {"ok": True}
-        except Exception as e:  # pragma: no cover - external dependency
+        except Exception:  # pragma: no cover - external dependency
             logger.exception("usage sheet append failed")
-            return {"ok": False, "reason": str(e)}
+            return {"ok": False, "reason": "sheet_append_failed"}
 
 
 class CrmBridge:

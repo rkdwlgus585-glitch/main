@@ -1,0 +1,10 @@
+# Production dependencies for seoulmna.kr API servers
+# ──────────────────────────────────────────────────
+# Core APIs (permit + yangdo) use stdlib only.
+# Optional dependencies below are for extended features.
+
+# CRM/Google Sheets integration (yangdo_consult_api)
+gspread>=6.0,<7.0
+
+# Google AI (used by core_engine for AI-enhanced features)
+google-genai>=1.0,<2.0

@@ -76,16 +76,16 @@
 | `.co.kr` 브리지 | 100% | 정책/CTA/UTM 계약 확정, 5개 placement snippet 생성, Playwright MCP로 5/5 셀렉터 라이브 검증 완료, 인젝션 실행 계획 수립 |
 | 임대형 위젯/API | 100% | template -> scaffold -> validate -> activate 구조 완료, OpenAPI 3.0 spec(5 endpoints+6 schemas) 생성 |
 | 특허 | 100% | canonical attorney handoff + claim 9건(양도5+아키텍처3+구조화1), KIPO 형식 명세서 초안 A+B 완성(발명의설명+청구범위+요약서+도면설명), system_brief 경로 갱신+추천 claim 동기화, claim_map 경로 갱신, permit evidence bundle 7 family 증빙 완료 |
-| 품질 기준 | 100% | 2629 tests + 94 subtests PASS, permit 80/80+precheck_api 24/24+yangdo 22/22 함수 100% 커버리지, 전 코어 파일 return type 100%(yangdo_calc 21+security_http 13+lead_intake 22+utils 16 추가), core_engine 11/11 모듈 100%, HTML 통합 41, _repair 완전 제거(8→0, template single source of truth), a11y WCAG AA 검증 7+3, 글로벌 JS 에러 경계 6, XSS 전수 감사, regex DoS 방어, broad except 코어 0건(외부 API 3건 유지), DRY −1030줄, safe_json+now_iso+_METADATA_MERGE_KEYS+sanitize_endpoint canonical화, build_response_envelope deep copy 수정, P1 보안(tenant_id/URL spoofing/ConsultStore)+SSRF+CRM 정보누출 차단, UTF-8 BOM 전수 정리+.editorconfig+.gitattributes, H:\ALL workspace 분리+경로 마이그레이션 완료+show_entrypoints PY_RE 강화 |
+| 품질 기준 | 100% | 2646 tests + 94 subtests PASS, permit 80/80+precheck_api 24/24+yangdo 22/22 함수 100% 커버리지, 전 코어 파일 return type 100%(yangdo_calc 21+security_http 13+lead_intake 22+utils 16 추가), core_engine 12/12 모듈 100%(sandbox 추가), HTML 통합 41, _repair 완전 제거(8→0, template single source of truth), a11y WCAG AA 검증 7+3, 글로벌 JS 에러 경계 6, XSS 전수 감사, regex DoS 방어, broad except 코어 0건(외부 API 3건 유지), usage sheet str(e) info leak 수정, DRY −1030줄, safe_json+now_iso+_METADATA_MERGE_KEYS+sanitize_endpoint canonical화, build_response_envelope deep copy 수정, P1 보안(tenant_id/URL spoofing/ConsultStore)+SSRF+CRM+usage sheet 정보누출 차단, UTF-8 BOM 전수 정리+.editorconfig+.gitattributes, H:\ALL workspace 분리+경로 마이그레이션 완료+show_entrypoints PY_RE 강화 |
 
 ## 영업 준비 상태 (Business Readiness Assessment — Session 21)
 
 ### 백분율 요약
 | 영업 범위 | 완성도 | 핵심 병목 |
 |-----------|--------|----------|
-| ① seoulmna.kr 완벽 배포 | 95% | 서버 live 반영 미실행 (코드 100%, nginx+systemd+Docker 배포 패키지 완성, 인프라 실행만 잔여) |
+| ① seoulmna.kr 완벽 배포 | 97% | 서버 live 반영 미실행 (코드 100%, nginx+systemd+Docker+smoke test+deploy runbook 완성, 인프라 실행만 잔여) |
 | ② seoulmna.co.kr 이식 (CTA 브리지) | 88% | .kr live 선행 필요 + 브리지 JS 실 삽입 미완 |
-| ③ 타사 임대 (위젯/API) | 82% | 파트너 입력값 0건 + WSGI 미구축 (공개 API 문서 OpenAPI 3.0 완성) |
+| ③ 타사 임대 (위젯/API) | 85% | 파트너 입력값 0건 (sandbox mode 완성, OpenAPI 3.0 완성, smoke test 완성) |
 
 ### 최적 배포 형태
 - **① .kr 직접 배포**: WordPress/Astra + Reverse Proxy + Python API 백엔드 (1일 내 가능)
@@ -100,9 +100,9 @@
 | Reverse proxy 실 설정 (nginx/CloudFlare) | 인프라 | 30분~1시간 | 서버 접근 |
 | `/_calc/*` SSL + 캐시 바이패스 | 인프라 | 15분 | proxy 설정 |
 | .co.kr 브리지 JS 실 삽입 | 배포 | 30분 | ① 완료 |
-| 공개 API 문서 (OpenAPI/Swagger) | 개발 | 4~8시간 | 없음 |
-| 프로덕션 서버 (gunicorn + systemd/docker) | 인프라 | 2~4시간 | 없음 |
-| 파트너 데모/샌드박스 | 개발 | 4~8시간 | API 문서 |
+| ~~공개 API 문서 (OpenAPI/Swagger)~~ | ~~개발~~ | ~~완료~~ | ~~OpenAPI 3.0 spec 생성 완료~~ |
+| ~~프로덕션 서버 (systemd/docker)~~ | ~~인프라~~ | ~~완료~~ | ~~systemd + Docker + smoke test + runbook 완료~~ |
+| ~~파트너 데모/샌드박스~~ | ~~개발~~ | ~~완료~~ | ~~core_engine/sandbox.py + permit API 연동 완료~~ |
 | 결제 연동 (Stripe/토스페이먼츠) | 개발 | 1~2주 | 사업자 계약 |
 
 ## 3-Tier Automation Architecture
@@ -181,6 +181,17 @@
 
 9. Code Health
 - 미사용 JS 변수(`brandLabel`, `consultPhoneDigits`, `noticeUrl`) 3종 제거 완료
+
+10. Production Infrastructure
+- `deploy/nginx_seoulmna_kr.conf`: reverse proxy config (`/_calc/yangdo` → :8200, `/_calc/permit` → :8100)
+- `deploy/systemd/seoulmna-{yangdo,permit}.service`: systemd service units (security hardening 포함)
+- `deploy/docker-compose.yml`: Docker Compose 3-service (yangdo-api, permit-api, nginx) + healthcheck + memory limits
+- `deploy/Dockerfile.api`: Python 3.14-slim, non-root user, HEALTHCHECK directive
+- `deploy/smoke_test.py`: production health verification (6 checks: health, precheck/estimate, CORS per API)
+- `deploy/deploy_runbook.md`: deployment checklist + rollback procedure (systemd, Docker, rolling update)
+- `deploy/requirements.txt`: production dependencies manifest
+- `core_engine/sandbox.py`: partner sandbox/demo mode (`X-Sandbox: true` header or `sandbox_` API key prefix)
+- permit_precheck_api sandbox 연동 완료
 
 ## Current Risks
 1. 서울건설정보 live 반영은 아직 수행 전

@@ -1,9 +1,13 @@
 FROM python:3.14-slim
 
+LABEL maintainer="seoulmna.kr" \
+      description="AI Construction License Platform API" \
+      version="1.0"
+
 WORKDIR /app
 
-# Install only production dependencies
-COPY requirements.txt ./
+# Install production dependencies
+COPY deploy/requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt 2>/dev/null || true
 
 # Copy application code
@@ -11,6 +15,7 @@ COPY *.py ./
 COPY core_engine/ ./core_engine/
 COPY config/ ./config/
 COPY tenant_config/ ./tenant_config/
+COPY tmp/*.pyc ./tmp/
 
 # Create data/logs directories
 RUN mkdir -p data logs
@@ -18,6 +23,10 @@ RUN mkdir -p data logs
 # Non-root user
 RUN useradd -r -s /bin/false seoulmna && chown -R seoulmna:seoulmna /app
 USER seoulmna
+
+# Health check (overridden per-service in docker-compose)
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8100/v1/health')" || exit 1
 
 EXPOSE 8100 8200
 
