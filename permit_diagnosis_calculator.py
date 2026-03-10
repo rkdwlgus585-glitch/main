@@ -8023,81 +8023,12 @@ def _repair_generated_permit_html(html: str) -> str:
     # Patches removed (Session 16) — template is single source of truth.
     # NOTE: renderCandidateFallback, evaluateTypedCriteriaLocal, & renderStructuredReview
     # — canonical implementations also live in build_html() template.
-    repaired = _replace_first_block(
-        repaired,
-        r'(const criteriaRows = Array\.isArray\(typedEval\.criterion_results\) \? typedEval\.criterion_results : \[\];\s*if \(criteriaRows\.length\) \{\s*ui\.typedCriteriaBox\.innerHTML = `<strong>)(.*?)(</strong><br>\$\{criteriaRows\.map\(\(row\) => \{)',
-        r'\1자동 점검 결과\3',
-        label="typography-criteriaRows",
-    )
-    repaired = _replace_first_block(
-        repaired,
-        r'(const evidenceRows = Array\.isArray\(typedEval\.evidence_checklist\) \? typedEval\.evidence_checklist : \[\];\s*if \(evidenceRows\.length\) \{\s*ui\.evidenceChecklistBox\.innerHTML = `<strong>)(.*?)(</strong><br>\$\{evidenceRows\.map\(\(row\) => `- )',
-        r'\1준비 서류\3',
-        label="typography-evidenceRows",
-    )
-    repaired = _replace_first_block(
-        repaired,
-        r'(const nextRows = Array\.isArray\(typedEval\.next_actions\) \? typedEval\.next_actions : \[\];\s*if \(nextRows\.length\) \{\s*ui\.nextActionsBox\.innerHTML = `<strong>)(.*?)(</strong><br>\$\{nextRows\.map\(\(row\) => `- )',
-        r'\1다음 단계\3',
-        label="typography-nextActions",
-    )
-    if "자동 점검 결과" not in repaired:
-        repaired = repaired.replace(
-            'const renderResult = () => {',
-            '''const renderStructuredReview = (typedEval) => {
-      const coverageText = [];
-      if (typedEval.coverage_status) coverageText.push(`구조화 상태: ${esc(typedEval.coverage_status)}`);
-      if (Number.isFinite(Number(typedEval.mapping_confidence))) coverageText.push(`신뢰도: ${Number(typedEval.mapping_confidence).toFixed(2)}`);
-      if (Number(typedEval.pending_criteria_count || 0) > 0) coverageText.push(`미구조화 ${Number(typedEval.pending_criteria_count)}건`);
-      if (coverageText.length) {
-        ui.coverageGuide.textContent = coverageText.join(" / ");
-        ui.coverageGuide.style.display = "block";
-      }
-
-      const criteriaRows = Array.isArray(typedEval.criterion_results) ? typedEval.criterion_results : [];
-      if (criteriaRows.length) {
-        const _bs = {
-          pass: "background:var(--smna-badge-success-bg,#E6F9F1);color:#0F9460;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;",
-          fail: "background:var(--smna-badge-error-bg,#FFEBEE);color:#D32F2F;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;",
-          missing_input: "background:var(--smna-badge-warning-bg,#FFF8E1);color:#F57C00;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;",
-        };
-        ui.typedCriteriaBox.innerHTML = `<strong style="display:block;margin-bottom:8px;">자동 점검 결과 <span style="font-weight:400;color:var(--smna-sub);font-size:13px;">(${criteriaRows.length}개 항목)</span></strong>${criteriaRows.map((row) => {
-          const badgeText = row.status === "pass" ? "충족" : (row.status === "fail" ? "부족" : "입력 필요");
-          const st = _bs[row.status] || _bs.missing_input;
-          const note = row.note ? `<span style="color:var(--smna-sub);font-size:12px;margin-left:4px;">${esc(row.note)}</span>` : "";
-          return `<div style="margin:4px 0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span style="${st}">${esc(badgeText)}</span><span>${esc(row.label || row.criterion_id)}</span>${note}</div>`;
-        }).join("")}`;
-        ui.typedCriteriaBox.style.display = "block";
-      }
-
-      const evidenceRows = Array.isArray(typedEval.evidence_checklist) ? typedEval.evidence_checklist : [];
-      if (evidenceRows.length) {
-        const isShortfall = typedEval.overall_status === "shortfall";
-        const evidenceTitle = isShortfall ? "보완 필요 서류" : "확인 권장 서류";
-        const evidenceDesc = isShortfall
-          ? "아래 서류를 준비하시면 등록 요건을 충족할 수 있습니다."
-          : "아래 항목은 전문가 확인 시 필요할 수 있는 서류입니다.";
-        const _evBorder = isShortfall ? "border-left:3px solid #D32F2F;" : "border-left:3px solid var(--smna-accent-strong,#0078D4);";
-        ui.evidenceChecklistBox.innerHTML = `<div style="${_evBorder}padding:12px;border-radius:8px;background:${isShortfall ? "var(--smna-badge-error-bg,#FFEBEE)" : "var(--smna-badge-info-bg,#E3F2FD)"};"><strong style="display:block;margin-bottom:6px;">${evidenceTitle}</strong><small style="color:var(--smna-sub);display:block;margin-bottom:8px;">${evidenceDesc}</small>${evidenceRows.map((row) => {
-          const _evStyle = row.reason === "보완 필요" ? "color:#D32F2F;font-weight:600;" : "color:var(--smna-sub);";
-          return `<div style="margin:4px 0;display:flex;align-items:flex-start;gap:6px;"><span style="flex-shrink:0;width:18px;text-align:center;">${row.reason === "보완 필요" ? "⚠️" : "📋"}</span><span>${esc(row.label)} <span style="${_evStyle}font-size:12px;">(${esc(row.reason || "확인 필요")})</span></span></div>`;
-        }).join("")}</div>`;
-        ui.evidenceChecklistBox.style.display = "block";
-      }
-
-      const nextRows = Array.isArray(typedEval.next_actions) ? typedEval.next_actions : [];
-      if (nextRows.length) {
-        const isManualReview = typedEval.overall_status === "manual_review";
-        const ctaTitle = isManualReview ? "전문가 검토 안내" : "다음 단계";
-        const ctaStyle = isManualReview ? "background:var(--smna-badge-warning-bg,#FFF8E1);border-left:3px solid var(--smna-warning);padding:12px;border-radius:8px;" : "";
-        ui.nextActionsBox.innerHTML = `<div style="${ctaStyle}"><strong>${ctaTitle}</strong><br>${nextRows.map((row) => `- ${esc(row)}`).join("<br>")}</div>`;
-        ui.nextActionsBox.style.display = "block";
-      }
-    };
-
-    const renderResult = () => {''',
-            1,
-        )
+    # NOTE: typography patches 5-7 removed (Session 16).
+    # Template renderStructuredReview now uses styled <strong style="..."> with
+    # dynamic titles; old patches targeted <strong> (no style attr) and were silently failing.
+    # NOTE: fallback patch 8 (renderStructuredReview injection) also removed.
+    # Template already defines renderStructuredReview with "자동 점검 결과" label,
+    # so the fallback guard `if "자동 점검 결과" not in repaired` never triggers.
     return repaired
 
 

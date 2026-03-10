@@ -824,28 +824,23 @@ class RepairIntegrationTest(unittest.TestCase):
     def test_renderResult_has_crossValidation(self):
         self.assertIn("detectSuspiciousCapitalInput", self._html)
 
-    # --- Patches 5-7: typography labels ---
-    def test_patch5_criteria_label(self):
+    # --- Template: renderStructuredReview labels (patches 5-8 removed) ---
+    def test_template_criteria_label(self):
+        """Template renderStructuredReview uses '자동 점검 결과' label."""
         self.assertIn("자동 점검 결과", self._html)
 
-    def test_patch6_evidence_label(self):
-        self.assertIn("준비 서류", self._html)
+    def test_template_evidence_labels(self):
+        """Template uses dynamic evidence titles based on shortfall status."""
+        self.assertIn("보완 필요 서류", self._html)
+        self.assertIn("확인 권장 서류", self._html)
 
-    def test_patch7_next_actions_label(self):
+    def test_template_next_actions_labels(self):
+        """Template uses dynamic next action titles."""
         self.assertIn("다음 단계", self._html)
-
-    # --- Patch 8: fallback renderStructuredReview injection ---
-    def test_patch8_not_triggered_on_normal_build(self):
-        """When patches 5-7 succeed, the fallback is NOT triggered.
-        This means '자동 점검 결과' comes from typography patches, not fallback."""
-        count = self._html.count("자동 점검 결과")
-        # Typography patch puts it inline; fallback would add a separate block.
-        # Either way, at least 1 occurrence must exist.
-        self.assertGreaterEqual(count, 1)
 
     # --- No silent failures ---
     def test_no_repair_warnings_on_real_html(self):
-        """All 5 active patches should match on real build_html output — no warnings."""
+        """All 2 active patches (checkbox-meta + tip-text) should match — no warnings."""
         logger = logging.getLogger("permit_diagnosis_calculator.repair")
         # Build raw HTML (before repair), then apply repair manually
         raw = build_html(
