@@ -76,7 +76,7 @@
 | `.co.kr` 브리지 | 100% | 정책/CTA/UTM 계약 확정, 5개 placement snippet 생성, Playwright MCP로 5/5 셀렉터 라이브 검증 완료, 인젝션 실행 계획 수립 |
 | 임대형 위젯/API | 99% | template -> scaffold -> validate -> activate 구조 완료 |
 | 특허 | 98% | canonical attorney handoff + claim 9건(양도5+아키텍처3+구조화1), typed_criteria 자동 구조화 특허 claim 추가 |
-| 품질 기준 | 100% | 2028 tests + 83 subtests PASS, permit 80/80+precheck_api 24/24+yangdo 22/22 함수 100% 커버리지, yangdo_blackbox_api 순수함수 69, core_engine 11/11 모듈 100%, HTML 통합 35, _repair 패치 검증 22, a11y WCAG AA 검증 7+3, XSS 전수 감사, regex DoS 방어, WCAG AA 색상 대비 수정, except 전 코어 파일 구체화, DRY −449줄, AI 엔진 심층 감사 HIGH 5+MEDIUM 4 수정, 후보 업종 191개 진단 연동 |
+| 품질 기준 | 100% | 2047 tests + 97 subtests PASS, permit 80/80+precheck_api 24/24+yangdo 22/22 함수 100% 커버리지, yangdo_blackbox_api 순수함수 69, core_engine 11/11 모듈 100%, HTML 통합 41, _repair 패치 검증 22+발산감지 13, a11y WCAG AA 검증 7+3, 글로벌 JS 에러 경계 6, XSS 전수 감사, regex DoS 방어, WCAG AA 색상 대비 수정, except 전 코어 파일 구체화, DRY −449줄, AI 엔진 심층 감사 HIGH 5+MEDIUM 4 수정, 후보 업종 191개 진단 연동 |
 
 ## 3-Tier Automation Architecture
 - **Tier 1: Orchestrator (Claude)**: 전체 전략 수립, 시스템 아키텍처 매핑, 하위 태스크 분할 및 에이전트 위임 제어.
@@ -330,7 +330,10 @@
 - **WCAG AA 접근성 개선**: `--smna-success-text/#008756`, `--smna-warning-text/#946200` WCAG AA 충족 색상 변수 추가. CSS text color 규칙 전수 교체(permit 6곳+yangdo 5곳). 결과 영역 7개 `aria-live="polite"` 추가. a11y 검증 테스트 7+3=10개 추가. Gemini CLI a11y 감사 실행.
 - **E2E 파이프라인 통합 테스트**: CSS scoping, XSS 방어, bootstrap payload, 실제 카탈로그, nowprocket, data_url, fragment 모드 검증 7개 추가.
 - **Gemini CLI 특허 기술 요약서**: 7개 청구항 포함 변리사 전달 가능 수준 문서 자동 생성 (logs/gemini_patent_tech_summary.md).
-- **Quality**: 2028 tests + 83 subtests PASS. (+201 from Session 15)
+- **renderResult/renderProofClaim 패치 원본 동기화**: _repair 패치에서 원본 template과 발산된 기능 3건 복원 — renderProofClaim(claim.official_snapshot_note/source_url_samples fallback), renderResult(runtimeReasoningCardBox clearing + renderRuntimeReasoningCard 호출). 발산 감지 테스트 13개 subtest 추가.
+- **글로벌 JS 에러 경계**: permit + yangdo 모두 window "error"/"unhandledrejection" 핸들러 추가. 사용자 친화 메시지 표시 + console.error 로깅. 검증 테스트 6개 추가.
+- **runtimeReasoningCardBox aria-live**: 동적 결과 영역 aria-live="polite" 누락 보완.
+- **Quality**: 2047 tests + 97 subtests PASS. (+219 from Session 15)
 
 ### [2026-03-10] Session 15 — 후보 업종 진단 활성화 + 코드 품질 개선
 - **후보(candidate) 업종 진단 엔진 연동**: 191개 후보 업종(의료/문화/식품/환경 등)의 `typed_criteria`를 진단 엔진에서 사용 가능하도록 `_build_candidate_rule()` 함수 추가. `mapping_confidence: 0.5`, `coverage_status: "candidate"`, `manual_review_required: true` 플래그로 신뢰도 표시.
