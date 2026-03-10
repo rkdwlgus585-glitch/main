@@ -592,6 +592,8 @@ img { max-width: 100%; display: block; }
   font-weight: 800;
   line-height: 1.2;
   letter-spacing: -0.02em;
+  text-wrap: balance;
+  word-break: keep-all;
 }
 .knowledge-hero-body {
   margin: 12px 0 0;
@@ -682,6 +684,8 @@ img { max-width: 100%; display: block; }
   font-weight: 800;
   line-height: 1.2;
   letter-spacing: -0.02em;
+  text-wrap: balance;
+  word-break: keep-all;
 }
 .consult-hero-body {
   margin: 12px 0 0;
@@ -709,9 +713,10 @@ img { max-width: 100%; display: block; }
   border-radius: var(--radius-lg);
   background: var(--surface);
   border: 1px solid var(--line);
-  transition: box-shadow 200ms var(--ease);
+  transition: box-shadow 200ms var(--ease), border-color 200ms var(--ease);
 }
 .benefit-card:hover {
+  border-color: rgba(0, 163, 255, 0.18);
   box-shadow: var(--shadow-md);
 }
 .benefit-icon {
@@ -817,6 +822,8 @@ img { max-width: 100%; display: block; }
   font-weight: 800;
   line-height: 1.2;
   letter-spacing: -0.02em;
+  text-wrap: balance;
+  word-break: keep-all;
 }
 .market-hero-body {
   margin: 12px 0 24px;
@@ -868,9 +875,10 @@ img { max-width: 100%; display: block; }
   border-radius: var(--radius-lg);
   background: var(--surface);
   border: 1px solid var(--line);
-  transition: box-shadow 200ms var(--ease);
+  transition: box-shadow 200ms var(--ease), border-color 200ms var(--ease);
 }
 .feature-card:hover {
+  border-color: rgba(0, 163, 255, 0.18);
   box-shadow: var(--shadow-md);
 }
 .feature-icon {
@@ -936,15 +944,65 @@ img { max-width: 100%; display: block; }
     grid-template-columns: repeat(2, 1fr);
   }
 }
-@media (max-width: 479px) {
-  .market-stats {
-    grid-template-columns: 1fr 1fr;
+@media (max-width: 640px) {
+  /* ── Hero sections: tighten spacing on mobile ── */
+  .knowledge-hero,
+  .consult-hero,
+  .market-hero {
+    margin-bottom: 32px;
   }
+  .knowledge-hero h1,
+  .consult-hero h1,
+  .market-hero h1 {
+    font-size: 1.6rem;
+  }
+  .consult-benefits,
+  .consult-steps {
+    margin-bottom: 36px;
+  }
+
+  /* ── Cards: reduce padding ── */
+  .knowledge-card,
+  .benefit-card {
+    padding: 20px;
+  }
+
+  /* ── Steps timeline: compact on mobile ── */
+  .step-item {
+    gap: 12px;
+  }
+
+  /* ── Market stats: 2-col compact ── */
+  .market-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .market-stat-card {
+    padding: 16px 12px;
+  }
+
+  /* ── Bridge/CTA dark sections: tighten padding ── */
   .consult-start {
     padding: 32px 20px;
   }
   .bridge-card {
     padding: 32px 20px;
+  }
+  .consult-start-actions,
+  .bridge-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .consult-start-actions .cta-primary,
+  .consult-start-actions .cta-secondary,
+  .bridge-actions .cta-primary,
+  .bridge-actions .cta-secondary {
+    text-align: center;
+  }
+}
+@media (max-width: 479px) {
+  .market-stats {
+    grid-template-columns: 1fr 1fr;
   }
 }
 
@@ -1498,6 +1556,8 @@ img { max-width: 100%; display: block; }
   line-height: 1.35;
   margin: 12px 0 16px;
   color: var(--ink);
+  text-wrap: balance;
+  word-break: keep-all;
 }
 .service-intro-body {
   color: var(--muted);
