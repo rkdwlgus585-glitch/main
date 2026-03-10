@@ -124,5 +124,39 @@ class NormalizeV1RequestTest(unittest.TestCase):
         self.assertEqual(result["inputs"]["custom_field"], "value")
 
 
+    def test_tenant_id_extracted(self):
+        payload = {"request": {"tenant_id": "t_001"}}
+        result = normalize_v1_request(payload)
+        self.assertEqual(result["request_meta"]["tenant_id_hint"], "t_001")
+
+    def test_tenant_id_from_flat(self):
+        payload = {"tenant_id": "t_flat", "license_key": "전기"}
+        result = normalize_v1_request(payload)
+        self.assertEqual(result["request_meta"]["tenant_id_hint"], "t_flat")
+
+    def test_requested_at_from_timestamp(self):
+        payload = {"request": {"timestamp": "2026-03-10T12:00:00Z"}}
+        result = normalize_v1_request(payload)
+        self.assertEqual(result["request_meta"]["requested_at"], "2026-03-10T12:00:00Z")
+
+    def test_x_correlation_id_fallback(self):
+        result = normalize_v1_request({}, headers={"X-Correlation-Id": "corr-456"})
+        self.assertEqual(result["request_meta"]["request_id_hint"], "corr-456")
+
+    def test_long_page_url_truncated(self):
+        long_url = "https://example.com/" + "x" * 600
+        result = normalize_v1_request({}, default_page_url=long_url)
+        self.assertLessEqual(len(result["request_meta"]["page_url"]), 500)
+
+    def test_deeply_nested_payload_preserved(self):
+        """Partner payloads may have unexpected nesting."""
+        payload = {
+            "request": {"source": "partner_api"},
+            "input": {"nested": {"deep": {"value": 1}}},
+        }
+        result = normalize_v1_request(payload)
+        self.assertEqual(result["inputs"]["nested"]["deep"]["value"], 1)
+
+
 if __name__ == "__main__":
     unittest.main()
