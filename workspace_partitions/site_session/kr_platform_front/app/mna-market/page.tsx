@@ -47,11 +47,13 @@ const marketFeatures = [
 ];
 
 const stats = [
-  { label: "등록 매물", value: "450+", suffix: "건" },
-  { label: "월 거래 매칭", value: "80+", suffix: "건" },
+  { label: "누적 등록 매물", value: "450+", suffix: "건" },
+  { label: "월 평균 매칭", value: "80+", suffix: "건" },
   { label: "평균 매칭 소요", value: "3.2", suffix: "일" },
   { label: "매물 검증률", value: "100", suffix: "%" },
 ];
+/** 통계는 서비스 목표치 기반 참고 수치이며, 실제 운영 데이터와 다를 수 있습니다. */
+const STATS_DISCLAIMER = "위 수치는 서비스 목표 기반의 참고 수치입니다.";
 
 /* NOTE: JSON-LD uses dangerouslySetInnerHTML which is safe here because
    all data comes from compile-time string literals (not user input). */
@@ -119,6 +121,7 @@ export default function MnaMarketPage() {
             <span className="market-stat-label">{s.label}</span>
           </div>
         ))}
+        <p className="market-stats-disclaimer">{STATS_DISCLAIMER}</p>
       </section>
 
       <section className="market-features" aria-label="주요 기능">
