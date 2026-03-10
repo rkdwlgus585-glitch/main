@@ -63,9 +63,7 @@ export default function PrivacyPage() {
         </p>
       </section>
 
-      <p style={{ marginTop: "48px", color: "var(--muted)", fontSize: "0.85rem" }}>
-        시행일: 2026년 3월 1일
-      </p>
+      <p className="legal-effective-date">시행일: 2026년 3월 1일</p>
     </main>
   );
 }

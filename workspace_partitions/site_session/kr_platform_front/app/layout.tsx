@@ -4,10 +4,13 @@ import { platformConfig } from "@/components/platform-config";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 
+const siteTitle = "서울건설정보 | 건설업 AI 양도가 산정 · 인허가 사전검토 전문 플랫폼";
+const siteDescription =
+  "건설업 면허 양도가격을 AI가 무료로 산정합니다. 191개 업종 등록기준 사전검토와 신규 취득 비용 계산까지 원스톱으로 제공하는 건설업 전문 플랫폼.";
+
 export const metadata: Metadata = {
-  title: "서울건설정보 | 건설업 AI 양도가 산정 · 인허가 사전검토 전문 플랫폼",
-  description:
-    "건설업 면허 양도가격을 AI가 무료로 산정합니다. 191개 업종 등록기준 사전검토와 신규 취득 비용 계산까지 원스톱으로 제공하는 건설업 전문 플랫폼.",
+  title: siteTitle,
+  description: siteDescription,
   metadataBase: new URL(platformConfig.platformFrontHost),
   openGraph: {
     title: "서울건설정보 | 건설업 AI 전문 플랫폼",
@@ -16,6 +19,12 @@ export const metadata: Metadata = {
     url: platformConfig.platformFrontHost,
     siteName: "서울건설정보",
     type: "website",
+    locale: "ko_KR",
+  },
+  twitter: {
+    card: "summary",
+    title: "서울건설정보 | 건설업 AI 전문 플랫폼",
+    description: siteDescription,
   },
   keywords: [
     "건설업 면허",
@@ -28,12 +37,36 @@ export const metadata: Metadata = {
     "면허 가격",
     "서울건설정보",
   ],
+  other: {
+    "google-site-verification": "",
+  },
 };
+
+function JsonLd() {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "서울건설정보",
+    url: platformConfig.platformFrontHost,
+    telephone: platformConfig.contactPhone,
+    email: platformConfig.contactEmail,
+    address: { "@type": "PostalAddress", addressLocality: "서울특별시", addressCountry: "KR" },
+    description: siteDescription,
+    knowsAbout: ["건설업 양도양수", "건설업 면허", "인허가 사전검토", "건설업 등록기준"],
+  };
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
+  );
+}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko">
       <body>
+        <JsonLd />
         <SiteHeader />
         {children}
         <SiteFooter />

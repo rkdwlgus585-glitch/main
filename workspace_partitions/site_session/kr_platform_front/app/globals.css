@@ -847,6 +847,61 @@ img { max-width: 100%; display: block; }
   line-height: 1.7;
 }
 
+/* ── Focus visible (accessibility) ────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--point);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ── Legal pages: effective date ─────────────────────────── */
+.legal-effective-date {
+  margin-top: 48px;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+/* ── 404 Not Found ────────────────────────────────────────── */
+.not-found-shell {
+  text-align: center;
+  padding-top: 80px;
+  padding-bottom: 120px;
+}
+.not-found-code {
+  margin: 0;
+  font-size: clamp(4rem, 10vw, 7rem);
+  font-weight: 900;
+  color: var(--brand);
+  line-height: 1;
+  opacity: 0.15;
+}
+.not-found-shell h1 {
+  margin-top: 8px;
+  font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+}
+.not-found-body {
+  margin: 12px auto 0;
+  max-width: 42ch;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+.not-found-links {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 32px;
+}
+.not-found-secondary {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--brand);
+}
+.not-found-secondary:hover {
+  background: var(--bg-warm);
+}
+
 /* ── Responsive ────────────────────────────────────────────── */
 @media (max-width: 960px) {
   .hero-shell {

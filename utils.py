@@ -133,7 +133,7 @@ class Notifier:
                 if res.status_code in ok_statuses:
                     return True
                 last_error = f"status={res.status_code}"
-            except Exception as e:
+            except (requests.RequestException, OSError) as e:
                 last_error = str(e)
 
             if attempt < self.MAX_RETRIES:

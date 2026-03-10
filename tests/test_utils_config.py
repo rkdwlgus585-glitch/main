@@ -1,6 +1,8 @@
 import unittest
 from unittest.mock import Mock, patch
 
+import requests
+
 from utils import Notifier, load_config, require_config, setup_logger
 
 
@@ -31,7 +33,7 @@ class UtilsConfigTest(unittest.TestCase):
     def test_notifier_retries_then_succeeds(self):
         notifier = Notifier(discord_url="https://discord.example/webhook")
         with patch("utils.requests.post") as mock_post:
-            mock_post.side_effect = [Exception("net"), Mock(status_code=204)]
+            mock_post.side_effect = [requests.ConnectionError("net"), Mock(status_code=204)]
             ok = notifier.send("hello", title="t")
 
         self.assertTrue(ok)

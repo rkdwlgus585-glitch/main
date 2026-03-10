@@ -157,7 +157,7 @@ class ConsultantAI:
                 config=types.GenerateContentConfig(response_mime_type="application/json")
             )
             return json.loads(response.text)
-        except Exception:
+        except (json.JSONDecodeError, ValueError, TypeError, AttributeError):
             return None
 
     def find_matches(self, req_json, inventory_data):
@@ -246,7 +246,7 @@ def main():
         sh = client.open(CONFIG['SHEET_NAME'])
         ws_consult = sh.worksheet(CONFIG['TAB_CONSULT'])
         ws_item = sh.worksheet(CONFIG['TAB_ITEM'])
-    except Exception as e:
+    except (gspread.exceptions.GSpreadException, ValueError, KeyError) as e:
         print(f"❌ 시트 연결 실패: {e}")
         return
 
