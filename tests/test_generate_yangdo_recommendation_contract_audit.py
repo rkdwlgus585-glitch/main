@@ -1,4 +1,4 @@
-﻿import unittest
+import unittest
 
 from scripts.generate_yangdo_recommendation_contract_audit import build_contract_audit
 

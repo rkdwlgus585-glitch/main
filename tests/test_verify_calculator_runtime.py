@@ -1,4 +1,4 @@
-﻿import unittest
+import unittest
 from unittest.mock import Mock, patch
 
 from scripts.verify_calculator_runtime import _check_static, _runtime_frame_tokens

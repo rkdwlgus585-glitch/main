@@ -1,4 +1,4 @@
-﻿import os
+import os
 import re
 from html import escape
 from core_engine.api_response import now_iso, safe_json_for_script

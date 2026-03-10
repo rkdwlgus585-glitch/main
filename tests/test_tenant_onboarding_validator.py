@@ -1,4 +1,4 @@
-﻿import unittest
+import unittest
 
 from scripts.validate_tenant_onboarding import validate_registry
 

@@ -1,4 +1,4 @@
-﻿import argparse
+import argparse
 import json
 from html import escape
 from pathlib import Path

@@ -1,4 +1,4 @@
-﻿import unittest
+import unittest
 
 from scripts import generate_yangdo_price_logic_brainstorm
 

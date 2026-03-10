@@ -1,4 +1,4 @@
-﻿import unittest
+import unittest
 
 from scripts import generate_yangdo_sector_price_audit
 

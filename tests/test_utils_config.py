@@ -1,4 +1,4 @@
-﻿import unittest
+import unittest
 from unittest.mock import Mock, patch
 
 from utils import Notifier, load_config, require_config, setup_logger
