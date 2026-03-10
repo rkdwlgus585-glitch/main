@@ -3,9 +3,10 @@ import Link from "next/link";
 import { AiToolBridge } from "@/components/ai-tool-bridge";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ContactLink } from "@/components/contact-link";
+import { LegacyPageDirectory } from "@/components/legacy-page-directory";
 import { SupportForm } from "@/components/support-form";
-import { faqs, notices } from "@/components/sample-data";
 import { siteConfig } from "@/components/site-config";
+import { getFaqPreviewItems, getLatestPosts, getLegacyPagesByGroup } from "@/lib/legacy-content";
 import { buildPageMetadata } from "@/lib/page-metadata";
 
 export const metadata: Metadata = buildPageMetadata(
@@ -21,6 +22,9 @@ const intakeHighlights = [
 ];
 
 export default function SupportPage() {
+  const faqs = getFaqPreviewItems(3);
+  const notices = getLatestPosts("notice", 3);
+  const importedPages = getLegacyPagesByGroup("support");
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -44,7 +48,7 @@ export default function SupportPage() {
       <section className="inner-hero">
         <p className="eyebrow">Customer Support</p>
         <h1>고객센터</h1>
-        <p>독립 퍼블릭 사이트에서 가장 중요한 것은 문의 동선입니다. 전화, 모바일, 이메일, 카카오 채널을 명확하게 보여줍니다.</p>
+        <p>독립 퍼블릭 사이트에서 가장 중요한 것은 문의 동선입니다. 전화, 모바일, 이메일, 카카오 채널과 함께 원본 고객센터 콘텐츠까지 모두 연결했습니다.</p>
       </section>
 
       <section className="support-intake-shell">
@@ -118,6 +122,9 @@ export default function SupportPage() {
             </article>
           ))}
         </div>
+        <div className="notice-foot">
+          <Link href="/tl_faq">FAQ 전체 보기</Link>
+        </div>
       </section>
 
       <section className="section-block">
@@ -127,16 +134,26 @@ export default function SupportPage() {
         </div>
         <div className="notice-grid">
           {notices.map((notice) => (
-            <article key={notice.title} className="notice-card">
-              <span>{notice.date}</span>
-              <h3>{notice.title}</h3>
+            <article key={notice.id} className="notice-card">
+              <span>{notice.publishedAt}</span>
+              <h3>
+                <Link href={`/notice/${encodeURIComponent(notice.id)}`}>{notice.title}</Link>
+              </h3>
               <p>{notice.summary}</p>
             </article>
           ))}
         </div>
       </section>
 
-      <AiToolBridge variant="full" />
+      <LegacyPageDirectory
+        title="이관된 고객센터 세부 안내"
+        description="원본 고객센터의 상담 신청 및 오시는 길 페이지를 그대로 연결했습니다."
+        pages={importedPages}
+      />
+
+      <div className="page-shell page-shell--inner" style={{ paddingTop: 0 }}>
+        <AiToolBridge variant="full" />
+      </div>
 
       <section className="inner-cta">
         <h2>상담 전에 AI 도구로 미리 확인하면 더 정확한 안내를 받을 수 있습니다</h2>

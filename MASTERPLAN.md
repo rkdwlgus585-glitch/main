@@ -84,7 +84,7 @@
 | 영업 범위 | 완성도 | 핵심 병목 |
 |-----------|--------|----------|
 | ① seoulmna.kr 완벽 배포 | 97% | 서버 live 반영 미실행 (코드 100%, nginx+systemd+Docker+smoke test+deploy runbook 완성, 인프라 실행만 잔여) |
-| ② seoulmna.co.kr 이식 (CTA 브리지) | 95% | AiToolBridge 컴포넌트 7개 페이지 배치 완료, platformHost env var 분리, twitter-image 추가. .kr live 선행 후 URL 확정만 잔여 |
+| ② seoulmna.co.kr 이식 (CTA 브리지) | 97% | AiToolBridge 7개 페이지 배치, JSON-LD 8개 주입점 전면 커버, afterContent 구조 정리, twitter-image 추가. .kr live 선행 후 URL 확정만 잔여 |
 | ③ 타사 임대 (위젯/API) | 85% | 파트너 입력값 0건 (sandbox mode 완성, OpenAPI 3.0 완성, smoke test 완성) |
 
 ### 최적 배포 형태
@@ -378,6 +378,14 @@
 - **runtimeReasoningCardBox aria-live**: 동적 결과 영역 aria-live="polite" 누락 보완.
 - **_repair 완전 제거 (8→0 패치)**: renderProofClaim/renderResult 동기화 후 제거(−120줄), typography 3+fallback 1 dead code 제거(−335줄), 마지막 2패치(checkbox-meta-box+tip-text) template 직접 반영 후 `_repair_generated_permit_html`+`_replace_first_block`+`_repair_log` 완전 삭제(−50줄). 총 −505줄. Template이 유일 source of truth.
 - **Quality**: 2025 tests + 94 subtests PASS. (dead code 테스트 21개+3 subtests 정리, 실질 커버리지 유지)
+
+### [2026-03-10] Session 36 — .co.kr JSON-LD 전면 확장 + 코드 품질 감사
+- **JSON-LD Service schema (4페이지)**: `ServiceDetailPage` 컴포넌트에 `Service` 스키마 내장 — registration, corporate, split-merger, practice 4개 서비스 페이지에 자동 적용 (DRY)
+- **JSON-LD WebSite schema (홈)**: `PublicHome` 컴포넌트에 `WebSite` 스키마 추가 — 홈페이지 SEO 보강
+- **afterContent 래퍼 해킹 제거**: 4개 서비스 페이지에서 `style={{ paddingTop: 0 }}` 인라인 스타일 + 불필요한 `page-shell` 래퍼 div 제거 — 깔끔한 컴포넌트 구조로 정리
+- **코어 Python 품질 감사 완료**: broad except 3건(yangdo_consult_api, 의도적 외부 의존성 fail-safe), str(e) 코어 0건 info leak, TODO/FIXME 코어 0건 — 전부 기존 수준 확인
+- **JSON-LD 총 커버리지**: 8개 주입점 (LocalBusiness+BreadcrumbList+WebSite+Service×4+ItemList+ItemPage+ContactPage+FAQPage) — 모든 라우트 유형 커버
+- **Quality**: .co.kr 빌드 클린 (1900+ SSG pages), Python 2678+94 PASS
 
 ### [2026-03-10] Session 35 — .co.kr CTA 브리지 완성 + 코드베이스 Git 추적
 - **.co.kr CTA 브리지 구현**: `AiToolBridge` 컴포넌트 신규 생성. 홈·양도양수·건설업등록·고객센터 4개 페이지에 AI 양도가 산정/인허가 사전검토 → seoulmna.kr 유도 CTA 배치

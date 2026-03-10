@@ -116,21 +116,6 @@ export function ListingBoard({
   }, [currentPage, filtered]);
 
   useEffect(() => {
-    if (page > totalPages) {
-      setPage(totalPages);
-      return;
-    }
-
-    if (page < 1) {
-      setPage(1);
-    }
-  }, [page, totalPages]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [region, sector, deferredSearchTerm]);
-
-  useEffect(() => {
     if (!syncWithUrl) {
       return;
     }
@@ -186,10 +171,20 @@ export function ListingBoard({
                 type="search"
                 placeholder="등록번호 또는 키워드"
                 value={searchTerm}
-                onChange={(event) => setSearchTerm(event.target.value)}
+                onChange={(event) => {
+                  setSearchTerm(event.target.value);
+                  setPage(1);
+                }}
               />
               {searchTerm ? (
-                <button type="button" className="listing-search-clear" onClick={() => setSearchTerm("")}>
+                <button
+                  type="button"
+                  className="listing-search-clear"
+                  onClick={() => {
+                    setSearchTerm("");
+                    setPage(1);
+                  }}
+                >
                   초기화
                 </button>
               ) : null}
@@ -205,7 +200,10 @@ export function ListingBoard({
                   type="button"
                   className={`chip${sector === item ? " chip--active" : ""}`}
                   aria-pressed={sector === item}
-                  onClick={() => setSector(item)}
+                  onClick={() => {
+                    setSector(item);
+                    setPage(1);
+                  }}
                 >
                   {item}
                 </button>
@@ -222,7 +220,10 @@ export function ListingBoard({
                   type="button"
                   className={`chip${region === item ? " chip--active" : ""}`}
                   aria-pressed={region === item}
-                  onClick={() => setRegion(item)}
+                  onClick={() => {
+                    setRegion(item);
+                    setPage(1);
+                  }}
                 >
                   {item}
                 </button>

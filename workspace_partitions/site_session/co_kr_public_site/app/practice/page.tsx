@@ -57,9 +57,7 @@ export default function PracticePage() {
             description="건설실무와 정부정책자금 관련 원본 콘텐츠를 모두 연결했습니다."
             pages={importedPages}
           />
-          <div className="page-shell page-shell--inner" style={{ paddingTop: 0 }}>
-            <AiToolBridge variant="full" />
-          </div>
+          <AiToolBridge variant="full" />
         </>
       )}
     />

@@ -62,8 +62,31 @@ export function ServiceDetailPage({
   notes: NoteCard[];
   afterContent?: ReactNode;
 }) {
+  const serviceSchema = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name: `건설업 ${title}`,
+    description,
+    serviceType: `건설업 ${title} 컨설팅`,
+    url: `${siteConfig.host}${breadcrumbPath}`,
+    provider: {
+      "@type": "LocalBusiness",
+      name: siteConfig.companyName,
+      url: siteConfig.host,
+      telephone: siteConfig.phone,
+    },
+    areaServed: {
+      "@type": "Country",
+      name: "KR",
+    },
+  };
+
   return (
     <div className="page-shell page-shell--inner">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchema) }}
+      />
       <Breadcrumbs
         items={[
           { href: "/", label: "홈" },

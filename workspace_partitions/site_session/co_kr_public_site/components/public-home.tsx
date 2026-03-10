@@ -2,10 +2,11 @@ import Link from "next/link";
 import { ArrowRight, Building2, CircleHelp, FileStack, Scale, Shield } from "lucide-react";
 import { AiToolBridge } from "@/components/ai-tool-bridge";
 import { ContactLink } from "@/components/contact-link";
-import { ListingBoard } from "@/components/listing-board";
+import { ListingPreview } from "@/components/listing-preview";
 import { NoticePreview } from "@/components/notice-preview";
 import { quickEntries } from "@/components/sample-data";
 import { siteConfig } from "@/components/site-config";
+import { getAllListings, getImportManifest } from "@/lib/legacy-content";
 
 const serviceCards = [
   {
@@ -38,8 +39,28 @@ const processSteps = [
 ];
 
 export function PublicHome() {
+  const latestListings = getAllListings().slice(0, 4);
+  const manifest = getImportManifest();
+
+  const websiteSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: siteConfig.brandName,
+    url: siteConfig.host,
+    description: "건설업 양도양수, 등록, 법인설립, 분할합병, 건설실무를 안내하는 독립 퍼블릭 사이트",
+    publisher: {
+      "@type": "Organization",
+      name: siteConfig.companyName,
+      url: siteConfig.host,
+    },
+  };
+
   return (
     <div className="page-shell">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+      />
       <section className="hero">
         <div className="hero-copy">
           <p className="hero-badge">Independent Public Site</p>
@@ -125,9 +146,10 @@ export function PublicHome() {
       <section className="section-block">
         <div className="section-header">
           <p className="eyebrow">Market Brief</p>
-          <h2>양도양수 게시판 성격을 유지하면서 읽기 쉬운 매물 브리프로 변환</h2>
+          <h2>원본 게시판에서 이관한 실제 매물을 읽기 쉬운 브리프로 변환</h2>
+          <p>현재 독립 사이트에는 양도양수 {manifest.counts.mna}건, 공지 {manifest.counts.notice}건을 포함한 전체 콘텐츠가 반영되어 있습니다.</p>
         </div>
-        <ListingBoard compact />
+        <ListingPreview listings={latestListings} />
       </section>
 
       <section className="section-block">
@@ -172,7 +194,7 @@ export function PublicHome() {
           <CircleHelp size={20} aria-hidden="true" />
           <h2>상담형 퍼블릭 사이트로 먼저 분리하고, AI 시스템은 별도 연결하는 구조가 맞습니다</h2>
           <p>
-            지금 만든 골격은 `seoulmna.kr` 대체가 아니라, `seoulmna.co.kr` 역할을 독립적으로
+            지금 만든 골격은 seoulmna.kr 대체가 아니라, seoulmna.co.kr 역할을 독립적으로
             수행할 새 사이트의 시작점입니다.
           </p>
           <div className="cta-actions">

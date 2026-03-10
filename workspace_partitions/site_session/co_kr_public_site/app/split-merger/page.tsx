@@ -57,9 +57,7 @@ export default function SplitMergerPage() {
             description="원본 사이트의 분할합병 안내 페이지를 그대로 연결했습니다."
             pages={importedPages}
           />
-          <div className="page-shell page-shell--inner" style={{ paddingTop: 0 }}>
-            <AiToolBridge variant="yangdo" />
-          </div>
+          <AiToolBridge variant="yangdo" />
         </>
       )}
     />

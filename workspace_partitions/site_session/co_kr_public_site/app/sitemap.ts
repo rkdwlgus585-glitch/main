@@ -1,30 +1,63 @@
 import type { MetadataRoute } from "next";
-import { notices } from "@/components/sample-data";
+import { boardConfig } from "@/lib/content-map";
+import {
+  getAllLegacyPages,
+  getAllListings,
+  getBoardPosts,
+  getFaqPage,
+  getLegacyPagePath,
+  getLatestContentUpdatedAt,
+} from "@/lib/legacy-content";
 import { primaryMenu, siteConfig } from "@/components/site-config";
-import { getAllListings } from "@/lib/listings";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes = ["", "/privacy", "/terms"];
   const menuRoutes = primaryMenu.map((item) => item.href);
   const listings = getAllListings();
-  const listingRoutes = listings.map((item) => `/mna/${encodeURIComponent(item.id)}`);
-  const listingModifiedMap = new Map(
-    listings.map((item) => [`/mna/${encodeURIComponent(item.id)}`, new Date(item.updatedAt)]),
-  );
-  const latestNoticeDate = notices.reduce((latest, notice) => (
-    notice.date > latest ? notice.date : latest
-  ), notices[0]?.date ?? "2026-03-10");
-  const staticLastModified = new Date(`${latestNoticeDate}T00:00:00+09:00`);
+  const listingRoutes = listings.map((item) => ({
+    path: `/mna/${encodeURIComponent(item.id)}`,
+    updatedAt: item.updatedAt,
+  }));
+  const notices = getBoardPosts("notice").map((post) => ({
+    path: `${boardConfig.notice.path}/${encodeURIComponent(post.id)}`,
+    updatedAt: post.updatedAt,
+  }));
+  const premiums = getBoardPosts("premium").map((post) => ({
+    path: `${boardConfig.premium.path}/${encodeURIComponent(post.id)}`,
+    updatedAt: post.updatedAt,
+  }));
+  const news = getBoardPosts("news").map((post) => ({
+    path: `${boardConfig.news.path}/${encodeURIComponent(post.id)}`,
+    updatedAt: post.updatedAt,
+  }));
+  const pageRoutes = getAllLegacyPages().map((page) => ({
+    path: getLegacyPagePath(page.slug),
+    updatedAt: page.updatedAt,
+  }));
 
-  return [...staticRoutes, ...menuRoutes, ...listingRoutes].map((path) => {
+  const routeEntries = [
+    ...staticRoutes.map((path) => ({ path, updatedAt: getLatestContentUpdatedAt() })),
+    ...menuRoutes.map((path) => ({ path, updatedAt: getLatestContentUpdatedAt() })),
+    { path: boardConfig.notice.path, updatedAt: getBoardPosts("notice")[0]?.updatedAt ?? getLatestContentUpdatedAt() },
+    { path: boardConfig.premium.path, updatedAt: getBoardPosts("premium")[0]?.updatedAt ?? getLatestContentUpdatedAt() },
+    { path: boardConfig.news.path, updatedAt: getBoardPosts("news")[0]?.updatedAt ?? getLatestContentUpdatedAt() },
+    { path: "/tl_faq", updatedAt: getFaqPage().updatedAt },
+    ...listingRoutes,
+    ...notices,
+    ...premiums,
+    ...news,
+    ...pageRoutes,
+  ];
+
+  return routeEntries.map(({ path, updatedAt }) => {
     const isHome = path === "";
-    const isListingDetail = path.startsWith("/mna/");
+    const isDetail = path.includes("/mna/") || path.includes("/notice/") || path.includes("/premium/") || path.includes("/news/");
 
     return {
       url: `${siteConfig.host}${path}`,
-      lastModified: listingModifiedMap.get(path) ?? staticLastModified,
-      changeFrequency: isHome || isListingDetail ? "weekly" : "monthly",
-      priority: isHome ? 1 : isListingDetail ? 0.8 : 0.7,
+      lastModified: new Date(updatedAt),
+      changeFrequency: isHome || isDetail ? "weekly" : "monthly",
+      priority: isHome ? 1 : isDetail ? 0.8 : 0.7,
     };
   });
 }

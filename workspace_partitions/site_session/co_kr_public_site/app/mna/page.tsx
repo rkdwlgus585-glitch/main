@@ -11,7 +11,7 @@ export const revalidate = 3600;
 export const metadata: Metadata = buildPageMetadata(
   "/mna",
   "양도양수 실시간 매물",
-  "건설업 양도양수 매물을 업종과 지역 기준으로 빠르게 검토할 수 있는 목록 페이지입니다.",
+  "원본 운영 사이트에서 이관한 건설업 양도양수 매물을 업종과 지역 기준으로 빠르게 탐색할 수 있는 페이지입니다.",
 );
 
 type PageProps = {
@@ -19,6 +19,7 @@ type PageProps = {
     sector?: string;
     region?: string;
     q?: string;
+    page?: string;
   }>;
 };
 
@@ -29,11 +30,11 @@ export default async function MnaPage({ searchParams }: PageProps) {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     name: "양도양수 실시간 매물",
-    description: "건설업 양도양수 매물을 업종과 지역 기준으로 빠르게 검토할 수 있는 목록 페이지입니다.",
+    description: "건설업 양도양수 매물을 업종과 지역 기준으로 빠르게 탐색할 수 있는 목록 페이지입니다.",
     url: `${siteConfig.host}/mna`,
     mainEntity: {
       "@type": "ItemList",
-      itemListElement: listings.map((item, index) => ({
+      itemListElement: listings.slice(0, 100).map((item, index) => ({
         "@type": "ListItem",
         position: index + 1,
         url: `${siteConfig.host}/mna/${encodeURIComponent(item.id)}`,
@@ -52,9 +53,12 @@ export default async function MnaPage({ searchParams }: PageProps) {
       <section className="inner-hero">
         <p className="eyebrow">Live Listings</p>
         <h1>양도양수 실시간 매물</h1>
-        <p>seoulmna.co.kr 역할을 대체할 독립 사이트용 매물 목록 골격입니다. 실제 데이터는 이후 CMS 또는 DB로 연결하면 됩니다.</p>
+        <p>
+          seoulmna.co.kr에서 이관한 실제 양도양수 매물을 그대로 정리했습니다.
+          업종, 지역, 키워드 기준으로 빠르게 좁히고 상세 페이지에서 회사개요와 실적표를 확인할 수 있습니다.
+        </p>
       </section>
-      <ListingBoard syncWithUrl initialFilters={filters} />
+      <ListingBoard listings={listings} syncWithUrl initialFilters={filters} />
       <AiToolBridge variant="yangdo" />
     </div>
   );

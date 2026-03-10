@@ -109,7 +109,7 @@ BOARD_CONFIGS = {
     "notice": BoardConfig(name="notice", list_path="/notice", detail_prefix="/notice/", render_selector="#bo_v_con", detail_pattern=r"^/notice/\d+$"),
     "premium": BoardConfig(name="premium", list_path="/premium", detail_prefix="/premium/", render_selector="#bo_v_con", detail_pattern=r"^/premium/\d+$"),
     "news": BoardConfig(name="news", list_path="/news", detail_prefix="/news/", render_selector="#bo_v_con", detail_pattern=r"^/news/\d+$"),
-    "tl_faq": BoardConfig(name="tl_faq", list_path="/tl_faq", detail_prefix=None, render_selector="#fboardlist"),
+    "tl_faq": BoardConfig(name="tl_faq", list_path="/tl_faq", detail_prefix=None, render_selector="div.txtCon"),
 }
 
 
@@ -160,6 +160,17 @@ def normalize_internal_url(url: str) -> str:
     fragment = f"#{parsed.fragment}" if parsed.fragment else ""
     path = parsed.path or "/"
     return f"{path}{query}{fragment}"
+
+
+def canonical_internal_url(url: str, base_url: str) -> str:
+    absolute = absolute_url(url, base_url)
+    if not is_internal_url(absolute):
+        return absolute
+
+    parsed = urlparse(absolute)
+    path = parsed.path or "/"
+    base = urlparse(BASE_URL)
+    return urlunparse((base.scheme, base.netloc, path, "", "", ""))
 
 
 def absolute_url(url: str, base_url: str) -> str:
@@ -277,8 +288,21 @@ def sanitize_fragment(
                 del tag.attrs[attr]
 
         if tag.name == "a" and tag.get("href"):
-            href = absolute_url(tag["href"], source_url)
+            raw_href = clean_text(tag["href"])
+            if re.fullmatch(r"[0-9+\-\s()]+", raw_href):
+                phone_number = re.sub(r"\D", "", raw_href)
+                if 8 <= len(phone_number) <= 13:
+                    tag["href"] = f"tel:{phone_number}"
+                    continue
+
+            href = absolute_url(raw_href, source_url)
             parsed = urlparse(href)
+            if parsed.scheme in {"tel", "mailto"}:
+                tag["href"] = href
+                continue
+            if parsed.scheme and parsed.scheme not in {"http", "https"}:
+                del tag["href"]
+                continue
             suffix = Path(parsed.path).suffix.lower()
             if is_internal_url(href) and suffix in ATTACHMENT_EXTENSIONS:
                 tag["href"] = ensure_asset_downloaded(session, href, f"{asset_scope}/files", skip_assets=skip_assets)
@@ -538,7 +562,10 @@ def parse_article_detail(
         skip_assets=skip_assets,
     )
 
-    title = pick_first_text(soup, ["main h1:last-of-type", "h1:last-of-type", "h1", "h2:first-of-type"])
+    title = pick_first_text(
+        soup,
+        ["#bo_v_title", ".bo_v_tit", "main h1:last-of-type", "h1:last-of-type", "h1", "h2:first-of-type"],
+    )
     if not title:
         title = clean_text((soup.title.get_text(" ", strip=True) if soup.title else "").split(">")[0])
 
@@ -660,11 +687,14 @@ def crawl_board_detail_urls(
         _, page_soup = read_soup(session, page_url)
         for anchor in page_soup.find_all("a", href=True):
             href = absolute_url(anchor["href"], page_url)
-            normalized = normalize_internal_url(href)
-            if config.detail_prefix and normalized.startswith(config.detail_prefix):
-                if config.detail_pattern and not re.match(config.detail_pattern, normalized):
+            if not is_internal_url(href):
+                continue
+
+            normalized_path = urlparse(href).path or "/"
+            if config.detail_prefix and normalized_path.startswith(config.detail_prefix):
+                if config.detail_pattern and not re.match(config.detail_pattern, normalized_path):
                     continue
-                urls[href] = None
+                urls[canonical_internal_url(href, page_url)] = None
     return list(urls.keys())
 
 
@@ -677,10 +707,31 @@ def parse_tl_faq_page(
 ) -> dict[str, Any]:
     page_url = absolute_url(config.list_path, BASE_URL)
     _, soup = read_soup(session, page_url)
-    root = find_render_root(soup, config.render_selector)
+    content_blocks: list[str] = []
+    seen_blocks: set[str] = set()
+    for heading in soup.find_all(["h1", "h2"]):
+        text = clean_text(heading.get_text(" ", strip=True))
+        if not text or text == "자주하는 질문":
+            continue
+
+        container = heading.find_parent("div")
+        if container is None:
+            continue
+
+        block_html = str(container)
+        if block_html in seen_blocks:
+            continue
+
+        seen_blocks.add(block_html)
+        content_blocks.append(block_html)
+
+    synthetic_root = BeautifulSoup(f"<div>{''.join(content_blocks)}</div>", "lxml").div
+    if synthetic_root is None:
+        raise ValueError("faq content root not found")
+
     content_html, content_text = sanitize_fragment(
         session,
-        root,
+        synthetic_root,
         source_url=page_url,
         asset_scope="tl_faq/index",
         skip_assets=skip_assets,
@@ -801,6 +852,23 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def read_existing_manifest_counts() -> dict[str, int]:
+    manifest_path = OUTPUT_DIR / "manifest.json"
+    if not manifest_path.exists():
+        return {}
+
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError, json.JSONDecodeError):
+        return {}
+
+    counts = manifest.get("counts", {})
+    if not isinstance(counts, dict):
+        return {}
+
+    return {str(key): int(value) for key, value in counts.items() if isinstance(value, int)}
+
+
 def main() -> int:
     args = parse_args()
     ensure_dirs()
@@ -811,7 +879,7 @@ def main() -> int:
     manifest: dict[str, Any] = {
         "source": BASE_URL,
         "generatedAt": imported_at,
-        "counts": {},
+        "counts": read_existing_manifest_counts(),
         "options": {
             "workers": args.workers,
             "limit": args.limit,

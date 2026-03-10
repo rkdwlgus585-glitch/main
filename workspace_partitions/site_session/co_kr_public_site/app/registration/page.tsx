@@ -57,9 +57,7 @@ export default function RegistrationPage() {
             description="원본 사이트에서 사용하던 등록 기준, 실무 설명 페이지를 그대로 연결했습니다."
             pages={importedPages}
           />
-          <div className="page-shell page-shell--inner" style={{ paddingTop: 0 }}>
-            <AiToolBridge variant="permit" />
-          </div>
+          <AiToolBridge variant="permit" />
         </>
       )}
     />

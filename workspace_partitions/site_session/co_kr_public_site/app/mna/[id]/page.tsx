@@ -3,8 +3,8 @@ import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ContactLink } from "@/components/contact-link";
-import { getAdjacentListings, getListingById, getListingIds } from "@/lib/listings";
 import { siteConfig } from "@/components/site-config";
+import { getAdjacentListings, getListingById, getListingIds } from "@/lib/listings";
 import { buildPageMetadata } from "@/lib/page-metadata";
 
 type PageProps = {
@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const metadata = buildPageMetadata(
     `/mna/${encodeURIComponent(listing.id)}`,
     `${listing.id} | ${listing.title}`,
-    listing.overview,
+    listing.headline || listing.note || listing.sectorLabel,
   );
 
   return {
@@ -70,21 +70,24 @@ export default async function ListingDetailPage({ params }: PageProps) {
   const { previous, next } = getAdjacentListings(listing.id);
   const availabilityMap = {
     가능: "https://schema.org/InStock",
-    검토중: "https://schema.org/LimitedAvailability",
-    협의중: "https://schema.org/PreOrder",
+    추천: "https://schema.org/InStock",
+    보류: "https://schema.org/LimitedAvailability",
+    완료: "https://schema.org/SoldOut",
   } as const;
+  const availability = availabilityMap[listing.status as keyof typeof availabilityMap] ?? "https://schema.org/LimitedAvailability";
+
   const listingSchema = {
     "@context": "https://schema.org",
     "@type": "ItemPage",
     name: `${listing.id} ${listing.title}`,
-    description: listing.overview,
+    description: listing.headline || listing.note || listing.sectorLabel,
     url: `${siteConfig.host}/mna/${encodeURIComponent(listing.id)}`,
     dateModified: listing.updatedAt,
     mainEntity: {
       "@type": "Service",
       name: listing.title,
-      description: listing.overview,
-      serviceType: `건설업 ${listing.sector} 양도양수`,
+      description: listing.headline || listing.note || listing.sectorLabel,
+      serviceType: `건설업 ${listing.sectorLabel} 양도양수`,
       identifier: listing.id,
       areaServed: listing.region,
       provider: {
@@ -95,7 +98,8 @@ export default async function ListingDetailPage({ params }: PageProps) {
       },
       offers: {
         "@type": "Offer",
-        availability: availabilityMap[listing.status],
+        availability,
+        priceCurrency: "KRW",
         url: `${siteConfig.host}/mna/${encodeURIComponent(listing.id)}`,
         seller: {
           "@type": "LocalBusiness",
@@ -123,20 +127,20 @@ export default async function ListingDetailPage({ params }: PageProps) {
         <div className="listing-detail-copy">
           <p className="eyebrow">Listing Detail</p>
           <h1>{listing.title}</h1>
-          <p>{listing.overview}</p>
+          <p>{listing.headline || listing.note || listing.sectorLabel}</p>
 
           <div className="detail-pill-row" aria-label="매물 핵심 정보">
             <span className="detail-pill">{listing.id}</span>
             <span className="detail-pill">{listing.status}</span>
             <span className="detail-pill">{listing.region}</span>
-            <span className="detail-pill">{listing.sector}</span>
+            <span className="detail-pill">{listing.sectorLabel}</span>
             <span className="detail-pill">업데이트 {listing.updatedAt.slice(0, 10)}</span>
           </div>
         </div>
 
         <aside className="detail-side-cta">
-          <strong>{listing.price}</strong>
-          <p>{listing.headline}</p>
+          <strong>{listing.price || "협의"}</strong>
+          <p>{listing.companyType} · 법인설립일 {listing.companyYear || "-"}</p>
           <div className="detail-summary-actions">
             <ContactLink
               href={`tel:${siteConfig.phone}`}
@@ -156,56 +160,90 @@ export default async function ListingDetailPage({ params }: PageProps) {
       <section className="detail-kpi-grid">
         <article className="detail-kpi">
           <span>면허년도</span>
-          <strong>{listing.licenseYear}</strong>
+          <strong>{listing.licenseYears.join(" / ") || listing.companyYear || "-"}</strong>
         </article>
         <article className="detail-kpi">
           <span>시공능력</span>
-          <strong>{listing.capacity}</strong>
+          <strong>{listing.capacityLabel || "-"}</strong>
         </article>
         <article className="detail-kpi">
-          <span>최근 실적</span>
-          <strong>{listing.performance}</strong>
+          <span>3년 실적</span>
+          <strong>{listing.performance3Year || "-"}</strong>
         </article>
         <article className="detail-kpi">
-          <span>진행 상태</span>
-          <strong>{listing.status}</strong>
+          <span>5년 실적</span>
+          <strong>{listing.performance5Year || "-"}</strong>
         </article>
       </section>
 
       <section className="detail-body-grid">
         <article className="detail-card">
-          <h2>핵심 포인트</h2>
-          <ul className="detail-list">
-            {listing.highlights.map((item) => (
-              <li key={item}>{item}</li>
+          <h2>회사개요</h2>
+          <dl className="detail-pairs">
+            {Object.entries(listing.overview).map(([label, value]) => (
+              <div key={label}>
+                <dt>{label}</dt>
+                <dd>{value || "-"}</dd>
+              </div>
             ))}
-          </ul>
+          </dl>
         </article>
 
         <article className="detail-card">
-          <h2>인수 범위</h2>
-          <p>{listing.transferScope}</p>
-        </article>
-
-        <article className="detail-card">
-          <h2>추천 대상</h2>
-          <p>{listing.recommendedFor}</p>
-        </article>
-
-        <article className="detail-card">
-          <h2>사전 확인 자료</h2>
-          <ul className="detail-list">
-            {listing.documents.map((item) => (
-              <li key={item}>{item}</li>
+          <h2>재무제표</h2>
+          <dl className="detail-pairs">
+            {Object.entries(listing.finance).map(([label, value]) => (
+              <div key={label}>
+                <dt>{label}</dt>
+                <dd>{value || "-"}</dd>
+              </div>
             ))}
-          </ul>
+          </dl>
         </article>
 
         <article className="detail-card detail-card--wide">
-          <h2>검토 메모</h2>
-          <p>{listing.memo}</p>
-          <p>{listing.caution}</p>
+          <h2>최근년도 매출실적</h2>
+          <div className="legacy-table-shell">
+            <table className="legacy-table">
+              <thead>
+                <tr>
+                  {listing.performanceRows[0]?.map((header) => (
+                    <th key={header}>{header}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {listing.performanceRows.slice(1).map((row) => (
+                  <tr key={row.join("-")}>
+                    {row.map((cell, index) => (
+                      <td key={`${row.join("-")}-${index}`}>{cell || "-"}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </article>
+
+        <article className="detail-card detail-card--wide">
+          <h2>주요체크사항</h2>
+          <ul className="detail-list">
+            {listing.notes.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </article>
+
+        {listing.guidance.length > 0 ? (
+          <article className="detail-card detail-card--wide">
+            <h2>안내</h2>
+            <ul className="detail-list">
+              {listing.guidance.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </article>
+        ) : null}
       </section>
 
       {(previous || next) ? (

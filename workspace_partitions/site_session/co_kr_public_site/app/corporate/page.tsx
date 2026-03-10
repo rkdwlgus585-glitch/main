@@ -57,9 +57,7 @@ export default function CorporatePage() {
             description="원본 사이트의 법인설립 세부 콘텐츠를 그대로 연결했습니다."
             pages={importedPages}
           />
-          <div className="page-shell page-shell--inner" style={{ paddingTop: 0 }}>
-            <AiToolBridge variant="full" />
-          </div>
+          <AiToolBridge variant="full" />
         </>
       )}
     />
