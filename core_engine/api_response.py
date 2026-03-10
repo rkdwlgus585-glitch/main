@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 from datetime import datetime, timezone
 from typing import Any, Dict
@@ -52,7 +53,7 @@ def build_response_envelope(
     if resolved_channel and "channel_id" not in response_payload:
         response_payload["channel_id"] = resolved_channel
     if "data" not in response_payload:
-        response_payload["data"] = dict(business_payload)
+        response_payload["data"] = copy.deepcopy(business_payload)
 
     response_payload["response_meta"] = {
         "service": str(service),
