@@ -12,6 +12,7 @@ export const metadata: Metadata = {
   title: siteTitle,
   description: siteDescription,
   metadataBase: new URL(platformConfig.platformFrontHost),
+  alternates: { canonical: "/" },
   openGraph: {
     title: "서울건설정보 | 건설업 AI 전문 플랫폼",
     description:
@@ -64,10 +65,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ko">
       <head>
-        {/* Pretendard Variable — Korean optimized sans-serif */}
+        {/* Pretendard Variable — Korean optimized sans-serif (preconnect + preload) */}
+        <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
         <link
           rel="stylesheet"
-          as="style"
           crossOrigin="anonymous"
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
         />

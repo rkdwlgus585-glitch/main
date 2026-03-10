@@ -1015,6 +1015,11 @@ img { max-width: 100%; display: block; }
     grid-template-columns: 1fr 1fr;
   }
 }
+@media (max-width: 359px) {
+  .market-stats {
+    grid-template-columns: 1fr;
+  }
+}
 
 /* ------------------------------------------------------------------
    Home upgrade

@@ -6,7 +6,7 @@ export function GET() {
     ok: true,
     frontHost: platformConfig.platformFrontHost,
     contentHost: platformConfig.contentHost,
-    widgetConsumerHost: platformConfig.widgetConsumerHost,
+    listingHost: platformConfig.listingHost,
     engineMode: "private",
     tenantId: platformConfig.tenantId,
     systems: ["yangdo", "permit"],
