@@ -1,0 +1,25 @@
+FROM python:3.14-slim
+
+WORKDIR /app
+
+# Install only production dependencies
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt 2>/dev/null || true
+
+# Copy application code
+COPY *.py ./
+COPY core_engine/ ./core_engine/
+COPY config/ ./config/
+COPY tenant_config/ ./tenant_config/
+
+# Create data/logs directories
+RUN mkdir -p data logs
+
+# Non-root user
+RUN useradd -r -s /bin/false seoulmna && chown -R seoulmna:seoulmna /app
+USER seoulmna
+
+EXPOSE 8100 8200
+
+# Default: permit API (override in docker-compose)
+CMD ["python", "permit_precheck_api.py", "--port", "8100"]

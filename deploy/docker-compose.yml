@@ -1,0 +1,66 @@
+# =================================================================
+# seoulmna.kr Production Docker Compose
+# AI 양도가 산정 + AI 인허가 사전검토 + nginx reverse proxy
+# =================================================================
+version: "3.9"
+
+services:
+  yangdo-api:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.api
+    command: ["python", "yangdo_blackbox_api.py", "--port", "8200"]
+    ports:
+      - "127.0.0.1:8200:8200"
+    environment:
+      - SMNA_ENV=production
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - yangdo-data:/app/data
+      - api-logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8200/v1/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  permit-api:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.api
+    command: ["python", "permit_precheck_api.py", "--port", "8100"]
+    ports:
+      - "127.0.0.1:8100:8100"
+    environment:
+      - SMNA_ENV=production
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - permit-data:/app/data
+      - api-logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8100/v1/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx_seoulmna_kr.conf:/etc/nginx/conf.d/default.conf:ro
+      - /etc/ssl/seoulmna.kr:/etc/ssl/seoulmna.kr:ro
+    depends_on:
+      yangdo-api:
+        condition: service_healthy
+      permit-api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  yangdo-data:
+  permit-data:
+  api-logs:
