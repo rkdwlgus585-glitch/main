@@ -122,7 +122,7 @@ export function WidgetFrame({
         ) : null}
       </header>
       {!isExpanded ? (
-        <div className="widget-gate" data-traffic-gate="closed">
+        <div className="widget-gate" data-traffic-gate="closed" aria-hidden={loadState === "loading"}>
           <p>{gateNote}</p>
           <button
             type="button"

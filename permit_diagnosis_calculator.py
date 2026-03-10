@@ -7880,6 +7880,24 @@ def build_html(
       }
     });
   </script>
+  <script>
+    /* Widget ↔ Platform PostMessage child-side (iframe → parent) */
+    (function() {
+      if (window.self === window.top) return;
+      var root = document.getElementById("permit-app") || document.body;
+      try { window.parent.postMessage({ type: "widget-ready" }, "*"); } catch (_e) {}
+      if (typeof ResizeObserver !== "undefined" && root) {
+        var lastH = 0;
+        new ResizeObserver(function(entries) {
+          var h = Math.ceil(entries[0].contentRect.height);
+          if (Math.abs(h - lastH) > 20) {
+            lastH = h;
+            try { window.parent.postMessage({ type: "widget-resize", height: h }, "*"); } catch (_e) {}
+          }
+        }).observe(root);
+      }
+    })();
+  </script>
 </body>
 </html>
 """

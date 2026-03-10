@@ -203,3 +203,80 @@ class TestYangdoEstimatePayloadSanitization:
             assert fragment in html, (
                 f"estimateRemote payload missing sanitizePlain for: {fragment}"
             )
+
+
+class TestPostMessageChildSide:
+    """Generated HTML must include PostMessage child-side for iframe ↔ parent comm."""
+
+    def test_yangdo_has_widget_ready_postmessage(
+        self, yangdo_dataset: list, yangdo_meta: dict
+    ) -> None:
+        from yangdo_calculator import build_page_html
+
+        html = build_page_html(
+            train_dataset=yangdo_dataset,
+            meta=yangdo_meta,
+        )
+        assert 'type: "widget-ready"' in html or "type:\"widget-ready\"" in html
+        assert "widget-resize" in html
+
+    def test_permit_has_widget_ready_postmessage(
+        self, permit_catalog: dict, permit_rule_catalog: dict
+    ) -> None:
+        from permit_diagnosis_calculator import build_html
+
+        html = build_html(
+            title="AI 인허가 사전검토",
+            catalog=permit_catalog,
+            rule_catalog=permit_rule_catalog,
+        )
+        assert 'type: "widget-ready"' in html or "type:\"widget-ready\"" in html
+        assert "widget-resize" in html
+
+    def test_yangdo_postmessage_only_in_iframe(
+        self, yangdo_dataset: list, yangdo_meta: dict
+    ) -> None:
+        """PostMessage code must gate on being inside an iframe."""
+        from yangdo_calculator import build_page_html
+
+        html = build_page_html(
+            train_dataset=yangdo_dataset,
+            meta=yangdo_meta,
+        )
+        assert "window.self === window.top" in html
+
+    def test_permit_postmessage_only_in_iframe(
+        self, permit_catalog: dict, permit_rule_catalog: dict
+    ) -> None:
+        """PostMessage code must gate on being inside an iframe."""
+        from permit_diagnosis_calculator import build_html
+
+        html = build_html(
+            title="AI 인허가 사전검토",
+            catalog=permit_catalog,
+            rule_catalog=permit_rule_catalog,
+        )
+        assert "window.self === window.top" in html
+
+    def test_yangdo_has_resize_observer(
+        self, yangdo_dataset: list, yangdo_meta: dict
+    ) -> None:
+        from yangdo_calculator import build_page_html
+
+        html = build_page_html(
+            train_dataset=yangdo_dataset,
+            meta=yangdo_meta,
+        )
+        assert "ResizeObserver" in html
+
+    def test_permit_has_resize_observer(
+        self, permit_catalog: dict, permit_rule_catalog: dict
+    ) -> None:
+        from permit_diagnosis_calculator import build_html
+
+        html = build_html(
+            title="AI 인허가 사전검토",
+            catalog=permit_catalog,
+            rule_catalog=permit_rule_catalog,
+        )
+        assert "ResizeObserver" in html
