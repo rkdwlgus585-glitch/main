@@ -114,6 +114,41 @@ class PermitBuildHtmlTest(unittest.TestCase):
         self.assertIn("blocking", self._html)
         self.assertIn("criterion_results", self._html)
 
+    # -- CTA mode branches (Codex-delegated, adapted) -------------------------
+    _CTA_BRANCH_STRINGS = [
+        "ctaMode",
+        "shortfall",
+        "manual_review",
+    ]
+
+    def test_cta_mode_branches_present(self):
+        for s in self._CTA_BRANCH_STRINGS:
+            with self.subTest(s=s):
+                self.assertIn(s, self._html)
+
+    def test_cta_mode_appears_multiple_times(self):
+        """ctaMode should exist in both customer and owner render paths."""
+        self.assertGreaterEqual(self._html.count("ctaMode"), 2)
+
+    # -- Escape safety: no raw Python f-string braces ----------------------
+    def test_no_raw_fstring_placeholders_in_permit(self):
+        import re
+        # Check for {variable_name} patterns that suggest f-string escaping failures
+        leaked = re.findall(r'\{[a-z_]{3,}\}', self._html)
+        js_safe = {"{pass}", "{fail}", "{status}", "{ok}", "{gap}", "{blocking}",
+                   "{note}", "{label}", "{category}", "{reason}", "{value}",
+                   "{key}", "{name}", "{type}", "{text}", "{title}", "{url}",
+                   "{id}", "{code}", "{index}", "{item}", "{row}", "{data}",
+                   "{error}", "{result}", "{count}", "{total}", "{size}",
+                   "{width}", "{height}", "{color}", "{style}", "{class}",
+                   "{src}", "{href}", "{target}", "{action}", "{method}",
+                   "{operator}", "{criterion}", "{criteria}", "{inputs}",
+                   "{message}", "{summary}", "{details}", "{description}",
+                   "{article}", "{parts}", "{lawTitle}", "{fields}"}
+        truly_suspicious = [m for m in leaked if m not in js_safe]
+        self.assertEqual(truly_suspicious, [],
+                         f"Possible f-string leaks in permit HTML: {truly_suspicious[:5]}")
+
     # -- Fragment mode --------------------------------------------------------
     def test_fragment_mode(self):
         from permit_diagnosis_calculator import build_html
