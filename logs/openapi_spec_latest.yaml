@@ -5,6 +5,13 @@ info:
   description: |
     건설업 면허 양도가 산정(Track A) 및 인허가 사전검토(Track B) API.
     독립 시스템으로 운영되며, 공유 플랫폼 레이어(tenant/channel/usage)를 통해 접근합니다.
+
+    ## Sandbox Mode
+    파트너 연동 테스트를 위해 sandbox 모드를 제공합니다.
+    - `X-Sandbox: true` 헤더를 요청에 추가하거나
+    - `sandbox_` 접두사가 붙은 API 키를 사용하면
+    실제 엔진 호출 없이 정적 샘플 응답을 반환합니다.
+    응답에는 `"sandbox": true` 필드가 포함됩니다.
   contact:
     name: "서울건설정보"
     url: "https://seoulmna.kr"

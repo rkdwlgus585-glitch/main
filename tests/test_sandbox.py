@@ -7,6 +7,9 @@ from core_engine.sandbox import (
     sandbox_yangdo_response,
 )
 
+# Integration verification: permit_precheck_api imports sandbox correctly
+import permit_precheck_api as _permit_api
+
 
 class FakeHeaders:
     """Minimal mock for HTTP headers."""
@@ -122,3 +125,35 @@ def test_yangdo_response_isolation():
     r2 = sandbox_yangdo_response()
     r1["result"]["center_eok"] = -999
     assert r2["result"]["center_eok"] > 0
+
+
+# ── Integration: permit_precheck_api sandbox import ───────────────
+
+
+def test_permit_api_imports_sandbox():
+    """permit_precheck_api should expose sandbox functions."""
+    assert hasattr(_permit_api, "is_sandbox_request")
+    assert hasattr(_permit_api, "sandbox_permit_response")
+
+
+def test_permit_api_sandbox_callable():
+    """Sandbox functions imported by permit API should be callable."""
+    resp = _permit_api.sandbox_permit_response()
+    assert resp["ok"] is True
+    assert resp["sandbox"] is True
+
+
+def test_sandbox_with_realistic_header_obj():
+    """Test sandbox detection with a real http.client.HTTPMessage-like object."""
+    from email.message import Message
+    msg = Message()
+    msg["X-Sandbox"] = "true"
+    assert is_sandbox_request(msg) is True
+
+
+def test_sandbox_with_realistic_header_no_sandbox():
+    """Test sandbox detection negative case with real header object."""
+    from email.message import Message
+    msg = Message()
+    msg["X-API-Key"] = "real_key_abc"
+    assert is_sandbox_request(msg) is False
