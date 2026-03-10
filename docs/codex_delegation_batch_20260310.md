@@ -4,38 +4,37 @@
 
 ---
 
-## Task 1: 인허가 JS 함수 정합성 크로스체크
+## Task 1: 인허가 JS 핵심 함수 정합성 감사
 
 ```
 프로젝트 루트: H:/auto
 파일: permit_diagnosis_calculator.py
 
-이 파일에서 두 위치를 비교 분석해줘:
+build_html() 함수 내부의 html_template에서 핵심 JS 함수들의 정합성을 감사해줘.
+(참고: _repair_generated_permit_html은 Session 17에서 완전 제거됨 — template이 유일 source of truth)
 
-위치 A: build_html() 함수 내부의 html_template 문자열 (약 L2388부터 시작)
-위치 B: _repair_generated_permit_html() 함수 (약 L7961부터 시작)
-
-_repair_generated_permit_html()는 A에서 생성된 HTML의 JS 함수를 regex로 교체합니다.
-현재 유지 중인 패치: renderProofClaim, renderResult
+감사 대상 JS 함수 (template 내부):
+1. renderResult — 진단 결과 렌더링 핵심
+2. renderProofClaim — 증거/근거 패킷 렌더링
+3. renderStructuredReview — 자동 점검 결과 렌더링
+4. evaluateTypedCriteriaLocal — typed_criteria 로컬 평가
 
 분석 작업:
-1. 위치 A에서 `const renderProofClaim` 함수의 전체 본문을 추출
-2. 위치 B에서 교체되는 `renderProofClaim` 본문을 추출
-3. 두 버전의 차이점을 줄 단위로 비교하여 보고
-4. `renderResult`에 대해서도 동일 작업
+1. 각 함수가 호출하는 하위 함수 목록 추출
+2. 함수 간 호출 순서가 올바른지 검증 (renderResult → renderRuleBasis → renderRuntimeReasoningCard → renderStructuredReview)
+3. null/undefined 방어가 누락된 변수 접근 패턴 식별
+4. DOM 요소 참조(ui.xxx)가 모두 초기화 맵에 정의되어 있는지 크로스체크
 
 결과 형식:
-## renderProofClaim 비교
-### 원본 (template)
-[첫 5줄...]
-### 패치 (repair)
-[첫 5줄...]
-### 핵심 차이
-- [차이 1]
-- [차이 2]
-### 위험 평가
-- 패치가 원본보다 기능이 누락된 부분이 있는지
-- 원본이 업데이트되면 패치와 불일치가 생길 수 있는 부분
+## JS 핵심 함수 정합성 감사
+### 호출 체인
+renderResult → [함수1, 함수2, ...]
+### 미방어 참조
+| 변수 | 위치 | 위험도 |
+### DOM 참조 누락
+| element ID | 사용 위치 | 초기화 여부 |
+### 권장 조치
+- [조치 1]
 
 stdout으로 마크다운 출력해줘.
 ```

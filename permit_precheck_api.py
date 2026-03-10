@@ -263,7 +263,7 @@ def _channel_exposes_system(server, resolution, system: str) -> bool:
         return True
     try:
         return bool(server.channel_router.check_system(resolution, system))
-    except Exception:
+    except (AttributeError, KeyError, TypeError, ValueError):
         return True
 
 
