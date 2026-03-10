@@ -76,7 +76,7 @@
 | `.co.kr` 브리지 | 100% | 정책/CTA/UTM 계약 확정, 5개 placement snippet 생성, Playwright MCP로 5/5 셀렉터 라이브 검증 완료, 인젝션 실행 계획 수립 |
 | 임대형 위젯/API | 99% | template -> scaffold -> validate -> activate 구조 완료 |
 | 특허 | 98% | canonical attorney handoff + claim 9건(양도5+아키텍처3+구조화1), typed_criteria 자동 구조화 특허 claim 추가 |
-| 품질 기준 | 100% | 2470 tests + 94 subtests PASS, permit 80/80+precheck_api 24/24+yangdo 22/22 함수 100% 커버리지, 전 코어 파일 return type 100%(241 함수), core_engine 11/11 모듈 100%, HTML 통합 41, _repair 완전 제거(8→0, template single source of truth), a11y WCAG AA 검증 7+3, 글로벌 JS 에러 경계 6, XSS 전수 감사, regex DoS 방어, broad except 코어 0건(외부 API 3건 유지), DRY −1030줄, safe_json+now_iso+_METADATA_MERGE_KEYS+sanitize_endpoint canonical화, build_response_envelope deep copy 수정, P1 보안(tenant_id/URL spoofing/ConsultStore)+SSRF+CRM 정보누출 차단, UTF-8 BOM 전수 정리+.editorconfig+.gitattributes |
+| 품질 기준 | 100% | 2517 tests + 94 subtests PASS, permit 80/80+precheck_api 24/24+yangdo 22/22 함수 100% 커버리지, 전 코어 파일 return type 100%(241 함수), core_engine 11/11 모듈 100%, HTML 통합 41, _repair 완전 제거(8→0, template single source of truth), a11y WCAG AA 검증 7+3, 글로벌 JS 에러 경계 6, XSS 전수 감사, regex DoS 방어, broad except 코어 0건(외부 API 3건 유지), DRY −1030줄, safe_json+now_iso+_METADATA_MERGE_KEYS+sanitize_endpoint canonical화, build_response_envelope deep copy 수정, P1 보안(tenant_id/URL spoofing/ConsultStore)+SSRF+CRM 정보누출 차단, UTF-8 BOM 전수 정리+.editorconfig+.gitattributes |
 
 ## 영업 준비 상태 (Business Readiness Assessment — Session 21)
 
@@ -363,12 +363,14 @@
 - **_repair 완전 제거 (8→0 패치)**: renderProofClaim/renderResult 동기화 후 제거(−120줄), typography 3+fallback 1 dead code 제거(−335줄), 마지막 2패치(checkbox-meta-box+tip-text) template 직접 반영 후 `_repair_generated_permit_html`+`_replace_first_block`+`_repair_log` 완전 삭제(−50줄). 총 −505줄. Template이 유일 source of truth.
 - **Quality**: 2025 tests + 94 subtests PASS. (dead code 테스트 21개+3 subtests 정리, 실질 커버리지 유지)
 
-### [2026-03-10] Session 24 — maemul +42 / sales_pipeline +32 / 모바일 햄버거 네비 + favicon
+### [2026-03-10] Session 24 — maemul +42 / sales_pipeline +32 / scheduler +47 / 모바일 네비 + favicon + 법적 고지
 - **maemul.py 테스트 0→42**: extract_listing_ids(중복제거/순서/nested/extra-path), extract_listing_summary(table 파싱/행 길이 guard/지역 감지), build_display_text(제목 truncation 경계값 70자), generate_html(li 구조/target_blank/URL 포맷), fetch_page(성공/실패/재시도 횟수/재시도 성공), extract_detail_title(sub_title 스킵/공통헤더 스킵/짧은h1 스킵/페이지타이틀 fallback)
 - **sales_pipeline.py 테스트 0→32**: _build_parser(9개 플래그 기본값+결합), _run(exit code 전달/check=False), main 커맨드 구성(match/recommend/quote 선택적 실행, lead_id/consult_row/top/dry_run/no_files/no_sheet 전달, top 최소값 clamp), exit code 집계(all success/any failure→SystemExit/no steps/match failure)
+- **consult_match_scheduler.py 테스트 0→47**: _cfg_bool(14 truthy/falsy), _parse_hhmm(9 경계값), _target_hhmm_int, _same_local_day(6), _load_state/_save_state(6 corrupted JSON/non-dict/roundtrip), _build_parser, run_match_once(3 mocked subprocess), show_status(2 stdout capture)
 - **모바일 햄버거 네비**: site-header.tsx를 "use client" 전환, useState+useEffect(resize listener)로 토글 상태 관리, .nav-toggle/.hamburger CSS(X 트랜스폼), 960px 이하에서 전체폭 nav drawer, aria-expanded/aria-label 접근성 반영
 - **Favicon**: app/icon.svg (32×32 navy #003764 SM) + app/apple-icon.svg (180×180) 생성, Next.js App Router 자동 서빙 검증 (HTTP 200)
-- **Quality**: 2470 tests + 94 subtests PASS. Next.js 빌드 검증 + 모바일(375px) 햄버거 열기/닫기 시각 검증 완료.
+- **법적 고지 페이지**: /terms (이용약관) + /privacy (개인정보처리방침) 정적 페이지 생성, footer 링크 404 해소, legal CSS 디자인 시스템 반영
+- **Quality**: 2517 tests + 94 subtests PASS. Next.js 빌드 검증 + 모바일(375px) 햄버거 열기/닫기 시각 검증 완료. 전 production Python 모듈 테스트 커버리지 달성.
 
 ### [2026-03-10] Session 23 — security_http +72 / quote_engine +94 / 인허가 시스템 설명 재정의
 - **security_http.py 테스트 0→72**: parse_origin_allowlist, resolve_allow_origin, header_token, parse_key_values, is_authorized_any/is_authorized, safe_client_ip, SlidingWindowRateLimiter (window expiry, max_keys overflow, retry_after), SecurityEventLogger (file I/O, nested dir, ts handling), DEFAULT_SECURITY_HEADERS 전수 테스트
