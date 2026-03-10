@@ -1,0 +1,5 @@
+.next
+node_modules
+.vercel
+*.tsbuildinfo
+data/consult-inquiries.ndjson

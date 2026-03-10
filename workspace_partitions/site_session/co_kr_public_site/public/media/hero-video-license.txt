@@ -1,0 +1,14 @@
+Hero video attribution
+
+Source page:
+https://pixabay.com/videos/construction-site-42926/
+
+Direct asset downloaded on 2026-03-10:
+https://cdn.pixabay.com/video/2020/06/23/42926-434300944_large.mp4
+
+License reference:
+https://pixabay.com/service/license-summary/
+
+Usage note:
+Downloaded for the main-page benchmark/update in this project.
+Do not replace this file with assets copied from seoulmna.co.kr without a separate rights review.

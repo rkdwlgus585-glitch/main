@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title>서울건설브리프</title>
+  <rect width="64" height="64" rx="16" fill="#07355f" />
+  <path d="M18 45V21h12.5c8 0 13 4.6 13 11.9S38.5 45 30.5 45H18Zm8.2-6.7h4c3.4 0 5.8-2 5.8-5.4s-2.4-5.4-5.8-5.4h-4v10.8Z" fill="#fff"/>
+  <circle cx="46" cy="18" r="6" fill="#1794ff" />
+</svg>

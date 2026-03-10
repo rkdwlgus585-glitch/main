@@ -1,0 +1,8 @@
+/* TEAM */
+Brand: 서울건설브리프
+Site Type: Independent public operating website
+Stack: Next.js 16, React 19, TypeScript, CSS, Playwright, Gemini CLI
+
+/* NOTES */
+This site is intentionally separated from seoulmna.kr.
+Public site purpose: listings, service guidance, consult intake, customer support.
