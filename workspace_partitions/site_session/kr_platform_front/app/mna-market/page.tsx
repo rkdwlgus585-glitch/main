@@ -9,6 +9,7 @@ const pageDescription =
 export const metadata: Metadata = {
   title: pageTitle,
   description: pageDescription,
+  alternates: { canonical: "/mna-market" },
   openGraph: {
     title: pageTitle,
     description: pageDescription,
@@ -52,9 +53,43 @@ const stats = [
   { label: "매물 검증률", value: "100", suffix: "%" },
 ];
 
+/* NOTE: JSON-LD uses dangerouslySetInnerHTML which is safe here because
+   all data comes from compile-time string literals (not user input). */
+function MarketJsonLd() {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: pageTitle,
+    description: pageDescription,
+    url: `${platformConfig.platformFrontHost}/mna-market`,
+    isPartOf: {
+      "@type": "WebSite",
+      name: "서울건설정보",
+      url: platformConfig.platformFrontHost,
+    },
+    about: {
+      "@type": "Service",
+      name: "건설업 면허 양도양수 매물 중개",
+      description: "전문 행정사가 검증한 건설업 면허 매물 리스트와 AI 양도가 분석을 함께 제공합니다.",
+      provider: {
+        "@type": "Organization",
+        name: "서울건설정보",
+        url: platformConfig.platformFrontHost,
+      },
+    },
+  };
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
+  );
+}
+
 export default function MnaMarketPage() {
   return (
     <main id="main" className="page-shell">
+      <MarketJsonLd />
       <Link className="back-link" href="/">
         ← 플랫폼 홈으로
       </Link>
@@ -94,7 +129,7 @@ export default function MnaMarketPage() {
         <div className="features-grid">
           {marketFeatures.map((f) => (
             <div key={f.title} className="feature-card">
-              <span className="feature-icon">{f.icon}</span>
+              <span className="feature-icon" aria-hidden="true">{f.icon}</span>
               <h3>{f.title}</h3>
               <p>{f.description}</p>
             </div>

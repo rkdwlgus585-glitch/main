@@ -9,6 +9,7 @@ const pageDescription =
 export const metadata: Metadata = {
   title: pageTitle,
   description: pageDescription,
+  alternates: { canonical: "/knowledge" },
   openGraph: {
     title: pageTitle,
     description: pageDescription,
@@ -69,9 +70,39 @@ const categories = [
   },
 ];
 
+/* NOTE: JSON-LD uses dangerouslySetInnerHTML which is safe here because
+   all data comes from compile-time string literals (not user input). */
+function KnowledgeJsonLd() {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: pageTitle,
+    description: pageDescription,
+    url: `${platformConfig.platformFrontHost}/knowledge`,
+    isPartOf: {
+      "@type": "WebSite",
+      name: "서울건설정보",
+      url: platformConfig.platformFrontHost,
+    },
+    about: [
+      { "@type": "Thing", name: "건설업 양도양수" },
+      { "@type": "Thing", name: "건설업 인허가" },
+      { "@type": "Thing", name: "건설업 등록기준" },
+      { "@type": "Thing", name: "건설업 시장 동향" },
+    ],
+  };
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
+  );
+}
+
 export default function KnowledgePage() {
   return (
     <main id="main" className="page-shell">
+      <KnowledgeJsonLd />
       <Link className="back-link" href="/">
         ← 플랫폼 홈으로
       </Link>
@@ -89,7 +120,7 @@ export default function KnowledgePage() {
         {categories.map((cat) => (
           <div key={cat.title} className="knowledge-card">
             <div className="knowledge-card-header">
-              <span className="knowledge-icon">{cat.icon}</span>
+              <span className="knowledge-icon" aria-hidden="true">{cat.icon}</span>
               <h2>{cat.title}</h2>
             </div>
             <p className="knowledge-card-desc">{cat.description}</p>

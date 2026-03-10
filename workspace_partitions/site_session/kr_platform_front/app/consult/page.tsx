@@ -9,6 +9,7 @@ const pageDescription =
 export const metadata: Metadata = {
   title: pageTitle,
   description: pageDescription,
+  alternates: { canonical: "/consult" },
   openGraph: {
     title: pageTitle,
     description: pageDescription,
@@ -68,9 +69,37 @@ const benefits = [
   },
 ];
 
+/* NOTE: JSON-LD uses dangerouslySetInnerHTML which is safe here because
+   all data comes from compile-time string literals (not user input). */
+function ConsultJsonLd() {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
+    name: "서울건설정보 고객센터",
+    description: pageDescription,
+    url: `${platformConfig.platformFrontHost}/consult`,
+    telephone: platformConfig.contactPhone,
+    email: platformConfig.contactEmail,
+    areaServed: { "@type": "Country", name: "KR" },
+    serviceType: "건설업 양도양수·인허가 전문 상담",
+    parentOrganization: {
+      "@type": "Organization",
+      name: "서울건설정보",
+      url: platformConfig.platformFrontHost,
+    },
+  };
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
+  );
+}
+
 export default function ConsultPage() {
   return (
     <main id="main" className="page-shell">
+      <ConsultJsonLd />
       <Link className="back-link" href="/">
         ← 플랫폼 홈으로
       </Link>
@@ -84,7 +113,7 @@ export default function ConsultPage() {
         </p>
         <div className="consult-hero-actions">
           <a className="cta-primary" href={`tel:${platformConfig.contactPhone}`}>
-            📞 {platformConfig.contactPhone}
+            <span aria-hidden="true">📞</span> {platformConfig.contactPhone}
           </a>
           <a className="cta-secondary" href={`mailto:${platformConfig.contactEmail}`}>
             이메일 문의
@@ -100,7 +129,7 @@ export default function ConsultPage() {
         <div className="benefits-grid">
           {benefits.map((b) => (
             <div key={b.title} className="benefit-card">
-              <span className="benefit-icon">{b.icon}</span>
+              <span className="benefit-icon" aria-hidden="true">{b.icon}</span>
               <h3>{b.title}</h3>
               <p>{b.description}</p>
             </div>

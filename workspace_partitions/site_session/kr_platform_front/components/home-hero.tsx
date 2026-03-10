@@ -61,7 +61,7 @@ export function HomeHero() {
             >
               <source src="/media/hero-construction.mp4" type="video/mp4" />
             </video>
-            <div className="home-video-overlay" />
+            <div className="home-video-overlay" aria-hidden="true" />
           </div>
         </div>
       </div>

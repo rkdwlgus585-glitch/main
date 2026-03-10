@@ -10,6 +10,7 @@ const pageDescription =
 export const metadata: Metadata = {
   title: pageTitle,
   description: pageDescription,
+  alternates: { canonical: "/permit" },
   openGraph: {
     title: pageTitle,
     description: pageDescription,
