@@ -348,8 +348,9 @@
 - **DRY _sanitize_endpoint**: yangdo_calculator + acquisition_calculator 로컬 정의 → `core_engine/host_utils.sanitize_endpoint` 1곳 canonical화 (−24줄)
 - **DRY acquisition_calculator**: 로컬 `_safe_json` → `safe_json_for_script` canonical alias + `datetime.now()` → `now_iso()` (−6줄)
 - **permit_mapping_pipeline naive datetime**: core_engine 마지막 `datetime.now()` → `now_iso()` 제거. 전 코어 파일 naive datetime 0건 달성.
+- **UTF-8 BOM 정리**: core_engine/tests/API 49파일 BOM 제거. `.editorconfig` + `.gitattributes` 추가로 재유입 방지.
 - **테스트 +17**: URL 스푸핑 4 + HTML 코멘트 1 + SSRF guard 3 + canonical sanitize_endpoint 9
-- **Quality**: 2056 tests + 94 subtests PASS.
+- **Quality**: 2056 tests + 94 subtests PASS. 전 코어 파일 naive datetime 0건, broad except 0건(외부 3 의도적), BOM 0건.
 
 ### [2026-03-10] Session 19 — P1 버그 수정 + DRY canonical화 + 정보누출 차단
 - **P1 dead except 재정렬**: `json.JSONDecodeError`(ValueError 서브클래스) except 순서 수정 — ValueError 가 먼저 잡아 JSONDecodeError 도달불가 해소.
