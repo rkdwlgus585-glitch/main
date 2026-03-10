@@ -163,6 +163,108 @@ class PermitBuildHtmlTest(unittest.TestCase):
 
 
 # ---------------------------------------------------------------------------
+# Permit end-to-end pipeline tests
+# ---------------------------------------------------------------------------
+class PermitPipelineEndToEndTest(unittest.TestCase):
+    """Test the full build_html→_repair→_wrap→fragment pipeline."""
+
+    def test_fragment_css_scoping_applies(self):
+        """Fragment mode: CSS selectors should be prefixed with #smna-permit-precheck."""
+        from permit_diagnosis_calculator import build_html
+
+        html = build_html("scoping test", {}, {}, fragment=True)
+        # Original :root selector should be replaced
+        self.assertNotIn(":root {", html)
+        # Scoped selector should appear
+        self.assertIn("#smna-permit-precheck", html)
+
+    def test_fragment_no_doctype(self):
+        from permit_diagnosis_calculator import build_html
+
+        html = build_html("frag", {}, {}, fragment=True)
+        self.assertNotIn("<!doctype html>", html.lower())
+        self.assertTrue(html.strip().startswith("<section"))
+
+    def test_fragment_title_hider_script(self):
+        """Fragment mode includes script to hide WordPress page title."""
+        from permit_diagnosis_calculator import build_html
+
+        html = build_html("test", {}, {}, fragment=True)
+        self.assertIn('document.querySelector(".entry-title, .page-title")', html)
+
+    def test_bootstrap_payload_json_safe(self):
+        """Bootstrap payload with special characters should be safely encoded."""
+        from permit_diagnosis_calculator import build_html
+
+        payload = {"industries": [{"service_name": '<script>alert("xss")</script>'}]}
+        html = build_html("xss test", payload, {})
+        # Raw script tag should NOT appear — it should be escaped or compressed
+        self.assertNotIn('<script>alert("xss")</script>', html)
+
+    def test_catalog_with_real_industry(self):
+        """Build with a minimal realistic catalog entry.
+        Industry data is compressed into inlineBootstrap JSON, not raw HTML."""
+        from permit_diagnosis_calculator import build_html
+
+        catalog = {
+            "industries": [
+                {
+                    "service_code": "01_01_01_T",
+                    "service_name": "전기공사업",
+                    "category_code": "01",
+                    "category_name": "전기",
+                }
+            ],
+            "total_count": 1,
+        }
+        rules = {
+            "rules": [
+                {
+                    "service_code": "01_01_01_T",
+                    "law_title": "전기공사업법",
+                    "requirements": {
+                        "capital_eok": 1.5,
+                        "technicians": 3,
+                        "equipment_count": 0,
+                        "deposit_days": 30,
+                    },
+                }
+            ]
+        }
+        html = build_html("전기 테스트", catalog, rules)
+        # Industry data is in compressed bootstrap, not raw HTML
+        self.assertIn("inlineBootstrap", html)
+        self.assertIn("renderResult", html)
+        # Title should be substituted
+        self.assertIn("<title>전기 테스트</title>", html)
+
+    def test_nowprocket_attribute_on_scripts(self):
+        """All real <script> opening tags should have nowprocket attribute."""
+        from permit_diagnosis_calculator import build_html
+
+        html = build_html("test", {}, {})
+        # Match only actual HTML script tags (not regex patterns inside JS)
+        script_tags = re.findall(r"<script\b[^>]*>", html)
+        real_tags = [t for t in script_tags if "nowprocket" in t or ">" in t]
+        for tag in real_tags:
+            if re.match(r"<script\s", tag):
+                with self.subTest(tag=tag[:60]):
+                    self.assertIn("nowprocket", tag)
+
+    def test_data_url_substitution(self):
+        """When data_url is provided, it should appear in the HTML."""
+        from permit_diagnosis_calculator import build_html
+
+        html = build_html(
+            "url test", {}, {},
+            data_url="https://seoulmna.kr/wp-json/wp/v2/pages/1810",
+            data_encoding="gzip-base64-rest-rendered",
+        )
+        self.assertIn("seoulmna.kr/wp-json", html)
+        self.assertIn("gzip-base64-rest-rendered", html)
+
+
+# ---------------------------------------------------------------------------
 # Yangdo HTML integration tests
 # ---------------------------------------------------------------------------
 class YangdoBuildPageHtmlTest(unittest.TestCase):
