@@ -13,10 +13,12 @@ export function SiteFooter() {
             <h4>서비스</h4>
             <a href="/yangdo">AI 양도가 산정</a>
             <a href="/permit">AI 인허가 사전검토</a>
-            <a href={platformConfig.listingHost}>매물 시장</a>
+            <a href="/mna-market">매물 시장</a>
           </div>
           <div>
-            <h4>고객 지원</h4>
+            <h4>정보 · 상담</h4>
+            <a href="/knowledge">건설업 지식</a>
+            <a href="/consult">전문 상담</a>
             <a href={`tel:${platformConfig.contactPhone}`}>{platformConfig.contactPhone}</a>
             <a href={`mailto:${platformConfig.contactEmail}`}>{platformConfig.contactEmail}</a>
           </div>

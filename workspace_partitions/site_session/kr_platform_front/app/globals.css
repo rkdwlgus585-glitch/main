@@ -971,3 +971,378 @@ img { max-width: 100%; display: block; }
     padding: 32px 20px;
   }
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   /knowledge — 건설업 지식
+   ══════════════════════════════════════════════════════════════════ */
+
+.knowledge-hero {
+  margin-bottom: 48px;
+}
+.knowledge-hero .eyebrow {
+  color: var(--point);
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+}
+.knowledge-hero h1 {
+  margin: 0;
+  font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+.knowledge-hero-body {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 1.05rem;
+  max-width: 56ch;
+}
+.knowledge-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin-bottom: 48px;
+}
+.knowledge-card {
+  padding: 28px;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  transition: box-shadow 200ms var(--ease), border-color 200ms var(--ease);
+}
+.knowledge-card:hover {
+  border-color: rgba(0, 163, 255, 0.25);
+  box-shadow: var(--shadow-md);
+}
+.knowledge-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.knowledge-icon {
+  font-size: 1.6rem;
+}
+.knowledge-card-header h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+.knowledge-card-desc {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+.knowledge-articles {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.knowledge-articles li {
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+  font-size: 0.88rem;
+}
+.knowledge-articles a {
+  color: var(--brand);
+  font-weight: 500;
+  transition: color 200ms var(--ease);
+}
+.knowledge-articles a:hover {
+  color: var(--point);
+}
+.knowledge-cta {
+  text-align: center;
+  padding: 32px 0;
+}
+.knowledge-cta p {
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   /consult — 전문 상담
+   ══════════════════════════════════════════════════════════════════ */
+
+.consult-hero {
+  margin-bottom: 56px;
+}
+.consult-hero .eyebrow {
+  color: var(--point);
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+}
+.consult-hero h1 {
+  margin: 0;
+  font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+.consult-hero-body {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 1.05rem;
+  max-width: 56ch;
+}
+.consult-hero-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+.consult-benefits,
+.consult-steps {
+  margin-bottom: 56px;
+}
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+.benefit-card {
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  transition: box-shadow 200ms var(--ease);
+}
+.benefit-card:hover {
+  box-shadow: var(--shadow-md);
+}
+.benefit-icon {
+  font-size: 1.6rem;
+  display: block;
+  margin-bottom: 10px;
+}
+.benefit-card h3 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+  font-weight: 700;
+}
+.benefit-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+.steps-timeline {
+  display: grid;
+  gap: 20px;
+}
+.step-item {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+.step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--brand);
+  color: white;
+  font-weight: 800;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+.step-content h3 {
+  margin: 0 0 4px;
+  font-size: 1rem;
+  font-weight: 700;
+}
+.step-content p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+.consult-start {
+  text-align: center;
+  padding: 48px 32px;
+  border-radius: var(--radius-xl);
+  background: linear-gradient(135deg, var(--brand-dark), var(--brand));
+  color: white;
+}
+.consult-start h2 {
+  margin: 0 0 12px;
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+.consult-start p {
+  color: rgba(255, 255, 255, 0.75);
+  max-width: 48ch;
+  margin: 0 auto 24px;
+}
+.consult-start-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.consult-start .cta-secondary {
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+.consult-start .cta-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   /mna-market — 양도양수 매물 시장
+   ══════════════════════════════════════════════════════════════════ */
+
+.market-hero {
+  margin-bottom: 48px;
+}
+.market-hero .eyebrow {
+  color: var(--point);
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+}
+.market-hero h1 {
+  margin: 0;
+  font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+.market-hero-body {
+  margin: 12px 0 24px;
+  color: var(--muted);
+  font-size: 1.05rem;
+  max-width: 56ch;
+}
+.market-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 56px;
+}
+.market-stat-card {
+  padding: 20px;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  text-align: center;
+}
+.market-stat-value {
+  display: block;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--brand);
+}
+.market-stat-value small {
+  font-size: 0.7em;
+  font-weight: 600;
+  color: var(--muted);
+}
+.market-stat-label {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+.market-features {
+  margin-bottom: 56px;
+}
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+.feature-card {
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  transition: box-shadow 200ms var(--ease);
+}
+.feature-card:hover {
+  box-shadow: var(--shadow-md);
+}
+.feature-icon {
+  font-size: 1.6rem;
+  display: block;
+  margin-bottom: 10px;
+}
+.feature-card h3 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+  font-weight: 700;
+}
+.feature-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+.market-bridge {
+  margin-bottom: 32px;
+}
+.bridge-card {
+  padding: 48px 32px;
+  border-radius: var(--radius-xl);
+  background: linear-gradient(135deg, var(--brand-dark), var(--brand));
+  color: white;
+}
+.bridge-content {
+  max-width: 600px;
+}
+.bridge-content h2 {
+  margin: 0 0 12px;
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+.bridge-content p {
+  color: rgba(255, 255, 255, 0.75);
+  margin: 0 0 24px;
+  line-height: 1.7;
+}
+.bridge-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.bridge-card .cta-secondary {
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+.bridge-card .cta-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ── Responsive: knowledge/consult/market ──────────────────── */
+@media (max-width: 960px) {
+  .knowledge-grid,
+  .benefits-grid,
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+  .market-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 479px) {
+  .market-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+  .consult-start {
+    padding: 32px 20px;
+  }
+  .bridge-card {
+    padding: 32px 20px;
+  }
+}

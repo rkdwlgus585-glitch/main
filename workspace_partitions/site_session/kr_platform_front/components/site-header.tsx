@@ -39,13 +39,9 @@ export function SiteHeader() {
       >
         <Link href="/yangdo" onClick={() => setOpen(false)}>양도가 산정</Link>
         <Link href="/permit" onClick={() => setOpen(false)}>인허가 사전검토</Link>
-        <a
-          href={`${platformConfig.listingHost}/category/건설업-지식`}
-          rel="noreferrer noopener"
-          onClick={() => setOpen(false)}
-        >
-          건설업 지식
-        </a>
+        <Link href="/knowledge" onClick={() => setOpen(false)}>건설업 지식</Link>
+        <Link href="/mna-market" onClick={() => setOpen(false)}>매물 시장</Link>
+        <Link href="/consult" onClick={() => setOpen(false)}>상담</Link>
         <a href={`tel:${platformConfig.contactPhone}`} className="nav-phone">
           {platformConfig.contactPhone}
         </a>

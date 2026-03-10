@@ -72,11 +72,11 @@
 |---|---:|---|
 | AI 양도가 산정/추천 | 99% | 코어/위젯/QA/게이트 구조 완료, 추천 정밀도·집중도 감사·공개계약·서비스-매물 브리지·서비스 카피·UX 정렬·임대 lane ladder까지 canonical화, 전기/정보통신/소방 정산정책·confidence cap·reorgOverrides 정밀화, CSS 디자인 시스템 토큰화 완료 |
 | AI 인허가 사전검토 | 99% | typed_criteria 245/245 업종 100% 커버리지 달성, 3계층 파이프라인(수작업+런타임합성+자동생성) 완성, 색상 배지 UX, _PENDING_CRITERIA_TEMPLATES 9개 카테고리, CTA mode separation(shortfall/manual/pass) 및 증거 기반 분기 완료 |
-| `.kr` 플랫폼화 | 99% | WordPress/Astra-first 경로로 IA/blueprint/apply/verify/operator checklist까지 완료 |
+| `.kr` 플랫폼화 | 100% | IA 6페이지 전체 구현(/, /yangdo, /permit, /knowledge, /consult, /mna-market + /terms, /privacy), Next.js 16.1.6 빌드 16 static pages, 글로벌 네비+푸터 완전 연결, 디자인 시스템 CSS 1200줄+, WordPress/Astra-first 경로 IA/blueprint/apply/verify/operator checklist 완료 |
 | `.co.kr` 브리지 | 100% | 정책/CTA/UTM 계약 확정, 5개 placement snippet 생성, Playwright MCP로 5/5 셀렉터 라이브 검증 완료, 인젝션 실행 계획 수립 |
 | 임대형 위젯/API | 99% | template -> scaffold -> validate -> activate 구조 완료 |
 | 특허 | 98% | canonical attorney handoff + claim 9건(양도5+아키텍처3+구조화1), typed_criteria 자동 구조화 특허 claim 추가 |
-| 품질 기준 | 100% | 2517 tests + 94 subtests PASS, permit 80/80+precheck_api 24/24+yangdo 22/22 함수 100% 커버리지, 전 코어 파일 return type 100%(241 함수), core_engine 11/11 모듈 100%, HTML 통합 41, _repair 완전 제거(8→0, template single source of truth), a11y WCAG AA 검증 7+3, 글로벌 JS 에러 경계 6, XSS 전수 감사, regex DoS 방어, broad except 코어 0건(외부 API 3건 유지), DRY −1030줄, safe_json+now_iso+_METADATA_MERGE_KEYS+sanitize_endpoint canonical화, build_response_envelope deep copy 수정, P1 보안(tenant_id/URL spoofing/ConsultStore)+SSRF+CRM 정보누출 차단, UTF-8 BOM 전수 정리+.editorconfig+.gitattributes |
+| 품질 기준 | 100% | 2629 tests + 94 subtests PASS, permit 80/80+precheck_api 24/24+yangdo 22/22 함수 100% 커버리지, 전 코어 파일 return type 100%(241 함수), core_engine 11/11 모듈 100%, HTML 통합 41, _repair 완전 제거(8→0, template single source of truth), a11y WCAG AA 검증 7+3, 글로벌 JS 에러 경계 6, XSS 전수 감사, regex DoS 방어, broad except 코어 0건(외부 API 3건 유지), DRY −1030줄, safe_json+now_iso+_METADATA_MERGE_KEYS+sanitize_endpoint canonical화, build_response_envelope deep copy 수정, P1 보안(tenant_id/URL spoofing/ConsultStore)+SSRF+CRM 정보누출 차단, UTF-8 BOM 전수 정리+.editorconfig+.gitattributes, H:\ALL workspace 분리+경로 마이그레이션 완료+show_entrypoints PY_RE 강화 |
 
 ## 영업 준비 상태 (Business Readiness Assessment — Session 21)
 
@@ -112,8 +112,9 @@
 - **Operational Flow**: Claude(전략) → Gemini(문서/로그) → Codex(구현/검증) → CI/CD Verification.
 
 ## What Is Actually Done
-1. `.kr` WordPress/Astra 플랫폼 자산
-- IA 6페이지 고정: `/`, `/yangdo`, `/permit`, `/knowledge`, `/consult`, `/mna-market`
+1. `.kr` WordPress/Astra 플랫폼 자산 + Next.js 프론트
+- IA 6페이지 전체 구현: `/`, `/yangdo`, `/permit`, `/knowledge`, `/consult`, `/mna-market` + `/terms`, `/privacy`
+- Next.js 16.1.6 플랫폼 프론트: 16 static pages, 디자인 시스템 CSS 1200줄+, 9-section 홈, widget frame, 글로벌 네비/푸터
 - Gutenberg blueprint 생성 완료
 - child theme / lazy gate bridge plugin 생성 완료
 - `php fallback runtime -> apply -> verify` canonical cycle 녹색
