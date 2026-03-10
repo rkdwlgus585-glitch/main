@@ -551,7 +551,7 @@ function Run-AdminMemoWatchdog {
     }
 
     $cmdMemoFull = (
-        '{0} ..\ALL\all.py--fix-admin-memo --fix-admin-memo-all --fix-admin-memo-pages 0 --fix-admin-memo-limit 0 --fix-admin-memo-delay-sec 1.2 --fix-admin-memo-request-buffer 120 --fix-admin-memo-write-buffer 12 --fix-admin-memo-state-file logs/admin_memo_sync_state.json --confirm-bulk YES >> logs\auto_admin_memo_sync.log 2>&1' -f $pythonPrefix
+        '{0} ..\ALL\all.py --fix-admin-memo --fix-admin-memo-all --fix-admin-memo-pages 0 --fix-admin-memo-limit 0 --fix-admin-memo-delay-sec 1.2 --fix-admin-memo-request-buffer 120 --fix-admin-memo-write-buffer 12 --fix-admin-memo-state-file logs/admin_memo_sync_state.json --confirm-bulk YES >> logs\auto_admin_memo_sync.log 2>&1' -f $pythonPrefix
     )
     $adminMemoStatusPath = Join-Path $logsDir 'admin_memo_sync_status.json'
     $adminMemoOutputDir = Join-Path ([Environment]::GetFolderPath('Desktop')) ([string]([char]99)+[char]108+[char]105+[char]54617+[char]49845)
@@ -595,7 +595,7 @@ function Run-AdminMemoWatchdog {
                 $memoLimit = Get-MemoIncrementalLimit (Get-Date)
                 $memoDelay = Get-MemoIncrementalDelaySec (Get-Date)
                 $cmdMemoIncremental = (
-                    '{0} ..\ALL\all.py--fix-admin-memo --fix-admin-memo-all --fix-admin-memo-pages 3 --fix-admin-memo-limit {1} --fix-admin-memo-delay-sec {2} --fix-admin-memo-request-buffer 120 --fix-admin-memo-write-buffer 12 --fix-admin-memo-state-file logs/admin_memo_sync_state.json --confirm-bulk YES >> logs\auto_admin_memo_sync.log 2>&1' -f $pythonPrefix, [int]$memoLimit, [double]$memoDelay
+                    '{0} ..\ALL\all.py --fix-admin-memo --fix-admin-memo-all --fix-admin-memo-pages 3 --fix-admin-memo-limit {1} --fix-admin-memo-delay-sec {2} --fix-admin-memo-request-buffer 120 --fix-admin-memo-write-buffer 12 --fix-admin-memo-state-file logs/admin_memo_sync_state.json --confirm-bulk YES >> logs\auto_admin_memo_sync.log 2>&1' -f $pythonPrefix, [int]$memoLimit, [double]$memoDelay
                 )
                 $memoRc = Invoke-RepoSiteWriteCommand 'admin_memo_incremental' $cmdMemoIncremental
                 if ($memoRc -eq 0) {
@@ -640,7 +640,7 @@ function Run-SiteHealthWatchdog {
 
     $cmdQualityDaily = 'scripts\run_quality_daily.cmd'
     $cmdDailyDashboard = (
-        '{0} ..\ALL\all.py--daily-dashboard --dashboard-live --dashboard-days 7 >> logs\auto_daily_dashboard.log 2>&1' -f $pythonPrefix
+        '{0} ..\ALL\all.py --daily-dashboard --dashboard-live --dashboard-days 7 >> logs\auto_daily_dashboard.log 2>&1' -f $pythonPrefix
     )
     $cmdSiteGuard = (
         '{0} scripts\optimize_wp_kr.py --report logs/wp_site_guard_latest.json --state-file logs/wp_site_guard_state.json --skip-if-ok-today >> logs\auto_wp_site_guard.log 2>&1' -f $pythonPrefix

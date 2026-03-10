@@ -14,6 +14,7 @@ from typing import Any, Dict, List, Tuple
 
 
 ROOT = Path(__file__).resolve().parents[1]
+_ALL_ROOT = ROOT.parent / "ALL"                    # H:\ALL (non-core modules)
 LOGS_DIR = ROOT / "logs"
 
 
@@ -333,9 +334,9 @@ def build_report(skip_network: bool, timeout_sec: int) -> Dict[str, Any]:
 
     preflight.extend(
         [
-            _check_file(ROOT / "all.py"),
-            _check_file(ROOT / "mnakr.py"),
-            _check_file(ROOT / "tistory_ops" / "run.py"),
+            _check_file(_ALL_ROOT / "all.py"),
+            _check_file(_ALL_ROOT / "mnakr.py"),
+            _check_file(_ALL_ROOT / "tistory_ops" / "run.py"),
             _check_file(ROOT / "service_account.json"),
             _check_file(ROOT / ".env"),
         ]

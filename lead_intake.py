@@ -490,7 +490,8 @@ def main():
             print("run-match skipped in dry-run mode")
         else:
             try:
-                result = subprocess.run([sys.executable, "match.py"], check=False)
+                _match_path = str(Path(__file__).resolve().parent.parent / "ALL" / "match.py")
+                result = subprocess.run([sys.executable, _match_path], check=False)
                 print(f"match.py finished with exit code {result.returncode}")
             except (OSError, ValueError) as e:
                 print(f"failed to run match.py: {e}")
