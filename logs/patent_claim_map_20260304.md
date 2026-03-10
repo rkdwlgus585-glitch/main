@@ -2,6 +2,11 @@
 
 > 목적: 현재 코드 구현을 기준으로, 향후 유사 계산기에도 확장 가능한 "거미줄형" 권리 범위를 설계한다.
 > 주의: 본 문서는 기술/전략 초안이며, 실제 출원 문구는 변리사 검토가 필요하다.
+>
+> **⚠️ 코드 라인 참조 기준**: yangdo_blackbox_api.py 라인 번호는 특허 핸드오프 스냅샷
+> (`snapshots/patent_handoff/patent_handoff_20260305_163750/yangdo_blackbox_api.py`, 2,223줄) 기준입니다.
+> 현재 프로덕션 파일(1,333줄)은 리팩토링으로 줄 수가 변경되었으나, 동일 알고리즘이 구현되어 있습니다.
+> acquisition_calculator.py 참조는 현재 프로덕션 파일(1,770줄)과 일치합니다.
 
 ## 1) 코드 기반 핵심 자산 추출
 
@@ -12,15 +17,15 @@
 - 안정성 가드: 극단 부채/유동비율 로그 스케일 반영, 이익잉여금 단조 감가 보장
 - 변동성 반영: 분할/포괄/합병 모드별 confidence 패널티 + range 확장
 
-근거 코드
-- `H:/auto/yangdo_blackbox_api.py:403` (`_neighbor_score`)
-- `H:/auto/yangdo_blackbox_api.py:495` (shape penalty)
-- `H:/auto/yangdo_blackbox_api.py:1324` (feature/post factor)
-- `H:/auto/yangdo_blackbox_api.py:1420` (극단값 안정화)
-- `H:/auto/yangdo_blackbox_api.py:1450` (reorg mode)
-- `H:/auto/yangdo_blackbox_api.py:1577` (uncertainty discount)
-- `H:/auto/yangdo_blackbox_api.py:1622` (final surplus monotonic guard)
-- `H:/auto/yangdo_blackbox_api.py:1632` (confidence score)
+근거 코드 (스냅샷: patent_handoff_20260305_163750/yangdo_blackbox_api.py)
+- `:403` (`_neighbor_score`)
+- `:495` (shape penalty)
+- `:1324` (feature/post factor)
+- `:1420` (극단값 안정화)
+- `:1450` (reorg mode)
+- `:1577` (uncertainty discount)
+- `:1622` (final surplus monotonic guard)
+- `:1632` (confidence score)
 
 ### B. 신규등록 계산기 (acquisition_calculator.py)
 - 요건 엔진: 업종별 기본 자본금/출자/기술자 규칙 + 다업종 특례 자동 차감
