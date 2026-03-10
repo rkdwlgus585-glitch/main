@@ -2,10 +2,24 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { platformConfig } from "@/components/platform-config";
 
+const pageTitle = "건설실무 | 서울건설정보";
+const pageDescription =
+  "건설업 양도양수, 인허가, 등록기준, 시장 동향까지 — 건설업 전문 AI 플랫폼이 제공하는 실무 지식 콘텐츠.";
+
 export const metadata: Metadata = {
-  title: "건설실무 | 서울건설정보",
-  description:
-    "건설업 양도양수, 인허가, 등록기준, 시장 동향까지 — 건설업 전문 AI 플랫폼이 제공하는 실무 지식 콘텐츠.",
+  title: pageTitle,
+  description: pageDescription,
+  openGraph: {
+    title: pageTitle,
+    description: pageDescription,
+    url: "/knowledge",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: pageTitle,
+    description: pageDescription,
+  },
 };
 
 const categories = [

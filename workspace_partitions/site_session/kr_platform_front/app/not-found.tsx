@@ -3,6 +3,8 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "404 — 페이지를 찾을 수 없습니다 | 서울건설정보",
+  description:
+    "요청하신 페이지를 찾을 수 없습니다. 서울건설정보 홈, AI 양도가 산정, 건설업등록 검토 페이지를 방문해 보세요.",
 };
 
 export default function NotFound() {

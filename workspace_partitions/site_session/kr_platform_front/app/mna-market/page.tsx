@@ -2,10 +2,24 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { platformConfig } from "@/components/platform-config";
 
+const pageTitle = "실시간 매물 | 서울건설정보";
+const pageDescription =
+  "건설업 면허 양도양수 매물을 한눈에 확인하세요. 전문 행정사가 검증한 실매물과 AI 양도가 분석을 함께 제공합니다.";
+
 export const metadata: Metadata = {
-  title: "실시간 매물 | 서울건설정보",
-  description:
-    "건설업 면허 양도양수 매물을 한눈에 확인하세요. 전문 행정사가 검증한 실매물과 AI 양도가 분석을 함께 제공합니다.",
+  title: pageTitle,
+  description: pageDescription,
+  openGraph: {
+    title: pageTitle,
+    description: pageDescription,
+    url: "/mna-market",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: pageTitle,
+    description: pageDescription,
+  },
 };
 
 const marketFeatures = [

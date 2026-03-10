@@ -3,10 +3,24 @@ import Link from "next/link";
 import { platformConfig, widgetUrl } from "@/components/platform-config";
 import { WidgetFrame } from "@/components/widget-frame";
 
+const pageTitle = "건설업등록 검토 | 서울건설정보";
+const pageDescription =
+  "191개 건설 업종 등록기준 충족 여부를 AI가 즉시 검토합니다. 자본금·기술인력·사무실 요건 진단과 신규 취득 비용 계산까지 무료 제공.";
+
 export const metadata: Metadata = {
-  title: "건설업등록 검토 | 서울건설정보",
-  description:
-    "191개 건설 업종 등록기준 충족 여부를 AI가 즉시 검토합니다. 자본금·기술인력·사무실 요건 진단과 신규 취득 비용 계산까지 무료 제공.",
+  title: pageTitle,
+  description: pageDescription,
+  openGraph: {
+    title: pageTitle,
+    description: pageDescription,
+    url: "/permit",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: pageTitle,
+    description: pageDescription,
+  },
 };
 
 const features = [

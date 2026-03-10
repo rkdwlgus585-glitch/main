@@ -3,10 +3,24 @@ import Link from "next/link";
 import { platformConfig, widgetUrl } from "@/components/platform-config";
 import { WidgetFrame } from "@/components/widget-frame";
 
+const pageTitle = "AI 양도가 산정 | 서울건설정보";
+const pageDescription =
+  "건설업 면허 양도가격을 AI가 공시 데이터 기반으로 무료 산정합니다. 실시간 시세 분석, 업종별 정산 로직, 전문가 상담 연결까지 원스톱 제공.";
+
 export const metadata: Metadata = {
-  title: "AI 양도가 산정 | 서울건설정보",
-  description:
-    "건설업 면허 양도가격을 AI가 공시 데이터 기반으로 무료 산정합니다. 실시간 시세 분석, 업종별 정산 로직, 전문가 상담 연결까지 원스톱 제공.",
+  title: pageTitle,
+  description: pageDescription,
+  openGraph: {
+    title: pageTitle,
+    description: pageDescription,
+    url: "/yangdo",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: pageTitle,
+    description: pageDescription,
+  },
 };
 
 const features = [
