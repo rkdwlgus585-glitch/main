@@ -344,8 +344,12 @@
 - **P2-02 _INPUT_ALIASES 호이스팅**: per-call dict 재생성 → 모듈 상수. dead first element(key=self) 제거.
 - **P2-06 _month_key race condition**: 월 경계 시점 2회 호출 불일치 → `received_at[:7]` 유도로 일관성 확보
 - **P4-03 safe_json_for_script `<!--` 이스케이프**: HTML 코멘트 인젝션 방어 추가
-- **테스트 +5**: URL 스푸핑 회귀 4 + HTML 코멘트 이스케이프 1
-- **Quality**: 2044 tests + 94 subtests PASS.
+- **SSRF 방어 강화**: `_sanitize_endpoint`에 `169.254.x`(link-local) + `0.0.0.0`(unspecified) 차단 추가. `acquisition_calculator` protocol whitelist 동기화.
+- **DRY _sanitize_endpoint**: yangdo_calculator + acquisition_calculator 로컬 정의 → `core_engine/host_utils.sanitize_endpoint` 1곳 canonical화 (−24줄)
+- **DRY acquisition_calculator**: 로컬 `_safe_json` → `safe_json_for_script` canonical alias + `datetime.now()` → `now_iso()` (−6줄)
+- **permit_mapping_pipeline naive datetime**: core_engine 마지막 `datetime.now()` → `now_iso()` 제거. 전 코어 파일 naive datetime 0건 달성.
+- **테스트 +17**: URL 스푸핑 4 + HTML 코멘트 1 + SSRF guard 3 + canonical sanitize_endpoint 9
+- **Quality**: 2056 tests + 94 subtests PASS.
 
 ### [2026-03-10] Session 19 — P1 버그 수정 + DRY canonical화 + 정보누출 차단
 - **P1 dead except 재정렬**: `json.JSONDecodeError`(ValueError 서브클래스) except 순서 수정 — ValueError 가 먼저 잡아 JSONDecodeError 도달불가 해소.
