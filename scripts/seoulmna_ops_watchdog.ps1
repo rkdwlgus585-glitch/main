@@ -1,7 +1,8 @@
 # Legacy compatibility shim.
 # The mixed watchdog has been replaced by split profile workers:
 # - listing
-# - notice
+# - monthly_recommend
+# - monthly_report
 # - admin_memo
 # - site_health
 # - permit
@@ -37,7 +38,7 @@ if ($StartupDelaySec -gt 0) {
     Start-Sleep -Seconds ([int]$StartupDelaySec)
 }
 
-$profiles = @("listing", "notice", "admin_memo", "site_health", "permit")
+$profiles = @("listing", "monthly_recommend", "monthly_report", "admin_memo", "site_health", "permit")
 Write-LegacyLog "legacy mixed watchdog shim start"
 foreach ($profile in $profiles) {
     $arg = "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$runner`" -RepoRoot `"$RepoRoot`" -Profile `"$profile`""

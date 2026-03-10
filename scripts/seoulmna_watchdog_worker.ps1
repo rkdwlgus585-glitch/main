@@ -1,6 +1,6 @@
 param(
     [string]$RepoRoot = "",
-    [ValidateSet("listing", "notice", "admin_memo", "site_health", "permit")]
+    [ValidateSet("listing", "monthly_recommend", "monthly_report", "admin_memo", "site_health", "permit")]
     [string]$Profile = "listing",
     [int]$StartupDelaySec = 0
 )
@@ -79,7 +79,7 @@ if (Test-KrOnlyLockActive $krOnlyLockPath) {
     exit 0
 }
 
-if (-not (Test-Path (Join-Path $RepoRoot "all.py"))) {
+if (-not (Test-Path (Join-Path $RepoRoot "utils.py"))) {
     exit 1
 }
 
@@ -490,9 +490,9 @@ function Run-NoticeWatchdog {
     $nextNoticeRun = (Get-Date).AddMinutes(20)
     $cmdNoticeArchive = 'scripts\run_startup_notice_archive.cmd'
 
-    Write-Log 'notice watchdog loop started'
-    Write-Log ('notice archive interval={0}m / next={1}' -f [int](Get-WeekendAdjustedInterval (Get-Date) 180 120), $nextNoticeRun.ToString('s'))
-    Write-Log 'notice policy: dedicated monthly notice pipeline only; isolated from listing and admin memo writes'
+    Write-Log 'monthly recommend watchdog loop started'
+    Write-Log ('monthly recommend interval={0}m / next={1}' -f [int](Get-WeekendAdjustedInterval (Get-Date) 180 120), $nextNoticeRun.ToString('s'))
+    Write-Log 'monthly recommend policy: dedicated monthly recommendation notice pipeline only; isolated from monthly report and admin memo writes'
 
     while ($true) {
         $now = Get-Date
@@ -512,6 +512,32 @@ function Run-NoticeWatchdog {
     }
 }
 
+function Run-MonthlyReportWatchdog {
+    $nextMonthlyReportRun = (Get-Date).AddMinutes(30)
+    $cmdMonthlyReport = 'scripts\run_startup_monthly_market_report.cmd'
+
+    Write-Log 'monthly report watchdog loop started'
+    Write-Log ('monthly report interval={0}m / next={1}' -f [int](Get-WeekendAdjustedInterval (Get-Date) 360 240), $nextMonthlyReportRun.ToString('s'))
+    Write-Log 'monthly report policy: use existing build/review/publish pipeline; isolated from monthly recommend and admin memo writes'
+
+    while ($true) {
+        $now = Get-Date
+        if (-not (Test-InActiveWindow $now)) {
+            Save-State @{ next_monthly_market_report = $nextMonthlyReportRun.ToString('s') }
+            Start-Sleep -Seconds $loopSleepSeconds
+            continue
+        }
+
+        if ($now -ge $nextMonthlyReportRun) {
+            [void](Invoke-RepoSiteWriteCommand 'monthly_market_report_refresh' $cmdMonthlyReport)
+            $nextMonthlyReportRun = (Get-Date).AddMinutes([int](Get-WeekendAdjustedInterval (Get-Date) 360 240))
+        }
+
+        Save-State @{ next_monthly_market_report = $nextMonthlyReportRun.ToString('s') }
+        Start-Sleep -Seconds $loopSleepSeconds
+    }
+}
+
 function Run-AdminMemoWatchdog {
     $state = Load-State
     $nextMemoIncrementalRun = (Get-Date).AddMinutes(12)
@@ -525,7 +551,7 @@ function Run-AdminMemoWatchdog {
     }
 
     $cmdMemoFull = (
-        '{0} all.py --fix-admin-memo --fix-admin-memo-all --fix-admin-memo-pages 0 --fix-admin-memo-limit 0 --fix-admin-memo-delay-sec 1.2 --fix-admin-memo-request-buffer 120 --fix-admin-memo-write-buffer 12 --fix-admin-memo-state-file logs/admin_memo_sync_state.json --confirm-bulk YES >> logs\auto_admin_memo_sync.log 2>&1' -f $pythonPrefix
+        '{0} ..\ALL\all.py--fix-admin-memo --fix-admin-memo-all --fix-admin-memo-pages 0 --fix-admin-memo-limit 0 --fix-admin-memo-delay-sec 1.2 --fix-admin-memo-request-buffer 120 --fix-admin-memo-write-buffer 12 --fix-admin-memo-state-file logs/admin_memo_sync_state.json --confirm-bulk YES >> logs\auto_admin_memo_sync.log 2>&1' -f $pythonPrefix
     )
     $adminMemoStatusPath = Join-Path $logsDir 'admin_memo_sync_status.json'
     $adminMemoOutputDir = Join-Path ([Environment]::GetFolderPath('Desktop')) ([string]([char]99)+[char]108+[char]105+[char]54617+[char]49845)
@@ -569,7 +595,7 @@ function Run-AdminMemoWatchdog {
                 $memoLimit = Get-MemoIncrementalLimit (Get-Date)
                 $memoDelay = Get-MemoIncrementalDelaySec (Get-Date)
                 $cmdMemoIncremental = (
-                    '{0} all.py --fix-admin-memo --fix-admin-memo-all --fix-admin-memo-pages 3 --fix-admin-memo-limit {1} --fix-admin-memo-delay-sec {2} --fix-admin-memo-request-buffer 120 --fix-admin-memo-write-buffer 12 --fix-admin-memo-state-file logs/admin_memo_sync_state.json --confirm-bulk YES >> logs\auto_admin_memo_sync.log 2>&1' -f $pythonPrefix, [int]$memoLimit, [double]$memoDelay
+                    '{0} ..\ALL\all.py--fix-admin-memo --fix-admin-memo-all --fix-admin-memo-pages 3 --fix-admin-memo-limit {1} --fix-admin-memo-delay-sec {2} --fix-admin-memo-request-buffer 120 --fix-admin-memo-write-buffer 12 --fix-admin-memo-state-file logs/admin_memo_sync_state.json --confirm-bulk YES >> logs\auto_admin_memo_sync.log 2>&1' -f $pythonPrefix, [int]$memoLimit, [double]$memoDelay
                 )
                 $memoRc = Invoke-RepoSiteWriteCommand 'admin_memo_incremental' $cmdMemoIncremental
                 if ($memoRc -eq 0) {
@@ -614,7 +640,7 @@ function Run-SiteHealthWatchdog {
 
     $cmdQualityDaily = 'scripts\run_quality_daily.cmd'
     $cmdDailyDashboard = (
-        '{0} all.py --daily-dashboard --dashboard-live --dashboard-days 7 >> logs\auto_daily_dashboard.log 2>&1' -f $pythonPrefix
+        '{0} ..\ALL\all.py--daily-dashboard --dashboard-live --dashboard-days 7 >> logs\auto_daily_dashboard.log 2>&1' -f $pythonPrefix
     )
     $cmdSiteGuard = (
         '{0} scripts\optimize_wp_kr.py --report logs/wp_site_guard_latest.json --state-file logs/wp_site_guard_state.json --skip-if-ok-today >> logs\auto_wp_site_guard.log 2>&1' -f $pythonPrefix
@@ -774,7 +800,8 @@ Write-Log ('worker start profile={0} active_window={1} start={2:00}:00 end={3:00
 
 switch ($Profile) {
     'listing' { Run-ListingWatchdog }
-    'notice' { Run-NoticeWatchdog }
+    'monthly_recommend' { Run-NoticeWatchdog }
+    'monthly_report' { Run-MonthlyReportWatchdog }
     'admin_memo' { Run-AdminMemoWatchdog }
     'site_health' { Run-SiteHealthWatchdog }
     'permit' { Run-PermitWatchdog }

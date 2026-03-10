@@ -34,7 +34,8 @@ foreach ($v in $snap.githubVariables) {
 # Restart core watchdog tasks immediately if they were enabled before pause.
 $splitWatchdogTasks = @(
   "SeoulMNA_CoKr_Listing_Watchdog",
-  "SeoulMNA_CoKr_Notice_Watchdog",
+  "SeoulMNA_CoKr_MonthlyRecommend_Watchdog",
+  "SeoulMNA_CoKr_MonthlyReport_Watchdog",
   "SeoulMNA_CoKr_AdminMemo_Watchdog",
   "SeoulMNA_CoKr_SiteHealth_Watchdog",
   "SeoulMNA_Permit_Data_Watchdog"

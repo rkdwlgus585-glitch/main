@@ -7,14 +7,14 @@
       "id": "entry_files_exist",
       "type": "file_exists",
       "paths": [
-        "trend_radar_v2.py"
+        "../ALL/trend_radar_v2.py"
       ]
     },
     {
       "id": "compile_trend_radar",
       "type": "python_compile",
       "paths": [
-        "trend_radar_v2.py"
+        "../ALL/trend_radar_v2.py"
       ]
     },
     {

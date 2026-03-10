@@ -132,7 +132,8 @@ Write-Output ("startup_artifact_cleanup={0}" -f ($(if ($SkipStartupArtifactClean
 Write-Output ""
 $cokrTaskNames = @(
     "SeoulMNA_CoKr_Listing_Watchdog",
-    "SeoulMNA_CoKr_Notice_Watchdog",
+    "SeoulMNA_CoKr_MonthlyRecommend_Watchdog",
+    "SeoulMNA_CoKr_MonthlyReport_Watchdog",
     "SeoulMNA_CoKr_AdminMemo_Watchdog",
     "SeoulMNA_CoKr_SiteHealth_Watchdog",
     "SeoulMNA_Permit_Data_Watchdog"

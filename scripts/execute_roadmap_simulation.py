@@ -345,7 +345,8 @@ def build_report(skip_network: bool, timeout_sec: int) -> Dict[str, Any]:
 
     scheduled_tasks = [
         _query_task("SeoulMNA_CoKr_Listing_Watchdog"),
-        _query_task("SeoulMNA_CoKr_Notice_Watchdog"),
+        _query_task("SeoulMNA_CoKr_MonthlyRecommend_Watchdog"),
+        _query_task("SeoulMNA_CoKr_MonthlyReport_Watchdog"),
         _query_task("SeoulMNA_CoKr_AdminMemo_Watchdog"),
         _query_task("SeoulMNA_CoKr_SiteHealth_Watchdog"),
         _query_task("SeoulMNA_Permit_Data_Watchdog"),

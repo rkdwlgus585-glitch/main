@@ -7,14 +7,14 @@
       "id": "entry_files_exist",
       "type": "file_exists",
       "paths": [
-        "internal_linker.py"
+        "../ALL/internal_linker.py"
       ]
     },
     {
       "id": "compile_internal_linker",
       "type": "python_compile",
       "paths": [
-        "internal_linker.py"
+        "../ALL/internal_linker.py"
       ]
     },
     {

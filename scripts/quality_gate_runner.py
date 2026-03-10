@@ -17,6 +17,7 @@ from agent_capacity import recommend_workers
 
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
+_ALL_ROOT = ROOT.parent / "ALL"                    # H:\ALL (non-core modules)
 LOG_DIR = ROOT / "logs"
 DEFAULT_CONTRACT_DIR = ROOT / "quality_contracts"
 COMPILE_LOCK = threading.Lock()
@@ -46,6 +47,11 @@ def _subprocess_env() -> dict:
     env.setdefault("PYTHONUTF8", "1")
     env.setdefault("PYTHONIOENCODING", "utf-8")
     env.setdefault("PYTHONDONTWRITEBYTECODE", "1")
+    # Ensure H:\ALL is on PYTHONPATH so non-core module imports resolve.
+    all_str = str(_ALL_ROOT)
+    existing = env.get("PYTHONPATH", "")
+    if all_str not in existing.split(os.pathsep):
+        env["PYTHONPATH"] = (all_str + os.pathsep + existing) if existing else all_str
     return env
 
 

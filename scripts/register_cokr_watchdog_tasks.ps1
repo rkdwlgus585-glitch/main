@@ -27,10 +27,11 @@ if (-not (Test-Path $wscriptExe)) {
 
 $profiles = @(
     @{ Profile = "listing"; TaskName = "SeoulMNA_CoKr_Listing_Watchdog"; Delay = 0; Description = "Run seoulmna.co.kr listing sync/upload watchdog at logon (hidden)." },
-    @{ Profile = "notice"; TaskName = "SeoulMNA_CoKr_Notice_Watchdog"; Delay = 20; Description = "Run seoulmna.co.kr notice publish watchdog at logon (hidden)." },
-    @{ Profile = "admin_memo"; TaskName = "SeoulMNA_CoKr_AdminMemo_Watchdog"; Delay = 40; Description = "Run seoulmna.co.kr admin memo sync watchdog at logon (hidden)." },
-    @{ Profile = "site_health"; TaskName = "SeoulMNA_CoKr_SiteHealth_Watchdog"; Delay = 60; Description = "Run seoulmna.co.kr site health watchdog at logon (hidden)." },
-    @{ Profile = "permit"; TaskName = "SeoulMNA_Permit_Data_Watchdog"; Delay = 80; Description = "Run permit data watchdog at logon (hidden)." }
+    @{ Profile = "monthly_recommend"; TaskName = "SeoulMNA_CoKr_MonthlyRecommend_Watchdog"; Delay = 20; Description = "Run seoulmna.co.kr monthly recommendation refresh watchdog at logon (hidden)." },
+    @{ Profile = "monthly_report"; TaskName = "SeoulMNA_CoKr_MonthlyReport_Watchdog"; Delay = 40; Description = "Run seoulmna.co.kr monthly market report watchdog at logon (hidden)." },
+    @{ Profile = "admin_memo"; TaskName = "SeoulMNA_CoKr_AdminMemo_Watchdog"; Delay = 60; Description = "Run seoulmna.co.kr admin memo sync watchdog at logon (hidden)." },
+    @{ Profile = "site_health"; TaskName = "SeoulMNA_CoKr_SiteHealth_Watchdog"; Delay = 80; Description = "Run seoulmna.co.kr site health watchdog at logon (hidden)." },
+    @{ Profile = "permit"; TaskName = "SeoulMNA_Permit_Data_Watchdog"; Delay = 100; Description = "Run permit data watchdog at logon (hidden)." }
 )
 
 foreach ($cfg in $profiles) {

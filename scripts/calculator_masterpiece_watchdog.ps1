@@ -22,7 +22,7 @@ if ($krOnlyMode) {
     exit 0
 }
 
-if (-not (Test-Path (Join-Path $RepoRoot "all.py"))) {
+if (-not (Test-Path (Join-Path $RepoRoot "utils.py"))) {
     exit 1
 }
 

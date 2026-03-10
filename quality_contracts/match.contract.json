@@ -7,15 +7,15 @@
       "id": "entry_files_exist",
       "type": "file_exists",
       "paths": [
-        "match.py"
+        "../ALL/match.py"
       ]
     },
     {
       "id": "compile_match",
       "type": "python_compile",
       "paths": [
-        "match.py",
-        "listing_matcher.py"
+        "../ALL/match.py",
+        "../ALL/listing_matcher.py"
       ]
     },
     {

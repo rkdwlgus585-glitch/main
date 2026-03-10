@@ -7,14 +7,14 @@
       "id": "entry_files_exist",
       "type": "file_exists",
       "paths": [
-        "listing_matcher.py"
+        "../ALL/listing_matcher.py"
       ]
     },
     {
       "id": "compile_listing_matcher",
       "type": "python_compile",
       "paths": [
-        "listing_matcher.py"
+        "../ALL/listing_matcher.py"
       ]
     },
     {
@@ -30,7 +30,7 @@
       "type": "command",
       "command": [
         "{python}",
-        "listing_matcher.py",
+        "../ALL/listing_matcher.py",
         "--help"
       ],
       "timeout_sec": 20

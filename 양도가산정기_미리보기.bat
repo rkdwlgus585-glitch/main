@@ -1,4 +1,4 @@
-@echo off
+﻿@echo off
 setlocal EnableExtensions
 cd /d "%~dp0"
 
@@ -8,7 +8,7 @@ if errorlevel 1 set "PY=python"
 
 echo.
 echo [1/2] Build customer HTML...
-%PY% all.py --build-yangdo-page --yangdo-page-mode customer --yangdo-page-output output/yangdo_price_calculator_customer.html
+%PY% ..\ALL\all.py --build-yangdo-page --yangdo-page-mode customer --yangdo-page-output output/yangdo_price_calculator_customer.html
 if errorlevel 1 (
   echo.
   echo [FAIL] HTML build failed.

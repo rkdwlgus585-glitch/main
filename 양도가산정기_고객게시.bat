@@ -1,4 +1,4 @@
-@echo off
+﻿@echo off
 setlocal EnableExtensions
 cd /d "%~dp0"
 
@@ -36,9 +36,9 @@ set /p SUBJECT=Enter subject (blank=default):
 echo.
 echo [RUN] customer mode publish...
 if "%SUBJECT%"=="" (
-  %PY% all.py --publish-yangdo-page --yangdo-page-mode customer --yangdo-page-board-slug "%BOARD%" --yangdo-page-wr-id %WRID%
+  %PY% ..\ALL\all.py --publish-yangdo-page --yangdo-page-mode customer --yangdo-page-board-slug "%BOARD%" --yangdo-page-wr-id %WRID%
 ) else (
-  %PY% all.py --publish-yangdo-page --yangdo-page-mode customer --yangdo-page-board-slug "%BOARD%" --yangdo-page-wr-id %WRID% --yangdo-page-subject "%SUBJECT%"
+  %PY% ..\ALL\all.py --publish-yangdo-page --yangdo-page-mode customer --yangdo-page-board-slug "%BOARD%" --yangdo-page-wr-id %WRID% --yangdo-page-subject "%SUBJECT%"
 )
 
 if errorlevel 1 (

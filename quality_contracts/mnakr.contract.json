@@ -7,18 +7,18 @@
       "id": "entry_files_exist",
       "type": "file_exists",
       "paths": [
-        "mnakr.py",
+        "../ALL/mnakr.py",
         "kb.py",
-        "internal_linker.py"
+        "../ALL/internal_linker.py"
       ]
     },
     {
       "id": "compile_modules",
       "type": "python_compile",
       "paths": [
-        "mnakr.py",
+        "../ALL/mnakr.py",
         "kb.py",
-        "internal_linker.py",
+        "../ALL/internal_linker.py",
         "utils.py"
       ]
     },

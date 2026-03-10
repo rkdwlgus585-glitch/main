@@ -7,14 +7,14 @@
       "id": "entry_files_exist",
       "type": "file_exists",
       "paths": [
-        "premium_auto.py"
+        "../ALL/premium_auto.py"
       ]
     },
     {
       "id": "compile_premium_auto",
       "type": "python_compile",
       "paths": [
-        "premium_auto.py"
+        "../ALL/premium_auto.py"
       ]
     },
     {

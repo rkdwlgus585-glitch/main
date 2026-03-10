@@ -7,17 +7,17 @@
       "id": "entry_files_exist",
       "type": "file_exists",
       "paths": [
-        "consult_match_scheduler.py",
-        "match.py"
+        "../ALL/consult_match_scheduler.py",
+        "../ALL/match.py"
       ]
     },
     {
       "id": "compile_scheduler_stack",
       "type": "python_compile",
       "paths": [
-        "consult_match_scheduler.py",
-        "match.py",
-        "listing_matcher.py"
+        "../ALL/consult_match_scheduler.py",
+        "../ALL/match.py",
+        "../ALL/listing_matcher.py"
       ]
     },
     {
@@ -33,7 +33,7 @@
       "type": "command",
       "command": [
         "{python}",
-        "consult_match_scheduler.py",
+        "../ALL/consult_match_scheduler.py",
         "--help"
       ],
       "timeout_sec": 20

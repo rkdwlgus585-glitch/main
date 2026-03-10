@@ -7,14 +7,14 @@
       "id": "entry_files_exist",
       "type": "file_exists",
       "paths": [
-        "maemul.py"
+        "../ALL/maemul.py"
       ]
     },
     {
       "id": "compile_maemul",
       "type": "python_compile",
       "paths": [
-        "maemul.py"
+        "../ALL/maemul.py"
       ]
     },
     {
@@ -30,7 +30,7 @@
       "type": "command",
       "command": [
         "{python}",
-        "maemul.py",
+        "../ALL/maemul.py",
         "--help"
       ],
       "timeout_sec": 20

@@ -11,6 +11,7 @@ if (-not $RepoRoot) {
 }
 
 $RepoRoot = [System.IO.Path]::GetFullPath([string]$RepoRoot)
+$AllRoot = [System.IO.Path]::GetFullPath((Join-Path $RepoRoot "..\ALL"))
 $scriptName = "mnakr_scheduler_watchdog.ps1"
 $krOnlyLockPath = Join-Path $RepoRoot "logs\kr_only_mode.lock"
 $logsDir = Join-Path $RepoRoot "logs"
@@ -74,7 +75,7 @@ if (Test-KrOnlyLockActive $krOnlyLockPath) {
     exit 0
 }
 
-if (-not (Test-Path (Join-Path $RepoRoot "mnakr.py"))) {
+if (-not (Test-Path (Join-Path $AllRoot "mnakr.py"))) {
     Write-Log "mnakr.py missing: watchdog stop"
     exit 1
 }
@@ -99,9 +100,9 @@ function Test-SchedulerRunning {
 
 function Start-Scheduler {
     if ($pythonExe.ToLowerInvariant().EndsWith("py.exe")) {
-        Start-Process -FilePath $pythonExe -ArgumentList "-3 mnakr.py --scheduler" -WorkingDirectory $RepoRoot -WindowStyle Hidden | Out-Null
+        Start-Process -FilePath $pythonExe -ArgumentList "-3 mnakr.py --scheduler" -WorkingDirectory $AllRoot -WindowStyle Hidden | Out-Null
     } else {
-        Start-Process -FilePath $pythonExe -ArgumentList "mnakr.py --scheduler" -WorkingDirectory $RepoRoot -WindowStyle Hidden | Out-Null
+        Start-Process -FilePath $pythonExe -ArgumentList "mnakr.py --scheduler" -WorkingDirectory $AllRoot -WindowStyle Hidden | Out-Null
     }
 }
 

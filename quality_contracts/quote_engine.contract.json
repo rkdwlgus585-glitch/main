@@ -7,14 +7,14 @@
       "id": "entry_files_exist",
       "type": "file_exists",
       "paths": [
-        "quote_engine.py"
+        "../ALL/quote_engine.py"
       ]
     },
     {
       "id": "compile_quote_engine",
       "type": "python_compile",
       "paths": [
-        "quote_engine.py"
+        "../ALL/quote_engine.py"
       ]
     },
     {
@@ -30,7 +30,7 @@
       "type": "command",
       "command": [
         "{python}",
-        "quote_engine.py",
+        "../ALL/quote_engine.py",
         "--help"
       ],
       "timeout_sec": 20

@@ -15,7 +15,8 @@ if (-not $RepoRoot) {
 }
 
 $RepoRoot = [System.IO.Path]::GetFullPath([string]$RepoRoot)
-if (-not (Test-Path (Join-Path $RepoRoot "tistory_ops\run.py"))) {
+$AllRoot = [System.IO.Path]::GetFullPath((Join-Path $RepoRoot "..\ALL"))
+if (-not (Test-Path (Join-Path $AllRoot "tistory_ops\run.py"))) {
     exit 1
 }
 
@@ -53,7 +54,7 @@ if ($StartupDelaySec -gt 0) {
     Write-Log "startup delay end"
 }
 
-Push-Location $RepoRoot
+Push-Location $AllRoot
 try {
     $args = @(
         "tistory_ops/run.py",
