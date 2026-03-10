@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Building2, CircleHelp, FileStack, Scale, Shield } from "lucide-react";
+import { ArrowRight, Building2, Calculator, CircleHelp, ClipboardCheck, FileStack, Scale, Shield } from "lucide-react";
 import { AiToolBridge } from "@/components/ai-tool-bridge";
 import { ContactLink } from "@/components/contact-link";
 import { ListingPreview } from "@/components/listing-preview";
@@ -63,18 +63,29 @@ export function PublicHome() {
       />
       <section className="hero">
         <div className="hero-copy">
-          <p className="hero-badge">Independent Public Site</p>
-          <p className="hero-kicker">seoulmna.kr과 분리된 운영 사이트</p>
+          <p className="hero-badge">AI System · Expert Consulting</p>
+          <p className="hero-kicker">AI 양도가 산정 · AI 인허가 사전검토 시스템 운영</p>
           <h1>
-            건설업 양도양수와 등록 실무를
+            건설업 면허 양도와 등록,
             <br />
-            한눈에 안내하는 독립 퍼블릭 사이트
+            AI로 먼저 확인하고 전문가와 상담하세요
           </h1>
           <p className="hero-body">
-            이 프로젝트는 AI 시스템용 사이트와 별개로, 상담과 정보 제공 중심의
-            퍼블릭 사이트를 새로 개설하기 위한 골격입니다. 기존 운영 사이트의 장점은 참고하되,
-            구조와 문구는 새로 설계했습니다.
+            AI 양도가 산정 시스템으로 면허 예상 가격을 즉시 확인하고, AI 인허가 사전검토로
+            등록 요건 충족 여부를 무료로 점검할 수 있습니다. 결과를 바탕으로 전문가 상담까지 바로 연결됩니다.
           </p>
+          <div className="hero-ai-pills">
+            <a href={`${siteConfig.platformHost}/yangdo`} className="hero-ai-pill" target="_blank" rel="noopener noreferrer">
+              <Calculator size={16} aria-hidden="true" />
+              <span>AI 양도가 산정</span>
+              <span className="hero-ai-pill-tag">무료</span>
+            </a>
+            <a href={`${siteConfig.platformHost}/permit`} className="hero-ai-pill" target="_blank" rel="noopener noreferrer">
+              <ClipboardCheck size={16} aria-hidden="true" />
+              <span>AI 인허가 사전검토</span>
+              <span className="hero-ai-pill-tag">무료</span>
+            </a>
+          </div>
 
           <div className="hero-actions">
             <Link className="cta-primary" href="/mna">
@@ -102,8 +113,8 @@ export function PublicHome() {
             </video>
             <div className="video-overlay" />
             <div className="video-caption">
-              <strong>현장감 있는 메인 비주얼과 상담 유도 구조</strong>
-              <p>기존 사이트의 첫인상은 참고하되, 자산과 카피는 독립적으로 구성합니다.</p>
+              <strong>성공적인 건설 사업의 시작</strong>
+              <p>면허 양도부터 신규 등록까지 — AI 시스템과 전문가 상담으로 더 정확하고 빠른 첫걸음을 내딛으세요.</p>
             </div>
           </div>
         </div>
@@ -127,6 +138,8 @@ export function PublicHome() {
           <span>{siteConfig.officeHours}</span>
         </article>
       </section>
+
+      <AiToolBridge variant="full" featured />
 
       <section className="quick-entry-section">
         <div className="section-header">
@@ -170,12 +183,10 @@ export function PublicHome() {
         </div>
       </section>
 
-      <AiToolBridge variant="full" />
-
       <section className="section-block">
         <div className="section-header">
           <p className="eyebrow">Operating Flow</p>
-          <h2>새 사이트는 AI보다 상담과 운영 흐름이 먼저 보이도록 설계합니다</h2>
+          <h2>AI 확인 결과를 바탕으로 상담과 운영이 자연스럽게 연결됩니다</h2>
         </div>
         <div className="process-grid">
           {processSteps.map((step, index) => (
@@ -192,10 +203,10 @@ export function PublicHome() {
       <section className="cta-section">
         <div className="cta-content">
           <CircleHelp size={20} aria-hidden="true" />
-          <h2>상담형 퍼블릭 사이트로 먼저 분리하고, AI 시스템은 별도 연결하는 구조가 맞습니다</h2>
+          <h2>AI 시스템으로 먼저 확인하고, 전문가 상담으로 완성하세요</h2>
           <p>
-            지금 만든 골격은 seoulmna.kr 대체가 아니라, seoulmna.co.kr 역할을 독립적으로
-            수행할 새 사이트의 시작점입니다.
+            면허 양도 예상 가격 산정부터 등록 기준 충족 여부 점검까지 — 무료 AI 도구로 먼저 확인하고,
+            결과를 바탕으로 전문 상담을 이어갈 수 있습니다.
           </p>
           <div className="cta-actions">
             <Link className="cta-primary cta-primary--light" href="/support">

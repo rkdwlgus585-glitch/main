@@ -22,14 +22,14 @@ const tools = [
   },
 ];
 
-export function AiToolBridge({ variant = "full" }: { variant?: BridgeVariant }) {
+export function AiToolBridge({ variant = "full", featured = false }: { variant?: BridgeVariant; featured?: boolean }) {
   const visibleTools =
     variant === "full"
       ? tools
       : tools.filter((t) => t.key === variant);
 
   return (
-    <section className="ai-bridge-section" aria-labelledby="ai-bridge-heading">
+    <section className={`ai-bridge-section${featured ? " ai-bridge-section--featured" : ""}`} aria-labelledby="ai-bridge-heading">
       <div className="section-header">
         <p className="eyebrow">AI Tools</p>
         <h2 id="ai-bridge-heading">
