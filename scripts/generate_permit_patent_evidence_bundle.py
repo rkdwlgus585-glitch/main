@@ -3,12 +3,16 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import subprocess
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List
 
 
 ROOT = Path(__file__).resolve().parents[1]
+
+EXPANDED_CRITERIA_PATH = ROOT / "config" / "permit_registration_criteria_expanded.json"
+
 DEFAULT_FOCUS_SEED_INPUT = ROOT / "config" / "permit_focus_seed_catalog.json"
 DEFAULT_FOCUS_FAMILY_REGISTRY_INPUT = ROOT / "config" / "permit_focus_family_registry.json"
 DEFAULT_FOCUS_SCOPE_OVERRIDES_INPUT = ROOT / "config" / "permit_focus_scope_overrides.json"
@@ -16,6 +20,25 @@ DEFAULT_MASTER_INPUT = ROOT / "logs" / "permit_master_catalog_latest.json"
 DEFAULT_FOCUS_REPORT_INPUT = ROOT / "logs" / "permit_focus_priority_latest.json"
 DEFAULT_JSON_OUTPUT = ROOT / "logs" / "permit_patent_evidence_bundle_latest.json"
 DEFAULT_MD_OUTPUT = ROOT / "logs" / "permit_patent_evidence_bundle_latest.md"
+
+
+def _git_short_hash() -> str:
+    """Return short git commit hash of HEAD, or 'unknown' if not in a repo."""
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "--short", "HEAD"],
+            capture_output=True, text=True, timeout=5, cwd=str(ROOT),
+        )
+        return result.stdout.strip() if result.returncode == 0 else "unknown"
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        return "unknown"
+
+
+def _config_file_hash(path: Path) -> str:
+    """SHA-256 digest (first 12 hex chars) of a config file for drift detection."""
+    if not path.exists():
+        return "missing"
+    return hashlib.sha256(path.read_bytes()).hexdigest()[:12]
 
 
 def _load_json(path: Path) -> Dict[str, Any]:
@@ -444,6 +467,12 @@ def build_bundle(
 
     return {
         "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "source_version": {
+            "git_commit": _git_short_hash(),
+            "expanded_criteria_sha256": _config_file_hash(EXPANDED_CRITERIA_PATH),
+            "focus_seed_sha256": _config_file_hash(DEFAULT_FOCUS_SEED_INPUT),
+            "focus_family_sha256": _config_file_hash(DEFAULT_FOCUS_FAMILY_REGISTRY_INPUT),
+        },
         "summary": {
             "focus_source_row_total": len(focus_source_rows),
             "focus_source_family_total": len(family_rows),

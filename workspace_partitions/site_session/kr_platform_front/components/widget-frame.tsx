@@ -1,6 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  generateNonce,
+  parseWidgetMessage,
+} from "@/lib/widget-message-protocol";
 
 type WidgetFrameProps = {
   title: string;
@@ -15,6 +19,9 @@ type WidgetFrameProps = {
 
 type LoadState = "idle" | "loading" | "loaded" | "error";
 
+const MIN_IFRAME_HEIGHT = 600;
+const DEFAULT_IFRAME_HEIGHT = 1400;
+
 export function WidgetFrame({
   title,
   description,
@@ -27,9 +34,13 @@ export function WidgetFrame({
 }: WidgetFrameProps) {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
   const [loadState, setLoadState] = useState<LoadState>("idle");
+  const [iframeHeight, setIframeHeight] = useState(DEFAULT_IFRAME_HEIGHT);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const nonceRef = useRef<string>("");
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
 
   const handleLaunch = useCallback(() => {
+    nonceRef.current = generateNonce();
     setIsExpanded(true);
     setLoadState("loading");
   }, []);
@@ -37,12 +48,54 @@ export function WidgetFrame({
   const handleLoad = useCallback(() => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     setLoadState("loaded");
+    // Send handshake init to iframe — widget can respond with widget-ready
+    try {
+      iframeRef.current?.contentWindow?.postMessage(
+        { type: "platform-handshake", nonce: nonceRef.current },
+        "*",
+      );
+    } catch {
+      // Silently ignore if cross-origin blocks this
+    }
   }, []);
 
   const handleRetry = useCallback(() => {
+    nonceRef.current = generateNonce();
     setLoadState("loading");
   }, []);
 
+  // PostMessage listener — handles widget-ready / widget-resize / widget-error
+  useEffect(() => {
+    if (loadState !== "loading" && loadState !== "loaded") return;
+
+    function onMessage(event: MessageEvent) {
+      const msg = parseWidgetMessage(event);
+      if (!msg) return;
+
+      switch (msg.type) {
+        case "widget-ready":
+          // Confirm iframe JS initialised — clear timeout, mark loaded
+          if (timeoutRef.current) clearTimeout(timeoutRef.current);
+          setLoadState("loaded");
+          break;
+
+        case "widget-resize":
+          setIframeHeight(Math.max(msg.height, MIN_IFRAME_HEIGHT));
+          break;
+
+        case "widget-error":
+          // Non-fatal — log to console but don't break the UI
+          // eslint-disable-next-line no-console
+          console.warn("[widget-error]", msg.code, msg.detail ?? "");
+          break;
+      }
+    }
+
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, [loadState]);
+
+  // Loading timeout
   useEffect(() => {
     if (loadState === "loading") {
       timeoutRef.current = setTimeout(() => {
@@ -100,12 +153,13 @@ export function WidgetFrame({
             </div>
           )}
           <iframe
+            ref={iframeRef}
             key={loadState === "error" ? "retry" : "initial"}
             src={widgetUrl}
             title={title}
             style={{
               width: "100%",
-              minHeight: 1400,
+              minHeight: iframeHeight,
               border: 0,
               display: loadState === "loaded" ? "block" : "none",
             }}
