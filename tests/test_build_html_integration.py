@@ -265,6 +265,102 @@ class PermitPipelineEndToEndTest(unittest.TestCase):
 
 
 # ---------------------------------------------------------------------------
+# Permit accessibility (a11y) verification
+# ---------------------------------------------------------------------------
+class PermitAccessibilityTest(unittest.TestCase):
+    """WCAG 2.1 AA basics for permit HTML output."""
+
+    @classmethod
+    def setUpClass(cls):
+        from permit_diagnosis_calculator import build_html
+
+        cls._html = build_html("a11y test", {}, {})
+
+    # -- label associations ---
+    _LABELED_INPUTS = [
+        ("industrySearchInput", "업종명"),
+        ("capitalInput", "자본금"),
+        ("technicianInput", "기술인력"),
+        ("equipmentInput", "장비"),
+    ]
+
+    def test_input_fields_have_labels(self):
+        for input_id, desc in self._LABELED_INPUTS:
+            with self.subTest(input_id=input_id):
+                self.assertRegex(
+                    self._html,
+                    rf'<label\s[^>]*for="{input_id}"',
+                    f"{desc} input should have an associated <label for>",
+                )
+
+    def test_checkboxes_wrapped_in_labels(self):
+        """Checkboxes use implicit labels (input inside label tag)."""
+        checkbox_ids = [
+            "officeSecuredInput", "facilitySecuredInput",
+            "qualificationSecuredInput", "insuranceSecuredInput",
+            "safetySecuredInput", "documentReadyInput",
+        ]
+        for cid in checkbox_ids:
+            with self.subTest(checkbox=cid):
+                self.assertRegex(
+                    self._html,
+                    rf'<label><input id="{cid}"',
+                    f"Checkbox {cid} should be inside a <label> tag",
+                )
+
+    # -- aria-live for dynamic result areas ---
+    _ARIA_LIVE_ELEMENTS = [
+        "requiredCapital",
+        "capitalGapStatus",
+        "technicianGapStatus",
+        "equipmentGapStatus",
+        "diagnosisDate",
+        "requirementsMeta",
+        "coverageGuide",
+        "typedCriteriaBox",
+        "evidenceChecklistBox",
+        "nextActionsBox",
+        "crossValidation",
+    ]
+
+    def test_dynamic_elements_have_aria_live(self):
+        for elem_id in self._ARIA_LIVE_ELEMENTS:
+            with self.subTest(element=elem_id):
+                pattern = rf'id="{elem_id}"[^>]*aria-live="polite"'
+                self.assertRegex(
+                    self._html,
+                    pattern,
+                    f"{elem_id} should have aria-live='polite'",
+                )
+
+    # -- html lang attribute ---
+    def test_html_has_lang_attribute(self):
+        self.assertIn('lang="ko"', self._html)
+
+    # -- viewport meta ---
+    def test_viewport_meta(self):
+        self.assertIn("viewport", self._html)
+        self.assertIn("width=device-width", self._html)
+
+    # -- WCAG AA color contrast: text-safe CSS vars ---
+    def test_wcag_text_safe_color_variables(self):
+        """Success/warning text colors should use WCAG AA-safe variants."""
+        self.assertIn("--smna-success-text", self._html)
+        self.assertIn("--smna-warning-text", self._html)
+
+    def test_no_raw_success_warning_as_text_color(self):
+        """CSS should NOT use raw --smna-success/--smna-warning for text color."""
+        # Only check CSS color: rules, not border/background usage
+        css_text_uses = re.findall(
+            r'color:\s*var\(--smna-(?:success|warning)\)', self._html
+        )
+        self.assertEqual(
+            css_text_uses, [],
+            "Text color should use --smna-success-text/--smna-warning-text"
+        )
+
+
+# ---------------------------------------------------------------------------
 # Yangdo HTML integration tests
 # ---------------------------------------------------------------------------
 class YangdoBuildPageHtmlTest(unittest.TestCase):

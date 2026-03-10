@@ -2404,7 +2404,9 @@ def build_html(
       --smna-text: #1A1A2E;
       --smna-sub: #4B5563;
       --smna-warning: #FFB800;
+      --smna-warning-text: #946200;  /* WCAG AA 4.5:1 on white */
       --smna-success: #00C48C;
+      --smna-success-text: #008756;  /* WCAG AA 4.5:1 on white */
       --smna-error: #FF4757;
       --smna-border: #E5E7EB;
       /* ── local aliases ── */
@@ -2423,8 +2425,8 @@ def build_html(
       --muted: var(--smna-sub);
       --line: var(--smna-border);
       --line-strong: var(--smna-border);
-      --ok: var(--smna-success);
-      --warn: var(--smna-warning);
+      --ok: var(--smna-success-text);
+      --warn: var(--smna-warning-text);
       --info: var(--smna-primary-soft);
       --shadow-soft: 0 18px 44px rgba(4, 36, 60, 0.08);
       --shadow-strong: 0 28px 64px rgba(4, 36, 60, 0.18);
@@ -2633,7 +2635,7 @@ def build_html(
       padding: 4px 9px;
       border-radius: 999px;
       background: rgba(183, 150, 114, 0.14);
-      color: var(--smna-warning);
+      color: var(--smna-warning-text);
       font-size: 11px;
       font-weight: 900;
       letter-spacing: 0.08em;
@@ -2712,7 +2714,7 @@ def build_html(
       border-radius: 16px;
       border: 1px solid rgba(183, 150, 114, 0.28);
       background: linear-gradient(180deg, rgba(250, 245, 238, 0.98) 0%, rgba(255, 255, 255, 0.98) 100%);
-      color: var(--smna-warning);
+      color: var(--smna-warning-text);
       font-size: 13px;
       line-height: 1.48;
       font-weight: 800;
@@ -2720,7 +2722,7 @@ def build_html(
     .wizard-blocker.is-ready {
       border-color: rgba(17, 117, 71, 0.22);
       background: linear-gradient(180deg, rgba(237, 248, 241, 0.98) 0%, rgba(255, 255, 255, 0.98) 100%);
-      color: var(--smna-success);
+      color: var(--smna-success-text);
     }
     .wizard-priority-hint {
       margin-top: 12px;
@@ -3143,7 +3145,7 @@ def build_html(
     .assist.auto-selection-reason[data-reason-tone="match"]::before {
       background: rgba(16, 132, 92, 0.10);
       border-color: rgba(16, 132, 92, 0.18);
-      color: var(--smna-success);
+      color: var(--smna-success-text);
     }
     .assist.auto-selection-reason[data-reason-tone="search"]::before {
       background: rgba(0, 55, 100, 0.08);
@@ -3581,7 +3583,7 @@ def build_html(
       border-radius: 16px;
       border: 1px solid rgba(183, 150, 114, 0.34);
       background: linear-gradient(180deg, rgba(247, 242, 236, 0.98) 0%, rgba(252, 249, 245, 0.98) 100%);
-      color: var(--smna-warning);
+      color: var(--smna-warning-text);
       font-size: 14px;
       line-height: 1.56;
       font-weight: 700;
@@ -3772,7 +3774,7 @@ def build_html(
       border-radius: 16px;
       border: 1px solid rgba(183, 150, 114, 0.24);
       background: linear-gradient(180deg, rgba(243, 236, 228, 0.92) 0%, rgba(249, 245, 240, 0.98) 100%);
-      color: var(--smna-warning);
+      color: var(--smna-warning-text);
       font-size: 14px;
       line-height: 1.5;
       font-weight: 700;
@@ -3914,9 +3916,9 @@ def build_html(
       <section class="card" aria-labelledby="result-title">
         <h2 id="result-title">진단 결과</h2>
         <p class="metric-label">법정 최소 자본금</p>
-        <p id="requiredCapital" class="metric-value">-</p>
+        <p id="requiredCapital" class="metric-value" aria-live="polite">-</p>
         <p class="metric-label">핵심 세부 요건</p>
-        <p id="requirementsMeta" class="meta-box">-</p>
+        <p id="requirementsMeta" class="meta-box" aria-live="polite">-</p>
 
         <p class="metric-label">자본금 갭 진단</p>
         <p id="capitalGapStatus" class="status" aria-live="polite">-</p>
@@ -3926,7 +3928,7 @@ def build_html(
         <p id="equipmentGapStatus" class="status" aria-live="polite">-</p>
 
         <p class="metric-label">오늘 보완 시 예상 진단 가능일</p>
-        <p id="diagnosisDate" class="metric-value">-</p>
+        <p id="diagnosisDate" class="metric-value" aria-live="polite">-</p>
         <p id="fallbackGuide" class="meta-box" style="display:none"></p>
         <div id="legalBasis" class="law-box" style="display:none"></div>
         <div id="focusProfileBox" class="law-box" style="display:none"></div>
@@ -3936,10 +3938,10 @@ def build_html(
         <div id="caseStoryBox" class="law-box" style="display:none"></div>
         <div id="operatorDemoBox" class="law-box" style="display:none"></div>
         <div id="runtimeReasoningCardBox" class="law-box" style="display:none"></div>
-        <p id="coverageGuide" class="meta-box" style="display:none"></p>
-        <div id="typedCriteriaBox" class="law-box" style="display:none"></div>
-        <div id="evidenceChecklistBox" class="law-box" style="display:none"></div>
-        <div id="nextActionsBox" class="law-box" style="display:none"></div>
+        <p id="coverageGuide" class="meta-box" aria-live="polite" style="display:none"></p>
+        <div id="typedCriteriaBox" class="law-box" aria-live="polite" style="display:none"></div>
+        <div id="evidenceChecklistBox" class="law-box" aria-live="polite" style="display:none"></div>
+        <div id="nextActionsBox" class="law-box" aria-live="polite" style="display:none"></div>
 
         <div class="actions">
           <a class="btn main" href="__NOTICE_URL__" target="_blank" rel="noopener noreferrer">전문가 상담 연결</a>
