@@ -28,14 +28,14 @@ def _digits_only(text: str) -> str:
 
 
 def build_page_html(
-    title="AI 인허가 사전검토 진단기(신규등록 전용)",
-    channel_id="",
-    contact_phone="",
-    openchat_url="",
-    consult_endpoint="",
-    usage_endpoint="",
-    api_key="",
-):
+    title: str = "AI 인허가 사전검토 진단기(신규등록 전용)",
+    channel_id: str = "",
+    contact_phone: str = "",
+    openchat_url: str = "",
+    consult_endpoint: str = "",
+    usage_endpoint: str = "",
+    api_key: str = "",
+) -> str:
     branding = resolve_channel_branding(
         channel_id=str(channel_id or "").strip(),
         overrides={

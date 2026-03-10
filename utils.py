@@ -8,11 +8,12 @@ import logging
 import requests
 from datetime import datetime, timezone
 from functools import wraps
+from typing import Any, Callable, Dict, Sequence, Tuple
 
 # =================================================================
 # [로깅 설정]
 # =================================================================
-def setup_logger(name="mnakr", log_dir="logs"):
+def setup_logger(name: str = "mnakr", log_dir: str = "logs") -> logging.Logger:
     """Create logger with daily file rollover and deduplicated handlers."""
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
@@ -67,7 +68,7 @@ def setup_logger(name="mnakr", log_dir="logs"):
 
     return logger
 
-def retry_request(max_retries=3, delay=2, backoff=2, exceptions=(Exception,)):
+def retry_request(max_retries: int = 3, delay: int = 2, backoff: int = 2, exceptions: Tuple[type, ...] = (Exception,)) -> Callable:
     """
     API 호출 재시도 데코레이터
     
@@ -77,9 +78,9 @@ def retry_request(max_retries=3, delay=2, backoff=2, exceptions=(Exception,)):
         backoff: 대기 시간 증가 배수
         exceptions: 재시도할 예외 타입들
     """
-    def decorator(func):
+    def decorator(func: Callable) -> Callable:
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             logger = logging.getLogger("mnakr")
             last_exception = None
             
@@ -114,18 +115,18 @@ class Notifier:
     MAX_RETRIES = 2
     RETRY_DELAY = 1.2
 
-    def __init__(self, discord_url=None, slack_url=None):
+    def __init__(self, discord_url: str | None = None, slack_url: str | None = None) -> None:
         self.discord_url = discord_url
         self.slack_url = slack_url
         self.logger = logging.getLogger("mnakr")
 
-    def _compact_message(self, message):
+    def _compact_message(self, message: object) -> str:
         text = str(message or "").strip()
         if len(text) <= self.MAX_MESSAGE_LEN:
             return text
         return text[: self.MAX_MESSAGE_LEN - 32].rstrip() + " ... (truncated)"
 
-    def _post_with_retry(self, url, payload, ok_statuses, channel):
+    def _post_with_retry(self, url: str, payload: dict, ok_statuses: set, channel: str) -> bool:
         last_error = None
         for attempt in range(self.MAX_RETRIES + 1):
             try:
@@ -142,7 +143,7 @@ class Notifier:
         self.logger.warning(f"{channel} notification failed: {last_error}")
         return False
 
-    def send(self, message, title="블로그 생성기 알림"):
+    def send(self, message: str, title: str = "블로그 생성기 알림") -> bool:
         """Send notifications to configured channels."""
         compact = self._compact_message(message)
         results = []
@@ -159,7 +160,7 @@ class Notifier:
 
         return all(ok for _name, ok in results)
 
-    def _send_discord(self, message, title):
+    def _send_discord(self, message: str, title: str) -> bool:
         payload = {
             "embeds": [
                 {
@@ -175,7 +176,7 @@ class Notifier:
             self.logger.info("Discord notification sent")
         return ok
 
-    def _send_slack(self, message, title):
+    def _send_slack(self, message: str, title: str) -> bool:
         payload = {
             "text": f"*{str(title or '알림')[:120]}*\n{message}"
         }
@@ -184,7 +185,7 @@ class Notifier:
             self.logger.info("Slack notification sent")
         return ok
 
-def _parse_bool(value, default=False):
+def _parse_bool(value: object, default: bool = False) -> bool:
     if value is None:
         return default
     v = str(value).strip().lower()
@@ -195,7 +196,7 @@ def _parse_bool(value, default=False):
     return default
 
 
-def _load_env_file(env_path):
+def _load_env_file(env_path: str) -> Dict[str, str]:
     loaded = {}
     if not os.path.exists(env_path):
         return loaded
@@ -211,7 +212,7 @@ def _load_env_file(env_path):
     return loaded
 
 
-def load_config(extra_defaults=None):
+def load_config(extra_defaults: Dict[str, Any] | None = None) -> Dict[str, Any]:
     """Load settings from .env + OS environment."""
     defaults = {
         "GEMINI_API_KEY": "",
@@ -267,7 +268,7 @@ def load_config(extra_defaults=None):
     return config
 
 
-def require_config(config, required_keys, context="app"):
+def require_config(config: Dict[str, Any], required_keys: Sequence[str], context: str = "app") -> Dict[str, Any]:
     """Raise ValueError if required keys are missing/empty."""
     missing = [k for k in required_keys if not str(config.get(k, "")).strip()]
     if missing:
@@ -282,7 +283,7 @@ def require_config(config, required_keys, context="app"):
 class ProgressCallback:
     """GUI 진행률 업데이트용 콜백 클래스"""
     
-    def __init__(self, callback_func=None):
+    def __init__(self, callback_func: Callable | None = None) -> None:
         self.callback = callback_func
         self.current_step = 0
         self.total_steps = 5
@@ -294,7 +295,7 @@ class ProgressCallback:
             "완료!"
         ]
     
-    def update(self, step=None, message=None):
+    def update(self, step: int | None = None, message: str | None = None) -> Tuple[float, str]:
         """진행 상태 업데이트"""
         if step is not None:
             self.current_step = step

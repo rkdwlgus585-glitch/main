@@ -108,7 +108,7 @@ def get_fact_prompt_injection() -> str:
     return "\n".join(facts)
 
 
-def _parse_eok_amount(amount_text: str):
+def _parse_eok_amount(amount_text: str) -> float | None:
     import re
 
     s = re.sub(r"\s+", "", str(amount_text or ""))
