@@ -5,17 +5,28 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 
 export const metadata: Metadata = {
-  title: "\uc11c\uc6b8\uac74\uc124\uc815\ubcf4 \ud50c\ub7ab\ud3fc | \uc591\ub3c4\uac00 \uc0b0\uc815 \u00b7 \uc778\ud5c8\uac00 \uc0ac\uc804\uac80\ud1a0",
+  title: "서울건설정보 | 건설업 AI 양도가 산정 · 인허가 사전검토 전문 플랫폼",
   description:
-    "\uc591\ub3c4\uac00 \uc0b0\uc815\uacfc \uc778\ud5c8\uac00 \uc0ac\uc804\uac80\ud1a0\ub97c \ud558\ub098\uc758 \ud50c\ub7ab\ud3fc \uc785\uad6c\uc5d0\uc11c \uc5f0\uacb0\ud558\ub294 \uc11c\uc6b8\uac74\uc124\uc815\ubcf4 \uacf5\uac1c \ud504\ub860\ud2b8",
+    "건설업 면허 양도가격을 AI가 무료로 산정합니다. 191개 업종 인허가 등록기준 사전검토까지 원스톱으로 제공하는 건설업 전문 플랫폼.",
   metadataBase: new URL(platformConfig.platformFrontHost),
   openGraph: {
-    title: "서울건설정보 플랫폼",
-    description: "양도가 산정과 인허가 사전검토를 하나의 공개 진입면에서 연결하는 플랫폼 프런트",
+    title: "서울건설정보 | 건설업 AI 전문 플랫폼",
+    description:
+      "건설업 면허 양도가 산정부터 인허가 등록기준 사전검토까지, 데이터 기반 AI 분석을 무료로 제공합니다.",
     url: platformConfig.platformFrontHost,
-    siteName: "서울건설정보 플랫폼",
+    siteName: "서울건설정보",
     type: "website",
   },
+  keywords: [
+    "건설업 면허",
+    "양도가 산정",
+    "건설업 양도양수",
+    "인허가 사전검토",
+    "건설업 등록기준",
+    "건설업 AI",
+    "면허 가격",
+    "서울건설정보",
+  ],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

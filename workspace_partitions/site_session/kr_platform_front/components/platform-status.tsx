@@ -1,20 +1,12 @@
-import { platformConfig } from "@/components/platform-config";
-
+/**
+ * Platform status bar — now shows user-facing operational status
+ * instead of internal topology.
+ */
 export function PlatformStatus() {
   return (
-    <section className="status-grid">
-      <div>
-        <span>{"\ud50c\ub7ab\ud3fc \uc804\uba74"}</span>
-        <strong>{platformConfig.platformFrontHost}</strong>
-      </div>
-      <div>
-        <span>{"\ub9e4\ubb3c \uc0ac\uc774\ud2b8"}</span>
-        <strong>{platformConfig.listingHost}</strong>
-      </div>
-      <div>
-        <span>{"\uc0c1\ub2f4"}</span>
-        <strong>{platformConfig.contactPhone}</strong>
-      </div>
-    </section>
+    <div className="status-bar" role="status" aria-label="서비스 상태">
+      <span className="status-dot" />
+      <span>AI 분석 엔진 정상 운영 중</span>
+    </div>
   );
 }

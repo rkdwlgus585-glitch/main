@@ -1,38 +1,46 @@
-import { Blocks, Building2, ShieldCheck, Waypoints } from "lucide-react";
+import { BarChart3, Clock, FileCheck, Shield } from "lucide-react";
 
 const items = [
   {
-    icon: Blocks,
-    title: "분리된 시스템",
-    body: "양도가 산정과 인허가 사전검토는 별도 시스템으로 운영하고, 테넌트·채널·과금만 플랫폼 레이어에서 공유합니다.",
+    icon: BarChart3,
+    title: "데이터 기반 산정",
+    body: "공개 공시 데이터와 실거래 매물 네트워크를 교차 분석하여 신뢰도 높은 양도가 범위를 산정합니다.",
   },
   {
-    icon: Waypoints,
-    title: "비공개 엔진",
-    body: "공개 브랜드는 .kr에 집중하고, 실제 산정과 판정은 비공개 엔진에서 처리합니다.",
+    icon: Clock,
+    title: "즉시 결과 확인",
+    body: "행정사 방문 없이 온라인에서 바로 결과를 확인하세요. 24시간 언제든 이용 가능합니다.",
   },
   {
-    icon: ShieldCheck,
-    title: "운영 게이트",
-    body: "tenant, channel, usage, activation gate를 통해 무단 오픈과 과금 누락을 막습니다.",
+    icon: FileCheck,
+    title: "등록기준 전수 점검",
+    body: "자본금, 기술인력, 사무실, 장비 등 모든 등록기준을 AI가 체계적으로 사전검토합니다.",
   },
   {
-    icon: Building2,
-    title: "이식 전제",
-    body: "iframe, embed, 서버-서버 API를 모두 고려한 구조로 타사 이식과 내부 확장을 동시에 염두에 둡니다.",
+    icon: Shield,
+    title: "전문가 검증 체계",
+    body: "AI 분석 결과를 건설업 전문 행정사가 최종 검증하여 실무 정확도를 보장합니다.",
   },
 ];
 
 export function CapabilityStrip() {
   return (
     <section className="capability-strip">
-      {items.map(({ icon: Icon, title, body }) => (
-        <article className="capability-card" key={title}>
-          <Icon size={22} strokeWidth={2.1} />
-          <strong>{title}</strong>
-          <p>{body}</p>
-        </article>
-      ))}
+      <div className="section-header">
+        <p className="eyebrow">핵심 기능</p>
+        <h2>왜 서울건설정보인가요?</h2>
+      </div>
+      <div className="capability-grid">
+        {items.map(({ icon: Icon, title, body }) => (
+          <article className="capability-card" key={title}>
+            <div className="capability-icon">
+              <Icon size={24} strokeWidth={1.8} />
+            </div>
+            <strong>{title}</strong>
+            <p>{body}</p>
+          </article>
+        ))}
+      </div>
     </section>
   );
 }

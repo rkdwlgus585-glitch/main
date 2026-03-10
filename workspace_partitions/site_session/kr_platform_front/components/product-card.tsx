@@ -20,7 +20,7 @@ export function ProductCard({ href, badge, title, description, bullets }: Produc
         ))}
       </ul>
       <Link className="product-link" href={href}>
-        {"\uc2dc\uc2a4\ud15c \uc5f4\uae30"}
+        무료로 시작하기
       </Link>
     </article>
   );

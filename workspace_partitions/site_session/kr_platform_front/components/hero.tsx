@@ -1,38 +1,40 @@
 import Link from "next/link";
-import { platformConfig } from "@/components/platform-config";
 
 export function Hero() {
   return (
     <section className="hero-shell">
       <div className="hero-copy">
-        <p className="eyebrow">AI M&amp;A and Permit Platform</p>
+        <p className="eyebrow">건설업 AI 전문 플랫폼</p>
         <h1>
-          {"\uc591\ub3c4\uac00 \uc0b0\uc815\uacfc \uc778\ud5c8\uac00 \uc0ac\uc804\uac80\ud1a0\ub97c \ud558\ub098\uc758 \ud50c\ub7ab\ud3fc \uc785\uad6c\uc5d0\uc11c \uc5f0\uacb0\ud569\ub2c8\ub2e4"}
+          건설업 면허 양도가격,
+          <br />
+          <span className="hero-accent">AI가 바로 산정합니다</span>
         </h1>
         <p className="hero-body">
-          {`${platformConfig.brandName}\ub294 \uacf5\uac1c \ud50c\ub7ab\ud3fc \uc804\uba74\uc5d0\uc11c \uc0c1\ub2f4 \uc785\uad6c\ub97c \ud1b5\ud569\ud558\uace0, \ube44\uacf5\uac1c \uc5d4\uc9c4\uc5d0\uc11c \uc2e4\uc81c \uacc4\uc0b0\uacfc \ud310\uc815\uc744 \ucc98\ub9ac\ud569\ub2c8\ub2e4. seoulmna.co.kr\uc740 \uc591\ub3c4\uc591\uc218 \ub9e4\ubb3c \uc0ac\uc774\ud2b8 \uc5ed\ud560\uc5d0 \uc9d1\uc911\ud558\uace0, \uacc4\uc0b0\uae30 \uacf5\uac1c \ub178\ucd9c\uc740 seoulmna.kr/_calc/* \uacbd\ub85c\uc5d0\uc11c\ub9cc \uc774\ub8e8\uc5b4\uc9d1\ub2c8\ub2e4.`}
+          건설업 면허 양도가 산정부터 인허가 등록기준 사전검토까지.
+          행정사 방문 없이, 데이터 기반으로 즉시 확인하세요.
         </p>
         <div className="hero-actions">
-          <Link className="primary" href="/yangdo">
-            {"\uc591\ub3c4\uac00 \uc0b0\uc815 \ubc14\ub85c \uc2dc\uc791"}
+          <Link className="cta-primary" href="/yangdo">
+            무료 양도가 산정 시작
           </Link>
-          <Link className="secondary" href="/permit">
-            {"\uc778\ud5c8\uac00 \uc0ac\uc804\uac80\ud1a0 \ubc14\ub85c \uc9c4\uc785"}
+          <Link className="cta-secondary" href="/permit">
+            인허가 사전검토 시작
           </Link>
         </div>
       </div>
-      <div className="hero-panel">
-        <div className="metric-card">
-          <span>{"\ud50c\ub7ab\ud3fc \uc804\uba74"}</span>
-          <strong>seoulmna.kr</strong>
+      <div className="hero-stats">
+        <div className="stat-card">
+          <strong className="stat-number">2,400+</strong>
+          <span className="stat-label">분석 완료 건수</span>
         </div>
-        <div className="metric-card">
-          <span>{"\ub9e4\ubb3c \uc0ac\uc774\ud2b8"}</span>
-          <strong>seoulmna.co.kr</strong>
+        <div className="stat-card">
+          <strong className="stat-number">191개</strong>
+          <span className="stat-label">진단 가능 업종</span>
         </div>
-        <div className="metric-card">
-          <span>{"\ube44\uacf5\uac1c \uacc4\uc0b0 \uc5d4\uc9c4"}</span>
-          <strong>{"\ub0b4\ubd80 \uc804\uc6a9"}</strong>
+        <div className="stat-card">
+          <strong className="stat-number">실시간</strong>
+          <span className="stat-label">공시 데이터 반영</span>
         </div>
       </div>
     </section>
