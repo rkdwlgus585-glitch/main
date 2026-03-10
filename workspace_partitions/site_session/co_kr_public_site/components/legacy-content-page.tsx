@@ -29,8 +29,33 @@ export function LegacyContentPage({
   contentHtml: string;
   contactLabel?: string;
 }) {
+  const pageUrl = breadcrumbs.length > 0 ? breadcrumbs[breadcrumbs.length - 1].href : "/";
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: title,
+    description,
+    url: `${siteConfig.host}${pageUrl}`,
+    ...(publishedAt ? { datePublished: publishedAt } : {}),
+    ...(updatedAt ? { dateModified: updatedAt } : {}),
+    author: {
+      "@type": "Organization",
+      name: siteConfig.companyName,
+      url: siteConfig.host,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: siteConfig.companyName,
+      url: siteConfig.host,
+    },
+  };
+
   return (
     <div className="page-shell page-shell--inner">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
       <Breadcrumbs items={breadcrumbs} />
 
       <section className="legacy-content-hero">
