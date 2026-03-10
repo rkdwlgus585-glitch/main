@@ -6,7 +6,7 @@ import sqlite3
 import threading
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Tuple
 
 from core_engine.api_response import _compact
 from core_engine.tenant_gateway import TenantGateway
@@ -61,7 +61,7 @@ CONFIG = load_config(
 logger = setup_logger(name="yangdo_consult_api")
 
 
-def _cfg_bool(key, default=False):
+def _cfg_bool(key, default=False) -> bool:
     value = str(CONFIG.get(key, default)).strip().lower()
     if value in {"1", "true", "yes", "on", "y"}:
         return True
@@ -70,18 +70,18 @@ def _cfg_bool(key, default=False):
     return bool(default)
 
 
-def _cfg_int(key, default):
+def _cfg_int(key, default) -> int:
     try:
         return int(str(CONFIG.get(key, default)).strip())
     except (ValueError, TypeError):
         return int(default)
 
 
-def _now_iso():
+def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 
-def _parse_confidence_score(raw):
+def _parse_confidence_score(raw) -> float | None:
     src = str(raw or "")
     m = re.search(r"(\d+(?:\.\d+)?)", src.replace(",", ""))
     if not m:
@@ -92,7 +92,7 @@ def _parse_confidence_score(raw):
         return None
 
 
-def _priority_info(payload):
+def _priority_info(payload) -> tuple[str, str]:
     score = 50.0
     text = " ".join(
         [
@@ -125,7 +125,7 @@ def _priority_info(payload):
     return "일반", "일반"
 
 
-def _tokenize_license(raw):
+def _tokenize_license(raw) -> list[str]:
     tokens = []
     src = str(raw or "").replace("<br>", "\n")
     for piece in re.split(r"[\n,/\|·ㆍ\s]+", src):
@@ -204,7 +204,7 @@ def _normalize_business_payload(raw_payload: dict) -> dict:
     return payload
 
 
-def _build_tags(payload):
+def _build_tags(payload) -> list[str]:
     tags = []
     normalized = _normalize_business_payload(payload)
     source = _compact(normalized.get("source"), limit=80)
@@ -232,12 +232,12 @@ def _build_tags(payload):
 
 
 class ConsultStore:
-    def __init__(self, db_path):
+    def __init__(self, db_path) -> None:
         self.db_path = db_path
         os.makedirs(os.path.dirname(self.db_path) or ".", exist_ok=True)
         self._init_db()
 
-    def _init_db(self):
+    def _init_db(self) -> None:
         conn = sqlite3.connect(self.db_path, timeout=30)
         try:
             conn.execute(
@@ -306,7 +306,7 @@ class ConsultStore:
         finally:
             conn.close()
 
-    def insert(self, payload, tags, priority, urgency):
+    def insert(self, payload, tags, priority, urgency) -> int:
         payload = _normalize_business_payload(payload)
         row = {
             "received_at": _now_iso(),
@@ -357,7 +357,7 @@ class ConsultStore:
         finally:
             conn.close()
 
-    def insert_usage(self, payload):
+    def insert_usage(self, payload) -> int:
         payload = _normalize_business_payload(payload)
         row = {
             "received_at": _now_iso(),
@@ -414,7 +414,7 @@ class ConsultStore:
         finally:
             conn.close()
 
-    def update_crm_result(self, request_id, status, lead_id=""):
+    def update_crm_result(self, request_id, status, lead_id="") -> None:
         conn = sqlite3.connect(self.db_path, timeout=30)
         try:
             conn.execute(
@@ -458,7 +458,7 @@ class UsageSheetWriter:
         "requested_at",
     ]
 
-    def __init__(self, enabled=True, json_file="service_account.json", sheet_name="26양도매물", tab_name="양도가계산사용로그"):
+    def __init__(self, enabled=True, json_file="service_account.json", sheet_name="26양도매물", tab_name="양도가계산사용로그") -> None:
         self.enabled = bool(enabled)
         self.json_file = str(json_file or "").strip()
         self.sheet_name = str(sheet_name or "").strip()
@@ -466,7 +466,7 @@ class UsageSheetWriter:
         self._ws = None
         self._lock = threading.Lock()
 
-    def _connect(self):
+    def _connect(self) -> Any:
         if not self.enabled:
             return None
         if gspread is None or ServiceAccountCredentials is None:
@@ -493,7 +493,7 @@ class UsageSheetWriter:
             self._ws = ws
             return self._ws
 
-    def append_usage(self, payload):
+    def append_usage(self, payload) -> dict:
         if not self.enabled:
             return {"ok": False, "reason": "disabled"}
         try:
@@ -539,13 +539,13 @@ class UsageSheetWriter:
 
 
 class CrmBridge:
-    def __init__(self, enabled=True, run_match=False):
+    def __init__(self, enabled=True, run_match=False) -> None:
         self.enabled = bool(enabled)
         self.run_match = bool(run_match)
         self._hub = None
         self._hub_lock = threading.Lock()
 
-    def _connect(self):
+    def _connect(self) -> Any:
         if not self.enabled:
             return None
         with self._hub_lock:
@@ -556,7 +556,7 @@ class CrmBridge:
             self._hub = hub
             return hub
 
-    def submit(self, payload, tags, urgency):
+    def submit(self, payload, tags, urgency) -> dict:
         if not self.enabled:
             return {"status": "disabled", "lead_id": ""}
         normalized = _normalize_business_payload(payload)
@@ -602,20 +602,20 @@ class CrmBridge:
 class YangdoConsultApiHandler(BaseHTTPRequestHandler):
     server_version = "YangdoConsultAPI/1.1"
 
-    def _allow_origin(self):
+    def _allow_origin(self) -> str:
         req_origin = _compact(self.headers.get("Origin"), limit=300)
         return resolve_allow_origin(req_origin, self.server.allowed_origins)
 
-    def _client_ip(self):
+    def _client_ip(self) -> str:
         return safe_client_ip(self, trust_x_forwarded_for=bool(self.server.trust_x_forwarded_for))
 
-    def _tenant_resolution(self):
+    def _tenant_resolution(self) -> Any:
         return self.server.tenant_gateway.resolve(
             host=_compact(self.headers.get("Host"), limit=300),
             origin=_compact(self.headers.get("Origin"), limit=300),
         )
 
-    def _require_feature(self, feature: str):
+    def _require_feature(self, feature: str) -> bool:
         if not bool(self.server.tenant_gateway_enabled):
             return True
         resolution = self._tenant_resolution()
@@ -639,7 +639,7 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
         self._write_json(403, {"ok": False, "error": "tenant_not_allowed"})
         return False
 
-    def _require_auth(self):
+    def _require_auth(self) -> bool:
         token = header_token(self.headers, "x")
         if token and bool(self.server.tenant_gateway_enabled):
             resolution = self._tenant_resolution()
@@ -674,7 +674,7 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
         self._write_json(401, {"ok": False, "error": "unauthorized"})
         return False
 
-    def _allow_request(self):
+    def _allow_request(self) -> bool:
         ok, retry_after = self.server.rate_limiter.allow(self._client_ip())
         if ok:
             return True
@@ -694,7 +694,7 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
         )
         return False
 
-    def _write_json(self, status, data, extra_headers=None):
+    def _write_json(self, status, data, extra_headers=None) -> None:
         body = json.dumps(data, ensure_ascii=False).encode("utf-8")
         allow_origin = self._allow_origin()
         self.send_response(int(status))
@@ -719,7 +719,7 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
             # Client disconnected before reading response.
             pass
 
-    def _read_json(self):
+    def _read_json(self) -> dict:
         content_type = str(self.headers.get("Content-Type", "") or "").lower()
         if content_type and "application/json" not in content_type:
             raise ValueError("content_type_must_be_application_json")
@@ -731,12 +731,12 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
         raw = self.rfile.read(length)
         return json.loads(raw.decode("utf-8"))
 
-    def do_OPTIONS(self):
+    def do_OPTIONS(self) -> None:
         if not self._allow_request():
             return
         self._write_json(200, {"ok": True})
 
-    def do_GET(self):
+    def do_GET(self) -> None:
         path = self.path.split("?", 1)[0].rstrip("/")
         if not self._allow_request():
             return
@@ -754,7 +754,7 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
             return
         self._write_json(404, {"ok": False, "error": "not_found"})
 
-    def _handle_consult(self, payload):
+    def _handle_consult(self, payload) -> None:
         payload = _normalize_business_payload(payload)
         name = _compact(payload.get("customer_name"), limit=80)
         phone = _compact(payload.get("customer_phone"), limit=40)
@@ -807,7 +807,7 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
             }
         )
 
-    def _handle_usage(self, payload):
+    def _handle_usage(self, payload) -> None:
         payload = _normalize_business_payload(payload)
         try:
             usage_id = self.server.store.insert_usage(payload)
@@ -837,7 +837,7 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
             }
         )
 
-    def do_POST(self):
+    def do_POST(self) -> None:
         path = self.path.rstrip("/")
         if path not in {"/consult", "/usage"}:
             self._write_json(404, {"ok": False, "error": "not_found"})
@@ -881,7 +881,7 @@ class YangdoConsultApiServer(ThreadingHTTPServer):
         security_log_file,
         tenant_gateway_enabled,
         tenant_gateway,
-    ):
+    ) -> None:
         super().__init__(addr, handler_cls)
         self.store = store
         self.crm_bridge = crm_bridge
@@ -896,11 +896,11 @@ class YangdoConsultApiServer(ThreadingHTTPServer):
         self.tenant_gateway = tenant_gateway if isinstance(tenant_gateway, TenantGateway) else TenantGateway([], strict=False, default_tenant_id="")
 
 
-def _parse_origins(raw):
+def _parse_origins(raw) -> list[str]:
     return sorted(parse_origin_allowlist(str(raw or "")))
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description="서울건설정보 양도가 계산기 상담/사용 로그 API 서버")
     parser.add_argument("--host", default=str(CONFIG.get("YANGDO_CONSULT_API_HOST", "0.0.0.0")).strip())
     parser.add_argument("--port", type=int, default=_cfg_int("YANGDO_CONSULT_API_PORT", 8788))
