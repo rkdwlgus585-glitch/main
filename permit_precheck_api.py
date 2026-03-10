@@ -334,7 +334,7 @@ def _project_precheck_result(server, resolution, result: Dict[str, Any]) -> Dict
 
 
 class PermitUsageStore:
-    def __init__(self, db_path: str = "", thresholds_path: str = ""):
+    def __init__(self, db_path: str = "", thresholds_path: str = "") -> None:
         self.db_path = str(db_path or "").strip()
         self.thresholds_path = str(thresholds_path or "").strip()
         self._thresholds = self._load_thresholds()
@@ -760,7 +760,7 @@ class PermitUsageStore:
 
 
 class PermitPrecheckEngine:
-    def __init__(self, catalog_path: str | None = None, rules_path: str | None = None):
+    def __init__(self, catalog_path: str | None = None, rules_path: str | None = None) -> None:
         self.catalog_path = str(catalog_path or DEFAULT_CATALOG_PATH)
         self.rules_path = str(rules_path or DEFAULT_RULES_PATH)
         self.catalog: Dict[str, Any] = {}
@@ -909,7 +909,7 @@ class PermitApiServer(ThreadingHTTPServer):
         usage_store,
         channel_router,
         channel_router_strict,
-    ):
+    ) -> None:
         super().__init__(addr, handler_cls)
         self.engine = engine
         self.allowed_origins = set(allowed_origins or set())
@@ -936,13 +936,13 @@ class Handler(BaseHTTPRequestHandler):
     def _client_ip(self) -> str:
         return safe_client_ip(self, trust_x_forwarded_for=bool(self.server.trust_x_forwarded_for))
 
-    def _tenant_resolution(self):
+    def _tenant_resolution(self) -> Any:
         return self.server.tenant_gateway.resolve(
             host=_compact(self.headers.get("Host")),
             origin=_compact(self.headers.get("Origin")),
         )
 
-    def _channel_resolution(self):
+    def _channel_resolution(self) -> Any:
         cached = getattr(self, "_cached_channel_resolution", None)
         if cached is not None:
             return cached
@@ -1210,12 +1210,12 @@ class Handler(BaseHTTPRequestHandler):
         payload = json.loads(raw.decode("utf-8") or "{}")
         return payload if isinstance(payload, dict) else {}
 
-    def do_OPTIONS(self):  # noqa: N802
+    def do_OPTIONS(self) -> None:  # noqa: N802
         if not self._allow_request():
             return
         self._write_json(200, {"ok": True})
 
-    def do_GET(self):  # noqa: N802
+    def do_GET(self) -> None:  # noqa: N802
         if not self._allow_request():
             return
         if not self._require_channel_ready():
@@ -1233,7 +1233,7 @@ class Handler(BaseHTTPRequestHandler):
             return
         self._write_json(404, {"ok": False, "error": "not_found"})
 
-    def do_POST(self):  # noqa: N802
+    def do_POST(self) -> None:  # noqa: N802
         path = self.path.split("?", 1)[0]
         if not self._allow_request():
             return
