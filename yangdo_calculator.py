@@ -20,7 +20,10 @@ def _sanitize_endpoint(url):
     # Protocol whitelist — only http(s) and relative paths allowed
     if ":" in lowered.split("/")[0] and not (lowered.startswith("https:") or lowered.startswith("http:")):
         return ""
+    # Block loopback, link-local, and unspecified addresses (SSRF defense)
     if "localhost" in lowered or "127.0.0.1" in lowered or "::1" in lowered:
+        return ""
+    if "0.0.0.0" in lowered or "169.254." in lowered:
         return ""
     return src
 def listing_detail_url(site_url, seoul_no=0, now_uid=""):

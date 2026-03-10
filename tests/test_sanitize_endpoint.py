@@ -65,6 +65,16 @@ class SanitizeEndpointWhitelistTest(unittest.TestCase):
     def test_ipv6_loopback_blocked(self):
         self.assertEqual(_sanitize_endpoint("http://[::1]:8080"), "")
 
+    # ── Blocked: link-local / unspecified addresses (SSRF) ──────────
+    def test_link_local_169_254_blocked(self):
+        self.assertEqual(_sanitize_endpoint("http://169.254.169.254/metadata"), "")
+
+    def test_link_local_with_path_blocked(self):
+        self.assertEqual(_sanitize_endpoint("http://169.254.1.1/admin"), "")
+
+    def test_unspecified_0000_blocked(self):
+        self.assertEqual(_sanitize_endpoint("http://0.0.0.0:8080"), "")
+
     # ── Edge cases ───────────────────────────────────────────────────
     def test_empty_string_returns_empty(self):
         self.assertEqual(_sanitize_endpoint(""), "")
