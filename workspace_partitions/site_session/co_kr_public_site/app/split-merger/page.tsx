@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
+import { AiToolBridge } from "@/components/ai-tool-bridge";
+import { LegacyPageDirectory } from "@/components/legacy-page-directory";
 import { ServiceDetailPage } from "@/components/service-detail-page";
+import { getLegacyPagesByGroup } from "@/lib/legacy-content";
 import { buildPageMetadata } from "@/lib/page-metadata";
 
 export const metadata: Metadata = buildPageMetadata(
@@ -9,6 +12,8 @@ export const metadata: Metadata = buildPageMetadata(
 );
 
 export default function SplitMergerPage() {
+  const importedPages = getLegacyPagesByGroup("split-merger");
+
   return (
     <ServiceDetailPage
       eyebrow="Split & Merger"
@@ -45,6 +50,18 @@ export default function SplitMergerPage() {
         { title: "양도양수와 섞어 설명하면 오해가 생깁니다", body: "거래 목적이 다르기 때문에 퍼블릭 사이트에서도 분리된 메뉴와 문구가 필요합니다." },
         { title: "세무와 등기 타이밍이 중요합니다", body: "실행 순서가 어긋나면 뒤에서 복구 비용이 커질 수 있으므로 초기에 일정 설계가 필요합니다." },
       ]}
+      afterContent={(
+        <>
+          <LegacyPageDirectory
+            title="이관된 분할합병 세부 안내"
+            description="원본 사이트의 분할합병 안내 페이지를 그대로 연결했습니다."
+            pages={importedPages}
+          />
+          <div className="page-shell page-shell--inner" style={{ paddingTop: 0 }}>
+            <AiToolBridge variant="yangdo" />
+          </div>
+        </>
+      )}
     />
   );
 }

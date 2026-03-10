@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
+import { AiToolBridge } from "@/components/ai-tool-bridge";
+import { LegacyPageDirectory } from "@/components/legacy-page-directory";
 import { ServiceDetailPage } from "@/components/service-detail-page";
+import { getLegacyPagesByGroup } from "@/lib/legacy-content";
 import { buildPageMetadata } from "@/lib/page-metadata";
 
 export const metadata: Metadata = buildPageMetadata(
@@ -9,6 +12,8 @@ export const metadata: Metadata = buildPageMetadata(
 );
 
 export default function CorporatePage() {
+  const importedPages = getLegacyPagesByGroup("corporate");
+
   return (
     <ServiceDetailPage
       eyebrow="Corporate Setup"
@@ -45,6 +50,18 @@ export default function CorporatePage() {
         { title: "설립과 등록을 따로 보면 일정이 길어집니다", body: "설립 완료 후 등록 준비를 시작하면 사무실, 인력, 자본금 계획이 다시 흔들릴 수 있습니다." },
         { title: "양도양수가 더 맞는 경우도 있습니다", body: "신규 진입이라고 해서 항상 설립이 정답은 아니므로, 시간과 조건을 비교한 뒤 방향을 잡는 것이 좋습니다." },
       ]}
+      afterContent={(
+        <>
+          <LegacyPageDirectory
+            title="이관된 법인설립 세부 안내"
+            description="원본 사이트의 법인설립 세부 콘텐츠를 그대로 연결했습니다."
+            pages={importedPages}
+          />
+          <div className="page-shell page-shell--inner" style={{ paddingTop: 0 }}>
+            <AiToolBridge variant="full" />
+          </div>
+        </>
+      )}
     />
   );
 }

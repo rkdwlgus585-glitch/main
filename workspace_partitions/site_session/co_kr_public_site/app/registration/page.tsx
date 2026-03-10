@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { AiToolBridge } from "@/components/ai-tool-bridge";
+import { LegacyPageDirectory } from "@/components/legacy-page-directory";
 import { ServiceDetailPage } from "@/components/service-detail-page";
+import { getLegacyPagesByGroup } from "@/lib/legacy-content";
 import { buildPageMetadata } from "@/lib/page-metadata";
 
 export const metadata: Metadata = buildPageMetadata(
@@ -10,8 +12,9 @@ export const metadata: Metadata = buildPageMetadata(
 );
 
 export default function RegistrationPage() {
+  const importedPages = getLegacyPagesByGroup("registration");
+
   return (
-    <>
     <ServiceDetailPage
       eyebrow="Registration"
       title="건설업등록"
@@ -47,10 +50,18 @@ export default function RegistrationPage() {
         { title: "추가 등록은 기존 상태가 더 중요합니다", body: "이미 있는 법인의 재무, 실적, 인력 상태가 신규 등록보다 더 큰 변수로 작동할 수 있습니다." },
         { title: "서류 명칭보다 연결 관계가 중요합니다", body: "등기, 재무, 인력 자료가 각각 따로 있어도 상호 일치하지 않으면 보완 시간이 길어집니다." },
       ]}
+      afterContent={(
+        <>
+          <LegacyPageDirectory
+            title="이관된 건설업등록 세부 안내"
+            description="원본 사이트에서 사용하던 등록 기준, 실무 설명 페이지를 그대로 연결했습니다."
+            pages={importedPages}
+          />
+          <div className="page-shell page-shell--inner" style={{ paddingTop: 0 }}>
+            <AiToolBridge variant="permit" />
+          </div>
+        </>
+      )}
     />
-    <div className="page-shell page-shell--inner" style={{ paddingTop: 0 }}>
-      <AiToolBridge variant="permit" />
-    </div>
-    </>
   );
 }

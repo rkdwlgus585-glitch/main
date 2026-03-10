@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
+import { AiToolBridge } from "@/components/ai-tool-bridge";
+import { LegacyPageDirectory } from "@/components/legacy-page-directory";
 import { ServiceDetailPage } from "@/components/service-detail-page";
+import { getLegacyPagesByGroup } from "@/lib/legacy-content";
 import { buildPageMetadata } from "@/lib/page-metadata";
 
 export const metadata: Metadata = buildPageMetadata(
@@ -9,6 +12,8 @@ export const metadata: Metadata = buildPageMetadata(
 );
 
 export default function PracticePage() {
+  const importedPages = getLegacyPagesByGroup("practice");
+
   return (
     <ServiceDetailPage
       eyebrow="Field Practice"
@@ -45,6 +50,18 @@ export default function PracticePage() {
         { title: "실무 브리프는 자주 갱신되어야 합니다", body: "제도나 운영 기준이 바뀌는 항목은 공지와 함께 주기적으로 검토하지 않으면 오히려 혼선을 줍니다." },
         { title: "콘텐츠와 상담은 분리할 수 없습니다", body: "브리프를 충분히 읽어도 개별 상황은 다르므로, 페이지 끝에는 항상 상담 연결이 있어야 합니다." },
       ]}
+      afterContent={(
+        <>
+          <LegacyPageDirectory
+            title="이관된 건설실무 세부 안내"
+            description="건설실무와 정부정책자금 관련 원본 콘텐츠를 모두 연결했습니다."
+            pages={importedPages}
+          />
+          <div className="page-shell page-shell--inner" style={{ paddingTop: 0 }}>
+            <AiToolBridge variant="full" />
+          </div>
+        </>
+      )}
     />
   );
 }

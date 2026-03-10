@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ContactLink } from "@/components/contact-link";
@@ -41,6 +42,7 @@ export function ServiceDetailPage({
   checklistGroups,
   notesTitle,
   notes,
+  afterContent,
 }: {
   eyebrow: string;
   title: string;
@@ -58,6 +60,7 @@ export function ServiceDetailPage({
   checklistGroups: ChecklistGroup[];
   notesTitle: string;
   notes: NoteCard[];
+  afterContent?: ReactNode;
 }) {
   return (
     <div className="page-shell page-shell--inner">
@@ -176,6 +179,8 @@ export function ServiceDetailPage({
           ))}
         </div>
       </section>
+
+      {afterContent}
     </div>
   );
 }

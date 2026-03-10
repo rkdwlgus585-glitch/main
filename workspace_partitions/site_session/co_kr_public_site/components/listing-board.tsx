@@ -2,42 +2,68 @@
 
 import Link from "next/link";
 import { useDeferredValue, useEffect, useId, useMemo, useState } from "react";
-import { getAllListings } from "@/lib/listings";
+import type { LegacyListingSummary } from "@/lib/legacy-types";
 
-const sectors = ["전체", "건축", "토목", "실내건축", "전기", "조경", "기계설비"] as const;
-const regions = ["전체", "수도권", "충청", "영남", "호남"] as const;
-const statusToneMap = {
-  가능: "available",
-  검토중: "review",
-  협의중: "pending",
-} as const;
-const listingItems = getAllListings();
+const DEFAULT_PAGE_SIZE = 30;
 
-function getValidSector(value: string | null) {
-  return sectors.find((item) => item === value) ?? "전체";
+function getStatusTone(status: string) {
+  if (status === "가능" || status === "추천") {
+    return "available";
+  }
+
+  if (status === "완료") {
+    return "complete";
+  }
+
+  return "review";
 }
 
-function getValidRegion(value: string | null) {
-  return regions.find((item) => item === value) ?? "전체";
+function getValidOption(value: string | null, options: string[]) {
+  return options.find((item) => item === value) ?? "전체";
+}
+
+function getValidPage(value: string | number | null | undefined) {
+  const numeric = Number(value);
+
+  return Number.isFinite(numeric) && numeric > 0 ? Math.floor(numeric) : 1;
+}
+
+function buildPagination(currentPage: number, totalPages: number) {
+  const start = Math.max(1, currentPage - 2);
+  const end = Math.min(totalPages, start + 4);
+  const adjustedStart = Math.max(1, end - 4);
+
+  return Array.from({ length: end - adjustedStart + 1 }, (_, index) => adjustedStart + index);
 }
 
 export function ListingBoard({
-  compact = false,
+  listings,
   syncWithUrl = false,
   initialFilters,
 }: {
-  compact?: boolean;
+  listings: LegacyListingSummary[];
   syncWithUrl?: boolean;
   initialFilters?: {
     sector?: string;
     region?: string;
     q?: string;
+    page?: string;
   };
 }) {
   const searchId = useId();
-  const [sector, setSector] = useState<(typeof sectors)[number]>(() => getValidSector(initialFilters?.sector ?? null));
-  const [region, setRegion] = useState<(typeof regions)[number]>(() => getValidRegion(initialFilters?.region ?? null));
+  const sectorOptions = useMemo(
+    () => ["전체", ...Array.from(new Set(listings.flatMap((item) => item.sectors).filter(Boolean))).sort((a, b) => a.localeCompare(b, "ko-KR"))],
+    [listings],
+  );
+  const regionOptions = useMemo(
+    () => ["전체", ...Array.from(new Set(listings.map((item) => item.region).filter(Boolean))).sort((a, b) => a.localeCompare(b, "ko-KR"))],
+    [listings],
+  );
+
+  const [sector, setSector] = useState(() => getValidOption(initialFilters?.sector ?? null, sectorOptions));
+  const [region, setRegion] = useState(() => getValidOption(initialFilters?.region ?? null, regionOptions));
   const [searchTerm, setSearchTerm] = useState(() => initialFilters?.q ?? "");
+  const [page, setPage] = useState(() => getValidPage(initialFilters?.page));
   const deferredSearchTerm = useDeferredValue(searchTerm.trim().toLowerCase());
   const isFiltering = searchTerm.trim().toLowerCase() !== deferredSearchTerm;
 
@@ -48,14 +74,61 @@ export function ListingBoard({
 
     const handlePopState = () => {
       const params = new URLSearchParams(window.location.search);
-      setSector(getValidSector(params.get("sector")));
-      setRegion(getValidRegion(params.get("region")));
+      setSector(getValidOption(params.get("sector"), sectorOptions));
+      setRegion(getValidOption(params.get("region"), regionOptions));
       setSearchTerm(params.get("q") ?? "");
+      setPage(getValidPage(params.get("page")));
     };
 
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
-  }, [syncWithUrl]);
+  }, [regionOptions, sectorOptions, syncWithUrl]);
+
+  const filtered = useMemo(() => {
+    return listings.filter((item) => {
+      const sectorMatch = sector === "전체" || item.sectors.includes(sector) || item.sectorLabel === sector;
+      const regionMatch = region === "전체" || item.region === region;
+      const searchMatch =
+        deferredSearchTerm.length === 0 ||
+        [
+          item.id,
+          item.title,
+          item.headline,
+          item.note,
+          item.sectorLabel,
+          item.region,
+          item.price,
+        ]
+          .join(" ")
+          .toLowerCase()
+          .includes(deferredSearchTerm);
+
+      return sectorMatch && regionMatch && searchMatch;
+    });
+  }, [deferredSearchTerm, listings, region, sector]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / DEFAULT_PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const visibleItems = useMemo(() => {
+    const start = (currentPage - 1) * DEFAULT_PAGE_SIZE;
+
+    return filtered.slice(start, start + DEFAULT_PAGE_SIZE);
+  }, [currentPage, filtered]);
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+      return;
+    }
+
+    if (page < 1) {
+      setPage(1);
+    }
+  }, [page, totalPages]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [region, sector, deferredSearchTerm]);
 
   useEffect(() => {
     if (!syncWithUrl) {
@@ -82,6 +155,12 @@ export function ListingBoard({
       params.set("q", searchTerm.trim());
     }
 
+    if (currentPage <= 1) {
+      params.delete("page");
+    } else {
+      params.set("page", String(currentPage));
+    }
+
     const nextQuery = params.toString();
     const nextUrl = nextQuery ? `${window.location.pathname}?${nextQuery}` : window.location.pathname;
     const currentUrl = `${window.location.pathname}${window.location.search}`;
@@ -91,23 +170,9 @@ export function ListingBoard({
     }
 
     window.history.replaceState(window.history.state, "", nextUrl);
-  }, [region, searchTerm, sector, syncWithUrl]);
+  }, [currentPage, region, searchTerm, sector, syncWithUrl]);
 
-  const filtered = useMemo(() => {
-    return listingItems.filter((item) => {
-      const sectorMatch = sector === "전체" || item.sector === sector;
-      const regionMatch = region === "전체" || item.region === region;
-      const searchMatch =
-        deferredSearchTerm.length === 0 ||
-        [item.id, item.title, item.headline, item.memo]
-          .join(" ")
-          .toLowerCase()
-          .includes(deferredSearchTerm);
-      return sectorMatch && regionMatch && searchMatch;
-    });
-  }, [deferredSearchTerm, region, sector]);
-
-  const visibleItems = compact ? filtered.slice(0, 4) : filtered;
+  const pagination = buildPagination(currentPage, totalPages);
 
   return (
     <section className="listing-board">
@@ -134,7 +199,7 @@ export function ListingBoard({
           <div className="listing-filter-group">
             <p>업종</p>
             <div className="chip-wrap">
-              {sectors.map((item) => (
+              {sectorOptions.map((item) => (
                 <button
                   key={item}
                   type="button"
@@ -151,7 +216,7 @@ export function ListingBoard({
           <div className="listing-filter-group">
             <p>지역</p>
             <div className="chip-wrap">
-              {regions.map((item) => (
+              {regionOptions.map((item) => (
                 <button
                   key={item}
                   type="button"
@@ -167,7 +232,7 @@ export function ListingBoard({
 
           <div className="listing-summary-box">
             <strong>{filtered.length}건 확인 가능</strong>
-            <span>메인 검증용 샘플 데이터입니다. 실제 운영 시 CMS나 DB로 대체하면 됩니다.</span>
+            <span>원본 운영 사이트에서 이관한 실제 매물 데이터 기준입니다.</span>
           </div>
         </aside>
 
@@ -195,39 +260,39 @@ export function ListingBoard({
                       <strong>{item.id}</strong>
                     </Link>
                     <small>
-                      {item.region} · {item.headline}
+                      {item.region || "지역 협의"} · {item.headline || item.note || item.sectorLabel}
                     </small>
                   </div>
                   <div className="listing-cell">
                     <span className="listing-cell-label">상태</span>
-                    <span className={`status-badge status-badge--${statusToneMap[item.status]}`}>{item.status}</span>
+                    <span className={`status-badge status-badge--${getStatusTone(item.status)}`}>{item.status || "검토중"}</span>
                   </div>
                   <div className="listing-cell">
                     <span className="listing-cell-label">업종</span>
-                    <span>{item.sector}</span>
+                    <span>{item.sectorLabel}</span>
                   </div>
                   <div className="listing-cell">
                     <span className="listing-cell-label">면허년도</span>
-                    <span>{item.licenseYear}</span>
+                    <span>{item.licenseYears.join(" / ") || item.companyYear || "-"}</span>
                   </div>
                   <div className="listing-cell">
                     <span className="listing-cell-label">시공 / 실적</span>
-                    <strong>{item.capacity}</strong>
-                    <small>{item.performance}</small>
+                    <strong>{item.capacityLabel || "-"}</strong>
+                    <small>{item.performance3Year || item.performance5Year || "-"}</small>
                   </div>
                   <div className="listing-cell">
                     <span className="listing-cell-label">메모</span>
-                    <span>{item.memo}</span>
+                    <span>{item.note || item.companyType || "-"}</span>
                   </div>
                   <div className="listing-cell listing-cell--price">
                     <span className="listing-cell-label">양도가</span>
-                    <span className="price-cell">{item.price}</span>
+                    <span className="price-cell">{item.price || "협의"}</span>
                   </div>
                 </article>
               ))
             ) : (
               <div className="listing-empty-state">
-                <strong>현재 조건에 맞는 샘플 매물이 없습니다.</strong>
+                <strong>현재 조건에 맞는 매물이 없습니다.</strong>
                 <p>필터를 다시 선택하거나 고객센터에서 직접 상담을 요청해 주세요.</p>
                 <Link href="/support" className="cta-primary listing-empty-action">
                   고객센터 이동
@@ -235,6 +300,34 @@ export function ListingBoard({
               </div>
             )}
           </div>
+
+          {totalPages > 1 ? (
+            <nav className="listing-pagination" aria-label="매물 페이지 이동">
+              {currentPage > 1 ? (
+                <button type="button" className="listing-pagination-link" onClick={() => setPage(currentPage - 1)}>
+                  이전
+                </button>
+              ) : null}
+
+              {pagination.map((pageNumber) => (
+                <button
+                  key={pageNumber}
+                  type="button"
+                  className={`listing-pagination-link${pageNumber === currentPage ? " listing-pagination-link--active" : ""}`}
+                  onClick={() => setPage(pageNumber)}
+                  aria-current={pageNumber === currentPage ? "page" : undefined}
+                >
+                  {pageNumber}
+                </button>
+              ))}
+
+              {currentPage < totalPages ? (
+                <button type="button" className="listing-pagination-link" onClick={() => setPage(currentPage + 1)}>
+                  다음
+                </button>
+              ) : null}
+            </nav>
+          ) : null}
         </div>
       </div>
     </section>

@@ -84,7 +84,7 @@
 | 영업 범위 | 완성도 | 핵심 병목 |
 |-----------|--------|----------|
 | ① seoulmna.kr 완벽 배포 | 97% | 서버 live 반영 미실행 (코드 100%, nginx+systemd+Docker+smoke test+deploy runbook 완성, 인프라 실행만 잔여) |
-| ② seoulmna.co.kr 이식 (CTA 브리지) | 88% | .kr live 선행 필요 + 브리지 JS 실 삽입 미완 |
+| ② seoulmna.co.kr 이식 (CTA 브리지) | 95% | AiToolBridge 컴포넌트 7개 페이지 배치 완료, platformHost env var 분리, twitter-image 추가. .kr live 선행 후 URL 확정만 잔여 |
 | ③ 타사 임대 (위젯/API) | 85% | 파트너 입력값 0건 (sandbox mode 완성, OpenAPI 3.0 완성, smoke test 완성) |
 
 ### 최적 배포 형태
