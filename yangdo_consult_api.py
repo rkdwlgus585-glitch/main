@@ -485,7 +485,7 @@ class UsageSheetWriter:
             book = gc.open(self.sheet_name)
             try:
                 ws = book.worksheet(self.tab_name)
-            except Exception:
+            except gspread.exceptions.WorksheetNotFound:
                 ws = book.add_worksheet(title=self.tab_name, rows=2000, cols=max(30, len(self.HEADERS) + 4))
             first = ws.row_values(1)
             if not first:

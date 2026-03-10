@@ -1321,7 +1321,7 @@ class Handler(BaseHTTPRequestHandler):
                     result=result,
                     response_tier=response_tier,
                 )
-            except Exception:
+            except (sqlite3.Error, OSError, TypeError, KeyError, ValueError):
                 logger.exception("permit usage logging failed")
                 usage_after = usage_before
             self._write_json(

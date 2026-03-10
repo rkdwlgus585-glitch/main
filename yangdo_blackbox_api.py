@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.machinery
 import importlib.util
 import json
+import sqlite3
 import statistics
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -106,17 +107,17 @@ def _write_partner_health_json(handler: Any, status: int = 200) -> None:
     request_id = ""
     try:
         request_id = str(handler._request_id() or "")
-    except Exception:
+    except (AttributeError, TypeError, ValueError):
         request_id = ""
     if not request_id:
         request_id = "health"
     try:
         channel_id = _compact(_channel_id_value(handler._channel_resolution()), 80)
-    except Exception:
+    except (AttributeError, TypeError, ValueError, KeyError):
         channel_id = ""
     try:
         tenant_plan = _compact(_tenant_plan_key(handler._tenant_resolution()), 60)
-    except Exception:
+    except (AttributeError, TypeError, ValueError, KeyError):
         tenant_plan = ""
     response_payload = build_response_envelope(
         _partner_health_payload(),
@@ -131,7 +132,7 @@ def _write_partner_health_json(handler: Any, status: int = 200) -> None:
     allow_origin = ""
     try:
         allow_origin = str(handler._allow_origin() or "")
-    except Exception:
+    except (AttributeError, TypeError, ValueError):
         allow_origin = ""
     handler.send_response(int(status))
     handler.send_header("Content-Type", "application/json; charset=utf-8")
@@ -144,7 +145,7 @@ def _write_partner_health_json(handler: Any, status: int = 200) -> None:
     try:
         for hk, hv in handler._channel_headers().items():
             handler.send_header(str(hk), str(hv))
-    except Exception:
+    except (AttributeError, TypeError, ValueError, KeyError):
         pass
     for hk, hv in DEFAULT_SECURITY_HEADERS:
         handler.send_header(hk, hv)
@@ -1069,7 +1070,7 @@ class YangdoUsageStore(_BaseYangdoUsageStore):
     def usage_snapshot(self, *args, **kwargs):
         try:
             return super().usage_snapshot(*args, **kwargs)
-        except Exception:
+        except (sqlite3.Error, OSError, TypeError, KeyError, ValueError):
             tenant_id = _compact(kwargs.get("tenant_id") if kwargs else "")
             plan = _compact(kwargs.get("plan") if kwargs else "").lower()
             year_month = _compact(kwargs.get("year_month") if kwargs else "")
@@ -1088,7 +1089,7 @@ class YangdoUsageStore(_BaseYangdoUsageStore):
     def insert_estimate_usage(self, *args, **kwargs):
         try:
             return super().insert_estimate_usage(*args, **kwargs)
-        except Exception:
+        except (sqlite3.Error, OSError, TypeError, KeyError, ValueError):
             return None
 
 

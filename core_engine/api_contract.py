@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, Mapping
 
-from core_engine.api_response import _compact  # noqa: F401 — canonical location
+from core_engine.api_response import _compact
 
 
 RESERVED_WRAPPER_KEYS = {"request", "inputs", "input", "selector", "target", "meta", "context"}

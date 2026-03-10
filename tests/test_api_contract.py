@@ -1,15 +1,15 @@
 """Unit tests for core_engine.api_contract.
 
-Covers _compact, _dict, and normalize_v1_request.
+Covers _compact (canonical in api_response), _dict, and normalize_v1_request.
 """
 import unittest
 
 from core_engine.api_contract import (
     RESERVED_WRAPPER_KEYS,
-    _compact,
     _dict,
     normalize_v1_request,
 )
+from core_engine.api_response import _compact
 
 
 # ── _compact ─────────────────────────────────────────────────────────
