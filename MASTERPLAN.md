@@ -379,6 +379,16 @@
 - **_repair 완전 제거 (8→0 패치)**: renderProofClaim/renderResult 동기화 후 제거(−120줄), typography 3+fallback 1 dead code 제거(−335줄), 마지막 2패치(checkbox-meta-box+tip-text) template 직접 반영 후 `_repair_generated_permit_html`+`_replace_first_block`+`_repair_log` 완전 삭제(−50줄). 총 −505줄. Template이 유일 source of truth.
 - **Quality**: 2025 tests + 94 subtests PASS. (dead code 테스트 21개+3 subtests 정리, 실질 커버리지 유지)
 
+### [2026-03-10] Session 35 — .co.kr CTA 브리지 완성 + 코드베이스 Git 추적
+- **.co.kr CTA 브리지 구현**: `AiToolBridge` 컴포넌트 신규 생성. 홈·양도양수·건설업등록·고객센터 4개 페이지에 AI 양도가 산정/인허가 사전검토 → seoulmna.kr 유도 CTA 배치
+- **`platformHost` env var**: `NEXT_PUBLIC_PLATFORM_HOST` 환경변수로 .kr 호스트 분리. staging/production 독립 배포 지원
+- **푸터 AI 도구 링크**: 3-column→4-column grid, AI 양도가 산정/AI 인허가 사전검토/서울건설정보 외부 링크 추가
+- **twitter-image.tsx 신규**: `.co.kr` Twitter card 이미지 자동 생성, OG alt 텍스트 추가
+- **접근성 보완 (5곳)**: sticky-contact-bar Phone+MessageCircleMore, public-home ArrowRight+service-icon+CircleHelp에 `aria-hidden="true"` 추가
+- **bridge CSS**: gradient card, hover transition (border-color+box-shadow), 3-breakpoint 반응형 (1080/640px)
+- **.co.kr 코드베이스 Git 추적**: 전체 46파일+11파일 = 57파일 Git에 최초 커밋
+- **Quality**: .co.kr 24/24 pages 빌드 검증, .kr 19/19 pages 빌드 검증, Python 2672+94 PASS
+
 ### [2026-03-10] Session 34 — OG 이미지 생성 + 접근성 전면 완성 + 푸터 SPA 전환
 - **OG 이미지 자동 생성**: `opengraph-image.tsx`+`twitter-image.tsx` 추가. Noto Sans KR Bold 폰트 로드, 브랜드 gradient 배경, 1200x630 PNG 정적 생성. Twitter card `summary`→`summary_large_image` 승격
 - **장식 아이콘 aria-hidden 전면 완성 (16곳)**: home-shortcuts 5 + home-operations 4 + home-market-preview 4+ArrowRight + home-hero ArrowRight+Phone + consult 📞 line 172. Lucide-react SVG 컨테이너와 인라인 emoji 모두 스크린리더 제외
