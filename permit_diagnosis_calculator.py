@@ -3937,7 +3937,7 @@ def build_html(
         <div id="reviewPresetBox" class="law-box" style="display:none"></div>
         <div id="caseStoryBox" class="law-box" style="display:none"></div>
         <div id="operatorDemoBox" class="law-box" style="display:none"></div>
-        <div id="runtimeReasoningCardBox" class="law-box" style="display:none"></div>
+        <div id="runtimeReasoningCardBox" class="law-box" aria-live="polite" style="display:none"></div>
         <p id="coverageGuide" class="meta-box" aria-live="polite" style="display:none"></p>
         <div id="typedCriteriaBox" class="law-box" aria-live="polite" style="display:none"></div>
         <div id="evidenceChecklistBox" class="law-box" aria-live="polite" style="display:none"></div>
@@ -8035,10 +8035,15 @@ def _repair_generated_permit_html(html: str) -> str:
           lines.push(`- sample: ${checksumSamples.map((item) => esc(item)).join(", ")}`);
         }
       }
-      if (proof && proof.official_snapshot_note) {
-        lines.push(`- snapshot: ${esc(proof.official_snapshot_note)}`);
+      const snapshotNote = (proof && proof.official_snapshot_note)
+        || (claim && claim.official_snapshot_note)
+        || "";
+      if (snapshotNote) {
+        lines.push(`- snapshot: ${esc(snapshotNote)}`);
       }
-      const proofUrls = proof && Array.isArray(proof.source_urls) ? proof.source_urls.slice(0, 1) : [];
+      const proofUrls = proof && Array.isArray(proof.source_urls) && proof.source_urls.length
+        ? proof.source_urls.slice(0, 1)
+        : (claim && Array.isArray(claim.source_url_samples) ? claim.source_url_samples.slice(0, 1) : []);
       if (proofUrls.length) {
         const url = esc(proofUrls[0]);
         lines.push(`- source: <a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
@@ -8071,6 +8076,8 @@ def _repair_generated_permit_html(html: str) -> str:
       renderReviewCasePresets(selected);
       renderCaseStorySurface(selected);
       renderOperatorDemoSurface(selected);
+      ui.runtimeReasoningCardBox.style.display = "none";
+      ui.runtimeReasoningCardBox.innerHTML = "";
 
       const rawCapitalInput = String(ui.capitalInput.value || "").trim();
       const currentCapital = Core.toNum(rawCapitalInput);
@@ -8161,6 +8168,7 @@ def _repair_generated_permit_html(html: str) -> str:
         ui.fallbackGuide.textContent = `${industryName}: 자동 구조화가 덜 된 항목이 있어 법령 원문을 함께 확인해 주세요.`;
       }
       renderRuleBasis(rule);
+      renderRuntimeReasoningCard(selected, typedEval, { capitalGap, technicianGap });
       renderStructuredReview(typedEval);
     };
 ''',

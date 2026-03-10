@@ -316,6 +316,7 @@ class PermitAccessibilityTest(unittest.TestCase):
         "equipmentGapStatus",
         "diagnosisDate",
         "requirementsMeta",
+        "runtimeReasoningCardBox",
         "coverageGuide",
         "typedCriteriaBox",
         "evidenceChecklistBox",

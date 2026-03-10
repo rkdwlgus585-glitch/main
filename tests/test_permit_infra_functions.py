@@ -870,5 +870,55 @@ class RepairIntegrationTest(unittest.TestCase):
         self.assertIn("container", self._html)
 
 
+class PatchDivergenceDetectionTest(unittest.TestCase):
+    """Verify _repair patches stay in sync with original template functions.
+
+    If the original template is updated but the patch is not, these tests
+    will catch the divergence early.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        from permit_diagnosis_calculator import build_html, _repair_generated_permit_html
+
+        cls._original_html = build_html("divergence test", {}, {})
+        cls._repaired_html = _repair_generated_permit_html(cls._original_html)
+
+    # -- renderResult patch must include key features from original ----------
+    _RENDER_RESULT_REQUIRED_FEATURES = [
+        ("runtimeReasoningCardBox.style.display", "runtimeReasoningCardBox clearing"),
+        ("runtimeReasoningCardBox.innerHTML", "runtimeReasoningCardBox reset"),
+        ("renderRuntimeReasoningCard(", "renderRuntimeReasoningCard call"),
+        ("renderStructuredReview(typedEval)", "renderStructuredReview call"),
+        ("renderRuleBasis(rule)", "renderRuleBasis call"),
+        ("renderCandidateFallback(selected)", "candidateFallback branch"),
+        ("crossValidation.textContent", "cross-validation check"),
+        ("detectSuspiciousCapitalInput", "suspicious capital guard"),
+        ("buildAdditionalInputs()", "additional inputs merge"),
+    ]
+
+    def test_renderResult_patch_has_all_original_features(self):
+        """Patch renderResult must contain all key call sites from original."""
+        for feature, desc in self._RENDER_RESULT_REQUIRED_FEATURES:
+            with self.subTest(feature=desc):
+                self.assertIn(feature, self._repaired_html,
+                              f"renderResult patch missing: {desc}")
+
+    # -- renderProofClaim patch must include claim fallbacks -----------------
+    _RENDER_PROOF_CLAIM_FEATURES = [
+        ("claim.official_snapshot_note", "claim snapshot fallback"),
+        ("claim.source_url_samples", "claim source_url fallback"),
+        ("proof.official_snapshot_note", "proof snapshot primary"),
+        ("claim_packet_summary", "claim packet summary"),
+    ]
+
+    def test_renderProofClaim_patch_has_all_original_features(self):
+        """Patch renderProofClaim must contain claim fallback paths."""
+        for feature, desc in self._RENDER_PROOF_CLAIM_FEATURES:
+            with self.subTest(feature=desc):
+                self.assertIn(feature, self._repaired_html,
+                              f"renderProofClaim patch missing: {desc}")
+
+
 if __name__ == "__main__":
     unittest.main()
