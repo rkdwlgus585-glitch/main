@@ -28,6 +28,29 @@ def host_from_origin(origin: str) -> str:
     return normalize_host(parsed.netloc)
 
 
+def sanitize_endpoint(url: str) -> str:
+    """Sanitize a URL for safe embedding in HTML output.
+
+    Allows only ``http(s)`` and relative paths.  Blocks ``javascript:``,
+    ``data:``, loopback, link-local and unspecified addresses (SSRF defense).
+    """
+    src = str(url or "").strip()
+    if not src:
+        return ""
+    lowered = src.lower()
+    # Protocol whitelist — only http(s) and relative paths allowed
+    if ":" in lowered.split("/")[0] and not (
+        lowered.startswith("https:") or lowered.startswith("http:")
+    ):
+        return ""
+    # Block loopback, link-local, and unspecified addresses (SSRF defense)
+    if "localhost" in lowered or "127.0.0.1" in lowered or "::1" in lowered:
+        return ""
+    if "0.0.0.0" in lowered or "169.254." in lowered:
+        return ""
+    return src
+
+
 def to_bool(value: object, default: bool = True) -> bool:
     if value is None:
         return default

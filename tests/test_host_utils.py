@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from core_engine.host_utils import host_from_origin, normalize_host, to_bool
+from core_engine.host_utils import host_from_origin, normalize_host, sanitize_endpoint, to_bool
 
 
 class NormalizeHostTest(unittest.TestCase):
@@ -101,6 +101,37 @@ class ToBoolTest(unittest.TestCase):
     def test_empty_string_returns_default(self):
         self.assertTrue(to_bool("", True))
         self.assertFalse(to_bool("", False))
+
+
+class SanitizeEndpointCanonicalTest(unittest.TestCase):
+    """Canonical sanitize_endpoint tests (core_engine.host_utils)."""
+
+    def test_https_passes(self):
+        self.assertEqual(sanitize_endpoint("https://example.com/api"), "https://example.com/api")
+
+    def test_relative_passes(self):
+        self.assertEqual(sanitize_endpoint("/api/v1"), "/api/v1")
+
+    def test_javascript_blocked(self):
+        self.assertEqual(sanitize_endpoint("javascript:alert(1)"), "")
+
+    def test_data_uri_blocked(self):
+        self.assertEqual(sanitize_endpoint("data:text/html,<h1>XSS</h1>"), "")
+
+    def test_localhost_blocked(self):
+        self.assertEqual(sanitize_endpoint("http://localhost:8080"), "")
+
+    def test_link_local_blocked(self):
+        self.assertEqual(sanitize_endpoint("http://169.254.169.254/metadata"), "")
+
+    def test_unspecified_blocked(self):
+        self.assertEqual(sanitize_endpoint("http://0.0.0.0:80"), "")
+
+    def test_empty(self):
+        self.assertEqual(sanitize_endpoint(""), "")
+
+    def test_none(self):
+        self.assertEqual(sanitize_endpoint(None), "")
 
 
 if __name__ == "__main__":
