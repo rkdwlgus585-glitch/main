@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { platformConfig } from "@/components/platform-config";
 
 export const metadata: Metadata = {
   title: "개인정보처리방침 | 서울건설정보",
@@ -51,8 +52,8 @@ export default function PrivacyPage() {
           개인정보 보호와 관련한 문의는 아래 연락처로 문의하시기 바랍니다.
         </p>
         <ul>
-          <li>전화: 1668-3548</li>
-          <li>이메일: seoulmna@gmail.com</li>
+          <li>전화: {platformConfig.contactPhone}</li>
+          <li>이메일: {platformConfig.contactEmail}</li>
         </ul>
       </section>
 

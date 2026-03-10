@@ -1,4 +1,20 @@
-export const platformConfig = {
+/** 플랫폼 전역 설정 — 환경변수 또는 기본값 사용 */
+interface PlatformConfig {
+  readonly brandName: string;
+  readonly brandTagline: string;
+  readonly platformFrontHost: string;
+  readonly listingHost: string;
+  readonly contentHost: string;
+  readonly calculatorMountBase: string;
+  readonly privateEngineOrigin: string;
+  readonly contactPhone: string;
+  readonly contactEmail: string;
+  readonly tenantId: string;
+  readonly companyName: string;
+  readonly companyAddress: string;
+}
+
+export const platformConfig: PlatformConfig = {
   brandName: "서울건설정보",
   brandTagline: "건설업 AI 전문 플랫폼",
   platformFrontHost: process.env.NEXT_PUBLIC_PLATFORM_FRONT_HOST || "https://seoulmna.kr",
@@ -13,8 +29,6 @@ export const platformConfig = {
   tenantId: process.env.NEXT_PUBLIC_TENANT_ID || "seoul_main",
   companyName: "서울건설정보",
   companyAddress: "서울특별시",
-  businessNumber: "",
-  kakaoChannelUrl: "",
 };
 
 export function widgetUrl(widget: "yangdo" | "permit") {
