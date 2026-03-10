@@ -686,81 +686,21 @@ class BuildMasterCatalogTest(unittest.TestCase):
         self.assertIsInstance(result, dict)
 
 
-import logging
 from permit_diagnosis_calculator import (
-    _repair_generated_permit_html,
-    _replace_first_block,
     _blank_rule_catalog,
     build_html,
 )
 
 
 # ===================================================================
-# _replace_first_block — unit tests
+# Template integration — build_html output verification
 # ===================================================================
-class ReplaceFirstBlockTest(unittest.TestCase):
-    def test_successful_substitution(self):
-        result = _replace_first_block("hello world", r"world", "earth", label="test")
-        self.assertEqual(result, "hello earth")
+class TemplateIntegrationTest(unittest.TestCase):
+    """Verify build_html() template output contains all expected elements.
 
-    def test_no_match_without_label(self):
-        """No warning when label is empty."""
-        result = _replace_first_block("hello", r"xyz", "abc")
-        self.assertEqual(result, "hello")
-
-    def test_no_match_with_label_logs_warning(self):
-        """When pattern doesn't match and label is given, a warning is logged."""
-        with self.assertLogs(
-            "permit_diagnosis_calculator.repair", level="WARNING"
-        ) as cm:
-            result = _replace_first_block(
-                "hello", r"xyz", "abc", label="test-patch"
-            )
-        self.assertEqual(result, "hello")
-        self.assertTrue(
-            any("test-patch" in msg for msg in cm.output),
-            f"Expected 'test-patch' in logs: {cm.output}",
-        )
-
-    def test_only_first_occurrence_replaced(self):
-        result = _replace_first_block("aaa bbb aaa", r"aaa", "xxx", label="t")
-        self.assertEqual(result, "xxx bbb aaa")
-
-    def test_dotall_flag_matches_multiline(self):
-        text = "start\nmiddle\nend"
-        result = _replace_first_block(text, r"start.*end", "REPLACED", label="ml")
-        self.assertEqual(result, "REPLACED")
-
-
-# ===================================================================
-# _repair_generated_permit_html — basic
-# ===================================================================
-class RepairGeneratedPermitHtmlTest(unittest.TestCase):
-    def test_empty_input(self):
-        self.assertEqual(_repair_generated_permit_html(""), "")
-
-    def test_none_input(self):
-        self.assertEqual(_repair_generated_permit_html(None), "")
-
-    def test_passthrough_unmatched(self):
-        html = "<html><body>simple content</body></html>"
-        result = _repair_generated_permit_html(html)
-        self.assertIn("simple content", result)
-
-    def test_structuredReview_injected_when_missing(self):
-        """If '자동 점검 결과' text is absent and renderStructuredReview is missing,
-        the repair function should inject it."""
-        html = "<html><body><script>function something(){}</script></body></html>"
-        result = _repair_generated_permit_html(html)
-        self.assertIsInstance(result, str)
-
-
-# ===================================================================
-# _repair_generated_permit_html — integration with real build_html
-# ===================================================================
-class RepairIntegrationTest(unittest.TestCase):
-    """Verify each patch in _repair_generated_permit_html applies
-    successfully against real build_html() output."""
+    _repair_generated_permit_html was fully eliminated (Session 17):
+    all patches folded into the template — template is the single source of truth.
+    """
 
     @classmethod
     def setUpClass(cls):
@@ -770,9 +710,9 @@ class RepairIntegrationTest(unittest.TestCase):
             rule_catalog=_blank_rule_catalog(),
         )
 
-    # --- Patch 1: checkbox meta-box ---
-    def test_patch1_checkbox_meta_box_ids_present(self):
-        """Patch 1 replaces the generic form field with specific checkbox IDs."""
+    # --- Checkbox meta-box (formerly patch 1, now in template) ---
+    def test_checkbox_meta_box_ids_present(self):
+        """Template contains all checkbox IDs in meta-box."""
         expected_ids = [
             "officeSecuredInput",
             "facilitySecuredInput",
@@ -785,134 +725,89 @@ class RepairIntegrationTest(unittest.TestCase):
             with self.subTest(checkbox_id=cid):
                 self.assertIn(cid, self._html)
 
-    def test_patch1_meta_box_label(self):
+    def test_meta_box_label(self):
         self.assertIn("기타 준비 상태", self._html)
 
-    # --- Patch 2: tip text ---
-    def test_patch2_tip_text_replaced(self):
+    # --- Tip text (formerly patch 2, now in template) ---
+    def test_tip_text(self):
         self.assertIn(
             "법령/관할 해석이 필요한 항목은 결과 화면의 법령 근거를 바탕으로"
             " 상담 단계에서 최종 확정됩니다.",
             self._html,
         )
 
-    # --- Template: renderProofClaim (patches removed — template is source of truth) ---
+    # --- renderProofClaim ---
     def test_renderProofClaim_has_claim_packet_summary(self):
-        """Template renderProofClaim references claim_packet_summary."""
         self.assertIn("claim_packet_summary", self._html)
 
     def test_renderProofClaim_has_proof_domain_labels(self):
-        """Template renderProofClaim uses proofDomainLabels lookup."""
         self.assertIn("proofDomainLabels", self._html)
 
     def test_renderProofClaim_has_checksum(self):
         self.assertIn("checksum_sample_total", self._html)
 
-    # --- Template: renderResult (patches removed — template is source of truth) ---
+    # --- renderResult ---
     def test_renderResult_has_syncHoldings(self):
-        """Template renderResult calls syncHoldingsInputVisibility."""
         self.assertIn("syncHoldingsInputVisibility", self._html)
 
     def test_renderResult_has_candidateFallback(self):
-        """Template renderResult calls renderCandidateFallback."""
         self.assertIn("renderCandidateFallback", self._html)
 
     def test_renderResult_has_structured_review(self):
-        """Template renderResult calls renderStructuredReview(typedEval)."""
         self.assertIn("renderStructuredReview(typedEval)", self._html)
 
     def test_renderResult_has_crossValidation(self):
         self.assertIn("detectSuspiciousCapitalInput", self._html)
 
-    # --- Template: renderStructuredReview labels (patches 5-8 removed) ---
+    # --- renderResult key features (formerly divergence detection) ---
+    _RENDER_RESULT_KEY_FEATURES = [
+        ("runtimeReasoningCardBox.style.display", "runtimeReasoningCardBox clearing"),
+        ("runtimeReasoningCardBox.innerHTML", "runtimeReasoningCardBox reset"),
+        ("renderRuntimeReasoningCard(", "renderRuntimeReasoningCard call"),
+        ("renderRuleBasis(rule)", "renderRuleBasis call"),
+        ("renderCandidateFallback(selected)", "candidateFallback branch"),
+        ("crossValidation.textContent", "cross-validation check"),
+        ("buildAdditionalInputs()", "additional inputs merge"),
+    ]
+
+    def test_renderResult_has_all_key_features(self):
+        """Template renderResult contains all critical call sites."""
+        for feature, desc in self._RENDER_RESULT_KEY_FEATURES:
+            with self.subTest(feature=desc):
+                self.assertIn(feature, self._html,
+                              f"Template renderResult missing: {desc}")
+
+    # --- renderProofClaim key features ---
+    _RENDER_PROOF_CLAIM_KEY_FEATURES = [
+        ("claim.official_snapshot_note", "claim snapshot fallback"),
+        ("claim.source_url_samples", "claim source_url fallback"),
+        ("proof.official_snapshot_note", "proof snapshot primary"),
+    ]
+
+    def test_renderProofClaim_has_all_key_features(self):
+        """Template renderProofClaim contains claim fallback paths."""
+        for feature, desc in self._RENDER_PROOF_CLAIM_KEY_FEATURES:
+            with self.subTest(feature=desc):
+                self.assertIn(feature, self._html,
+                              f"Template renderProofClaim missing: {desc}")
+
+    # --- renderStructuredReview labels ---
     def test_template_criteria_label(self):
-        """Template renderStructuredReview uses '자동 점검 결과' label."""
         self.assertIn("자동 점검 결과", self._html)
 
     def test_template_evidence_labels(self):
-        """Template uses dynamic evidence titles based on shortfall status."""
         self.assertIn("보완 필요 서류", self._html)
         self.assertIn("확인 권장 서류", self._html)
 
     def test_template_next_actions_labels(self):
-        """Template uses dynamic next action titles."""
         self.assertIn("다음 단계", self._html)
 
-    # --- No silent failures ---
-    def test_no_repair_warnings_on_real_html(self):
-        """All 2 active patches (checkbox-meta + tip-text) should match — no warnings."""
-        logger = logging.getLogger("permit_diagnosis_calculator.repair")
-        # Build raw HTML (before repair), then apply repair manually
-        raw = build_html(
-            title="Test",
-            catalog=_blank_catalog(),
-            rule_catalog=_blank_rule_catalog(),
-        )
-        # build_html already applies repair internally, so we just confirm
-        # that re-running repair on already-repaired HTML doesn't crash.
-        # More importantly: the first run (inside build_html) should not warn.
-        # Since build_html already ran without warnings, we verify by testing
-        # _repair on the raw template (before repair was applied).
-        # We can't easily separate those, so we verify the output instead.
-        self.assertIsInstance(raw, str)
-        self.assertGreater(len(raw), 1000)
-
     # --- Overall structure integrity ---
-    def test_repaired_html_has_script_tags(self):
+    def test_html_has_script_tags(self):
         self.assertIn("<script", self._html)
 
-    def test_repaired_html_has_container(self):
+    def test_html_has_container(self):
         self.assertIn("container", self._html)
-
-
-class PatchDivergenceDetectionTest(unittest.TestCase):
-    """Verify _repair patches stay in sync with original template functions.
-
-    If the original template is updated but the patch is not, these tests
-    will catch the divergence early.
-    """
-
-    @classmethod
-    def setUpClass(cls):
-        from permit_diagnosis_calculator import build_html, _repair_generated_permit_html
-
-        cls._original_html = build_html("divergence test", {}, {})
-        cls._repaired_html = _repair_generated_permit_html(cls._original_html)
-
-    # -- renderResult patch must include key features from original ----------
-    _RENDER_RESULT_REQUIRED_FEATURES = [
-        ("runtimeReasoningCardBox.style.display", "runtimeReasoningCardBox clearing"),
-        ("runtimeReasoningCardBox.innerHTML", "runtimeReasoningCardBox reset"),
-        ("renderRuntimeReasoningCard(", "renderRuntimeReasoningCard call"),
-        ("renderStructuredReview(typedEval)", "renderStructuredReview call"),
-        ("renderRuleBasis(rule)", "renderRuleBasis call"),
-        ("renderCandidateFallback(selected)", "candidateFallback branch"),
-        ("crossValidation.textContent", "cross-validation check"),
-        ("detectSuspiciousCapitalInput", "suspicious capital guard"),
-        ("buildAdditionalInputs()", "additional inputs merge"),
-    ]
-
-    def test_renderResult_patch_has_all_original_features(self):
-        """Patch renderResult must contain all key call sites from original."""
-        for feature, desc in self._RENDER_RESULT_REQUIRED_FEATURES:
-            with self.subTest(feature=desc):
-                self.assertIn(feature, self._repaired_html,
-                              f"renderResult patch missing: {desc}")
-
-    # -- renderProofClaim patch must include claim fallbacks -----------------
-    _RENDER_PROOF_CLAIM_FEATURES = [
-        ("claim.official_snapshot_note", "claim snapshot fallback"),
-        ("claim.source_url_samples", "claim source_url fallback"),
-        ("proof.official_snapshot_note", "proof snapshot primary"),
-        ("claim_packet_summary", "claim packet summary"),
-    ]
-
-    def test_renderProofClaim_patch_has_all_original_features(self):
-        """Patch renderProofClaim must contain claim fallback paths."""
-        for feature, desc in self._RENDER_PROOF_CLAIM_FEATURES:
-            with self.subTest(feature=desc):
-                self.assertIn(feature, self._repaired_html,
-                              f"renderProofClaim patch missing: {desc}")
 
 
 if __name__ == "__main__":

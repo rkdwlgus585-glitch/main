@@ -30,7 +30,6 @@ from permit_diagnosis_calculator import (
     _normalize_key,
     _normalize_selector_alias,
     _prompt_surface_excerpt_lines,
-    _replace_first_block,
     _resolve_rule_for_industry,
     _row_claim_family_key,
     _safe_json,
@@ -995,23 +994,6 @@ class NormalizeSelectorAliasTest(unittest.TestCase):
         result = _normalize_selector_alias(row)
         self.assertEqual(result["selector_code"], "SC001")
         self.assertEqual(result["selector_category_code"], "A")
-
-
-# ---------------------------------------------------------------------------
-# _replace_first_block
-# ---------------------------------------------------------------------------
-class ReplaceFirstBlockTest(unittest.TestCase):
-    def test_basic(self):
-        result = _replace_first_block("hello world", r"world", "there")
-        self.assertEqual(result, "hello there")
-
-    def test_only_first(self):
-        result = _replace_first_block("a b a b", r"a", "x")
-        self.assertEqual(result, "x b a b")
-
-    def test_no_match(self):
-        result = _replace_first_block("hello", r"xyz", "abc")
-        self.assertEqual(result, "hello")
 
 
 # ---------------------------------------------------------------------------

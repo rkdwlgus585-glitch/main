@@ -3900,7 +3900,7 @@ def build_html(
           <input id="equipmentInput" class="control" type="number" inputmode="numeric" min="0" step="1" placeholder="예: 1" />
         </div>
         <div class="field">
-          <label>선택 준비 상태</label>
+          <label>기타 준비 상태</label>
           <div class="meta-box">
             <label><input id="officeSecuredInput" type="checkbox" /> 사무실/영업소 확보</label><br>
             <label><input id="facilitySecuredInput" type="checkbox" /> 시설·장비·보관공간 확보</label><br>
@@ -3947,7 +3947,7 @@ def build_html(
           <a class="btn main" href="__NOTICE_URL__" target="_blank" rel="noopener noreferrer">전문가 상담 연결</a>
           <a class="btn" href="tel:__CONTACT_PHONE_DIGITS__">대표전화 __CONTACT_PHONE__</a>
         </div>
-        <p class="tip">법령/관할 해석이 필요한 항목은 결과 화면의 법령 근거를 기반으로 상담 단계에서 최종 확정됩니다.</p>
+        <p class="tip">법령/관할 해석이 필요한 항목은 결과 화면의 법령 근거를 바탕으로 상담 단계에서 최종 확정됩니다.</p>
       </section>
     </div>
   </main>
@@ -7974,62 +7974,11 @@ def build_html(
         )
         .replace("__PERMIT_BOOTSTRAP_GZIP_BASE64__", inline_bootstrap_gzip_base64)
     )
-    rendered_html = _repair_generated_permit_html(rendered_html)
     rendered_html = _wrap_wordpress_safe_scripts(rendered_html)
     if fragment:
         return _build_wordpress_fragment(rendered_html)
     return rendered_html
 
-
-_repair_log = logging.getLogger(__name__ + ".repair")
-
-
-def _replace_first_block(
-    text: str, pattern: str, replacement: str, *, label: str = "",
-) -> str:
-    updated, count = re.subn(pattern, replacement, text, count=1, flags=re.S)
-    if count == 0 and label:
-        _repair_log.warning("permit HTML repair patch '%s' did not match", label)
-    return updated
-
-
-def _repair_generated_permit_html(html: str) -> str:
-    repaired = str(html or "")
-
-    repaired = _replace_first_block(
-        repaired,
-        r'(<div class="field">\s*<label for="equipmentInput">.*?</div>\s*)(<div class="field">\s*<label>.*?</div>\s*</div>)',
-        r'''\1<div class="field">
-          <label>기타 준비 상태</label>
-          <div class="meta-box">
-            <label><input id="officeSecuredInput" type="checkbox" /> 사무실/영업소 확보</label><br>
-            <label><input id="facilitySecuredInput" type="checkbox" /> 시설·장비·보관공간 확보</label><br>
-            <label><input id="qualificationSecuredInput" type="checkbox" /> 자격·교육·경력 확보</label><br>
-            <label><input id="insuranceSecuredInput" type="checkbox" /> 보험·보증 가입 확인</label><br>
-            <label><input id="safetySecuredInput" type="checkbox" /> 안전·환경 요건 확인</label><br>
-            <label><input id="documentReadyInput" type="checkbox" /> 필수 제출서류 준비</label>
-          </div>
-        </div>''',
-        label="checkbox-meta-box",
-    )
-    repaired = _replace_first_block(
-        repaired,
-        r'<p class="tip">.*?최종 확정됩니다\.</p>',
-        '<p class="tip">법령/관할 해석이 필요한 항목은 결과 화면의 법령 근거를 바탕으로 상담 단계에서 최종 확정됩니다.</p>',
-        label="tip-text",
-    )
-    # NOTE: renderBasisRows, renderRuleBasis, renderFocusProfile, renderQualityFlags,
-    # renderProofClaim, renderResult — all synced with template originals.
-    # Patches removed (Session 16) — template is single source of truth.
-    # NOTE: renderCandidateFallback, evaluateTypedCriteriaLocal, & renderStructuredReview
-    # — canonical implementations also live in build_html() template.
-    # NOTE: typography patches 5-7 removed (Session 16).
-    # Template renderStructuredReview now uses styled <strong style="..."> with
-    # dynamic titles; old patches targeted <strong> (no style attr) and were silently failing.
-    # NOTE: fallback patch 8 (renderStructuredReview injection) also removed.
-    # Template already defines renderStructuredReview with "자동 점검 결과" label,
-    # so the fallback guard `if "자동 점검 결과" not in repaired` never triggers.
-    return repaired
 
 
 def _scope_embed_css(style_body: str, wrapper_selector: str) -> str:
