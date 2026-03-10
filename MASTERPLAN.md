@@ -379,15 +379,18 @@
 - **_repair 완전 제거 (8→0 패치)**: renderProofClaim/renderResult 동기화 후 제거(−120줄), typography 3+fallback 1 dead code 제거(−335줄), 마지막 2패치(checkbox-meta-box+tip-text) template 직접 반영 후 `_repair_generated_permit_html`+`_replace_first_block`+`_repair_log` 완전 삭제(−50줄). 총 −505줄. Template이 유일 source of truth.
 - **Quality**: 2025 tests + 94 subtests PASS. (dead code 테스트 21개+3 subtests 정리, 실질 커버리지 유지)
 
-### [2026-03-11] Session 37 — 시스템 품질·보안·플랫폼 5건 + AI 가시성 강화
+### [2026-03-11] Session 37 — 시스템 품질·보안·플랫폼 13건 종합 강화
 - **인허가 config drift 감지 테스트** (12개): 245 업종 JSON 구조 무결성, typed_criteria 카테고리 유효성, evaluate_typed_criteria 전 업종 crash-free 검증, rule_criteria_packs 54팩 참조 해결 ≥80%
-- **성능 회귀 테스트** (7개): build_html 레이턴시 baseline (permit <8s, yangdo <5s), HTML 구조 검증, estimateRemote sanitizePlain 적용 회귀 방어
-- **양도 estimateRemote 입력 방어**: 7개 텍스트 필드(license_text/sales_input_mode/reorg_mode/balance_usage_mode/company_type/credit_level/admin_history)에 sanitizePlain 적용 — defense-in-depth 완성
-- **Widget PostMessage 핸드셰이크**: origin 검증(null+engine origins), nonce 기반 handshake, widget-ready/widget-resize/widget-error 3종 메시지 프로토콜, 동적 iframe 높이(hardcoded 1400px→자동)
-- **특허 증거 번들 버전 앵커**: git_commit hash + expanded_criteria/focus_seed/focus_family SHA-256 digest 주입 — 코드↔증거 동기화 보장
-- **Hero 텍스트 고객 대면 전환**: badge/kicker/h1/body → AI 시스템 중심 문구 (.co.kr, Cursor 별도 관리)
+- **인허가 evaluate_typed_criteria 엣지 케이스** (26개): 빈 입력/None, 연산자 경계, blocking/non-blocking 혼합, mapping_confidence 임계값, deposit_days 일자 계산, 증빙 체크리스트, next_actions 분기
+- **성능 회귀 테스트** (13개): build_html 레이턴시 baseline (permit <8s, yangdo <5s), HTML 구조, sanitizePlain 적용 회귀, PostMessage child-side 양방향 프로토콜 6종
+- **양도 estimateRemote 입력 방어**: 7개 텍스트 필드 sanitizePlain 적용 — defense-in-depth
+- **PostMessage 양방향 완성**: parent(widget-frame.tsx) + child(yangdo+permit build_html) 양쪽 구현. widget-ready/widget-resize(ResizeObserver) + iframe 감지 가드(window.self===window.top), widget-gate aria-hidden 개선
+- **Widget 메시지 프로토콜 모듈**: `lib/widget-message-protocol.ts` — origin 검증, nonce 핸드셰이크, 메시지 스키마 검증
+- **특허 증거 번들 버전 앵커**: git_commit hash + SHA-256 config digest
+- **특허 claim_map 스냅샷 기준 고지**: yangdo_blackbox_api.py 스냅샷(2,223줄) vs 프로덕션(1,333줄) 명시
+- **플랫폼 상태 API v0.37.0**: 시스템 배열 구조화, bootedAt, engineOrigin, features 플래그
 - **비디오 오버레이 희망 분위기**: `.kr` mint 힌트 + 밝은 그라데이션
-- **Quality**: 2697 tests + 94 subtests PASS (+19), .kr 19/19 pages 빌드 검증
+- **Quality**: 2729 tests + 94 subtests (코어 ALL PASS), .kr 19/19 pages 빌드 검증, 테스트 +51
 
 ### [2026-03-10] Session 36 — .co.kr JSON-LD 전면 확장 + 코드 품질 감사
 - **JSON-LD Service schema (4페이지)**: `ServiceDetailPage` 컴포넌트에 `Service` 스키마 내장 — registration, corporate, split-merger, practice 4개 서비스 페이지에 자동 적용 (DRY)
