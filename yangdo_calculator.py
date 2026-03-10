@@ -1,17 +1,19 @@
 import os
 import re
 from html import escape
+from typing import Any, Dict, List, Optional, Sequence, Tuple
+
 from core_engine.api_response import now_iso, safe_json_for_script
 from core_engine.channel_branding import resolve_channel_branding
 from core_engine.host_utils import sanitize_endpoint as _sanitize_endpoint
-def _round4(value):
+def _round4(value: object) -> Optional[float]:
     if value is None:
         return None
     try:
         return round(float(value), 4)
     except (ValueError, TypeError):
         return None
-def listing_detail_url(site_url, seoul_no=0, now_uid=""):
+def listing_detail_url(site_url: object, seoul_no: object = 0, now_uid: object = "") -> str:
     base = str(site_url or "").rstrip("/")
     if not base:
         base = "https://seoulmna.co.kr"
@@ -25,7 +27,7 @@ def listing_detail_url(site_url, seoul_no=0, now_uid=""):
     if uid_txt.isdigit():
         return f"{base}/mna/{uid_txt}"
     return f"{base}/mna"
-def _normalize_price_text(raw):
+def _normalize_price_text(raw: object) -> str:
     src = str(raw or "")
     if not src:
         return ""
@@ -40,7 +42,7 @@ def _normalize_price_text(raw):
     src = re.sub(r"(?<=\d)\s*\uC5D0", "\uC5B5", src)
     src = re.sub(r"<br\s*/?>", "\n", src, flags=re.I)
     return src
-def _price_token_to_eok(token):
+def _price_token_to_eok(token: object) -> Optional[float]:
     src = str(token or "").strip().replace(",", "")
     if not src:
         return None
@@ -59,7 +61,7 @@ def _price_token_to_eok(token):
         val = float(m.group(0))
         return _round4(val) if val > 0 else None
     return None
-def _extract_price_values_eok(raw):
+def _extract_price_values_eok(raw: object) -> List[float]:
     src = _normalize_price_text(raw)
     if not src:
         return []
@@ -77,7 +79,7 @@ def _extract_price_values_eok(raw):
         seen.add(key)
         uniq.append(v)
     return uniq
-def _derive_display_range_eok(current_price_text, claim_price_text, current_price_eok, claim_price_eok):
+def _derive_display_range_eok(current_price_text: object, claim_price_text: object, current_price_eok: object, claim_price_eok: object) -> Tuple[Optional[float], Optional[float]]:
     claim_txt = _normalize_price_text(claim_price_text)
     current_txt = _normalize_price_text(current_price_text)
     claim_vals = _extract_price_values_eok(claim_txt)
@@ -96,7 +98,7 @@ def _derive_display_range_eok(current_price_text, claim_price_text, current_pric
     if not vals:
         return None, None
     return _round4(min(vals)), _round4(max(vals))
-def build_training_dataset(records, site_url=""):
+def build_training_dataset(records: object, site_url: str = "") -> List[Dict[str, Any]]:
     rows = []
     for rec in list(records or []):
         price = rec.get("current_price_eok")
@@ -154,7 +156,7 @@ def build_training_dataset(records, site_url=""):
     return rows
 
 
-def _compact_train_row(row):
+def _compact_train_row(row: object) -> list:
     src = dict(row or {})
     return [
         str(src.get("now_uid", "") or ""),  # 0
@@ -179,7 +181,7 @@ def _compact_train_row(row):
         src.get("display_high_eok"),  # 19
         str(src.get("url", "") or ""),  # 20
     ]
-def calc_quantile(values, q):
+def calc_quantile(values: object, q: float) -> Optional[float]:
     nums = []
     for raw in list(values or []):
         try:
@@ -197,12 +199,12 @@ def calc_quantile(values, q):
     hi = min(len(nums) - 1, lo + 1)
     frac = idx - lo
     return nums[lo] + (nums[hi] - nums[lo]) * frac
-def mean_or_none(values):
+def mean_or_none(values: object) -> Optional[float]:
     nums = _finite_numbers(values)
     if not nums:
         return None
     return _round4(sum(nums) / float(len(nums)))
-def build_meta(all_records, train_dataset):
+def build_meta(all_records: object, train_dataset: object) -> Dict[str, Any]:
     prices = [row.get("price_eok") for row in list(train_dataset or [])]
     specialty_vals = [row.get("specialty") for row in list(train_dataset or [])]
     sales3_vals = [row.get("sales3_eok") for row in list(train_dataset or [])]
@@ -242,7 +244,7 @@ def build_meta(all_records, train_dataset):
     }
 
 
-def _normalize_license_key_py(raw):
+def _normalize_license_key_py(raw: object) -> str:
     text = str(raw or "").strip()
     if not text:
         return ""
@@ -253,7 +255,7 @@ def _normalize_license_key_py(raw):
     return text
 
 
-def _finite_numbers(values):
+def _finite_numbers(values: object) -> List[float]:
     out = []
     for raw in list(values or []):
         try:
@@ -266,14 +268,14 @@ def _finite_numbers(values):
     return out
 
 
-def _median_or_none(values):
+def _median_or_none(values: object) -> Optional[float]:
     nums = _finite_numbers(values)
     if not nums:
         return None
     return _round4(calc_quantile(nums, 0.5))
 
 
-def _fallback_capital_eok(key):
+def _fallback_capital_eok(key: object) -> float:
     token = _normalize_license_key_py(key)
     if not token:
         return 1.5
@@ -288,7 +290,7 @@ def _fallback_capital_eok(key):
     return 1.5
 
 
-def _fallback_surplus_eok(capital_eok):
+def _fallback_surplus_eok(capital_eok: object) -> float:
     try:
         capital = float(capital_eok)
     except (ValueError, TypeError):
@@ -298,7 +300,7 @@ def _fallback_surplus_eok(capital_eok):
     return _round4(min(1.2, max(0.15, capital * 0.08)))
 
 
-def _fallback_min_balance_eok(key, median_balance_eok=None):
+def _fallback_min_balance_eok(key: object, median_balance_eok: object = None) -> float:
     token = _normalize_license_key_py(key)
     if token:
         if "토목건축" in token or "산업환경설비" in token:
@@ -317,7 +319,7 @@ def _fallback_min_balance_eok(key, median_balance_eok=None):
     return 0.2
 
 
-def _build_license_ui_profiles(train_dataset, license_canonical_by_key=None, generic_license_keys=None):
+def _build_license_ui_profiles(train_dataset: object, license_canonical_by_key: object = None, generic_license_keys: object = None) -> Dict[str, Any]:
     canonical_map = {}
     for raw_key, raw_label in dict(license_canonical_by_key or {}).items():
         key = _normalize_license_key_py(raw_key)
@@ -399,7 +401,7 @@ def _build_license_ui_profiles(train_dataset, license_canonical_by_key=None, gen
     }
 
 
-def _collapse_script_whitespace(html_text):
+def _collapse_script_whitespace(html_text: object) -> str:
     """Minify inline <script> blocks by trimming per-line whitespace.
 
     Previous implementation wrapped JS in ``(0,eval)(code)`` which required
@@ -415,7 +417,7 @@ def _collapse_script_whitespace(html_text):
     if str(env_flag).strip().lower() in {"1", "true", "yes", "on"}:
         return src
 
-    def _trim_script(match):
+    def _trim_script(match: re.Match) -> str:
         open_tag = match.group(1) or ""
         body = match.group(2) or ""
         close_tag = match.group(3) or ""
@@ -430,23 +432,23 @@ def _collapse_script_whitespace(html_text):
 
 
 def build_page_html(
-    train_dataset,
-    meta,
-    site_url="",
-    channel_id="",
-    license_canonical_by_key=None,
-    generic_license_keys=None,
-    view_mode="customer",
-    consult_endpoint="",
-    usage_endpoint="",
-    estimate_endpoint="",
-    api_key="",
-    contact_phone="1668-3548",
-    openchat_url="",
-    enable_consult_widget=False,
-    enable_usage_log=False,
-    enable_hot_match=False,
-):
+    train_dataset: object,
+    meta: object,
+    site_url: str = "",
+    channel_id: str = "",
+    license_canonical_by_key: object = None,
+    generic_license_keys: object = None,
+    view_mode: str = "customer",
+    consult_endpoint: str = "",
+    usage_endpoint: str = "",
+    estimate_endpoint: str = "",
+    api_key: str = "",
+    contact_phone: str = "1668-3548",
+    openchat_url: str = "",
+    enable_consult_widget: bool = False,
+    enable_usage_log: bool = False,
+    enable_hot_match: bool = False,
+) -> str:
     branding = resolve_channel_branding(
         channel_id=str(channel_id or "").strip(),
         overrides={

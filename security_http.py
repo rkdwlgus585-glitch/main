@@ -111,7 +111,7 @@ def safe_client_ip(handler, trust_x_forwarded_for: bool = False) -> str:
 
 
 class SlidingWindowRateLimiter:
-    def __init__(self, limit: int, window_seconds: int = 60, max_keys: int = 10000):
+    def __init__(self, limit: int, window_seconds: int = 60, max_keys: int = 10000) -> None:
         self.limit = max(1, int(limit or 1))
         self.window_seconds = max(1, int(window_seconds or 60))
         self.max_keys = max(100, int(max_keys or 10000))
@@ -158,7 +158,7 @@ class SlidingWindowRateLimiter:
 
 
 class SecurityEventLogger:
-    def __init__(self, path: str):
+    def __init__(self, path: str) -> None:
         self.path = str(path or "").strip()
         self._lock = Lock()
         if self.path:
