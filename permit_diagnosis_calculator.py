@@ -2,6 +2,7 @@ import argparse
 import base64
 import gzip
 import json
+import logging
 import re
 from datetime import date, timedelta
 from html import escape
@@ -7953,8 +7954,15 @@ def build_html(
     return rendered_html
 
 
-def _replace_first_block(text: str, pattern: str, replacement: str) -> str:
-    updated, _ = re.subn(pattern, replacement, text, count=1, flags=re.S)
+_repair_log = logging.getLogger(__name__ + ".repair")
+
+
+def _replace_first_block(
+    text: str, pattern: str, replacement: str, *, label: str = "",
+) -> str:
+    updated, count = re.subn(pattern, replacement, text, count=1, flags=re.S)
+    if count == 0 and label:
+        _repair_log.warning("permit HTML repair patch '%s' did not match", label)
     return updated
 
 
@@ -7975,11 +7983,13 @@ def _repair_generated_permit_html(html: str) -> str:
             <label><input id="documentReadyInput" type="checkbox" /> 필수 제출서류 준비</label>
           </div>
         </div>''',
+        label="checkbox-meta-box",
     )
     repaired = _replace_first_block(
         repaired,
         r'<p class="tip">.*?최종 확정됩니다\.</p>',
         '<p class="tip">법령/관할 해석이 필요한 항목은 결과 화면의 법령 근거를 바탕으로 상담 단계에서 최종 확정됩니다.</p>',
+        label="tip-text",
     )
     # NOTE: renderBasisRows, renderRuleBasis, renderFocusProfile, renderQualityFlags
     # replacements removed — identical to template originals.
@@ -8035,6 +8045,7 @@ def _repair_generated_permit_html(html: str) -> str:
       ui.proofClaimBox.style.display = "block";
     };
 ''',
+        label="renderProofClaim",
     )
     # NOTE: renderCandidateFallback, evaluateTypedCriteriaLocal, & renderStructuredReview
     # replacements removed — canonical implementations live in build_html() template.
@@ -8151,27 +8162,25 @@ def _repair_generated_permit_html(html: str) -> str:
       renderStructuredReview(typedEval);
     };
 ''',
+        label="renderResult",
     )
-    repaired = re.sub(
+    repaired = _replace_first_block(
+        repaired,
         r'(const criteriaRows = Array\.isArray\(typedEval\.criterion_results\) \? typedEval\.criterion_results : \[\];\s*if \(criteriaRows\.length\) \{\s*ui\.typedCriteriaBox\.innerHTML = `<strong>)(.*?)(</strong><br>\$\{criteriaRows\.map\(\(row\) => \{)',
         r'\1자동 점검 결과\3',
-        repaired,
-        count=1,
-        flags=re.S,
+        label="typography-criteriaRows",
     )
-    repaired = re.sub(
+    repaired = _replace_first_block(
+        repaired,
         r'(const evidenceRows = Array\.isArray\(typedEval\.evidence_checklist\) \? typedEval\.evidence_checklist : \[\];\s*if \(evidenceRows\.length\) \{\s*ui\.evidenceChecklistBox\.innerHTML = `<strong>)(.*?)(</strong><br>\$\{evidenceRows\.map\(\(row\) => `- )',
         r'\1준비 서류\3',
-        repaired,
-        count=1,
-        flags=re.S,
+        label="typography-evidenceRows",
     )
-    repaired = re.sub(
+    repaired = _replace_first_block(
+        repaired,
         r'(const nextRows = Array\.isArray\(typedEval\.next_actions\) \? typedEval\.next_actions : \[\];\s*if \(nextRows\.length\) \{\s*ui\.nextActionsBox\.innerHTML = `<strong>)(.*?)(</strong><br>\$\{nextRows\.map\(\(row\) => `- )',
         r'\1다음 단계\3',
-        repaired,
-        count=1,
-        flags=re.S,
+        label="typography-nextActions",
     )
     if "자동 점검 결과" not in repaired:
         repaired = repaired.replace(
