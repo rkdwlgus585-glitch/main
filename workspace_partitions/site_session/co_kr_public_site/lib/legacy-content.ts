@@ -34,12 +34,85 @@ const boardPosts = {
   news: newsPosts,
 } as const satisfies Record<Exclude<LegacyBoardName, "tl_faq">, LegacyPost[]>;
 
+const legacyBoardRoutes = {
+  mna: "/mna",
+  notice: "/notice",
+  premium: "/premium",
+  news: "/news",
+  tl_faq: "/tl_faq",
+} as const;
+
 function normalizeId(value: string) {
   return decodeURIComponent(value).trim().toLowerCase();
 }
 
 function normalizePageSlug(value: string) {
   return decodeURIComponent(value).trim().replace(/\.php$/i, "");
+}
+
+export function normalizeImportedHref(href: string) {
+  const rawHref = href.trim();
+
+  if (!rawHref) {
+    return rawHref;
+  }
+
+  if (/^(mailto:|tel:|javascript:)/i.test(rawHref)) {
+    return rawHref;
+  }
+
+  if (/^#tab\d+$/i.test(rawHref)) {
+    return "#legacy-content-top";
+  }
+
+  let url: URL;
+
+  try {
+    url = rawHref.startsWith("/")
+      ? new URL(rawHref, "https://seoulmna.co.kr")
+      : new URL(rawHref);
+  } catch {
+    return rawHref;
+  }
+
+  const isLegacyHost = /(^|\.)seoulmna\.co\.kr$/i.test(url.hostname);
+  const isRelativePath = rawHref.startsWith("/");
+
+  if (!isLegacyHost && !isRelativePath) {
+    return rawHref;
+  }
+
+  const sanitizedHash = /^#tab\d+$/i.test(url.hash) ? "" : url.hash;
+
+  if (url.pathname === "/bbs/board.php") {
+    const table = url.searchParams.get("bo_table")?.toLowerCase();
+    const wrId = url.searchParams.get("wr_id");
+    const boardPath = table ? legacyBoardRoutes[table as keyof typeof legacyBoardRoutes] : undefined;
+
+    if (!boardPath) {
+      return sanitizedHash || "#legacy-content-top";
+    }
+
+    if (table === "tl_faq") {
+      return boardPath;
+    }
+
+    return wrId ? `${boardPath}/${encodeURIComponent(wrId)}` : boardPath;
+  }
+
+  if (url.pathname.toLowerCase().startsWith("/pages/")) {
+    return `${url.pathname}${sanitizedHash}`;
+  }
+
+  if (Object.values(legacyBoardRoutes).some((path) => url.pathname === path || url.pathname.startsWith(`${path}/`))) {
+    return `${url.pathname}${sanitizedHash}`;
+  }
+
+  if (rawHref.startsWith("#")) {
+    return "#legacy-content-top";
+  }
+
+  return rawHref;
 }
 
 export function getImportManifest() {
@@ -108,6 +181,10 @@ export function getFaqPage() {
 }
 
 export function getFaqPreviewItems(limit = 3): FaqPreviewItem[] {
+  if (tlFaqPage.faqItems && tlFaqPage.faqItems.length > 0) {
+    return tlFaqPage.faqItems.slice(0, limit);
+  }
+
   const headingPattern = /<h2[^>]*>([\s\S]*?)<\/h2>/gi;
   const paragraphPattern = /<p[^>]*>([\s\S]*?)<\/p>/i;
   const cleanInlineHtml = (value: string) => value

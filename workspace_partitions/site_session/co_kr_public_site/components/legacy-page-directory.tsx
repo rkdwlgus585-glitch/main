@@ -17,6 +17,17 @@ export function LegacyPageDirectory({
     return null;
   }
 
+  const duplicatedTitles = new Set(
+    Object.entries(
+      pages.reduce<Record<string, number>>((accumulator, page) => {
+        accumulator[page.title] = (accumulator[page.title] ?? 0) + 1;
+        return accumulator;
+      }, {}),
+    )
+      .filter(([, count]) => count > 1)
+      .map(([title]) => title),
+  );
+
   return (
     <section className="section-block">
       <div className="section-header">
@@ -30,7 +41,9 @@ export function LegacyPageDirectory({
           <article key={page.slug} className="legacy-page-card">
             <span>{page.sourceUrl}</span>
             <h3>
-              <Link href={getLegacyPagePath(page.slug)}>{page.title}</Link>
+              <Link href={getLegacyPagePath(page.slug)}>
+                {duplicatedTitles.has(page.title) ? `${page.title} (${page.slug}.php)` : page.title}
+              </Link>
             </h3>
             <p>{page.summary}</p>
             <Link className="board-card-link" href={getLegacyPagePath(page.slug)}>

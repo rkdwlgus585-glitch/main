@@ -44,6 +44,7 @@ export type LegacyPost = {
   views: number | null;
   sourceUrl: string;
   contentHtml: string;
+  faqItems?: FaqPreviewItem[];
 };
 
 export type LegacyPageGroup =

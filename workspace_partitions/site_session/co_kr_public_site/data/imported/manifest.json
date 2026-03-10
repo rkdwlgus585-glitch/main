@@ -1,6 +1,6 @@
 {
   "source": "https://seoulmna.co.kr",
-  "generatedAt": "2026-03-10T23:11:15+09:00",
+  "generatedAt": "2026-03-10T23:23:46+09:00",
   "counts": {
     "tl_faq": 1,
     "mna": 1467,
@@ -10,7 +10,7 @@
     "pages": 26
   },
   "options": {
-    "workers": 6,
+    "workers": 4,
     "limit": null,
     "skipAssets": false
   }

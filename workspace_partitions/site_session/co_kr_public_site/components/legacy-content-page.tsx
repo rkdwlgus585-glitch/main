@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ContactLink } from "@/components/contact-link";
 import { siteConfig } from "@/components/site-config";
+import { normalizeImportedHref } from "@/lib/legacy-content";
 
 type BreadcrumbItem = {
   href: string;
@@ -49,9 +50,10 @@ export function LegacyContentPage({
       url: siteConfig.host,
     },
   };
+  const normalizedHtml = contentHtml.replace(/href="([^"]+)"/gi, (_match, href: string) => `href="${normalizeImportedHref(href)}"`);
 
   return (
-    <div className="page-shell page-shell--inner">
+    <div className="page-shell page-shell--inner" id="legacy-content-top">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
@@ -92,7 +94,7 @@ export function LegacyContentPage({
       </section>
 
       <section className="legacy-content-shell">
-        <div className="legacy-content-body" dangerouslySetInnerHTML={{ __html: contentHtml }} />
+        <div className="legacy-content-body" dangerouslySetInnerHTML={{ __html: normalizedHtml }} />
       </section>
     </div>
   );

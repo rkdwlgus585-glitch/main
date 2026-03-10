@@ -6,6 +6,7 @@ const boardLinks = [
   { href: "/premium", key: "premium", label: "프리미엄 매물" },
   { href: "/news", key: "news", label: "뉴스" },
   { href: "/tl_faq", key: "tl_faq", label: "FAQ" },
+  { href: "/archive", key: "pages", label: "정적 페이지" },
 ] as const;
 
 export function NoticePreview() {

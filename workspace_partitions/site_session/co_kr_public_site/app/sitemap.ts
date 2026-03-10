@@ -11,7 +11,7 @@ import {
 import { primaryMenu, siteConfig } from "@/components/site-config";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const staticRoutes = ["", "/privacy", "/terms"];
+  const staticRoutes = ["", "/archive", "/privacy", "/terms"];
   const menuRoutes = primaryMenu.map((item) => item.href);
   const listings = getAllListings();
   const listingRoutes = listings.map((item) => ({
@@ -49,7 +49,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...pageRoutes,
   ];
 
-  return routeEntries.map(({ path, updatedAt }) => {
+  const uniqueEntries = new Map<string, string>();
+  for (const entry of routeEntries) {
+    const current = uniqueEntries.get(entry.path);
+    if (!current || new Date(entry.updatedAt).getTime() > new Date(current).getTime()) {
+      uniqueEntries.set(entry.path, entry.updatedAt);
+    }
+  }
+
+  return Array.from(uniqueEntries.entries()).map(([path, updatedAt]) => {
     const isHome = path === "";
     const isDetail = path.includes("/mna/") || path.includes("/notice/") || path.includes("/premium/") || path.includes("/news/");
 

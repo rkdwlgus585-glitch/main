@@ -31,6 +31,7 @@ export function SiteFooter() {
             <Link href="/premium">프리미엄 매물</Link>
             <Link href="/news">뉴스</Link>
             <Link href="/tl_faq">자주하는 질문</Link>
+            <Link href="/archive">전체 컨텐츠</Link>
             <Link href="/privacy">개인정보처리방침</Link>
             <Link href="/terms">이용약관</Link>
           </nav>

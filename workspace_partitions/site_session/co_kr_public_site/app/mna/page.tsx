@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { AiToolBridge } from "@/components/ai-tool-bridge";
 import { Breadcrumbs } from "@/components/breadcrumbs";
+import { LegacyPageDirectory } from "@/components/legacy-page-directory";
 import { ListingBoard } from "@/components/listing-board";
 import { siteConfig } from "@/components/site-config";
 import { getAllListings } from "@/lib/listings";
+import { getLegacyPagesByGroup } from "@/lib/legacy-content";
 import { buildPageMetadata } from "@/lib/page-metadata";
 
 export const revalidate = 3600;
@@ -26,6 +28,7 @@ type PageProps = {
 export default async function MnaPage({ searchParams }: PageProps) {
   const filters = await searchParams;
   const listings = getAllListings();
+  const importedPages = getLegacyPagesByGroup("mna-info");
   const itemListSchema = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
@@ -59,6 +62,12 @@ export default async function MnaPage({ searchParams }: PageProps) {
         </p>
       </section>
       <ListingBoard listings={listings} syncWithUrl initialFilters={filters} />
+      <LegacyPageDirectory
+        eyebrow="M&A Guide"
+        title="양도양수 안내 페이지"
+        description="매물 목록 외에 절차, 개요, 체크 포인트를 설명하는 가져온 안내 페이지도 함께 노출합니다."
+        pages={importedPages}
+      />
       <AiToolBridge variant="yangdo" />
     </div>
   );

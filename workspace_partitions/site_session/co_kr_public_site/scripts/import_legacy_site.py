@@ -709,6 +709,7 @@ def parse_tl_faq_page(
     _, soup = read_soup(session, page_url)
     content_blocks: list[str] = []
     seen_blocks: set[str] = set()
+    faq_items: list[dict[str, str]] = []
     for heading in soup.find_all(["h1", "h2"]):
         text = clean_text(heading.get_text(" ", strip=True))
         if not text or text == "자주하는 질문":
@@ -717,6 +718,18 @@ def parse_tl_faq_page(
         container = heading.find_parent("div")
         if container is None:
             continue
+
+        if heading.name == "h2":
+            answer = next(
+                (
+                    clean_text(paragraph.get_text(" ", strip=True))
+                    for paragraph in container.find_all("p")
+                    if clean_text(paragraph.get_text(" ", strip=True))
+                ),
+                "",
+            )
+            if answer:
+                faq_items.append({"question": text, "answer": answer})
 
         block_html = str(container)
         if block_html in seen_blocks:
@@ -747,6 +760,7 @@ def parse_tl_faq_page(
         "views": None,
         "sourceUrl": normalize_internal_url(page_url),
         "contentHtml": content_html,
+        "faqItems": faq_items,
     }
 
 
