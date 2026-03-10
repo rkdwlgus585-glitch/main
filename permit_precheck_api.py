@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any, Dict
 
 from core_engine.api_contract import normalize_v1_request
-from core_engine.api_response import _compact, build_response_envelope
+from core_engine.api_response import _compact, build_response_envelope, now_iso
 from core_engine.tenant_gateway import TenantGateway
 from core_engine.channel_profiles import ChannelRouter
 from permit_diagnosis_calculator import (
@@ -215,10 +215,6 @@ def _env_bool(key: str, default: bool = False) -> bool:
     if raw in {"0", "false", "no", "off", "n"}:
         return False
     return bool(default)
-
-
-def _now_iso() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
 
 
 def _month_key() -> str:
@@ -586,7 +582,7 @@ class PermitUsageStore:
         status = "ok" if bool(result.get("ok")) else "error"
         estimated_tokens = self._token_estimate(status == "ok")
         request_key = _compact(request_id, 80) or str(uuid.uuid4())
-        received_at = _now_iso()
+        received_at = now_iso()
         input_snapshot = _canonical_permit_input_snapshot(inputs, result)
         result_summary = _result_summary_payload(result)
         required_summary = dict(result.get("required_summary") or {})

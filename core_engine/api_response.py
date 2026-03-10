@@ -1,7 +1,13 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime, timezone
 from typing import Any, Dict
+
+
+def now_iso() -> str:
+    """Return the current UTC time as an ISO-8601 string (seconds precision)."""
+    return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 
 def safe_json_for_script(data: Any) -> str:

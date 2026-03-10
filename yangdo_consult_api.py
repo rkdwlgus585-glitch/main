@@ -4,11 +4,10 @@ import os
 import re
 import sqlite3
 import threading
-from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any, Dict, List, Tuple
 
-from core_engine.api_response import _compact
+from core_engine.api_response import _compact, now_iso
 from core_engine.tenant_gateway import TenantGateway
 from tenant_config.loader import load_gateway
 
@@ -75,10 +74,6 @@ def _cfg_int(key, default) -> int:
         return int(str(CONFIG.get(key, default)).strip())
     except (ValueError, TypeError):
         return int(default)
-
-
-def _now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 
 def _parse_confidence_score(raw) -> float | None:
@@ -309,7 +304,7 @@ class ConsultStore:
     def insert(self, payload, tags, priority, urgency) -> int:
         payload = _normalize_business_payload(payload)
         row = {
-            "received_at": _now_iso(),
+            "received_at": now_iso(),
             "source": _compact(payload.get("source"), limit=100),
             "page_mode": _compact(payload.get("page_mode"), limit=40),
             "subject": _compact(payload.get("subject"), limit=300),
@@ -360,7 +355,7 @@ class ConsultStore:
     def insert_usage(self, payload) -> int:
         payload = _normalize_business_payload(payload)
         row = {
-            "received_at": _now_iso(),
+            "received_at": now_iso(),
             "source": _compact(payload.get("source"), limit=100),
             "page_mode": _compact(payload.get("page_mode"), limit=40),
             "status": _compact(payload.get("status"), limit=40),
@@ -502,7 +497,7 @@ class UsageSheetWriter:
             if ws is None:
                 return {"ok": False, "reason": "worksheet_unavailable"}
             row = [
-                _now_iso(),
+                now_iso(),
                 _compact(payload.get("source"), 100),
                 _compact(payload.get("page_mode"), 40),
                 _compact(payload.get("service_track"), 80),
@@ -747,7 +742,7 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
                 {
                     "ok": True,
                     "service": "yangdo_consult_api",
-                    "time": _now_iso(),
+                    "time": now_iso(),
                     "crm_enabled": bool(self.server.crm_bridge.enabled),
                     "usage_sheet_enabled": bool(self.server.usage_sheet.enabled),
                 },
@@ -795,7 +790,7 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
                 "lead_tags": tags,
                 "crm_status": crm_status,
                 "crm_lead_id": crm_lead_id,
-                "received_at": _now_iso(),
+                "received_at": now_iso(),
             },
         )
         self.server.security_events.append(
@@ -825,7 +820,7 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
                 "usage_id": int(usage_id),
                 "sheet_logged": bool(sheet_result.get("ok")),
                 "sheet_reason": _compact(sheet_result.get("reason"), limit=300),
-                "received_at": _now_iso(),
+                "received_at": now_iso(),
             },
         )
         self.server.security_events.append(

@@ -451,7 +451,7 @@ class EnvBoolTest(unittest.TestCase):
 
 
 # ===================================================================
-# _month_key / _now_iso
+# _month_key / now_iso
 # ===================================================================
 class MonthKeyTest(unittest.TestCase):
     def test_format(self):
@@ -463,8 +463,9 @@ class MonthKeyTest(unittest.TestCase):
 class NowIsoTest(unittest.TestCase):
     def test_format(self):
         import re
-        iso = api._now_iso()
-        self.assertRegex(iso, r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$")
+        from core_engine.api_response import now_iso
+        iso = now_iso()
+        self.assertRegex(iso, r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+00:00$")
 
 
 # ===================================================================

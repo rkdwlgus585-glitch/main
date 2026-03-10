@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import unittest
 
-from core_engine.api_response import _compact, build_response_envelope
+import re
+
+from core_engine.api_response import _compact, build_response_envelope, now_iso, safe_json_for_script
 
 
 class CompactTest(unittest.TestCase):
@@ -87,6 +89,42 @@ class BuildResponseEnvelopeTest(unittest.TestCase):
         payload = {"ok": True, "response_policy": "not-a-dict"}
         result = self._build(payload=payload)
         self.assertEqual(result["response_meta"]["response_tier"], "")
+
+
+# ---------------------------------------------------------------------------
+# now_iso
+# ---------------------------------------------------------------------------
+class NowIsoTest(unittest.TestCase):
+    def test_utc_iso_format(self):
+        iso = now_iso()
+        self.assertRegex(iso, r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+00:00$")
+
+    def test_returns_str(self):
+        self.assertIsInstance(now_iso(), str)
+
+
+# ---------------------------------------------------------------------------
+# safe_json_for_script
+# ---------------------------------------------------------------------------
+class SafeJsonForScriptTest(unittest.TestCase):
+    def test_script_tag_escape(self):
+        result = safe_json_for_script({"html": "</script>"})
+        self.assertNotIn("</script>", result)
+        self.assertIn("<\\/script>", result)
+
+    def test_unicode_line_separator(self):
+        result = safe_json_for_script({"t": "a\u2028b"})
+        self.assertNotIn("\u2028", result)
+
+    def test_unicode_paragraph_separator(self):
+        result = safe_json_for_script({"t": "a\u2029b"})
+        self.assertNotIn("\u2029", result)
+
+    def test_roundtrip(self):
+        import json
+        data = {"key": "value", "num": 42}
+        result = safe_json_for_script(data)
+        self.assertEqual(json.loads(result), data)
 
 
 if __name__ == "__main__":
