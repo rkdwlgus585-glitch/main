@@ -4,7 +4,7 @@ import { platformConfig, widgetUrl } from "@/components/platform-config";
 import { WidgetFrame } from "@/components/widget-frame";
 
 export const metadata: Metadata = {
-  title: "AI 인허가 사전검토 | 서울건설정보",
+  title: "건설업등록 검토 | 서울건설정보",
   description:
     "191개 건설 업종 등록기준 충족 여부를 AI가 즉시 검토합니다. 자본금·기술인력·사무실 요건 진단과 신규 취득 비용 계산까지 무료 제공.",
 };
@@ -104,15 +104,15 @@ function PermitJsonLd() {
 
 export default function PermitPage() {
   return (
-    <main className="product-page">
+    <main id="main" className="product-page">
       <PermitJsonLd />
       <Link className="back-link" href="/">
         플랫폼 홈으로
       </Link>
 
       {/* ── 서비스 소개 ── */}
-      <section className="service-intro">
-        <p className="eyebrow">AI 인허가 사전검토</p>
+      <section className="service-intro" aria-label="서비스 소개">
+        <p className="eyebrow">건설업등록 검토</p>
         <h1>
           등록기준 충족 여부,
           <br />
@@ -125,7 +125,7 @@ export default function PermitPage() {
       </section>
 
       {/* ── 특징 그리드 ── */}
-      <section className="service-features">
+      <section className="service-features" aria-label="서비스 특징">
         <div className="features-grid">
           {features.map((f) => (
             <div className="feature-item" key={f.title}>
@@ -142,13 +142,13 @@ export default function PermitPage() {
         description="등록기준 충족 여부를 메인 플랫폼에서 바로 검토하고, 부족 항목과 다음 조치를 즉시 확인할 수 있는 진입면입니다."
         widgetUrl={widgetUrl("permit")}
         openUrl="/widget/permit"
-        eyebrow="인허가 실행 화면"
-        launchLabel="인허가 사전검토 실행"
+        eyebrow="건설업등록 검토 화면"
+        launchLabel="건설업등록 검토 실행"
         gateNote="페이지 진입만으로는 외부 엔진 호출이 시작되지 않습니다. 점검을 원할 때만 실행을 시작합니다."
       />
 
       {/* ── FAQ ── */}
-      <section className="service-faq">
+      <section className="service-faq" aria-label="자주 묻는 질문">
         <div className="section-header">
           <p className="eyebrow">자주 묻는 질문</p>
           <h2>인허가 사전검토, 이것이 궁금합니다</h2>
@@ -164,7 +164,7 @@ export default function PermitPage() {
       </section>
 
       {/* ── 하단 CTA ── */}
-      <section className="service-bottom-cta">
+      <section className="service-bottom-cta" aria-label="상담 안내">
         <p>등록기준 진단 후 전문 상담을 원하시나요?</p>
         <div className="service-bottom-actions">
           <a className="cta-primary" href={`tel:${platformConfig.contactPhone}`}>

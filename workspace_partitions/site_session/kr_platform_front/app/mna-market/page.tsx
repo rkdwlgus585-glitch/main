@@ -40,7 +40,7 @@ const stats = [
 
 export default function MnaMarketPage() {
   return (
-    <main className="page-shell">
+    <main id="main" className="page-shell">
       <Link className="back-link" href="/">
         ← 플랫폼 홈으로
       </Link>

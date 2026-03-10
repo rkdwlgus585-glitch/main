@@ -103,14 +103,14 @@ function YangdoJsonLd() {
 
 export default function YangdoPage() {
   return (
-    <main className="product-page">
+    <main id="main" className="product-page">
       <YangdoJsonLd />
       <Link className="back-link" href="/">
         플랫폼 홈으로
       </Link>
 
       {/* ── 서비스 소개 ── */}
-      <section className="service-intro">
+      <section className="service-intro" aria-label="서비스 소개">
         <p className="eyebrow">AI 양도가 산정</p>
         <h1>
           건설업 면허 양도가,
@@ -124,7 +124,7 @@ export default function YangdoPage() {
       </section>
 
       {/* ── 특징 그리드 ── */}
-      <section className="service-features">
+      <section className="service-features" aria-label="서비스 특징">
         <div className="features-grid">
           {features.map((f) => (
             <div className="feature-item" key={f.title}>
@@ -147,7 +147,7 @@ export default function YangdoPage() {
       />
 
       {/* ── FAQ ── */}
-      <section className="service-faq">
+      <section className="service-faq" aria-label="자주 묻는 질문">
         <div className="section-header">
           <p className="eyebrow">자주 묻는 질문</p>
           <h2>양도가 산정, 이것이 궁금합니다</h2>
@@ -163,7 +163,7 @@ export default function YangdoPage() {
       </section>
 
       {/* ── 하단 CTA ── */}
-      <section className="service-bottom-cta">
+      <section className="service-bottom-cta" aria-label="상담 안내">
         <p>AI 산정 결과를 기반으로 전문 상담을 원하시나요?</p>
         <div className="service-bottom-actions">
           <a className="cta-primary" href={`tel:${platformConfig.contactPhone}`}>

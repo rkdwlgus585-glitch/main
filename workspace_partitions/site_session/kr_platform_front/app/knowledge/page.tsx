@@ -57,7 +57,7 @@ const categories = [
 
 export default function KnowledgePage() {
   return (
-    <main className="page-shell">
+    <main id="main" className="page-shell">
       <Link className="back-link" href="/">
         ← 플랫폼 홈으로
       </Link>

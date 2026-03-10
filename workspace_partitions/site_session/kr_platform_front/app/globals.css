@@ -1590,6 +1590,16 @@ img { max-width: 100%; display: block; }
   flex-wrap: wrap;
 }
 
+.service-bottom-cta .cta-secondary {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--brand);
+}
+
+.service-bottom-cta .cta-secondary:hover {
+  background: var(--bg);
+}
+
 /* ── Responsive: service pages ── */
 @media (max-width: 640px) {
   .features-grid {
