@@ -817,6 +817,36 @@ img { max-width: 100%; display: block; }
 .back-link { margin-bottom: 16px; background: var(--bg-warm); border: 1px solid var(--line); }
 .back-link:hover { background: var(--bg); }
 
+/* ── Legal pages (terms, privacy) ─────────────────────────── */
+.page-shell h1 {
+  margin: 0 0 32px;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 800;
+  color: var(--brand);
+}
+.page-shell section {
+  margin-bottom: 28px;
+}
+.page-shell section h2 {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+.page-shell section p {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+.page-shell section ul {
+  margin: 8px 0 12px;
+  padding-left: 20px;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+
 /* ── Responsive ────────────────────────────────────────────── */
 @media (max-width: 960px) {
   .hero-shell {
