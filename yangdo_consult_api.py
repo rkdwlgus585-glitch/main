@@ -848,8 +848,8 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
         except (json.JSONDecodeError, UnicodeDecodeError, OSError):
             self._write_json(400, {"ok": False, "error": "invalid_json"})
             return
-        except ValueError as e:
-            self._write_json(400, {"ok": False, "error": str(e)})
+        except ValueError:
+            self._write_json(400, {"ok": False, "error": "invalid_request_body"})
             return
 
         if path == "/consult":

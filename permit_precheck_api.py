@@ -1238,8 +1238,8 @@ class Handler(BaseHTTPRequestHandler):
             return
         try:
             payload = self._read_json_body() if path in {"/precheck", "/v1/permit/precheck", "/reload", "/v1/permit/reload"} else {}
-        except ValueError as exc:
-            self._write_json(400, {"ok": False, "error": str(exc)})
+        except ValueError:
+            self._write_json(400, {"ok": False, "error": "invalid_request_body"})
             return
         except (TypeError, UnicodeDecodeError, OverflowError):
             self._write_json(400, {"ok": False, "error": "invalid_json"})
