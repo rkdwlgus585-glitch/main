@@ -1,4 +1,18 @@
-.next
+# dependencies
 node_modules
-.vercel
+
+# next.js build
+.next
+out
 tsconfig.tsbuildinfo
+
+# vercel
+.vercel
+
+# environment variables (secrets must stay local)
+.env*.local
+
+# IDE
+.vscode
+.idea
+*.swp

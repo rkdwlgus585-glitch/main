@@ -51,13 +51,20 @@ export function generateNonce(): string {
 // literal "null" and the configured engine origin for forward
 // compatibility (e.g. if allow-same-origin is later added).
 
+function safeOrigin(url: string | undefined): string {
+  if (!url) return "";
+  try {
+    return new URL(url).origin;
+  } catch {
+    return "";
+  }
+}
+
 const ALLOWED_ORIGINS: ReadonlySet<string> = new Set([
   "null",
-  process.env.NEXT_PUBLIC_CALCULATOR_MOUNT_BASE
-    ? new URL(process.env.NEXT_PUBLIC_CALCULATOR_MOUNT_BASE).origin
-    : "",
-  process.env.NEXT_PUBLIC_PRIVATE_ENGINE_ORIGIN ?? "",
-  process.env.NEXT_PUBLIC_PLATFORM_FRONT_HOST ?? "",
+  safeOrigin(process.env.NEXT_PUBLIC_CALCULATOR_MOUNT_BASE),
+  safeOrigin(process.env.NEXT_PUBLIC_PRIVATE_ENGINE_ORIGIN),
+  safeOrigin(process.env.NEXT_PUBLIC_PLATFORM_FRONT_HOST),
 ].filter(Boolean));
 
 export function isAllowedOrigin(origin: string): boolean {
