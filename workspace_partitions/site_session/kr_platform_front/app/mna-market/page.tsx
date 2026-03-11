@@ -126,6 +126,7 @@ export default function MnaMarketPage() {
         <a
           className="cta-primary"
           href={platformConfig.listingHost}
+          target="_blank"
           rel="noreferrer noopener"
         >
           실시간 매물 바로가기 →
@@ -175,6 +176,7 @@ export default function MnaMarketPage() {
               <a
                 className="cta-secondary"
                 href={platformConfig.listingHost}
+                target="_blank"
                 rel="noreferrer noopener"
               >
                 실시간 매물 둘러보기

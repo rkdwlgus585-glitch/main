@@ -29,7 +29,7 @@ export default function GlobalError({
         <button type="button" className="cta-primary" onClick={reset}>
           다시 시도
         </button>
-        <Link className="cta-primary not-found-secondary" href="/">
+        <Link className="cta-secondary not-found-secondary" href="/">
           홈으로 이동
         </Link>
       </div>

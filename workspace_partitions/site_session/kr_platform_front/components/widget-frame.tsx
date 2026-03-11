@@ -135,7 +135,7 @@ export function WidgetFrame({
       <header className="widget-header">
         <div>
           <p className="eyebrow">{eyebrow}</p>
-          <h1>{title}</h1>
+          <h2>{title}</h2>
           <p>{description}</p>
         </div>
         {openUrl ? (

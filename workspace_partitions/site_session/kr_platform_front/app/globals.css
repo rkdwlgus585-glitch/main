@@ -406,7 +406,7 @@ img { max-width: 100%; display: block; }
 .widget-retry-button { min-height: 44px; border: 0; border-radius: var(--radius-pill); background: var(--brand); color: white; font-weight: 700; font-size: 0.875rem; padding: 0 20px; cursor: pointer; justify-self: center; transition: all 200ms var(--ease); }
 .widget-retry-button:hover { background: var(--brand-light); transform: translateY(-1px); }
 .widget-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
-.widget-header h1 { margin: 0; font-size: 1.5rem; font-weight: 800; line-height: 1.2; }
+.widget-header h2 { margin: 0; font-size: 1.5rem; font-weight: 800; line-height: 1.2; }
 .widget-header p { color: var(--muted); margin: 4px 0 0; }
 .widget-open { display: inline-flex; align-items: center; min-height: 48px; padding: 0 18px; border-radius: var(--radius-pill); border: 1px solid var(--line); background: var(--surface); font-weight: 700; }
 .back-link { margin-bottom: 16px; background: var(--bg-warm); border: 1px solid var(--line); }

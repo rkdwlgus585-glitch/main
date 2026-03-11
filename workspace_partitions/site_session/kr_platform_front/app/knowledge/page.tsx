@@ -184,6 +184,7 @@ export default function KnowledgePage() {
                 <li key={a.slug}>
                   <a
                     href={`${platformConfig.contentHost}/category/건설업-지식/${cat.categorySlug}/${a.slug}`}
+                    target="_blank"
                     rel="noreferrer noopener"
                   >
                     {a.title}
@@ -202,6 +203,7 @@ export default function KnowledgePage() {
         <a
           className="cta-primary"
           href={`${platformConfig.contentHost}/category/건설업-지식`}
+          target="_blank"
           rel="noreferrer noopener"
         >
           블로그에서 더 보기 →

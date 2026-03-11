@@ -107,7 +107,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           본문 바로가기
         </a>
         <SiteHeader />
-        <div id="main">{children}</div>
+        {children}
         <SiteFooter />
       </body>
     </html>
