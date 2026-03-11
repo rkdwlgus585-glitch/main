@@ -65,7 +65,7 @@ export default function PrivacyPage() {
         </p>
       </section>
 
-      <p className="legal-effective-date">시행일: 2026년 3월 1일</p>
+      <p className="legal-effective-date">시행일: <time dateTime="2026-03-01">2026년 3월 1일</time></p>
     </main>
   );
 }

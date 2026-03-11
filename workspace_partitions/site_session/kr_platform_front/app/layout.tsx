@@ -105,6 +105,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <JsonLd />
+        <noscript>
+          <div style={{ padding: "24px", textAlign: "center", background: "#FFF3CD", color: "#664D03", fontFamily: "sans-serif" }}>
+            이 사이트는 JavaScript가 필요합니다. 브라우저 설정에서 JavaScript를 활성화해 주세요.
+            문의: <a href={`tel:${platformConfig.contactPhone}`}>{platformConfig.contactPhone}</a>
+          </div>
+        </noscript>
         <a className="skip-link" href="#main">
           본문 바로가기
         </a>
