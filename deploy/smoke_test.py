@@ -146,6 +146,27 @@ def test_consult_health(base: str) -> bool:
     return _check("consult /v1/health", status, body)
 
 
+def test_consult_intake(base: str, api_key: str = "") -> bool:
+    """POST /v1/consult — basic intake request with minimal payload."""
+    payload = {
+        "customer_name": "smoke_test",
+        "customer_phone": "010-0000-0000",
+        "license_type": "토목건축공사업",
+        "consultation_type": "양도",
+    }
+    headers = {}
+    if api_key:
+        headers["X-API-Key"] = api_key
+    status, body = _json_request(
+        f"{base}/v1/consult", method="POST", payload=payload, headers=headers
+    )
+    ok = status == 200 and body.get("ok") is True
+    tag = _PASS if ok else _FAIL
+    req_id = body.get("request_id", "?") if ok else "n/a"
+    print(f"  {tag} consult /v1/consult (status={status} request_id={req_id})")
+    return ok
+
+
 def test_rate_limit_header(base: str) -> bool:
     """Verify X-RateLimit headers are returned."""
     status, body = _json_request(f"{base}/v1/health")
@@ -238,6 +259,7 @@ def main() -> int:
     # ── Consult API ──
     p, f, _ = run_suite("Consult Intake API", [
         ("health", lambda: test_consult_health(consult_url)),
+        ("intake", lambda: test_consult_intake(consult_url, args.consult_api_key)),
         ("cors", lambda: test_options_cors(consult_url)),
     ])
     total_passed += p
