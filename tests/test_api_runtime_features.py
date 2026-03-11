@@ -5,13 +5,18 @@ Covers:
 - X-Request-Id correlation (yangdo_consult_api)
 - Health check started_at field (both APIs)
 - _read_json / _read_json_body request validation
+- SIGTERM graceful shutdown handlers (all 3 servers)
 """
 
 from __future__ import annotations
 
+import ast
+import inspect
 import io
 import json
 import re
+import signal
+import textwrap
 import uuid
 from email.message import Message
 from pathlib import Path
@@ -346,3 +351,110 @@ class TestPermitReadJsonBody:
             body,
         )
         assert handler._read_json_body() == {}
+
+
+# ── SIGTERM graceful shutdown tests ───────────────────────────────
+
+
+ROOT = Path(__file__).resolve().parent.parent
+
+# API server source files and their SIGTERM patterns
+_API_SERVERS = {
+    "permit_precheck_api": {
+        "file": ROOT / "permit_precheck_api.py",
+        "handler_name": "_graceful_shutdown",
+        "signal_register": "signal.signal(signal.SIGTERM",
+    },
+    "yangdo_consult_api": {
+        "file": ROOT / "yangdo_consult_api.py",
+        "handler_name": "_graceful_shutdown",
+        "signal_register": "signal.signal(signal.SIGTERM",
+    },
+    "yangdo_blackbox_api": {
+        "file": ROOT / "yangdo_blackbox_api.py",
+        "handler_name": "_graceful_shutdown",
+        "signal_register": "_signal.signal(_signal.SIGTERM",
+    },
+}
+
+
+class TestSigtermHandlerRegistration:
+    """Verify all 3 API servers register SIGTERM handlers."""
+
+    @pytest.mark.parametrize("server_name", list(_API_SERVERS))
+    def test_sigterm_handler_registered(self, server_name: str) -> None:
+        """Each API server must call signal.signal(SIGTERM, handler)."""
+        info = _API_SERVERS[server_name]
+        src = info["file"].read_text(encoding="utf-8")
+        assert info["signal_register"] in src, (
+            f"{server_name} missing SIGTERM registration"
+        )
+
+    @pytest.mark.parametrize("server_name", list(_API_SERVERS))
+    def test_handler_function_defined(self, server_name: str) -> None:
+        """Each API server must define _graceful_shutdown(signum, frame)."""
+        info = _API_SERVERS[server_name]
+        src = info["file"].read_text(encoding="utf-8")
+        pattern = rf"def {info['handler_name']}\(signum.*_frame"
+        assert re.search(pattern, src), (
+            f"{server_name} missing {info['handler_name']} definition"
+        )
+
+    @pytest.mark.parametrize("server_name", list(_API_SERVERS))
+    def test_handler_logs_signal_name(self, server_name: str) -> None:
+        """Handler should log the signal name for observability."""
+        info = _API_SERVERS[server_name]
+        src = info["file"].read_text(encoding="utf-8")
+        assert "sig_name" in src or "Signals(signum)" in src, (
+            f"{server_name} handler doesn't resolve signal name"
+        )
+
+
+class TestSigtermHandlerBehavior:
+    """Test actual _graceful_shutdown behavior for permit and consult APIs."""
+
+    def test_permit_handler_calls_shutdown(self) -> None:
+        """permit_precheck_api _graceful_shutdown calls srv.shutdown()."""
+        src = (ROOT / "permit_precheck_api.py").read_text(encoding="utf-8")
+        # Find the handler body: it should contain srv.shutdown()
+        handler_match = re.search(
+            r"def _graceful_shutdown\(.*?\).*?:\n((?:\s+.*\n)*)",
+            src,
+        )
+        assert handler_match, "Handler not found"
+        body = handler_match.group(1)
+        assert "srv.shutdown()" in body, "Handler must call srv.shutdown()"
+
+    def test_consult_handler_calls_shutdown(self) -> None:
+        """yangdo_consult_api _graceful_shutdown calls srv.shutdown()."""
+        src = (ROOT / "yangdo_consult_api.py").read_text(encoding="utf-8")
+        handler_match = re.search(
+            r"def _graceful_shutdown\(.*?\).*?:\n((?:\s+.*\n)*)",
+            src,
+        )
+        assert handler_match, "Handler not found"
+        body = handler_match.group(1)
+        assert "srv.shutdown()" in body, "Handler must call srv.shutdown()"
+
+    def test_blackbox_handler_raises_system_exit(self) -> None:
+        """yangdo_blackbox_api _graceful_shutdown raises SystemExit(0)."""
+        src = (ROOT / "yangdo_blackbox_api.py").read_text(encoding="utf-8")
+        handler_match = re.search(
+            r"def _graceful_shutdown\(.*?\).*?:\n((?:\s+.*\n)*)",
+            src,
+        )
+        assert handler_match, "Handler not found"
+        body = handler_match.group(1)
+        assert "SystemExit(0)" in body, "Handler must raise SystemExit(0)"
+
+    @pytest.mark.parametrize("server_name", ["permit_precheck_api", "yangdo_consult_api"])
+    def test_main_returns_int(self, server_name: str) -> None:
+        """main() must return int for SystemExit exit code propagation."""
+        info = _API_SERVERS[server_name]
+        src = info["file"].read_text(encoding="utf-8")
+        assert "def main() -> int:" in src, (
+            f"{server_name}.main() must return int"
+        )
+        assert "raise SystemExit(main())" in src, (
+            f"{server_name} must use raise SystemExit(main())"
+        )

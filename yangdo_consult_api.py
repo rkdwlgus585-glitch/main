@@ -979,7 +979,7 @@ def _parse_origins(raw: str) -> list[str]:
     return sorted(parse_origin_allowlist(str(raw or "")))
 
 
-def main() -> None:
+def main() -> int:
     """Parse CLI arguments and start the yangdo consultation HTTP server."""
     parser = argparse.ArgumentParser(description="서울건설정보 양도가 계산기 상담/사용 로그 API 서버")
     parser.add_argument("--host", default=str(CONFIG.get("YANGDO_CONSULT_API_HOST", "0.0.0.0")).strip())
@@ -1077,9 +1077,10 @@ def main() -> None:
             srv.server_close()
         except OSError:
             pass
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
 
 
