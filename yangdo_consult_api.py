@@ -979,6 +979,17 @@ def main() -> None:
         parser.error(f"port must be 1-65535, got {args.port}")
 
     db_path = os.path.abspath(args.db_path)
+
+    # ── fail-fast: verify database directory is writable ──
+    db_dir = os.path.dirname(db_path) or "."
+    if not os.path.isdir(db_dir):
+        try:
+            os.makedirs(db_dir, exist_ok=True)
+        except OSError:
+            parser.error(f"cannot create database directory: {db_dir}")
+    if not os.access(db_dir, os.W_OK):
+        parser.error(f"database directory not writable: {db_dir}")
+
     allow_origins = _parse_origins(args.allow_origins)
     api_key = str(args.api_key or "").strip()
     api_keys = parse_key_values(api_key)

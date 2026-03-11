@@ -1427,8 +1427,18 @@ def main() -> int:
     if not 1 <= args.port <= 65535:
         parser.error(f"port must be 1-65535, got {args.port}")
 
+    # ── fail-fast: verify critical data files exist before starting ──
+    catalog_path = Path(str(args.catalog or ""))
+    rules_path = Path(str(args.rules or ""))
+    if not catalog_path.exists():
+        parser.error(f"catalog file not found: {catalog_path}")
+    if not rules_path.exists():
+        parser.error(f"rules file not found: {rules_path}")
+
     engine = PermitPrecheckEngine(str(args.catalog or ""), str(args.rules or ""))
     meta = engine.refresh()
+    if int(meta.get("industry_total", 0) or 0) == 0:
+        logger.warning("permit precheck engine started with ZERO industries — check catalog file")
     allow_origins = parse_origin_allowlist(str(args.allow_origins or ""))
     tenant_gateway_enabled = str(args.tenant_gateway_enabled or "").strip().lower() in {"1", "true", "yes", "on", "y"}
     tenant_gateway_strict = str(args.tenant_gateway_strict or "").strip().lower() in {"1", "true", "yes", "on", "y"}
