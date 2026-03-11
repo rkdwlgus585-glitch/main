@@ -20,8 +20,8 @@ export function SiteFooter() {
             <h4>정보 · 상담</h4>
             <Link href="/knowledge">건설실무</Link>
             <Link href="/consult">고객센터</Link>
-            <a href={`tel:${platformConfig.contactPhone}`}>{platformConfig.contactPhone}</a>
-            <a href={`mailto:${platformConfig.contactEmail}`}>{platformConfig.contactEmail}</a>
+            <a href={`tel:${platformConfig.contactPhone}`} aria-label={`전화: ${platformConfig.contactPhone}`}>{platformConfig.contactPhone}</a>
+            <a href={`mailto:${platformConfig.contactEmail}`} aria-label={`이메일: ${platformConfig.contactEmail}`}>{platformConfig.contactEmail}</a>
           </div>
           <div>
             <h4>법적 고지</h4>

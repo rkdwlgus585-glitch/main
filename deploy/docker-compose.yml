@@ -28,6 +28,12 @@ services:
       resources:
         limits:
           memory: 512M
+          cpus: "1.0"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
 
   permit-api:
     build:
@@ -52,6 +58,12 @@ services:
       resources:
         limits:
           memory: 512M
+          cpus: "1.0"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
 
   nginx:
     image: nginx:1.27-alpine
