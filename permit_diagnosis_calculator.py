@@ -972,6 +972,13 @@ def evaluate_registration_diagnosis(
     base_date: date | None = None,
     extra_inputs: Dict[str, Any] | None = None,
 ) -> dict:
+    """Evaluate a single industry registration rule against current user assets.
+
+    Compare the legal requirements (capital, technicians, equipment, typed
+    criteria) defined in *rule* with the user's current holdings and return
+    a diagnostic dict containing gap analysis, readiness flags, estimated
+    costs, and a human-readable summary.
+    """
     req = dict(rule.get("requirements") or {})
 
     required_capital = _coerce_non_negative_float(req.get("capital_eok", 0))
@@ -2048,6 +2055,12 @@ def _build_master_catalog(platform_catalog: dict, selector_catalog: dict) -> dic
 
 
 def build_bootstrap_payload(catalog: dict, rule_catalog: dict) -> dict:
+    """Assemble the complete client-side bootstrap JSON payload.
+
+    Merge the industry catalog, objective legal rules, patent evidence
+    bundle, review-case presets, case stories, and prompt-surface packets
+    into a single dict that the front-end JavaScript consumes at page load.
+    """
     payload = _prepare_ui_payload(catalog, rule_catalog)
     summary = dict(payload.get("summary") or {})
     scoped_source_rows = [
@@ -2314,6 +2327,12 @@ def build_html(
     data_encoding: str = "",
     fragment: bool = False,
 ) -> str:
+    """Build a complete self-contained HTML page for the AI 인허가 사전검토 calculator.
+
+    Render channel branding, embed the bootstrap JSON payload inline, and
+    produce a single HTML string (full document or WordPress-compatible
+    fragment) ready for deployment.
+    """
     bundle = dict(bootstrap_payload or build_bootstrap_payload(catalog, rule_catalog))
     permit_catalog = dict(bundle.get("permitCatalog") or {})
     rules_lookup = dict(bundle.get("ruleLookup") or {})
@@ -8021,6 +8040,12 @@ def _build_wordpress_fragment(full_html: str) -> str:
 
 
 def main() -> int:
+    """CLI entry point: load catalogs, build the HTML calculator, and write output files.
+
+    Parse command-line arguments, load the industry catalog and legal rule
+    catalog from disk, assemble the bootstrap payload, and write the final
+    HTML (and optional separate JSON data file) to the specified output paths.
+    """
     parser = argparse.ArgumentParser(description="Generate AI permit pre-check calculator HTML")
     parser.add_argument("--catalog", default=str(DEFAULT_CATALOG_PATH), help="Path to collected permit industry JSON")
     parser.add_argument("--rules", default=str(DEFAULT_RULES_PATH), help="Path to objective legal rules JSON")

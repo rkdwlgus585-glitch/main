@@ -13,6 +13,7 @@ DEFAULT_CONTACT_PHONE: str = "1668-3548"
 DEFAULT_CONTACT_PHONE_DIGITS: str = "16683548"
 
 def _round4(value: object) -> Optional[float]:
+    """Round *value* to 4 decimal places; return ``None`` on non-numeric input."""
     if value is None:
         return None
     try:
@@ -20,6 +21,7 @@ def _round4(value: object) -> Optional[float]:
     except (ValueError, TypeError):
         return None
 def listing_detail_url(site_url: object, seoul_no: object = 0, now_uid: object = "") -> str:
+    """Build a canonical listing detail URL from *site_url* + *seoul_no* or *now_uid*."""
     base = str(site_url or "").rstrip("/")
     if not base:
         base = DEFAULT_LISTING_BASE_URL
@@ -105,6 +107,11 @@ def _derive_display_range_eok(current_price_text: object, claim_price_text: obje
         return None, None
     return _round4(min(vals)), _round4(max(vals))
 def build_training_dataset(records: object, site_url: str = "") -> List[Dict[str, Any]]:
+    """Transform raw listing records into normalised training rows for the AI engine.
+
+    Extracts price ranges, financial ratios, license tokens, and listing URLs.
+    Records with non-positive prices are filtered out.
+    """
     rows = []
     for rec in list(records or []):
         price = rec.get("current_price_eok")
@@ -211,6 +218,7 @@ def mean_or_none(values: object) -> Optional[float]:
         return None
     return _round4(sum(nums) / float(len(nums)))
 def build_meta(all_records: object, train_dataset: object) -> Dict[str, Any]:
+    """Compute aggregate statistics (quantiles, counts, top licenses) for the AI engine UI."""
     prices = [row.get("price_eok") for row in list(train_dataset or [])]
     specialty_vals = [row.get("specialty") for row in list(train_dataset or [])]
     sales3_vals = [row.get("sales3_eok") for row in list(train_dataset or [])]
@@ -455,6 +463,14 @@ def build_page_html(
     enable_usage_log: bool = False,
     enable_hot_match: bool = False,
 ) -> str:
+    """Build a complete self-contained HTML page for the AI 양도가 산정 calculator.
+
+    Embeds the training dataset, statistical metadata, and a JS engine that
+    performs real-time valuation.  Channel branding and feature toggles
+    (consult widget, usage logging, hot-match) are configurable.
+
+    Returns a UTF-8 HTML string ready to be written to disk or served.
+    """
     branding = resolve_channel_branding(
         channel_id=str(channel_id or "").strip(),
         overrides={
