@@ -5,6 +5,7 @@ import re
 import signal
 import sqlite3
 import threading
+import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any
 
@@ -646,6 +647,19 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
 
     server_version = "YangdoConsultAPI/1.1"
 
+    def _request_id(self) -> str:
+        cached = getattr(self, "_cached_request_id", "")
+        if cached:
+            return str(cached)
+        incoming = _compact(
+            self.headers.get("X-Request-Id") or self.headers.get("X-Correlation-Id"),
+            limit=_LIM_HEADER,
+        )
+        if not incoming:
+            incoming = uuid.uuid4().hex
+        setattr(self, "_cached_request_id", incoming)
+        return incoming
+
     def _allow_origin(self) -> str:
         req_origin = _compact(self.headers.get("Origin"), limit=_LIM_HEADER)
         return resolve_allow_origin(req_origin, self.server.allowed_origins)
@@ -739,18 +753,20 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
         return False
 
     def _write_json(self, status: int, data: dict, extra_headers: dict[str, str] | None = None) -> None:
+        request_id = self._request_id()
         body = json.dumps(data, ensure_ascii=False).encode("utf-8")
         allow_origin = self._allow_origin()
         self.send_response(int(status))
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Request-Id", request_id)
         for hk, hv in DEFAULT_SECURITY_HEADERS:
             self.send_header(hk, hv)
         if allow_origin:
             self.send_header("Access-Control-Allow-Origin", allow_origin)
             self.send_header("Vary", "Origin")
-            self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-API-Key")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-API-Key, X-Request-Id, X-Correlation-Id")
             self.send_header("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
         if isinstance(extra_headers, dict):
             for hk, hv in extra_headers.items():
@@ -850,7 +866,8 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
                 "service": "yangdo_consult_api",
                 "path": "/consult",
                 "ip": self._client_ip(),
-                "request_id": int(request_id),
+                "db_request_id": int(request_id),
+                "correlation_id": self._request_id(),
             }
         )
 
@@ -881,6 +898,7 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
                 "path": "/usage",
                 "ip": self._client_ip(),
                 "usage_id": int(usage_id),
+                "correlation_id": self._request_id(),
             }
         )
 
