@@ -41,6 +41,21 @@ _derive_display_range_eok = getattr(_BASE, "_derive_display_range_eok")
 _listing_number_band = getattr(_BASE, "_listing_number_band")
 _token_containment = getattr(_BASE, "_token_containment")
 
+# ── Output field truncation limits (chars) ───────────────────────────
+_LIM_CHANNEL_ID: int = 80
+_LIM_TENANT_PLAN: int = 60
+_LIM_LICENSE_TEXT: int = 120
+_LIM_REC_LABEL: int = 40
+_LIM_REC_FOCUS: int = 80
+_LIM_PRECISION_TIER: int = 20
+_LIM_FIT_SUMMARY: int = 180
+_LIM_URL: int = 260
+
+# ── Publication safety thresholds (ICT sector) ──────────────────────
+_PUB_SPAN_RATIO_MAX: float = 0.70
+_PUB_CENTER_AMOUNT_MIN: float = 0.25
+_PUB_CONFIDENCE_MIN: float = 90.0
+
 _SPECIAL_BALANCE_LOAN_UTILIZATION = 0.60
 _SPECIAL_SETTLEMENT_SCENARIO_INPUT_MODES: Tuple[str, ...] = ("auto", "credit_transfer", "none")
 _FIRE_GUARDED_PRIOR_BLEND = 0.55
@@ -112,11 +127,11 @@ def _write_partner_health_json(handler: Any, status: int = 200) -> None:
     if not request_id:
         request_id = "health"
     try:
-        channel_id = _compact(_channel_id_value(handler._channel_resolution()), 80)
+        channel_id = _compact(_channel_id_value(handler._channel_resolution()), _LIM_CHANNEL_ID)
     except (AttributeError, TypeError, ValueError, KeyError):
         channel_id = ""
     try:
-        tenant_plan = _compact(_tenant_plan_key(handler._tenant_resolution()), 60)
+        tenant_plan = _compact(_tenant_plan_key(handler._tenant_resolution()), _LIM_TENANT_PLAN)
     except (AttributeError, TypeError, ValueError, KeyError):
         tenant_plan = ""
     response_payload = build_response_envelope(
@@ -874,7 +889,7 @@ def _build_recommended_listings(*, target: Dict[str, Any], rows: List[Tuple[floa
             {
                 "seoul_no": seoul_no,
                 "now_uid": str(rec.get("uid", "")).strip(),
-                "license_text": _compact(rec.get("license_text"), 120),
+                "license_text": _compact(rec.get("license_text"), _LIM_LICENSE_TEXT),
                 "price_eok": _round4(rec.get("current_price_eok")),
                 "display_low_eok": _round4(display_low),
                 "display_high_eok": _round4(display_high),
@@ -903,9 +918,9 @@ def _apply_special_sector_publication_guard(result: Dict[str, Any], target: Dict
     confidence = float(_to_float(out.get("confidence_percent")) or 0.0)
     span_ratio = ((high - low) / center) if center > 0 else 0.0
 
-    too_wide = span_ratio > 0.70
-    too_small = center < 0.25
-    insufficient_confidence = confidence < 90.0
+    too_wide = span_ratio > _PUB_SPAN_RATIO_MAX
+    too_small = center < _PUB_CENTER_AMOUNT_MIN
+    insufficient_confidence = confidence < _PUB_CONFIDENCE_MIN
     if not (too_wide or too_small or insufficient_confidence):
         return out
 
@@ -945,19 +960,19 @@ def _project_estimate_result(server, resolution, result: Dict[str, Any]) -> Dict
     def _detail_recommendation_row(row: Dict[str, Any]) -> Dict[str, Any]:
         return {
             "seoul_no": int(_to_float(row.get("seoul_no")) or 0),
-            "license_text": _compact(row.get("license_text"), 120),
+            "license_text": _compact(row.get("license_text"), _LIM_LICENSE_TEXT),
             "price_eok": _round4(row.get("price_eok")),
             "display_low_eok": _round4(row.get("display_low_eok")),
             "display_high_eok": _round4(row.get("display_high_eok")),
             "sales3_eok": _round4(row.get("sales3_eok")),
-            "recommendation_label": _compact(row.get("recommendation_label"), 40),
-            "recommendation_focus": _compact(row.get("recommendation_focus"), 80),
-            "precision_tier": _compact(row.get("precision_tier"), 20),
+            "recommendation_label": _compact(row.get("recommendation_label"), _LIM_REC_LABEL),
+            "recommendation_focus": _compact(row.get("recommendation_focus"), _LIM_REC_FOCUS),
+            "precision_tier": _compact(row.get("precision_tier"), _LIM_PRECISION_TIER),
             "reasons": [str(x or "").strip() for x in list(row.get("reasons") or [])[:3] if str(x or "").strip()],
-            "fit_summary": _compact(row.get("fit_summary"), 180),
+            "fit_summary": _compact(row.get("fit_summary"), _LIM_FIT_SUMMARY),
             "matched_axes": [str(x or "").strip() for x in list(row.get("matched_axes") or [])[:4] if str(x or "").strip()],
             "mismatch_flags": [str(x or "").strip() for x in list(row.get("mismatch_flags") or [])[:4] if str(x or "").strip()],
-            "url": _compact(row.get("url"), 260),
+            "url": _compact(row.get("url"), _LIM_URL),
         }
 
     if tier == "summary":
@@ -968,13 +983,13 @@ def _project_estimate_result(server, resolution, result: Dict[str, Any]) -> Dict
             summary_recommended.append(
                 {
                     "seoul_no": int(_to_float(row.get("seoul_no")) or 0),
-                    "license_text": _compact(row.get("license_text"), 120),
+                    "license_text": _compact(row.get("license_text"), _LIM_LICENSE_TEXT),
                     "display_low_eok": _round4(row.get("display_low_eok")),
                     "display_high_eok": _round4(row.get("display_high_eok")),
-                    "recommendation_label": _compact(row.get("recommendation_label"), 40),
-                    "recommendation_focus": _compact(row.get("recommendation_focus"), 80),
+                    "recommendation_label": _compact(row.get("recommendation_label"), _LIM_REC_LABEL),
+                    "recommendation_focus": _compact(row.get("recommendation_focus"), _LIM_REC_FOCUS),
                     "reasons": [str(x or "").strip() for x in list(row.get("reasons") or [])[:3] if str(x or "").strip()],
-                    "url": _compact(row.get("url"), 260),
+                    "url": _compact(row.get("url"), _LIM_URL),
                 }
             )
         allowed = {

@@ -95,11 +95,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <JsonLd />
-        <a className="skip-link" href="#main-content">
+        <a className="skip-link" href="#main">
           본문 바로가기
         </a>
         <SiteHeader />
-        <div id="main-content">{children}</div>
+        <div id="main">{children}</div>
         <SiteFooter />
       </body>
     </html>

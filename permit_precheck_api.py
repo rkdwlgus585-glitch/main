@@ -65,6 +65,17 @@ logger = setup_logger(name="permit_precheck_api")
 
 SERVICE_NAME = "permit_precheck_api"
 
+# ── Field truncation limits (chars) ──────────────────────────────────
+_LIM_SERVICE_CODE: int = 80       # service_code, rule_id, request_id, etc.
+_LIM_SERVICE_NAME: int = 200      # service_name, industry_name, missing_critical
+_LIM_COVERAGE: int = 120          # coverage_status, mapping_confidence
+_LIM_SOURCE: int = 100            # source field
+_LIM_ERROR_TEXT: int = 1000       # error_text
+_LIM_PAGE_URL: int = 500          # page_url
+_LIM_RESPONSE_TIER: int = 30      # response_tier
+_LIM_X_RESPONSE_TIER: int = 40    # X-Response-Tier header value
+_LIM_X_TENANT_PLAN: int = 60      # X-Tenant-Plan header value
+
 
 def _json_dumps_compact(value: Any) -> str:
     try:
@@ -123,12 +134,12 @@ def _coerce_float_or_none(value: Any) -> float | None:
 
 def _canonical_permit_input_snapshot(inputs: Dict[str, Any], result: Dict[str, Any]) -> Dict[str, Any]:
     snapshot = {
-        "service_code": _compact(_first_present(inputs, "service_code"), 80),
-        "service_name": _compact(_first_present(inputs, "service_name", "industry_name"), 200),
-        "industry_name": _compact(_first_present(inputs, "industry_name", "service_name"), 200),
-        "rule_id": _compact(_first_present(inputs, "rule_id", "group_rule_id"), 80),
+        "service_code": _compact(_first_present(inputs, "service_code"), _LIM_SERVICE_CODE),
+        "service_name": _compact(_first_present(inputs, "service_name", "industry_name"), _LIM_SERVICE_NAME),
+        "industry_name": _compact(_first_present(inputs, "industry_name", "service_name"), _LIM_SERVICE_NAME),
+        "rule_id": _compact(_first_present(inputs, "rule_id", "group_rule_id"), _LIM_SERVICE_CODE),
         "capital_eok": _coerce_float_or_none(_first_present(inputs, "capital_eok", "current_capital_eok")),
-        "raw_capital_input": _compact(_first_present(inputs, "raw_capital_input", "capital_eok"), 80),
+        "raw_capital_input": _compact(_first_present(inputs, "raw_capital_input", "capital_eok"), _LIM_SERVICE_CODE),
         "technicians_count": _coerce_int_or_none(
             _first_present(inputs, "technicians_count", "technicians", "current_technicians")
         ),
@@ -156,7 +167,7 @@ def _canonical_permit_input_snapshot(inputs: Dict[str, Any], result: Dict[str, A
         "safety_secured": _coerce_bool_flag(_first_present(inputs, "safety_secured", "current_safety_secured")),
     }
     if not snapshot["industry_name"]:
-        snapshot["industry_name"] = _compact(result.get("industry_name"), 200)
+        snapshot["industry_name"] = _compact(result.get("industry_name"), _LIM_SERVICE_NAME)
     if not snapshot["service_name"]:
         snapshot["service_name"] = snapshot["industry_name"]
     return snapshot
@@ -173,12 +184,12 @@ def _required_ok_flag(required_summary: Dict[str, Any], key: str) -> str:
 def _result_summary_payload(result: Dict[str, Any]) -> Dict[str, Any]:
     return {
         "ok": bool(result.get("ok")),
-        "industry_name": _compact(result.get("industry_name"), 200),
-        "group_rule_id": _compact(result.get("group_rule_id"), 80),
-        "overall_status": _compact(result.get("overall_status"), 80),
+        "industry_name": _compact(result.get("industry_name"), _LIM_SERVICE_NAME),
+        "group_rule_id": _compact(result.get("group_rule_id"), _LIM_SERVICE_CODE),
+        "overall_status": _compact(result.get("overall_status"), _LIM_SERVICE_CODE),
         "overall_ok": bool(result.get("overall_ok")),
         "manual_review_required": bool(result.get("manual_review_required")),
-        "coverage_status": _compact(result.get("coverage_status"), 120),
+        "coverage_status": _compact(result.get("coverage_status"), _LIM_COVERAGE),
         "mapping_confidence": result.get("mapping_confidence"),
         "typed_criteria_total": _coerce_int_or_none(result.get("typed_criteria_total")),
         "pending_criteria_count": _coerce_int_or_none(result.get("pending_criteria_count")),
@@ -599,19 +610,19 @@ class PermitUsageStore:
         key = _compact(tenant_id).lower() or "unknown"
         status = "ok" if bool(result.get("ok")) else "error"
         estimated_tokens = self._token_estimate(status == "ok")
-        request_key = _compact(request_id, 80) or uuid.uuid4().hex
+        request_key = _compact(request_id, _LIM_SERVICE_CODE) or uuid.uuid4().hex
         received_at = now_iso()
         input_snapshot = _canonical_permit_input_snapshot(inputs, result)
         result_summary = _result_summary_payload(result)
         required_summary = dict(result.get("required_summary") or {})
         row = {
             "received_at": received_at,
-            "source": _compact(source, 100) or "permit_precheck_api",
+            "source": _compact(source, _LIM_SOURCE) or "permit_precheck_api",
             "page_mode": "permit_precheck",
             "status": status,
-            "error_text": _compact(result.get("error") or "", 1000),
-            "license_text": _compact(input_snapshot.get("industry_name") or input_snapshot.get("service_name") or "", 200),
-            "input_specialty": _compact(input_snapshot.get("service_code") or input_snapshot.get("service_name") or "", 80),
+            "error_text": _compact(result.get("error") or "", _LIM_ERROR_TEXT),
+            "license_text": _compact(input_snapshot.get("industry_name") or input_snapshot.get("service_name") or "", _LIM_SERVICE_NAME),
+            "input_specialty": _compact(input_snapshot.get("service_code") or input_snapshot.get("service_name") or "", _LIM_SERVICE_CODE),
             "input_y23": "",
             "input_y24": "",
             "input_y25": "",
@@ -620,7 +631,7 @@ class PermitUsageStore:
                 input_snapshot.get("raw_capital_input")
                 if input_snapshot.get("raw_capital_input") not in {"", None}
                 else input_snapshot.get("capital_eok"),
-                80,
+                _LIM_SERVICE_CODE,
             ),
             "input_surplus": "",
             "input_debt_level": "",
@@ -628,13 +639,13 @@ class PermitUsageStore:
             "ok_capital": _required_ok_flag(required_summary, "capital"),
             "ok_engineer": _required_ok_flag(required_summary, "technicians"),
             "ok_office": str(input_snapshot.get("office_secured", 0) or 0),
-            "output_center": _compact(result_summary.get("overall_status"), 80),
-            "output_range": _compact(result_summary.get("coverage_status"), 120),
-            "output_confidence": _compact(result_summary.get("mapping_confidence"), 120),
-            "output_neighbors": _compact(result_summary.get("typed_criteria_total"), 80),
-            "missing_critical": _compact(result_summary.get("pending_criteria_count"), 200),
-            "page_url": _compact(page_url, 500),
-            "requested_at": _compact(requested_at, 80),
+            "output_center": _compact(result_summary.get("overall_status"), _LIM_SERVICE_CODE),
+            "output_range": _compact(result_summary.get("coverage_status"), _LIM_COVERAGE),
+            "output_confidence": _compact(result_summary.get("mapping_confidence"), _LIM_COVERAGE),
+            "output_neighbors": _compact(result_summary.get("typed_criteria_total"), _LIM_SERVICE_CODE),
+            "missing_critical": _compact(result_summary.get("pending_criteria_count"), _LIM_SERVICE_NAME),
+            "page_url": _compact(page_url, _LIM_PAGE_URL),
+            "requested_at": _compact(requested_at, _LIM_SERVICE_CODE),
             "raw_json": _json_dumps_compact(
                 {
                     "request_id": request_key,
@@ -643,7 +654,7 @@ class PermitUsageStore:
                     "response_tier": _compact(response_tier),
                     "service_track": "permit_precheck_api",
                     "business_domain": "permit_precheck",
-                    "source": _compact(source, 100) or "permit_precheck_api",
+                    "source": _compact(source, _LIM_SOURCE) or "permit_precheck_api",
                     "page_mode": "permit_precheck",
                     "status": status,
                     "inputs": input_snapshot,
@@ -655,19 +666,19 @@ class PermitUsageStore:
             "request_id": request_key,
             "usage_event_id": None,
             "received_at": received_at,
-            "requested_at": _compact(requested_at, 80),
+            "requested_at": _compact(requested_at, _LIM_SERVICE_CODE),
             "tenant_id": key,
             "tenant_plan": _compact(plan).lower() or "unknown",
-            "response_tier": _compact(response_tier, 30),
+            "response_tier": _compact(response_tier, _LIM_RESPONSE_TIER),
             "source": row["source"],
             "page_url": row["page_url"],
-            "service_code": _compact(input_snapshot.get("service_code"), 80),
-            "service_name": _compact(input_snapshot.get("service_name"), 200),
-            "industry_name": _compact(input_snapshot.get("industry_name"), 200),
-            "rule_id": _compact(input_snapshot.get("rule_id"), 80),
-            "group_rule_id": _compact(result_summary.get("group_rule_id"), 80),
+            "service_code": _compact(input_snapshot.get("service_code"), _LIM_SERVICE_CODE),
+            "service_name": _compact(input_snapshot.get("service_name"), _LIM_SERVICE_NAME),
+            "industry_name": _compact(input_snapshot.get("industry_name"), _LIM_SERVICE_NAME),
+            "rule_id": _compact(input_snapshot.get("rule_id"), _LIM_SERVICE_CODE),
+            "group_rule_id": _compact(result_summary.get("group_rule_id"), _LIM_SERVICE_CODE),
             "capital_eok": input_snapshot.get("capital_eok"),
-            "raw_capital_input": _compact(input_snapshot.get("raw_capital_input"), 80),
+            "raw_capital_input": _compact(input_snapshot.get("raw_capital_input"), _LIM_SERVICE_CODE),
             "technicians_count": input_snapshot.get("technicians_count"),
             "equipment_count": input_snapshot.get("equipment_count"),
             "deposit_days": input_snapshot.get("deposit_days"),
@@ -679,8 +690,8 @@ class PermitUsageStore:
             "qualification_secured": input_snapshot.get("qualification_secured"),
             "document_ready": input_snapshot.get("document_ready"),
             "safety_secured": input_snapshot.get("safety_secured"),
-            "overall_status": _compact(result_summary.get("overall_status"), 80),
-            "coverage_status": _compact(result_summary.get("coverage_status"), 120),
+            "overall_status": _compact(result_summary.get("overall_status"), _LIM_SERVICE_CODE),
+            "coverage_status": _compact(result_summary.get("coverage_status"), _LIM_COVERAGE),
             "typed_criteria_total": result_summary.get("typed_criteria_total"),
             "pending_criteria_count": result_summary.get("pending_criteria_count"),
             "blocking_failure_count": result_summary.get("blocking_failure_count"),
@@ -978,10 +989,10 @@ class Handler(BaseHTTPRequestHandler):
         return headers
 
     def _require_channel_hint_match(self, request_meta: Dict[str, Any]) -> bool:
-        hinted = _compact((request_meta or {}).get("channel_id_hint"), 80).lower()
+        hinted = _compact((request_meta or {}).get("channel_id_hint"), _LIM_SERVICE_CODE).lower()
         if not hinted:
             return True
-        resolved = _compact(_channel_id_value(self._channel_resolution()), 80).lower()
+        resolved = _compact(_channel_id_value(self._channel_resolution()), _LIM_SERVICE_CODE).lower()
         if hinted == resolved:
             return True
         self._write_json(
@@ -1133,8 +1144,8 @@ class Handler(BaseHTTPRequestHandler):
         response_tier = ""
         tenant_plan = ""
         if isinstance(extra_headers, dict):
-            response_tier = _compact(extra_headers.get("X-Response-Tier"), 40)
-            tenant_plan = _compact(extra_headers.get("X-Tenant-Plan"), 60)
+            response_tier = _compact(extra_headers.get("X-Response-Tier"), _LIM_X_RESPONSE_TIER)
+            tenant_plan = _compact(extra_headers.get("X-Tenant-Plan"), _LIM_X_TENANT_PLAN)
         response_payload = build_response_envelope(
             payload,
             service="permit_precheck_api",
@@ -1175,7 +1186,7 @@ class Handler(BaseHTTPRequestHandler):
         cached = getattr(self, "_cached_request_id", "")
         if cached:
             return str(cached)
-        incoming = _compact(self.headers.get("X-Request-Id") or self.headers.get("X-Correlation-Id"), 80)
+        incoming = _compact(self.headers.get("X-Request-Id") or self.headers.get("X-Correlation-Id"), _LIM_SERVICE_CODE)
         if not incoming:
             incoming = uuid.uuid4().hex
         setattr(self, "_cached_request_id", incoming)
@@ -1290,7 +1301,7 @@ class Handler(BaseHTTPRequestHandler):
                 default_page_url=_compact(self.headers.get("Origin") or self.headers.get("Referer")),
             )
             request_meta = dict(bundle.get("request_meta") or {})
-            hinted_request_id = _compact(request_meta.get("request_id_hint"), 80)
+            hinted_request_id = _compact(request_meta.get("request_id_hint"), _LIM_SERVICE_CODE)
             if hinted_request_id and not getattr(self, "_cached_request_id", ""):
                 setattr(self, "_cached_request_id", hinted_request_id)
             if not self._require_channel_hint_match(request_meta):
