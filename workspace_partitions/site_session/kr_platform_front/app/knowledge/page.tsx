@@ -89,6 +89,19 @@ const categories: {
 /* NOTE: JSON-LD uses dangerouslySetInnerHTML which is safe here because
    all data comes from compile-time string literals (not user input). */
 function KnowledgeJsonLd() {
+  const breadcrumb = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "홈", item: platformConfig.platformFrontHost },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "건설업 가이드",
+        item: `${platformConfig.platformFrontHost}/knowledge`,
+      },
+    ],
+  };
   const schema = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
@@ -108,10 +121,16 @@ function KnowledgeJsonLd() {
     ],
   };
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      />
+    </>
   );
 }
 

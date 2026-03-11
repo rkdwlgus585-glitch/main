@@ -50,14 +50,21 @@ export const metadata: Metadata = {
 function JsonLd() {
   const schema = {
     "@context": "https://schema.org",
-    "@type": "Organization",
+    "@type": ["Organization", "LocalBusiness"],
     name: "서울건설정보",
     url: platformConfig.platformFrontHost,
     telephone: platformConfig.contactPhone,
     email: platformConfig.contactEmail,
-    address: { "@type": "PostalAddress", addressLocality: "서울특별시", addressCountry: "KR" },
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "서울특별시",
+      addressRegion: "서울",
+      addressCountry: "KR",
+    },
+    geo: { "@type": "GeoCoordinates", latitude: 37.5665, longitude: 126.978 },
     description: siteDescription,
     knowsAbout: ["건설업 양도양수", "건설업 면허", "인허가 사전검토", "건설업 등록기준"],
+    priceRange: "무료",
   };
   return (
     <script

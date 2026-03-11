@@ -73,6 +73,19 @@ const benefits = [
 /* NOTE: JSON-LD uses dangerouslySetInnerHTML which is safe here because
    all data comes from compile-time string literals (not user input). */
 function ConsultJsonLd() {
+  const breadcrumb = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "홈", item: platformConfig.platformFrontHost },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "고객센터",
+        item: `${platformConfig.platformFrontHost}/consult`,
+      },
+    ],
+  };
   const schema = {
     "@context": "https://schema.org",
     "@type": "ProfessionalService",
@@ -90,10 +103,16 @@ function ConsultJsonLd() {
     },
   };
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      />
+    </>
   );
 }
 

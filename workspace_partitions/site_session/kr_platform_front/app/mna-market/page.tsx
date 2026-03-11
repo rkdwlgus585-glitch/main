@@ -59,6 +59,19 @@ const STATS_DISCLAIMER = "위 수치는 서비스 목표 기반의 참고 수치
 /* NOTE: JSON-LD uses dangerouslySetInnerHTML which is safe here because
    all data comes from compile-time string literals (not user input). */
 function MarketJsonLd() {
+  const breadcrumb = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "홈", item: platformConfig.platformFrontHost },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "양도양수 매물",
+        item: `${platformConfig.platformFrontHost}/mna-market`,
+      },
+    ],
+  };
   const schema = {
     "@context": "https://schema.org",
     "@type": "WebPage",
@@ -82,10 +95,16 @@ function MarketJsonLd() {
     },
   };
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      />
+    </>
   );
 }
 

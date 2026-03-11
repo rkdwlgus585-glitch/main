@@ -3,7 +3,7 @@ import { platformConfig } from "@/components/platform-config";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = platformConfig.platformFrontHost.replace(/\/$/, "");
-  const now = new Date("2026-03-10T00:00:00+09:00");
+  const now = new Date();
 
   return [
     { url: base, lastModified: now, changeFrequency: "daily", priority: 1 },
