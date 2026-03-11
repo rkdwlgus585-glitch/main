@@ -1352,4 +1352,15 @@ __all__ = [name for name in globals() if not name.startswith("__")]
 
 
 if __name__ == "__main__":
+    import logging as _logging
+    import signal as _signal
+
+    _shutdown_logger = _logging.getLogger("yangdo_blackbox_api")
+
+    def _graceful_shutdown(signum: int, _frame: object) -> None:
+        sig_name = _signal.Signals(signum).name if hasattr(_signal, "Signals") else str(signum)
+        _shutdown_logger.info("yangdo estimate api received %s, shutting down", sig_name)
+        raise SystemExit(0)
+
+    _signal.signal(_signal.SIGTERM, _graceful_shutdown)
     main()
