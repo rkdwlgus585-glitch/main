@@ -6,7 +6,7 @@ Validates that all API endpoints are healthy and returning expected responses.
 Usage:
     python deploy/smoke_test.py                              # default: localhost
     python deploy/smoke_test.py --base-url https://seoulmna.kr/_calc
-    python deploy/smoke_test.py --yangdo-url http://127.0.0.1:8200 --permit-url http://127.0.0.1:8100
+    python deploy/smoke_test.py --yangdo-url http://127.0.0.1:8200 --permit-url http://127.0.0.1:8100 --consult-url http://127.0.0.1:8788
 """
 from __future__ import annotations
 
@@ -140,6 +140,12 @@ def test_options_cors(base: str, origin: str = "https://seoulmna.kr") -> bool:
         return False
 
 
+def test_consult_health(base: str) -> bool:
+    """GET /v1/health — consult API health check."""
+    status, body = _json_request(f"{base}/v1/health")
+    return _check("consult /v1/health", status, body)
+
+
 def test_rate_limit_header(base: str) -> bool:
     """Verify X-RateLimit headers are returned."""
     status, body = _json_request(f"{base}/v1/health")
@@ -184,12 +190,17 @@ def main() -> int:
         help="Yangdo API base URL (default: http://127.0.0.1:8200)",
     )
     parser.add_argument(
+        "--consult-url", default="http://127.0.0.1:8788",
+        help="Consult API base URL (default: http://127.0.0.1:8788)",
+    )
+    parser.add_argument(
         "--base-url", default="",
         help="Unified base URL (overrides --permit-url and --yangdo-url). "
              "e.g. https://seoulmna.kr/_calc",
     )
     parser.add_argument("--permit-api-key", default="")
     parser.add_argument("--yangdo-api-key", default="")
+    parser.add_argument("--consult-api-key", default="")
     parser.add_argument(
         "--wait", type=int, default=0,
         help="Seconds to wait before running tests (for container startup)",
@@ -202,6 +213,7 @@ def main() -> int:
 
     permit_url = args.base_url + "/permit" if args.base_url else args.permit_url
     yangdo_url = args.base_url + "/yangdo" if args.base_url else args.yangdo_url
+    consult_url = args.base_url + "/consult" if args.base_url else args.consult_url
 
     total_passed = total_failed = 0
 
@@ -219,6 +231,14 @@ def main() -> int:
         ("health", lambda: test_yangdo_health(yangdo_url)),
         ("estimate", lambda: test_yangdo_estimate(yangdo_url, args.yangdo_api_key)),
         ("cors", lambda: test_options_cors(yangdo_url)),
+    ])
+    total_passed += p
+    total_failed += f
+
+    # ── Consult API ──
+    p, f, _ = run_suite("Consult Intake API", [
+        ("health", lambda: test_consult_health(consult_url)),
+        ("cors", lambda: test_options_cors(consult_url)),
     ])
     total_passed += p
     total_failed += f

@@ -1,6 +1,6 @@
 # =================================================================
 # seoulmna.kr Production Docker Compose
-# AI 양도가 산정 + AI 인허가 사전검토 + nginx reverse proxy
+# AI 양도가 산정 + AI 인허가 사전검토 + 상담 접수 + nginx reverse proxy
 # =================================================================
 version: "3.9"
 
@@ -65,6 +65,36 @@ services:
         max-size: "50m"
         max-file: "3"
 
+  consult-api:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.api
+    command: ["python", "yangdo_consult_api.py", "--port", "${CONSULT_API_PORT:-8788}"]
+    ports:
+      - "127.0.0.1:${CONSULT_API_PORT:-8788}:${CONSULT_API_PORT:-8788}"
+    environment:
+      - SMNA_ENV=production
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - consult-data:/app/data
+      - api-logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:${CONSULT_API_PORT:-8788}/v1/health')\""]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: "0.5"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+
   nginx:
     image: nginx:1.27-alpine
     ports:
@@ -78,9 +108,12 @@ services:
         condition: service_healthy
       permit-api:
         condition: service_healthy
+      consult-api:
+        condition: service_healthy
     restart: unless-stopped
 
 volumes:
   yangdo-data:
   permit-data:
+  consult-data:
   api-logs:
