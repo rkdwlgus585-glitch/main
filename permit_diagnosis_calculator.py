@@ -4625,6 +4625,14 @@ def build_html(
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#39;");
 
+    const safeHref = (raw) => {
+      const s = String(raw || "").trim();
+      if (!s) return "";
+      try { const u = new URL(s); if (u.protocol === "https:" || u.protocol === "http:") return esc(s); } catch (_e) { /* invalid URL */ }
+      if (s.charAt(0) === "/" && s.length > 1 && s.charAt(1) !== "/") return esc(s);
+      return "";
+    };
+
     const copyText = async (text) => {
       const value = String(text || "").trim();
       if (!value) return false;
@@ -6930,7 +6938,7 @@ def build_html(
       const parts = rows.map((item) => {
         const lawTitle = esc(item.law_title || "");
         const article = esc(item.article || "");
-        const url = esc(item.url || "");
+        const url = safeHref(item.url);
         if (!url) {
           return `${lawTitle} ${article}`.trim();
         }
@@ -7037,8 +7045,8 @@ def build_html(
         ? proof.source_urls.slice(0, 1)
         : (claim && Array.isArray(claim.source_url_samples) ? claim.source_url_samples.slice(0, 1) : []);
       if (proofUrls.length) {
-        const url = esc(proofUrls[0]);
-        lines.push(`- source: <a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
+        const url = safeHref(proofUrls[0]);
+        if (url) lines.push(`- source: <a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
       }
       ui.proofClaimBox.innerHTML = lines.join("<br>");
       ui.proofClaimBox.style.display = "block";

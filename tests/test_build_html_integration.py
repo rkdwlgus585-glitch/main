@@ -168,6 +168,18 @@ class PermitBuildHtmlTest(unittest.TestCase):
     def test_error_handler_logs_to_console(self):
         self.assertIn("[permit-precheck] unhandled error", self._html)
 
+    # -- URL scheme defense (safeHref) ----------------------------------------
+    def test_safehref_function_present(self):
+        self.assertIn("const safeHref", self._html)
+
+    def test_safehref_used_in_legal_basis(self):
+        """renderBasisRows should use safeHref instead of raw esc() for URLs."""
+        self.assertIn("safeHref(item.url)", self._html)
+
+    def test_safehref_used_in_proof_claim(self):
+        """renderProofClaim should use safeHref for proof source URLs."""
+        self.assertIn("safeHref(proofUrls[0])", self._html)
+
     # -- Overall size sanity --------------------------------------------------
     def test_html_minimum_size(self):
         self.assertGreater(len(self._html), 100_000, "HTML should be >100KB")
