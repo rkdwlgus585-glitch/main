@@ -1,28 +1,31 @@
 #!/usr/bin/env python3
 """
-claude_gemini_orchestrator.py — Claude ↔ Gemini CLI 협업 오케스트레이터
-=====================================================================
+claude_ai_orchestrator.py — Claude ↔ Gemini/Codex 통합 위임 오케스트레이터
+==========================================================================
 
-Claude의 토큰 소진을 최소화하면서 Gemini CLI에 작업을 위임하는 파이프라인.
+Claude의 토큰 소진을 최소화하면서 Gemini CLI / Codex CLI에 작업을 위임하는 파이프라인.
 
 아키텍처:
 ┌──────────┐   지시    ┌──────────┐   위임    ┌──────────┐
-│  Claude   │ ──────→ │ Orchestr │ ──────→ │  Gemini  │
-│  (Brain)  │ ←────── │   ator   │ ←────── │  (Hands) │
+│  Claude   │ ──────→ │ Orchestr │ ──────→ │ Gemini / │
+│  (Brain)  │ ←────── │   ator   │ ←────── │  Codex   │
 └──────────┘   결과    └──────────┘   출력    └──────────┘
 
 역할 분담:
   Claude  → 전략적 판단, 코드 생성, 최종 검증, 아키텍처 설계
-  Gemini  → 대량 조사, 문서 생성, 코드 리뷰, 번역, 브레인스토밍
+  Gemini  → 대량 조사, 문서 생성, 번역, 브레인스토밍 (무료 1000/일)
+  Codex   → 코드 리뷰, 코드 분석, 테스트 아이디어 생성 (GPT-5.4)
 
 사용법:
-  python scripts/claude_gemini_orchestrator.py delegate --task research --prompt "마케팅 분석" --output logs/result.md
-  python scripts/claude_gemini_orchestrator.py batch --manifest scripts/batch_manifest.json
+  python scripts/claude_gemini_orchestrator.py delegate --prompt "마케팅 분석" --output logs/result.md
+  python scripts/claude_gemini_orchestrator.py delegate --engine codex --prompt "security_http.py 보안 리뷰" --output logs/review.md
+  python scripts/claude_gemini_orchestrator.py batch --templates marketing_analysis,design_system
   python scripts/claude_gemini_orchestrator.py status
 """
 
 import argparse
 import json
+import shutil
 import subprocess
 import sys
 import os
@@ -165,6 +168,14 @@ TASK_TEMPLATES = {
 }
 
 
+ENGINES = ("gemini", "codex")
+
+# Windows npm global은 .cmd 래퍼가 필요 — shutil.which로 해결
+_NPM_BIN = Path(os.environ.get("APPDATA", "")) / "npm"
+_GEMINI_CMD = shutil.which("gemini") or str(_NPM_BIN / "gemini.cmd")
+_CODEX_CMD = shutil.which("codex") or str(_NPM_BIN / "codex.cmd")
+
+
 def ensure_dirs():
     """필요한 디렉토리 생성"""
     LOGS_DIR.mkdir(exist_ok=True)
@@ -187,7 +198,7 @@ def save_json(path: Path, data):
 
 def run_gemini(prompt: str, output_file: str = None, timeout: int = 120) -> dict:
     """Gemini CLI 실행 (비대화형 헤드리스 모드)"""
-    cmd = ["gemini", "-p", prompt, "-o", "text"]
+    cmd = [_GEMINI_CMD, "-p", prompt, "-o", "text"]
 
     # Google OAuth 인증 설정
     env = os.environ.copy()
@@ -243,6 +254,89 @@ def run_gemini(prompt: str, output_file: str = None, timeout: int = 120) -> dict
         }
 
 
+def run_codex(prompt: str, output_file: str = None, timeout: int = 180) -> dict:
+    """Codex CLI 실행 (비대화형 exec 모드)"""
+    cmd = [_CODEX_CMD, "exec", "--ephemeral", "--full-auto",
+           "-C", str(PROJECT_DIR), "--skip-git-repo-check"]
+
+    if output_file:
+        out_path = PROJECT_DIR / output_file
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        cmd.extend(["-o", str(out_path)])
+
+    cmd.append(prompt)
+
+    start = time.time()
+    try:
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            cwd=str(PROJECT_DIR),
+            encoding="utf-8",
+        )
+        elapsed = time.time() - start
+
+        # Codex exec는 stdout에 전체 로그를 출력, 마지막 메시지가 결과
+        stdout = result.stdout.strip()
+
+        # -o 지정 시 파일에 마지막 메시지가 저장됨
+        if output_file and out_path.exists():
+            output = out_path.read_text(encoding="utf-8").strip()
+        else:
+            # stdout에서 마지막 'codex' 블록 추출
+            lines = stdout.split("\n")
+            output = "\n".join(lines[-5:]) if lines else stdout
+
+        if result.returncode != 0 and not output:
+            return {
+                "success": False,
+                "engine": "codex",
+                "error": (result.stderr or stdout)[:500],
+                "elapsed_sec": round(elapsed, 1),
+            }
+
+        return {
+            "success": True,
+            "engine": "codex",
+            "output_length": len(output),
+            "output_file": output_file,
+            "elapsed_sec": round(elapsed, 1),
+            "preview": output[:300] + "..." if len(output) > 300 else output,
+        }
+
+    except subprocess.TimeoutExpired:
+        return {
+            "success": False,
+            "engine": "codex",
+            "error": f"Timeout after {timeout}s",
+            "elapsed_sec": timeout,
+        }
+    except FileNotFoundError:
+        return {
+            "success": False,
+            "engine": "codex",
+            "error": "Codex CLI 미설치. npm i -g @openai/codex",
+            "elapsed_sec": 0,
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "engine": "codex",
+            "error": str(type(e).__name__),
+            "elapsed_sec": round(time.time() - start, 1),
+        }
+
+
+def run_engine(engine: str, prompt: str, output_file: str = None,
+               timeout: int = 120) -> dict:
+    """엔진별 라우터"""
+    if engine == "codex":
+        return run_codex(prompt, output_file, timeout=max(timeout, 180))
+    return run_gemini(prompt, output_file, timeout=timeout)
+
+
 def delegate(args):
     """단일 작업 위임"""
     ensure_dirs()
@@ -252,7 +346,7 @@ def delegate(args):
         tmpl = TASK_TEMPLATES[args.template]
         prompt = tmpl["prompt"]
         output = args.output or tmpl["output"]
-        print(f"📋 Using template: {args.template}")
+        print(f"[T] Using template: {args.template}")
     else:
         prompt = args.prompt or sys.stdin.read()
         output = args.output
@@ -264,22 +358,24 @@ def delegate(args):
             ctx = ctx_path.read_text(encoding="utf-8")[:3000]
             prompt = f"{prompt}\n\n---\n추가 컨텍스트:\n{ctx}"
 
-    print(f"🚀 Gemini에 위임 중... (output: {output or 'stdout'})")
-    result = run_gemini(prompt, output, timeout=args.timeout)
+    engine = getattr(args, "engine", "gemini") or "gemini"
+    print(f"[>] {engine.upper()}에 위임 중... (output: {output or 'stdout'})")
+    result = run_engine(engine, prompt, output, timeout=args.timeout)
 
     if result["success"]:
-        print(f"✅ 완료! {result['output_length']} chars, {result['elapsed_sec']}s")
+        print(f"[OK] 완료! {result['output_length']} chars, {result['elapsed_sec']}s")
         if output:
-            print(f"   📄 {output}")
+            print(f"   [F] {output}")
         else:
             print(result.get("preview", ""))
     else:
-        print(f"❌ 실패: {result['error']}")
+        print(f"[X] 실패: {result['error']}")
 
     # 히스토리 기록
     history = load_json(HISTORY_FILE)
     history.append({
         "timestamp": datetime.now().isoformat(),
+        "engine": engine,
         "template": getattr(args, "template", None),
         "output": output,
         **result
@@ -301,7 +397,7 @@ def batch(args):
         # 기본: 전체 템플릿 실행
         manifest = [{"template": k} for k in TASK_TEMPLATES]
 
-    print(f"📦 Batch execution: {len(manifest)} tasks")
+    print(f"[B] Batch execution: {len(manifest)} tasks")
     results = []
 
     for i, task in enumerate(manifest, 1):
@@ -318,11 +414,12 @@ def batch(args):
             prompt = task.get("prompt", "")
             output = task.get("output")
 
-        result = run_gemini(prompt, output, timeout=args.timeout)
+        engine = task.get("engine", getattr(args, "engine", "gemini") or "gemini")
+        result = run_engine(engine, prompt, output, timeout=args.timeout)
         result["template"] = tmpl_name
         results.append(result)
 
-        status = "✅" if result["success"] else "❌"
+        status = "[OK]" if result["success"] else "[X]"
         print(f"{status} {tmpl_name}: {result.get('output_length', 0)} chars, {result['elapsed_sec']}s")
 
         # 요청 간 딜레이 (rate limit 방지)
@@ -332,13 +429,13 @@ def batch(args):
     # 결과 요약
     success = sum(1 for r in results if r["success"])
     print(f"\n{'='*50}")
-    print(f"📊 결과: {success}/{len(results)} 성공")
+    print(f"[S] 결과: {success}/{len(results)} 성공")
     print(f"{'='*50}")
 
     # 배치 결과 저장
     batch_log = LOGS_DIR / f"gemini_batch_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
     save_json(batch_log, results)
-    print(f"📄 배치 로그: {batch_log}")
+    print(f"[F] 배치 로그: {batch_log}")
 
     return results
 
@@ -348,16 +445,16 @@ def status(args):
     history = load_json(HISTORY_FILE)
 
     if not history:
-        print("📭 실행 히스토리 없음")
+        print("[E] 실행 히스토리 없음")
         return
 
-    print(f"📋 최근 실행 히스토리 ({len(history)}건)")
+    print(f"[T] 최근 실행 히스토리 ({len(history)}건)")
     print(f"{'─'*60}")
 
     for entry in history[-10:]:
         ts = entry.get("timestamp", "?")[:19]
         tmpl = entry.get("template", "custom") or "custom"
-        success = "✅" if entry.get("success") else "❌"
+        success = "[OK]" if entry.get("success") else "[X]"
         chars = entry.get("output_length", 0)
         secs = entry.get("elapsed_sec", 0)
         out = entry.get("output", "-")
@@ -366,7 +463,7 @@ def status(args):
 
 def list_templates(args):
     """사용 가능한 템플릿 목록"""
-    print("📋 사용 가능한 태스크 템플릿:")
+    print("[T] 사용 가능한 태스크 템플릿:")
     print(f"{'─'*60}")
     for name, tmpl in TASK_TEMPLATES.items():
         out = tmpl.get("output", "-")
@@ -389,6 +486,8 @@ def main():
     p_delegate.add_argument("--output", "-o", help="출력 파일 경로")
     p_delegate.add_argument("--context", "-c", help="컨텍스트 파일 경로")
     p_delegate.add_argument("--timeout", type=int, default=120, help="타임아웃(초)")
+    p_delegate.add_argument("--engine", "-e", choices=ENGINES, default="gemini",
+                            help="위임 엔진 (gemini|codex)")
     p_delegate.set_defaults(func=delegate)
 
     # batch
@@ -396,6 +495,8 @@ def main():
     p_batch.add_argument("--manifest", "-m", help="매니페스트 JSON 파일")
     p_batch.add_argument("--templates", "-t", help="쉼표 구분 템플릿 목록")
     p_batch.add_argument("--timeout", type=int, default=120, help="개별 타임아웃(초)")
+    p_batch.add_argument("--engine", "-e", choices=ENGINES, default="gemini",
+                         help="위임 엔진 (gemini|codex)")
     p_batch.set_defaults(func=batch)
 
     # status

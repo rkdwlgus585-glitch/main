@@ -105,11 +105,14 @@
 | ~~파트너 데모/샌드박스~~ | ~~개발~~ | ~~완료~~ | ~~core_engine/sandbox.py + permit API 연동 완료~~ |
 | 결제 연동 (Stripe/토스페이먼츠) | 개발 | 1~2주 | 사업자 계약 |
 
-## 3-Tier Automation Architecture
-- **Tier 1: Orchestrator (Claude)**: 전체 전략 수립, 시스템 아키텍처 매핑, 하위 태스크 분할 및 에이전트 위임 제어.
-- **Tier 2: Documenter (Gemini CLI)**: 배포 로그, 문서화 갱신, 구조화된 리포트 생성 및 headless pipe 모드 연동.
-- **Tier 3: Implementer/Auditor (Codex CLI)**: 유닛 테스트 생성, 디자인 시스템 감사, 코드 리팩토링 및 headless exec 모드 연동.
-- **Operational Flow**: Claude(전략) → Gemini(문서/로그) → Codex(구현/검증) → CI/CD Verification.
+## 3-Tier Automation Architecture (2026-03-11 E2E 검증 완료)
+- **Tier 1: Orchestrator (Claude Code)**: 전체 전략 수립, 코드 생성/수정, 최종 품질 검증, Gemini/Codex 위임 제어.
+- **Tier 2: Research/Docs (Gemini CLI v0.32.1)**: 시장 조사, 문서 생성, 브레인스토밍, 특허 요약. `gemini -p "..." -o text` headless. 무료 1000 req/일.
+- **Tier 3: Code Analysis (Codex CLI v0.114.0)**: 코드 리뷰, 보안 감사, 파일 분석. `codex exec --full-auto` headless. GPT-5.4 모델.
+- **통합 오케스트레이터**: `python scripts/claude_gemini_orchestrator.py delegate --engine {gemini|codex} --prompt "..." --output logs/result.md`
+- **히스토리 트래킹**: `logs/gemini_task_history.json` — 최근 50건 자동 기록
+- **Operational Flow**: Claude(전략+코드) → Gemini(조사/문서) + Codex(분석/리뷰) → Claude(통합 검증)
+- **제약**: Codex Windows experimental (PowerShell PATH 이슈 → 코드 실행 불가, 읽기/분석 전용)
 
 ## What Is Actually Done
 1. `.kr` WordPress/Astra 플랫폼 자산 + Next.js 프론트

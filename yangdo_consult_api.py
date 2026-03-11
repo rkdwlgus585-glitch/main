@@ -59,6 +59,20 @@ CONFIG = load_config(
 
 logger = setup_logger(name="yangdo_consult_api")
 
+# ── Input field size limits (chars) ─────────────────────────────────
+_LIM_TOKEN: int = 40        # page_mode, status, phone, short tokens
+_LIM_SHORT_ID: int = 80     # customer_name, lead_id, input fields, etc.
+_LIM_SOURCE: int = 100      # source field
+_LIM_EMAIL: int = 120       # customer_email, estimated_range, confidence
+_LIM_LICENSE: int = 200     # license_text, missing_critical
+_LIM_HEADER: int = 300      # HTTP Origin / Host headers, subject
+_LIM_PAGE_URL: int = 500    # page_url
+_LIM_NOTE: int = 1200       # customer_note, error_text (1000)
+_LIM_SUMMARY: int = 12000   # summary_text
+_LIM_LABEL: int = 20        # lead_priority, lead_urgency
+_LIM_COMPACT: int = 30      # debt_level, liq_level
+_LIM_MEDIUM: int = 60       # estimated_center, service_track, neighbors
+
 
 def _cfg_bool(key, default=False) -> bool:
     value = str(CONFIG.get(key, default)).strip().lower()
@@ -124,7 +138,7 @@ def _tokenize_license(raw: Any) -> list[str]:
     tokens = []
     src = str(raw or "").replace("<br>", "\n")
     for piece in re.split(r"[\n,/\|·ㆍ\s]+", src):
-        t = _compact(piece, limit=40)
+        t = _compact(piece, limit=_LIM_TOKEN)
         if not t:
             continue
         tokens.append(t)
@@ -163,7 +177,7 @@ def _detect_business_mode(payload: dict) -> str:
         return CANONICAL_MODE_PERMIT
     if any(k in blob for k in ["yangdo", "transfer_price_estimation", "양도", "mna"]):
         return CANONICAL_MODE_YANGDO
-    mode = _compact(payload.get("page_mode"), limit=40)
+    mode = _compact(payload.get("page_mode"), limit=_LIM_TOKEN)
     return mode or "unknown"
 
 
@@ -182,17 +196,17 @@ def _normalize_business_payload(raw_payload: dict) -> dict:
     payload = dict(raw_payload or {})
     mode = _detect_business_mode(payload)
     canonical_source = _canonical_source(payload, mode)
-    legacy_mode = _compact(payload.get("page_mode"), limit=40)
+    legacy_mode = _compact(payload.get("page_mode"), limit=_LIM_TOKEN)
     legacy_source = _compact(payload.get("source"), limit=100)
     payload["page_mode"] = mode
     payload["source"] = canonical_source
-    payload["service_track"] = _compact(payload.get("service_track"), limit=80) or (
+    payload["service_track"] = _compact(payload.get("service_track"), limit=_LIM_SHORT_ID) or (
         "permit_precheck_new_registration" if mode == CANONICAL_MODE_PERMIT else "transfer_price_estimation"
     )
-    payload["business_domain"] = _compact(payload.get("business_domain"), limit=80) or (
+    payload["business_domain"] = _compact(payload.get("business_domain"), limit=_LIM_SHORT_ID) or (
         "permit_precheck" if mode == CANONICAL_MODE_PERMIT else "yangdo_transfer"
     )
-    if legacy_mode and legacy_mode != mode and not _compact(payload.get("legacy_page_mode"), limit=40):
+    if legacy_mode and legacy_mode != mode and not _compact(payload.get("legacy_page_mode"), limit=_LIM_TOKEN):
         payload["legacy_page_mode"] = legacy_mode
     if legacy_source and legacy_source != canonical_source and not _compact(payload.get("legacy_source"), limit=100):
         payload["legacy_source"] = legacy_source
@@ -202,7 +216,7 @@ def _normalize_business_payload(raw_payload: dict) -> dict:
 def _build_tags(payload: dict) -> list[str]:
     tags = []
     normalized = _normalize_business_payload(payload)
-    source = _compact(normalized.get("source"), limit=80)
+    source = _compact(normalized.get("source"), limit=_LIM_SHORT_ID)
     if source:
         tags.append(source)
     mode = _compact(normalized.get("page_mode"), limit=30)
@@ -307,11 +321,11 @@ class ConsultStore:
         row = {
             "received_at": now_iso(),
             "source": _compact(payload.get("source"), limit=100),
-            "page_mode": _compact(payload.get("page_mode"), limit=40),
+            "page_mode": _compact(payload.get("page_mode"), limit=_LIM_TOKEN),
             "subject": _compact(payload.get("subject"), limit=300),
             "summary_text": _compact(payload.get("summary_text"), limit=12000),
-            "customer_name": _compact(payload.get("customer_name"), limit=80),
-            "customer_phone": _compact(payload.get("customer_phone"), limit=40),
+            "customer_name": _compact(payload.get("customer_name"), limit=_LIM_SHORT_ID),
+            "customer_phone": _compact(payload.get("customer_phone"), limit=_LIM_TOKEN),
             "customer_email": _compact(payload.get("customer_email"), limit=120),
             "customer_note": _compact(payload.get("customer_note"), limit=1200),
             "license_text": _compact(payload.get("license_text"), limit=200),
@@ -320,7 +334,7 @@ class ConsultStore:
             "estimated_confidence": _compact(payload.get("estimated_confidence"), limit=120),
             "estimated_neighbors": _compact(payload.get("estimated_neighbors"), limit=60),
             "page_url": _compact(payload.get("page_url"), limit=500),
-            "requested_at": _compact(payload.get("requested_at"), limit=80),
+            "requested_at": _compact(payload.get("requested_at"), limit=_LIM_SHORT_ID),
             "lead_priority": _compact(priority, limit=20),
             "lead_urgency": _compact(urgency, limit=20),
             "lead_tags": ",".join(tags),
@@ -358,29 +372,29 @@ class ConsultStore:
         row = {
             "received_at": now_iso(),
             "source": _compact(payload.get("source"), limit=100),
-            "page_mode": _compact(payload.get("page_mode"), limit=40),
-            "status": _compact(payload.get("status"), limit=40),
+            "page_mode": _compact(payload.get("page_mode"), limit=_LIM_TOKEN),
+            "status": _compact(payload.get("status"), limit=_LIM_TOKEN),
             "error_text": _compact(payload.get("error_text"), limit=1000),
             "license_text": _compact(payload.get("license_text"), limit=200),
-            "input_specialty": _compact(payload.get("input_specialty"), limit=80),
-            "input_y23": _compact(payload.get("input_y23"), limit=80),
-            "input_y24": _compact(payload.get("input_y24"), limit=80),
-            "input_y25": _compact(payload.get("input_y25"), limit=80),
-            "input_balance": _compact(payload.get("input_balance"), limit=80),
-            "input_capital": _compact(payload.get("input_capital"), limit=80),
-            "input_surplus": _compact(payload.get("input_surplus"), limit=80),
+            "input_specialty": _compact(payload.get("input_specialty"), limit=_LIM_SHORT_ID),
+            "input_y23": _compact(payload.get("input_y23"), limit=_LIM_SHORT_ID),
+            "input_y24": _compact(payload.get("input_y24"), limit=_LIM_SHORT_ID),
+            "input_y25": _compact(payload.get("input_y25"), limit=_LIM_SHORT_ID),
+            "input_balance": _compact(payload.get("input_balance"), limit=_LIM_SHORT_ID),
+            "input_capital": _compact(payload.get("input_capital"), limit=_LIM_SHORT_ID),
+            "input_surplus": _compact(payload.get("input_surplus"), limit=_LIM_SHORT_ID),
             "input_debt_level": _compact(payload.get("input_debt_level"), limit=30),
             "input_liq_level": _compact(payload.get("input_liq_level"), limit=30),
             "ok_capital": "1" if bool(payload.get("ok_capital")) else "0",
             "ok_engineer": "1" if bool(payload.get("ok_engineer")) else "0",
             "ok_office": "1" if bool(payload.get("ok_office")) else "0",
-            "output_center": _compact(payload.get("output_center"), limit=80),
+            "output_center": _compact(payload.get("output_center"), limit=_LIM_SHORT_ID),
             "output_range": _compact(payload.get("output_range"), limit=120),
             "output_confidence": _compact(payload.get("output_confidence"), limit=120),
-            "output_neighbors": _compact(payload.get("output_neighbors"), limit=80),
+            "output_neighbors": _compact(payload.get("output_neighbors"), limit=_LIM_SHORT_ID),
             "missing_critical": _compact(payload.get("missing_critical"), limit=200),
             "page_url": _compact(payload.get("page_url"), limit=500),
-            "requested_at": _compact(payload.get("requested_at"), limit=80),
+            "requested_at": _compact(payload.get("requested_at"), limit=_LIM_SHORT_ID),
             "raw_json": json.dumps(payload, ensure_ascii=False, separators=(",", ":")),
         }
         conn = sqlite3.connect(self.db_path, timeout=30)
@@ -567,7 +581,7 @@ class CrmBridge:
         summary = _compact(normalized.get("summary_text"), limit=12000)
         if tags:
             summary += f"\n\n[자동 태그] {', '.join(tags)}"
-        mode = _compact(normalized.get("page_mode"), limit=40)
+        mode = _compact(normalized.get("page_mode"), limit=_LIM_TOKEN)
         intent = "인허가(신규등록)" if mode == CANONICAL_MODE_PERMIT else "양도양수"
         channel = "permit_precheck_web" if mode == CANONICAL_MODE_PERMIT else "yangdo_ai_web"
 
@@ -578,7 +592,7 @@ class CrmBridge:
                     "title": title,
                     "content": summary,
                     "channel": channel,
-                    "customer_name": _compact(normalized.get("customer_name"), limit=80),
+                    "customer_name": _compact(normalized.get("customer_name"), limit=_LIM_SHORT_ID),
                     "contact": contact,
                     "source": _compact(normalized.get("page_url"), limit=400),
                     "urgency": urgency,
@@ -590,8 +604,8 @@ class CrmBridge:
             logger.exception("crm intake failed")
             return {"status": "crm_insert_error", "lead_id": ""}
 
-        status = _compact(out.get("status"), limit=40) or "unknown"
-        lead_id = _compact(out.get("lead_id"), limit=80)
+        status = _compact(out.get("status"), limit=_LIM_TOKEN) or "unknown"
+        lead_id = _compact(out.get("lead_id"), limit=_LIM_SHORT_ID)
         return {"status": status, "lead_id": lead_id}
 
 
@@ -753,8 +767,8 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
 
     def _handle_consult(self, payload: dict) -> None:
         payload = _normalize_business_payload(payload)
-        name = _compact(payload.get("customer_name"), limit=80)
-        phone = _compact(payload.get("customer_phone"), limit=40)
+        name = _compact(payload.get("customer_name"), limit=_LIM_SHORT_ID)
+        phone = _compact(payload.get("customer_phone"), limit=_LIM_TOKEN)
         email = _compact(payload.get("customer_email"), limit=120)
         if not name:
             self._write_json(400, {"ok": False, "error": "customer_name_required"})
@@ -775,7 +789,7 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
 
         crm = self.server.crm_bridge.submit(payload, tags, urgency)
         crm_status = _compact(crm.get("status"), limit=120)
-        crm_lead_id = _compact(crm.get("lead_id"), limit=80)
+        crm_lead_id = _compact(crm.get("lead_id"), limit=_LIM_SHORT_ID)
         try:
             self.server.store.update_crm_result(request_id, crm_status, crm_lead_id)
         except (sqlite3.Error, OSError):
