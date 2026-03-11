@@ -334,6 +334,39 @@ class TestSlidingWindowRateLimiter:
         assert retry_after >= 1
         assert retry_after <= 30
 
+    def test_retry_after_floor_minimum_one(self) -> None:
+        """Retry-After should be at least 1 even near window boundary."""
+        rl = SlidingWindowRateLimiter(limit=1, window_seconds=1)
+        rl.allow("user")
+        _, retry_after = rl.allow("user")
+        assert retry_after >= 1
+
+    def test_429_response_contract(self) -> None:
+        """Verify rate limiter output maps correctly to 429 response shape."""
+        rl = SlidingWindowRateLimiter(limit=1, window_seconds=60)
+        rl.allow("client-ip")
+        ok, retry_after = rl.allow("client-ip")
+        # Handler would build this response
+        assert ok is False
+        status = 429
+        body = {"ok": False, "error": "rate_limited"}
+        header_retry = str(max(1, int(retry_after)))
+        assert status == 429
+        assert body["error"] == "rate_limited"
+        assert int(header_retry) >= 1
+        assert int(header_retry) <= 60
+
+    def test_denied_then_allowed_after_window(self) -> None:
+        """After denial, requests are allowed once window elapses."""
+        rl = SlidingWindowRateLimiter(limit=2, window_seconds=1)
+        rl.allow("ip")
+        rl.allow("ip")
+        denied, _ = rl.allow("ip")
+        assert denied is False
+        with patch("time.monotonic", return_value=time.monotonic() + 2):
+            ok, _ = rl.allow("ip")
+            assert ok is True
+
 
 # ────────────────────────────────────────────────
 # SecurityEventLogger

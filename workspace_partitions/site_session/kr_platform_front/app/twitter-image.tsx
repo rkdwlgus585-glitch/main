@@ -1,22 +1,12 @@
 import { ImageResponse } from "next/og";
+import { loadOgFont, ogFontFamily, ogFontOption } from "@/lib/og-font";
 
 export const alt = "서울건설정보 — 건설업 AI 전문 플랫폼";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-/* Noto Sans KR Bold — universal CJK support, no COLR table (Satori-compatible) */
-const fontUrl =
-  "https://fonts.gstatic.com/s/notosanskr/v39/PbyxFmXiEBPT4ITbgNA5Cgms3VYcOA-vvnIzzg01eLQ.ttf";
-
 export default async function TwitterImage() {
-  let fontData: ArrayBuffer | null = null;
-  try {
-    fontData = await fetch(fontUrl, { signal: AbortSignal.timeout(5_000) }).then(
-      (res) => res.arrayBuffer(),
-    );
-  } catch {
-    /* CDN unreachable — render without custom font */
-  }
+  const fontData = await loadOgFont();
 
   return new ImageResponse(
     (
@@ -29,7 +19,7 @@ export default async function TwitterImage() {
           justifyContent: "center",
           alignItems: "center",
           background: "linear-gradient(145deg, #021225 0%, #05325f 55%, #0a4d8c 100%)",
-          fontFamily: fontData ? "NotoSansKR" : "system-ui, sans-serif",
+          fontFamily: ogFontFamily(fontData),
           padding: "60px 80px",
           position: "relative",
           overflow: "hidden",
@@ -95,9 +85,7 @@ export default async function TwitterImage() {
     ),
     {
       ...size,
-      ...(fontData
-        ? { fonts: [{ name: "NotoSansKR", data: fontData, weight: 700, style: "normal" as const }] }
-        : {}),
+      ...ogFontOption(fontData),
     },
   );
 }
