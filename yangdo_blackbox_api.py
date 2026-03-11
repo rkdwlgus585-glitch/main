@@ -172,6 +172,7 @@ def _write_partner_health_json(handler: Any, status: int = 200) -> None:
         handler.send_header("Vary", "Origin")
         handler.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
         handler.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-API-Key, X-Request-Id, X-Correlation-Id, X-Channel-Id")
+        handler.send_header("Access-Control-Expose-Headers", "X-Request-Id")
     handler.end_headers()
     try:
         handler.wfile.write(body)

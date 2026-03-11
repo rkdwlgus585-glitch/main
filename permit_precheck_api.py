@@ -1210,6 +1210,7 @@ class Handler(BaseHTTPRequestHandler):
             self.send_header("Vary", "Origin")
             self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
             self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-API-Key, X-Request-Id, X-Correlation-Id, X-Channel-Id")
+            self.send_header("Access-Control-Expose-Headers", "X-Request-Id")
         if isinstance(extra_headers, dict):
             for hk, hv in extra_headers.items():
                 self.send_header(str(hk), str(hv))

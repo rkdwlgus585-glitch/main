@@ -68,7 +68,10 @@ export function WidgetFrame({
   const handleLoad = useCallback(() => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     setLoadState("loaded");
-    // Send handshake init to iframe — widget can respond with widget-ready
+    // Send handshake init to iframe — widget can respond with widget-ready.
+    // targetOrigin "*" is required because the iframe sandbox lacks
+    // allow-same-origin, making its effective origin "null".  A specific
+    // origin would silently fail.  The nonce provides authentication.
     try {
       iframeRef.current?.contentWindow?.postMessage(
         { type: "platform-handshake", nonce: nonceRef.current },

@@ -11,6 +11,7 @@ from typing import Any
 
 from core_engine.api_response import _compact, now_iso
 from core_engine.tenant_gateway import TenantGateway
+from scripts.widget_health_contract import load_widget_health_contract
 from tenant_config.loader import load_gateway
 
 from lead_intake import LeadIntakeHub
@@ -60,6 +61,8 @@ CONFIG = load_config(
 )
 
 logger = setup_logger(name="yangdo_consult_api")
+
+_SERVER_STARTED_AT: str = now_iso()
 
 # ── Input field size limits (chars) ─────────────────────────────────
 _LIM_TOKEN: int = 40        # page_mode, status, phone, short tokens
@@ -767,6 +770,7 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
             self.send_header("Access-Control-Allow-Origin", allow_origin)
             self.send_header("Vary", "Origin")
             self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-API-Key, X-Request-Id, X-Correlation-Id")
+            self.send_header("Access-Control-Expose-Headers", "X-Request-Id")
             self.send_header("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
         if isinstance(extra_headers, dict):
             for hk, hv in extra_headers.items():
@@ -809,7 +813,9 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
                 {
                     "ok": True,
                     "service": "yangdo_consult_api",
-                    "time": now_iso(),
+                    "started_at": _SERVER_STARTED_AT,
+                    "message": "healthy",
+                    "health_contract": load_widget_health_contract(),
                     "crm_enabled": bool(self.server.crm_bridge.enabled),
                     "usage_sheet_enabled": bool(self.server.usage_sheet.enabled),
                 },

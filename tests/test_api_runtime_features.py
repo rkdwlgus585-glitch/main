@@ -204,3 +204,10 @@ class TestHealthCheckStartedAt:
         payload = _partner_health_payload()
         assert payload["ok"] is True
         assert payload["service"] == "yangdo_blackbox_api"
+
+    def test_consult_server_started_at_is_iso_timestamp(self) -> None:
+        from yangdo_consult_api import _SERVER_STARTED_AT
+
+        assert isinstance(_SERVER_STARTED_AT, str)
+        assert "T" in _SERVER_STARTED_AT
+        assert "+00:00" in _SERVER_STARTED_AT
