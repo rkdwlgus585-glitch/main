@@ -57,6 +57,7 @@ export function HomeHero() {
               loop
               playsInline
               preload="metadata"
+              poster="/media/hero-poster.svg"
               aria-label="건설 현장 영상"
             >
               <source src="/media/hero-construction.mp4" type="video/mp4" />
