@@ -4,7 +4,47 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from permit_precheck_api import PermitUsageStore
+from permit_precheck_api import PermitUsageStore, _safe_sql_identifier
+
+
+class SafeSqlIdentifierTests(unittest.TestCase):
+    """Validate _safe_sql_identifier defence-in-depth guard."""
+
+    def test_simple_column_name(self) -> None:
+        self.assertEqual(_safe_sql_identifier("received_at"), "received_at")
+
+    def test_uppercase_type(self) -> None:
+        self.assertEqual(_safe_sql_identifier("TEXT"), "TEXT")
+
+    def test_leading_underscore(self) -> None:
+        self.assertEqual(_safe_sql_identifier("_hidden"), "_hidden")
+
+    def test_mixed_case_digits(self) -> None:
+        self.assertEqual(_safe_sql_identifier("col_2a"), "col_2a")
+
+    def test_rejects_empty_string(self) -> None:
+        with self.assertRaises(ValueError):
+            _safe_sql_identifier("")
+
+    def test_rejects_leading_digit(self) -> None:
+        with self.assertRaises(ValueError):
+            _safe_sql_identifier("2col")
+
+    def test_rejects_space(self) -> None:
+        with self.assertRaises(ValueError):
+            _safe_sql_identifier("col name")
+
+    def test_rejects_semicolon_injection(self) -> None:
+        with self.assertRaises(ValueError):
+            _safe_sql_identifier("x; DROP TABLE usage_events")
+
+    def test_rejects_dash(self) -> None:
+        with self.assertRaises(ValueError):
+            _safe_sql_identifier("col-name")
+
+    def test_rejects_parentheses(self) -> None:
+        with self.assertRaises(ValueError):
+            _safe_sql_identifier("col()")
 
 
 class PermitPrecheckUsageStoreTests(unittest.TestCase):

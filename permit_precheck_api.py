@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+import re
 import sqlite3
 import uuid
 from datetime import datetime, timezone
@@ -222,40 +223,40 @@ def _month_key() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m")
 
 
-def _tenant_plan_key(resolution) -> str:
+def _tenant_plan_key(resolution: Any) -> str:
     tenant = getattr(resolution, "tenant", None)
     if tenant is None:
         return ""
     return _compact(getattr(tenant, "plan", "")).lower()
 
 
-def _tenant_id_value(resolution) -> str:
+def _tenant_id_value(resolution: Any) -> str:
     tenant = getattr(resolution, "tenant", None)
     if tenant is None:
         return ""
     return _compact(getattr(tenant, "tenant_id", ""))
 
 
-def _tenant_has_feature(server, resolution, feature: str) -> bool:
+def _tenant_has_feature(server: Any, resolution: Any, feature: str) -> bool:
     if not bool(getattr(server, "tenant_gateway_enabled", False)):
         return True
     return bool(server.tenant_gateway.check_feature(resolution, feature))
 
 
-def _tenant_has_system(server, resolution, system: str) -> bool:
+def _tenant_has_system(server: Any, resolution: Any, system: str) -> bool:
     if not bool(getattr(server, "tenant_gateway_enabled", False)):
         return True
     return bool(server.tenant_gateway.check_system(resolution, system))
 
 
-def _channel_id_value(resolution) -> str:
+def _channel_id_value(resolution: Any) -> str:
     profile = getattr(resolution, "profile", None)
     if profile is None:
         return ""
     return _compact(getattr(profile, "channel_id", ""))
 
 
-def _channel_exposes_system(server, resolution, system: str) -> bool:
+def _channel_exposes_system(server: Any, resolution: Any, system: str) -> bool:
     if not bool(getattr(server, "channel_router", None)):
         return True
     try:
@@ -264,7 +265,7 @@ def _channel_exposes_system(server, resolution, system: str) -> bool:
         return True
 
 
-def _permit_response_tier(server, resolution) -> str:
+def _permit_response_tier(server: Any, resolution: Any) -> str:
     if not bool(getattr(server, "tenant_gateway_enabled", False)):
         return "internal"
     if _tenant_has_feature(server, resolution, "permit_precheck_internal"):
@@ -279,7 +280,7 @@ def _permit_response_tier(server, resolution) -> str:
     return "summary"
 
 
-def _project_precheck_result(server, resolution, result: Dict[str, Any]) -> Dict[str, Any]:
+def _project_precheck_result(server: Any, resolution: Any, result: Dict[str, Any]) -> Dict[str, Any]:
     payload = dict(result or {})
     tier = _permit_response_tier(server, resolution)
     tenant_plan = _tenant_plan_key(resolution)
@@ -328,6 +329,20 @@ def _project_precheck_result(server, resolution, result: Dict[str, Any]) -> Dict
     payload["tenant_id"] = tenant_id
     payload["response_policy"] = policy
     return payload
+
+
+_SAFE_SQL_IDENT_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+
+
+def _safe_sql_identifier(name: str) -> str:
+    """Validate and return *name* as a safe SQL identifier.
+
+    Raises ``ValueError`` for names that do not match ``[A-Za-z_][A-Za-z0-9_]*``.
+    This prevents SQL injection even though callers only pass hardcoded values.
+    """
+    if not _SAFE_SQL_IDENT_RE.match(name):
+        raise ValueError(f"Invalid SQL identifier: {name!r}")
+    return name
 
 
 class PermitUsageStore:
@@ -490,7 +505,9 @@ class PermitUsageStore:
         }
         for column, column_type in required_columns.items():
             if column not in columns:
-                conn.execute(f"ALTER TABLE usage_events ADD COLUMN {column} {column_type}")
+                col = _safe_sql_identifier(column)
+                ctype = _safe_sql_identifier(column_type)
+                conn.execute(f"ALTER TABLE usage_events ADD COLUMN {col} {ctype}")
 
     def _ensure_monthly_columns(self, conn: sqlite3.Connection) -> None:
         rows = conn.execute("PRAGMA table_info(tenant_usage_monthly)").fetchall()
