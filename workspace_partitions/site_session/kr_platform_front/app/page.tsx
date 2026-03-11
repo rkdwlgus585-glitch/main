@@ -21,29 +21,24 @@ function HomeJsonLd() {
     url: siteBase,
     description:
       "건설업 면허 양도가격 AI 산정, 191개 업종 등록기준 사전검토, 실시간 매물 — 건설업 전문 플랫폼",
-    potentialAction: {
-      "@type": "SearchAction",
-      target: { "@type": "EntryPoint", urlTemplate: `${siteBase}/knowledge?q={search_term_string}` },
-      "query-input": "required name=search_term_string",
-    },
+    /* SearchAction은 실제 검색 기능 구현 후 추가 예정 */
   };
+  const navItems = [
+    { name: "실시간 매물", path: "/mna-market" },
+    { name: "건설업등록", path: "/permit" },
+    { name: "양도가 산정", path: "/yangdo" },
+    { name: "건설실무", path: "/knowledge" },
+    { name: "고객센터", path: "/consult" },
+  ];
   const navSchema = {
     "@context": "https://schema.org",
-    "@type": "SiteNavigationElement",
-    name: [
-      "실시간 매물",
-      "건설업등록",
-      "양도가 산정",
-      "건설실무",
-      "고객센터",
-    ],
-    url: [
-      `${siteBase}/mna-market`,
-      `${siteBase}/permit`,
-      `${siteBase}/yangdo`,
-      `${siteBase}/knowledge`,
-      `${siteBase}/consult`,
-    ],
+    "@type": "ItemList",
+    itemListElement: navItems.map((item, i) => ({
+      "@type": "SiteNavigationElement",
+      position: i + 1,
+      name: item.name,
+      url: `${siteBase}${item.path}`,
+    })),
   };
   return (
     <>
