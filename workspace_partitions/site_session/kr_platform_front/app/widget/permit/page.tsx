@@ -14,7 +14,7 @@ export default function PermitWidgetPage() {
   return (
     <main id="main" className="product-page">
       <Link className="back-link" href="/permit">
-        인허가 안내 페이지로
+        ← 인허가 안내 페이지로
       </Link>
       <WidgetFrame
         title="등록기준 AI 인허가 사전검토"
