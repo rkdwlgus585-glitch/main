@@ -130,6 +130,10 @@ img { max-width: 100%; display: block; }
 .site-nav a:hover {
   background: rgba(0, 55, 100, 0.06);
 }
+.site-nav a[aria-current="page"] {
+  color: var(--brand);
+  background: rgba(0, 55, 100, 0.06);
+}
 
 .nav-phone {
   background: var(--brand) !important;

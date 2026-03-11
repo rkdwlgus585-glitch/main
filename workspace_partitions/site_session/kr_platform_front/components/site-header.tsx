@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { platformConfig } from "@/components/platform-config";
 
 const navItems = [
@@ -16,6 +17,7 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const navRef = useRef<HTMLElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
+  const pathname = usePathname();
 
   /* Close drawer on desktop resize */
   useEffect(() => {
@@ -73,7 +75,14 @@ export function SiteHeader() {
         aria-label="주요 메뉴"
       >
         {navItems.map((item) => (
-          <Link key={item.href} href={item.href} onClick={() => setOpen(false)}>
+          <Link
+            key={item.href}
+            href={item.href}
+            onClick={() => setOpen(false)}
+            {...(pathname === item.href || pathname.startsWith(item.href + "/")
+              ? { "aria-current": "page" as const }
+              : {})}
+          >
             {item.label}
           </Link>
         ))}
