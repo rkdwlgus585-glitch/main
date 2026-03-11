@@ -11,6 +11,7 @@ RESERVED_WRAPPER_KEYS = {"request", "inputs", "input", "selector", "target", "me
 
 
 def _dict(value: Any) -> Dict[str, Any]:
+    """Safely coerce *value* to a dict; return empty dict for non-dict input."""
     return dict(value) if isinstance(value, dict) else {}
 
 
@@ -21,6 +22,12 @@ def normalize_v1_request(
     default_source: str = "",
     default_page_url: str = "",
 ) -> Dict[str, Any]:
+    """Normalise a v1 API request payload into a canonical structure.
+
+    Accept multiple input formats (nested ``request``/``inputs``/``selector``
+    blocks or flat fields) and unify them into a consistent dict with
+    ``request_meta``, ``fields``, ``inputs``, ``selector``, and ``raw`` keys.
+    """
     raw = dict(payload or {})
     headers = headers or {}
 

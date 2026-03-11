@@ -6,6 +6,7 @@ __all__ = ["normalize_host", "host_from_origin", "sanitize_endpoint", "to_bool"]
 
 
 def normalize_host(raw: str) -> str:
+    """Extract and normalise the hostname from a URL or raw string."""
     src = str(raw or "").strip().lower()
     if not src:
         return ""
@@ -20,6 +21,7 @@ def normalize_host(raw: str) -> str:
 
 
 def host_from_origin(origin: str) -> str:
+    """Extract the normalised hostname from an ``Origin`` header value."""
     src = str(origin or "").strip()
     if not src:
         return ""
@@ -54,6 +56,7 @@ def sanitize_endpoint(url: str) -> str:
 
 
 def to_bool(value: object, default: bool = True) -> bool:
+    """Coerce *value* to ``bool``; return *default* on ambiguous input."""
     if value is None:
         return default
     if isinstance(value, bool):

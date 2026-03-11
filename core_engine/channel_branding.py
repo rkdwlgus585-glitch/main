@@ -64,6 +64,12 @@ def resolve_channel_branding(
     config_path: str = "",
     overrides: Dict[str, Any] | None = None,
 ) -> Dict[str, str]:
+    """Resolve the final branding dict for a given channel.
+
+    Load the channel profiles config, select the matching channel entry,
+    merge profile branding with defaults, apply runtime *overrides*, and
+    return a flat ``{key: str}`` dict ready for template rendering.
+    """
     data = _load_raw_channel_config(config_path)
     desired_channel_id = str(channel_id or os.getenv("CHANNEL_ID", "")).strip().lower()
     default_channel_id = str((data.get("default_channel_id") if isinstance(data, dict) else "") or "").strip().lower()

@@ -25,6 +25,7 @@ def safe_json_for_script(data: Any) -> str:
 
 
 def _compact(value: Any, limit: int = 2000) -> str:
+    """Normalise whitespace and truncate *value* to *limit* characters."""
     text = " ".join(("" if value is None else str(value)).split()).strip()
     if limit > 0 and len(text) > limit:
         return text[:limit].rstrip()
@@ -41,6 +42,12 @@ def build_response_envelope(
     tenant_plan: str = "",
     response_tier: str = "",
 ) -> Dict[str, Any]:
+    """Wrap a business *payload* in a standard API response envelope.
+
+    Attach ``response_meta`` (service, version, request_id, channel, plan,
+    tier, status) and deep-copy the payload into a ``data`` key for data
+    isolation.
+    """
     business_payload = dict(payload or {})
     response_payload = dict(business_payload)
     ok = bool(response_payload.get("ok"))

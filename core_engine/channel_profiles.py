@@ -44,6 +44,8 @@ class ChannelResolution:
 
 
 class ChannelRouter:
+    """Route incoming requests to the correct channel profile by host or origin."""
+
     def __init__(
         self,
         profiles: Iterable[ChannelProfile],
@@ -71,6 +73,7 @@ class ChannelRouter:
         return len(self._profiles)
 
     def resolve(self, host: str = "", origin: str = "") -> ChannelResolution:
+        """Resolve a request's host/origin to a ``ChannelResolution``."""
         candidates: List[tuple[str, str]] = []
         host_norm = normalize_host(host)
         if host_norm:
@@ -92,6 +95,7 @@ class ChannelRouter:
         return ChannelResolution(profile=None, matched_host="", source="")
 
     def check_system(self, resolution: ChannelResolution, system: str) -> bool:
+        """Check whether *system* is exposed for the resolved channel."""
         profile = resolution.profile
         if profile is None:
             return not self.strict
@@ -105,6 +109,7 @@ class ChannelRouter:
 
 
 def channel_profile_from_json_entry(entry: dict) -> Optional[ChannelProfile]:
+    """Parse a raw JSON dict into a ``ChannelProfile``; return ``None`` on invalid input."""
     if not isinstance(entry, dict):
         return None
     channel_id = str(entry.get("channel_id") or "").strip()
@@ -165,6 +170,7 @@ def load_channel_router_from_file(
     strict: bool = False,
     default_channel_id: str = "",
 ) -> ChannelRouter:
+    """Load a ``ChannelRouter`` from a JSON channel-profiles file."""
     src = str(path or "").strip()
     if not src:
         return ChannelRouter([], strict=strict, default_channel_id=default_channel_id)
