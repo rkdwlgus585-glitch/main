@@ -148,7 +148,7 @@ class Notifier:
                     return True
                 last_error = f"status={res.status_code}"
             except (requests.RequestException, OSError) as e:
-                last_error = str(e)
+                last_error = f"{type(e).__name__}"
 
             if attempt < self.MAX_RETRIES:
                 time.sleep(self.RETRY_DELAY * (attempt + 1))
