@@ -6,6 +6,12 @@ from typing import Any, Dict, List, Optional, Tuple
 from core_engine.api_response import now_iso, safe_json_for_script
 from core_engine.channel_branding import resolve_channel_branding
 from core_engine.host_utils import sanitize_endpoint as _sanitize_endpoint
+
+# ── Module-level constants (single source of truth) ──────────────────
+DEFAULT_LISTING_BASE_URL: str = "https://seoulmna.co.kr"
+DEFAULT_CONTACT_PHONE: str = "1668-3548"
+DEFAULT_CONTACT_PHONE_DIGITS: str = "16683548"
+
 def _round4(value: object) -> Optional[float]:
     if value is None:
         return None
@@ -16,7 +22,7 @@ def _round4(value: object) -> Optional[float]:
 def listing_detail_url(site_url: object, seoul_no: object = 0, now_uid: object = "") -> str:
     base = str(site_url or "").rstrip("/")
     if not base:
-        base = "https://seoulmna.co.kr"
+        base = DEFAULT_LISTING_BASE_URL
     try:
         no = int(seoul_no or 0)
     except (ValueError, TypeError):
@@ -443,7 +449,7 @@ def build_page_html(
     usage_endpoint: str = "",
     estimate_endpoint: str = "",
     api_key: str = "",
-    contact_phone: str = "1668-3548",
+    contact_phone: str = DEFAULT_CONTACT_PHONE,
     openchat_url: str = "",
     enable_consult_widget: bool = False,
     enable_usage_log: bool = False,
@@ -458,7 +464,7 @@ def build_page_html(
         },
     )
     site_url = str(branding.get("site_url") or site_url or "").strip()
-    contact_phone = str(branding.get("contact_phone") or contact_phone or "1668-3548").strip()
+    contact_phone = str(branding.get("contact_phone") or contact_phone or DEFAULT_CONTACT_PHONE).strip()
     openchat_url = str(branding.get("openchat_url") or openchat_url or "").strip()
     brand_name = str(branding.get("brand_name") or "서울건설정보").strip()
     brand_label = str(branding.get("brand_label") or brand_name).strip()
@@ -489,7 +495,7 @@ def build_page_html(
     usage_endpoint_json = safe_json_for_script(usage_endpoint_text)
     estimate_endpoint_json = safe_json_for_script(estimate_endpoint_text)
     api_key_json = safe_json_for_script(str(api_key or "").strip())
-    contact_phone_json = safe_json_for_script(contact_phone or "1668-3548")
+    contact_phone_json = safe_json_for_script(contact_phone or DEFAULT_CONTACT_PHONE)
     openchat_url_json = safe_json_for_script(openchat_url_text)
     brand_name_json = safe_json_for_script(brand_name)
     consult_email_json = safe_json_for_script(consult_email)
@@ -2786,7 +2792,7 @@ def build_page_html(
       <span class="cta-text">{escape(top_cta_text)}</span>
       <span class="cta-actions">
         <button type="button" class="cta-button chat" id="btn-openchat-top">{escape(top_cta_button_text)}</button>
-        <a id="btn-call-top" class="cta-button call" href="tel:{escape(contact_phone_digits or '16683548')}">{escape(contact_phone)}</a>
+        <a id="btn-call-top" class="cta-button call" href="tel:{escape(contact_phone_digits or DEFAULT_CONTACT_PHONE_DIGITS)}">{escape(contact_phone)}</a>
       </span>
     </div>
     <div class="impact">AI가 유사 매물 + 핵심 입력값을 종합 계산해 예상 양도가 범위를 제시합니다. 업종을 넣으면 통상 매물 기준값을 먼저 채워 대표님 입력 부담을 줄입니다.</div>

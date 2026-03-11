@@ -17,7 +17,7 @@ export default function GlobalError({
   }, [error]);
 
   return (
-    <div className="page-shell not-found-shell">
+    <main id="main" className="page-shell not-found-shell">
       <p className="not-found-code" aria-hidden="true">
         Error
       </p>
@@ -33,6 +33,6 @@ export default function GlobalError({
           홈으로 이동
         </Link>
       </div>
-    </div>
+    </main>
   );
 }

@@ -291,14 +291,6 @@ img { max-width: 100%; display: block; }
   line-height: 1.65;
 }
 
-.cta-actions {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  margin-top: 24px;
-  flex-wrap: wrap;
-}
-
 .cta-section .cta-primary {
   background: white;
   color: var(--brand);
