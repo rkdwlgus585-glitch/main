@@ -318,6 +318,7 @@ class ConsultStore:
             conn.close()
 
     def insert(self, payload: dict, tags: list[str], priority: str, urgency: str) -> int:
+        """Insert a consultation request and return the row ID."""
         payload = _normalize_business_payload(payload)
         row = {
             "received_at": now_iso(),
@@ -369,6 +370,7 @@ class ConsultStore:
             conn.close()
 
     def insert_usage(self, payload: dict) -> int:
+        """Insert a usage log entry and return the row ID."""
         payload = _normalize_business_payload(payload)
         row = {
             "received_at": now_iso(),
@@ -426,6 +428,7 @@ class ConsultStore:
             conn.close()
 
     def update_crm_result(self, request_id: int, status: str, lead_id: str = "") -> None:
+        """Update CRM sync status for a previously inserted consultation."""
         conn = sqlite3.connect(self.db_path, timeout=30)
         try:
             conn.execute(
@@ -505,6 +508,7 @@ class UsageSheetWriter:
             return self._ws
 
     def append_usage(self, payload: dict) -> dict:
+        """Append a usage row to the Google Sheet, returning status."""
         if not self.enabled:
             return {"ok": False, "reason": "disabled"}
         try:
@@ -568,6 +572,7 @@ class CrmBridge:
             return hub
 
     def submit(self, payload: dict, tags: list[str], urgency: str) -> dict:
+        """Submit a lead to CRM, returning status and lead_id."""
         if not self.enabled:
             return {"status": "disabled", "lead_id": ""}
         normalized = _normalize_business_payload(payload)
@@ -744,11 +749,13 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
         return payload if isinstance(payload, dict) else {}
 
     def do_OPTIONS(self) -> None:
+        """Handle CORS preflight requests."""
         if not self._allow_request():
             return
         self._write_json(200, {"ok": True})
 
     def do_GET(self) -> None:
+        """Route GET requests to /health endpoint."""
         path = self.path.split("?", 1)[0].rstrip("/")
         if not self._allow_request():
             return
@@ -850,6 +857,7 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
         )
 
     def do_POST(self) -> None:
+        """Route POST requests to /consult or /usage endpoints."""
         path = self.path.rstrip("/")
         if path not in {"/consult", "/usage"}:
             self._write_json(404, {"ok": False, "error": "not_found"})
@@ -913,6 +921,7 @@ def _parse_origins(raw: str) -> list[str]:
 
 
 def main() -> None:
+    """Parse CLI arguments and start the yangdo consultation HTTP server."""
     parser = argparse.ArgumentParser(description="서울건설정보 양도가 계산기 상담/사용 로그 API 서버")
     parser.add_argument("--host", default=str(CONFIG.get("YANGDO_CONSULT_API_HOST", "0.0.0.0")).strip())
     parser.add_argument("--port", type=int, default=_cfg_int("YANGDO_CONSULT_API_PORT", 8788))
