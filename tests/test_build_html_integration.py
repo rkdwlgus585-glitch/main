@@ -447,6 +447,19 @@ class YangdoBuildPageHtmlTest(unittest.TestCase):
     def test_error_handler_logs_to_console(self):
         self.assertIn("[yangdo] unhandled error", self._html)
 
+    # -- Default constants in HTML output --------------------------------------
+    def test_default_contact_phone_in_html(self):
+        from yangdo_calculator import DEFAULT_CONTACT_PHONE
+        self.assertIn(DEFAULT_CONTACT_PHONE, self._html)
+
+    def test_default_contact_phone_digits_in_tel_link(self):
+        from yangdo_calculator import DEFAULT_CONTACT_PHONE_DIGITS
+        self.assertIn(f"tel:{DEFAULT_CONTACT_PHONE_DIGITS}", self._html)
+
+    def test_consult_payload_sanitize_function(self):
+        """sanitizePlain used in buildConsultPayload for defense-in-depth."""
+        self.assertIn("sanitizePlain", self._html)
+
     # -- Overall size ---------------------------------------------------------
     def test_html_minimum_size(self):
         self.assertGreater(len(self._html), 50_000, "HTML should be >50KB")

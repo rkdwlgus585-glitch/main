@@ -16,6 +16,7 @@ export const metadata: Metadata = {
     description: pageDescription,
     url: "/yangdo",
     type: "website",
+    locale: "ko_KR",
   },
   twitter: {
     card: "summary",
@@ -121,7 +122,7 @@ export default function YangdoPage() {
     <main id="main" className="product-page">
       <YangdoJsonLd />
       <Link className="back-link" href="/">
-        플랫폼 홈으로
+        ← 플랫폼 홈으로
       </Link>
 
       {/* ── 서비스 소개 ── */}

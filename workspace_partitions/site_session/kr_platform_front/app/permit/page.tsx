@@ -16,6 +16,7 @@ export const metadata: Metadata = {
     description: pageDescription,
     url: "/permit",
     type: "website",
+    locale: "ko_KR",
   },
   twitter: {
     card: "summary",
@@ -122,7 +123,7 @@ export default function PermitPage() {
     <main id="main" className="product-page">
       <PermitJsonLd />
       <Link className="back-link" href="/">
-        플랫폼 홈으로
+        ← 플랫폼 홈으로
       </Link>
 
       {/* ── 서비스 소개 ── */}

@@ -15,6 +15,7 @@ export const metadata: Metadata = {
     description: pageDescription,
     url: "/mna-market",
     type: "website",
+    locale: "ko_KR",
   },
   twitter: {
     card: "summary",
