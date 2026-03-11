@@ -11,10 +11,12 @@ from lead_intake import (
     _cfg_int,
     _compact_text,
     _default_next_action,
+    _defang_cell,
     _fingerprint,
     _infer_intent,
     _infer_urgency,
     _lead_id,
+    _MAX_CELL_LEN,
     _normalize_intent_label,
     _normalize_token,
     _pick,
@@ -317,6 +319,47 @@ class TestConsultHeaders(unittest.TestCase):
 
     def test_status_column(self) -> None:
         assert "상태" in CONSULT_HEADERS
+
+
+class TestDefangCell(unittest.TestCase):
+    """_defang_cell: escape spreadsheet formula prefixes."""
+
+    def test_normal_text_unchanged(self) -> None:
+        assert _defang_cell("hello") == "hello"
+
+    def test_equals_prefix_escaped(self) -> None:
+        assert _defang_cell("=SUM(A1:A10)") == "'=SUM(A1:A10)"
+
+    def test_plus_prefix_escaped(self) -> None:
+        assert _defang_cell("+1234") == "'+1234"
+
+    def test_minus_prefix_escaped(self) -> None:
+        assert _defang_cell("-value") == "'-value"
+
+    def test_at_prefix_escaped(self) -> None:
+        assert _defang_cell("@mention") == "'@mention"
+
+    def test_tab_prefix_escaped(self) -> None:
+        assert _defang_cell("\tdata") == "'\tdata"
+
+    def test_empty_string(self) -> None:
+        assert _defang_cell("") == ""
+
+    def test_space_prefix_not_escaped(self) -> None:
+        assert _defang_cell(" safe") == " safe"
+
+    def test_korean_text_unchanged(self) -> None:
+        assert _defang_cell("전기공사업 양도양수 문의") == "전기공사업 양도양수 문의"
+
+
+class TestMaxCellLen(unittest.TestCase):
+    """_MAX_CELL_LEN constant for input size limits."""
+
+    def test_constant_is_positive(self) -> None:
+        assert _MAX_CELL_LEN > 0
+
+    def test_constant_value(self) -> None:
+        assert _MAX_CELL_LEN == 2000
 
 
 if __name__ == "__main__":

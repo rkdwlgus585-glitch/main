@@ -62,6 +62,7 @@ CONSULT_HEADERS = [
 
 
 def _cfg_int(key: str, default: int) -> int:
+    """Read *key* from CONFIG as ``int``; fall back to *default* on parse failure."""
     try:
         return int(str(CONFIG.get(key, default)).strip())
     except (ValueError, TypeError):
@@ -69,14 +70,17 @@ def _cfg_int(key: str, default: int) -> int:
 
 
 def _compact_text(text: object) -> str:
+    """Collapse whitespace runs into a single space and strip."""
     return re.sub(r"\s+", " ", str(text or "")).strip()
 
 
 def _normalize_token(text: object) -> str:
+    """Lower-case *text* and strip non-alphanumeric / non-Korean characters."""
     return re.sub(r"[^0-9a-z가-힣]+", "", str(text or "").lower())
 
 
 def _safe_contact(value: object) -> str:
+    """Format a Korean phone number with dashes (010-xxxx-xxxx) if valid."""
     s = str(value or "").strip()
     if not s:
         return ""
@@ -89,11 +93,13 @@ def _safe_contact(value: object) -> str:
 
 
 def _lead_id(now: datetime | None = None) -> str:
+    """Generate a timestamped lead identifier like ``LD20260311143012456``."""
     now = now or datetime.now()
     return f"LD{now.strftime('%Y%m%d%H%M%S')}{random.randint(100, 999)}"
 
 
 def _infer_intent(text: object) -> str:
+    """Keyword-match *text* to a service intent (양도양수, 인허가, etc.)."""
     t = _normalize_token(text)
     rules = [
         ("양도양수", ["양도양수", "양도", "양수", "매물", "mna"]),
@@ -112,6 +118,7 @@ def _infer_intent(text: object) -> str:
 
 
 def _normalize_intent_label(value: object) -> str:
+    """Canonicalize free-form intent text into a standard label (e.g. ``인허가(신규등록)``)."""
     text = _compact_text(value)
     token = _normalize_token(text)
     if any(k in token for k in ["인허가", "사전검토", "신규등록", "면허등록", "등록기준"]):
@@ -122,6 +129,7 @@ def _normalize_intent_label(value: object) -> str:
 
 
 def _infer_urgency(text: object) -> str:
+    """Classify *text* urgency as 긴급 / 보통 / 일반 via keyword matching."""
     t = _normalize_token(text)
     urgent = ["급함", "오늘", "당장", "바로", "긴급", "내일", "마감", "이번주"]
     medium = ["빠르게", "가능하면", "검토", "문의", "상담"]
@@ -133,6 +141,7 @@ def _infer_urgency(text: object) -> str:
 
 
 def _default_next_action(intent: str, urgency: str) -> str:
+    """Return the recommended follow-up action for *intent* + *urgency*."""
     base = {
         "양도양수": "고객 조건(업종/예산/지역) 확인 후 추천 매물 3건 송부",
         "인허가(신규등록)": "업종별 인허가 등록기준 체크리스트와 필요서류 안내 송부",
@@ -151,6 +160,7 @@ def _default_next_action(intent: str, urgency: str) -> str:
 
 
 def _fingerprint(record: Dict[str, str]) -> str:
+    """SHA-1 hash of normalised record fields for duplicate detection."""
     parts = [
         _normalize_token(record.get("title", "")),
         _normalize_token(record.get("content", "")),
@@ -161,7 +171,19 @@ def _fingerprint(record: Dict[str, str]) -> str:
     return hashlib.sha1(base.encode("utf-8")).hexdigest()
 
 
+_FORMULA_PREFIXES = frozenset("=+@-\t\r")
+_MAX_CELL_LEN = 2000
+
+
+def _defang_cell(value: str) -> str:
+    """Escape spreadsheet formula prefixes to prevent formula injection."""
+    if value and value[0] in _FORMULA_PREFIXES:
+        return "'" + value
+    return value
+
+
 def _pick(source: Dict[str, Any], keys: Sequence[str]) -> str:
+    """Return the first non-empty value from *source* for any of *keys*."""
     for key in keys:
         if key in source and str(source.get(key, "")).strip():
             return str(source[key]).strip()
@@ -169,7 +191,10 @@ def _pick(source: Dict[str, Any], keys: Sequence[str]) -> str:
 
 
 class LeadIntakeHub:
+    """Google Sheets-backed lead ingestion hub for consultation requests."""
+
     def __init__(self) -> None:
+        """Initialise from CONFIG; call :meth:`connect` before ingesting leads."""
         require_config(CONFIG, ["JSON_FILE", "SHEET_NAME", "TAB_CONSULT"], context="lead_intake:init")
         self.json_file = str(CONFIG["JSON_FILE"]).strip()
         self.sheet_name = str(CONFIG["SHEET_NAME"]).strip()
@@ -186,6 +211,7 @@ class LeadIntakeHub:
         self.state = self._load_state()
 
     def _load_state(self) -> Dict[str, Any]:
+        """Load the duplicate-fingerprint state from disk (returns empty on error)."""
         if not self.state_file or not os.path.exists(self.state_file):
             return {"fingerprints": {}}
         try:
@@ -200,6 +226,7 @@ class LeadIntakeHub:
             return {"fingerprints": {}}
 
     def _save_state(self) -> None:
+        """Persist fingerprint state to disk with an ``updated_at`` timestamp."""
         self.state["updated_at"] = datetime.now().isoformat(timespec="seconds")
         with open(self.state_file, "w", encoding="utf-8") as f:
             json.dump(self.state, f, ensure_ascii=False, indent=2)
@@ -218,6 +245,7 @@ class LeadIntakeHub:
         self._ensure_header()
 
     def _ensure_header(self) -> None:
+        """Ensure the worksheet header row matches ``CONSULT_HEADERS`` (auto-repair)."""
         row1 = self.ws.row_values(1)
         if not row1:
             self.ws.update(range_name="A1:P1", values=[CONSULT_HEADERS])
@@ -239,6 +267,7 @@ class LeadIntakeHub:
             self.ws.update(range_name="A1:P1", values=[merged[:16]])
 
     def _is_duplicate(self, record: Dict[str, str]) -> Tuple[bool, str]:
+        """Check in-memory state + last *dup_scan_rows* sheet rows for duplicates."""
         fp = _fingerprint(record)
         if fp in self.state.get("fingerprints", {}):
             return True, fp
@@ -271,15 +300,15 @@ class LeadIntakeHub:
         on success, or ``"skipped"``/``"duplicate"`` status dicts otherwise.
         """
         now = datetime.now()
-        title = _compact_text(payload.get("title", ""))
-        content = _compact_text(payload.get("content", ""))
+        title = _compact_text(payload.get("title", ""))[:_MAX_CELL_LEN]
+        content = _compact_text(payload.get("content", ""))[:_MAX_CELL_LEN]
         if not title and not content:
             return {"status": "skipped", "reason": "empty"}
 
-        channel = _compact_text(payload.get("channel", "")) or str(CONFIG.get("LEAD_DEFAULT_CHANNEL", "manual"))
-        customer_name = _compact_text(payload.get("customer_name", ""))
-        contact = _safe_contact(payload.get("contact", ""))
-        source = _compact_text(payload.get("source", ""))
+        channel = (_compact_text(payload.get("channel", "")) or str(CONFIG.get("LEAD_DEFAULT_CHANNEL", "manual")))[:200]
+        customer_name = _compact_text(payload.get("customer_name", ""))[:200]
+        contact = _safe_contact(payload.get("contact", ""))[:50]
+        source = _compact_text(payload.get("source", ""))[:500]
 
         merged_text = f"{title} {content}"
         intent_raw = _compact_text(payload.get("intent", "")) or _infer_intent(merged_text)
@@ -304,27 +333,27 @@ class LeadIntakeHub:
 
         row = [
             now.strftime("%Y-%m-%d %H:%M"),
-            title,
-            content,
+            _defang_cell(title),
+            _defang_cell(content),
             "",
             "",
             lead_id,
             "신규",
-            channel,
-            customer_name,
-            contact,
+            _defang_cell(channel),
+            _defang_cell(customer_name),
+            _defang_cell(contact),
             intent,
             urgency,
             next_action,
             due_at,
             self.consultant,
-            source,
+            _defang_cell(source),
         ]
 
         if dry_run:
             return {"status": "dry_run", "lead_id": lead_id, "row": row}
 
-        self.ws.append_row(row, value_input_option="USER_ENTERED")
+        self.ws.append_row(row, value_input_option="RAW")
 
         self.state.setdefault("fingerprints", {})[fp] = {
             "lead_id": lead_id,
@@ -400,6 +429,7 @@ class LeadIntakeHub:
 
 
 def _build_parser() -> argparse.ArgumentParser:
+    """Build the CLI argument parser for single-record and CSV-batch modes."""
     parser = argparse.ArgumentParser(description="상담 인입 허브: 상담 기록을 Google Sheet 상담관리 탭에 적재")
     parser.add_argument("--title", help="상담 제목")
     parser.add_argument("--content", help="상담 내용")
@@ -419,6 +449,7 @@ def _build_parser() -> argparse.ArgumentParser:
 
 
 def _write_sample_csv(path: str) -> None:
+    """Generate a 2-row sample CSV template at *path* for batch import."""
     rows = [
         {
             "상담제목": "전기공사업 양도양수 문의",
