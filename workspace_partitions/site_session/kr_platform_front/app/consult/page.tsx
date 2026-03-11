@@ -102,6 +102,19 @@ function ConsultJsonLd() {
       url: platformConfig.platformFrontHost,
     },
   };
+  /* HowTo schema helps Google show the consultation flow as a step-by-step snippet */
+  const howTo = {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    name: "건설업 전문 상담 진행 절차",
+    description: "AI 분석 결과를 바탕으로 건설업 전문 행정사의 맞춤 상담을 받는 방법",
+    step: steps.map((s, i) => ({
+      "@type": "HowToStep",
+      position: i + 1,
+      name: s.title,
+      text: s.description,
+    })),
+  };
   return (
     <>
       <script
@@ -111,6 +124,10 @@ function ConsultJsonLd() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(howTo) }}
       />
     </>
   );

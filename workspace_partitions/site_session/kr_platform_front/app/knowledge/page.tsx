@@ -120,6 +120,22 @@ function KnowledgeJsonLd() {
       { "@type": "Thing", name: "건설업 시장 동향" },
     ],
   };
+  /* ItemList helps Google surface individual articles in search results */
+  let position = 0;
+  const itemList = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "건설실무 가이드 목록",
+    numberOfItems: categories.reduce((n, c) => n + c.articles.length, 0),
+    itemListElement: categories.flatMap((cat) =>
+      cat.articles.map((a) => ({
+        "@type": "ListItem",
+        position: ++position,
+        name: a.title,
+        url: `${platformConfig.contentHost}/category/건설업-지식/${cat.categorySlug}/${a.slug}`,
+      })),
+    ),
+  };
   return (
     <>
       <script
@@ -129,6 +145,10 @@ function KnowledgeJsonLd() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList) }}
       />
     </>
   );

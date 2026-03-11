@@ -18,6 +18,11 @@ DEFAULT_SECURITY_HEADERS: Tuple[Tuple[str, str], ...] = (
 
 
 def parse_origin_allowlist(raw: str) -> Set[str]:
+    """Parse a comma-separated CORS origin allowlist into a set of normalised origins.
+
+    Returns ``{"*"}`` immediately if the wildcard is present.  Trailing
+    slashes are stripped so ``https://example.com/`` matches ``https://example.com``.
+    """
     out: Set[str] = set()
     for piece in str(raw or "").split(","):
         origin = str(piece or "").strip().rstrip("/")
@@ -30,6 +35,10 @@ def parse_origin_allowlist(raw: str) -> Set[str]:
 
 
 def resolve_allow_origin(request_origin: str, allowlist: Iterable[str]) -> str:
+    """Return the origin to echo in ``Access-Control-Allow-Origin``, or ``""`` to deny.
+
+    If the allowlist contains ``"*"``, any non-empty origin is allowed.
+    """
     origin = str(request_origin or "").strip().rstrip("/")
     allowed = set(allowlist or set())
     if not allowed:
@@ -42,6 +51,11 @@ def resolve_allow_origin(request_origin: str, allowlist: Iterable[str]) -> str:
 
 
 def header_token(headers: Any, expected: str) -> str:
+    """Extract the bearer token or API key from request headers.
+
+    Checks ``Authorization: Bearer <token>`` first, then ``X-API-Key``.
+    Returns ``""`` when *expected* is falsy (auth disabled).
+    """
     if not expected:
         return ""
     auth = str(headers.get("Authorization", "") or "").strip()
@@ -51,6 +65,11 @@ def header_token(headers: Any, expected: str) -> str:
 
 
 def parse_key_values(raw: str) -> Tuple[str, ...]:
+    """Parse a comma-separated list of API keys into a deduplicated tuple.
+
+    Supports ``name:key`` format (the ``name:`` prefix is stripped).
+    Order is preserved; duplicates are removed.
+    """
     out = []
     for piece in str(raw or "").split(","):
         token = str(piece or "").strip()
@@ -73,6 +92,11 @@ def parse_key_values(raw: str) -> Tuple[str, ...]:
 
 
 def is_authorized_any(headers: Any, expected_values: Sequence[str]) -> bool:
+    """Return ``True`` if the request carries a token matching any value in *expected_values*.
+
+    Uses ``hmac.compare_digest`` for constant-time comparison.
+    An empty *expected_values* means auth is disabled (always returns ``True``).
+    """
     if not expected_values:
         return True
     candidate = header_token(headers, "x")
@@ -85,10 +109,17 @@ def is_authorized_any(headers: Any, expected_values: Sequence[str]) -> bool:
 
 
 def is_authorized(headers: Any, expected: str) -> bool:
+    """Convenience wrapper: parse *expected* as a comma-separated key list and authorize."""
     return is_authorized_any(headers, parse_key_values(str(expected or "")))
 
 
 def safe_client_ip(handler: Any, trust_x_forwarded_for: bool = False) -> str:
+    """Extract the client IP from *handler*, validating it with :mod:`ipaddress`.
+
+    When *trust_x_forwarded_for* is ``True``, the first entry in
+    ``X-Forwarded-For`` is preferred (suitable behind a trusted reverse proxy).
+    Returns ``"unknown"`` when no valid IP can be determined.
+    """
     if trust_x_forwarded_for:
         forwarded = str(handler.headers.get("X-Forwarded-For", "") or "").strip()
         if forwarded:
@@ -111,6 +142,13 @@ def safe_client_ip(handler: Any, trust_x_forwarded_for: bool = False) -> str:
 
 
 class SlidingWindowRateLimiter:
+    """Thread-safe sliding-window rate limiter keyed by arbitrary strings (e.g. client IP).
+
+    Tracks per-key hit timestamps in a :class:`~collections.deque` and evicts
+    stale entries each call.  Automatically purges the oldest keys when the
+    key count exceeds *max_keys* to bound memory usage.
+    """
+
     def __init__(self, limit: int, window_seconds: int = 60, max_keys: int = 10000) -> None:
         self.limit = max(1, int(limit or 1))
         self.window_seconds = max(1, int(window_seconds or 60))
@@ -137,6 +175,11 @@ class SlidingWindowRateLimiter:
                 break
 
     def allow(self, key: str) -> Tuple[bool, int]:
+        """Check whether *key* is within the rate limit.
+
+        Returns ``(True, 0)`` when allowed, or ``(False, retry_after_seconds)``
+        when the limit has been exceeded.
+        """
         token = str(key or "unknown")
         now = time.monotonic()
         with self._lock:
@@ -158,6 +201,12 @@ class SlidingWindowRateLimiter:
 
 
 class SecurityEventLogger:
+    """Append-only JSON-lines logger for security events (auth failures, rate-limit hits, etc.).
+
+    Each event is written as a single JSON line with an auto-added ``ts`` field.
+    Thread-safe via an internal lock.  No-ops silently when *path* is empty.
+    """
+
     def __init__(self, path: str) -> None:
         self.path = str(path or "").strip()
         self._lock = Lock()
@@ -167,6 +216,7 @@ class SecurityEventLogger:
                 os.makedirs(parent, exist_ok=True)
 
     def append(self, event: Dict[str, object]) -> None:
+        """Write *event* as a JSON line.  Adds ``ts`` (epoch seconds) if missing."""
         if not self.path:
             return
         row = dict(event or {})
