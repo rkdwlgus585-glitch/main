@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { platformConfig } from "@/components/platform-config";
-import { breadcrumbSchema } from "@/lib/json-ld";
+import { breadcrumbSchema, organizationRef, siteBase, websiteRef } from "@/lib/json-ld";
 
 const pageTitle = "실시간 매물 | 서울건설정보";
 const pageDescription =
@@ -65,21 +65,13 @@ function MarketJsonLd() {
     "@type": "WebPage",
     name: pageTitle,
     description: pageDescription,
-    url: `${platformConfig.platformFrontHost}/mna-market`,
-    isPartOf: {
-      "@type": "WebSite",
-      name: "서울건설정보",
-      url: platformConfig.platformFrontHost,
-    },
+    url: `${siteBase}/mna-market`,
+    isPartOf: websiteRef,
     about: {
       "@type": "Service",
       name: "건설업 면허 양도양수 매물 중개",
       description: "전문 행정사가 검증한 건설업 면허 매물 리스트와 AI 양도가 분석을 함께 제공합니다.",
-      provider: {
-        "@type": "Organization",
-        name: "서울건설정보",
-        url: platformConfig.platformFrontHost,
-      },
+      provider: organizationRef,
     },
   };
   return (

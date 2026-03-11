@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { platformConfig } from "@/components/platform-config";
-import { breadcrumbSchema } from "@/lib/json-ld";
+import { breadcrumbSchema, organizationRef, siteBase } from "@/lib/json-ld";
 
 const pageTitle = "고객센터 | 서울건설정보";
 const pageDescription =
@@ -79,16 +79,12 @@ function ConsultJsonLd() {
     "@type": "ProfessionalService",
     name: "서울건설정보 고객센터",
     description: pageDescription,
-    url: `${platformConfig.platformFrontHost}/consult`,
+    url: `${siteBase}/consult`,
     telephone: platformConfig.contactPhone,
     email: platformConfig.contactEmail,
     areaServed: { "@type": "Country", name: "KR" },
     serviceType: "건설업 양도양수·인허가 전문 상담",
-    parentOrganization: {
-      "@type": "Organization",
-      name: "서울건설정보",
-      url: platformConfig.platformFrontHost,
-    },
+    parentOrganization: organizationRef,
   };
   /* HowTo schema helps Google show the consultation flow as a step-by-step snippet */
   const howTo = {

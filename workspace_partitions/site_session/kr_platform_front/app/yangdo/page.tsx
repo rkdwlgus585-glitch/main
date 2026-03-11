@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { platformConfig, widgetUrl } from "@/components/platform-config";
-import { breadcrumbSchema } from "@/lib/json-ld";
+import { breadcrumbSchema, organizationRef } from "@/lib/json-ld";
 import { WidgetFrame } from "@/components/widget-frame";
 
 const pageTitle = "AI 양도가 산정 | 서울건설정보";
@@ -90,11 +90,7 @@ function YangdoJsonLd() {
     "@type": "Service",
     name: "건설업 AI 양도가 산정",
     description: "건설업 면허 양도가격을 공시 데이터 기반 AI가 무료로 산정합니다.",
-    provider: {
-      "@type": "Organization",
-      name: "서울건설정보",
-      url: platformConfig.platformFrontHost,
-    },
+    provider: organizationRef,
     serviceType: "AI 가격 산정",
     areaServed: { "@type": "Country", name: "KR" },
     offers: {

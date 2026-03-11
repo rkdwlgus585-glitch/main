@@ -78,7 +78,8 @@ def retry_request(max_retries: int = 3, delay: int = 2, backoff: int = 2, except
         backoff: 대기 시간 증가 배수
         exceptions: 재시도할 예외 타입들
     """
-    def decorator(func: Callable) -> Callable:
+    def decorator(func: Callable) -> Callable:  # noqa: D401
+        """Inner decorator that wraps *func* with retry logic."""
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             logger = logging.getLogger("mnakr")
@@ -116,17 +117,20 @@ class Notifier:
     RETRY_DELAY = 1.2
 
     def __init__(self, discord_url: str | None = None, slack_url: str | None = None) -> None:
+        """Create a notifier with optional Discord / Slack webhook URLs."""
         self.discord_url = discord_url
         self.slack_url = slack_url
         self.logger = logging.getLogger("mnakr")
 
     def _compact_message(self, message: object) -> str:
+        """Truncate *message* to ``MAX_MESSAGE_LEN`` characters if needed."""
         text = str(message or "").strip()
         if len(text) <= self.MAX_MESSAGE_LEN:
             return text
         return text[: self.MAX_MESSAGE_LEN - 32].rstrip() + " ... (truncated)"
 
     def _post_with_retry(self, url: str, payload: dict, ok_statuses: set, channel: str) -> bool:
+        """POST *payload* to *url*, retrying up to ``MAX_RETRIES`` on failure."""
         last_error = None
         for attempt in range(self.MAX_RETRIES + 1):
             try:
@@ -161,6 +165,7 @@ class Notifier:
         return all(ok for _name, ok in results)
 
     def _send_discord(self, message: str, title: str) -> bool:
+        """Send an embed message to the configured Discord webhook."""
         payload = {
             "embeds": [
                 {
@@ -177,6 +182,7 @@ class Notifier:
         return ok
 
     def _send_slack(self, message: str, title: str) -> bool:
+        """Send a formatted text block to the configured Slack webhook."""
         payload = {
             "text": f"*{str(title or '알림')[:120]}*\n{message}"
         }
@@ -186,6 +192,7 @@ class Notifier:
         return ok
 
 def _parse_bool(value: object, default: bool = False) -> bool:
+    """Coerce *value* (string/int/None) to ``bool``; return *default* on ambiguity."""
     if value is None:
         return default
     v = str(value).strip().lower()
@@ -197,6 +204,7 @@ def _parse_bool(value: object, default: bool = False) -> bool:
 
 
 def _load_env_file(env_path: str) -> Dict[str, str]:
+    """Parse a simple ``KEY=VALUE`` env file, ignoring comments and empty lines."""
     loaded = {}
     if not os.path.exists(env_path):
         return loaded
@@ -284,6 +292,7 @@ class ProgressCallback:
     """GUI 진행률 업데이트용 콜백 클래스"""
     
     def __init__(self, callback_func: Callable | None = None) -> None:
+        """Initialise with an optional GUI callback (receives ``(progress, message)``)."""
         self.callback = callback_func
         self.current_step = 0
         self.total_steps = 5

@@ -14,6 +14,20 @@ import { platformConfig } from "@/components/platform-config";
 /** Trailing-slash-normalized site origin — reusable across schema builders. */
 export const siteBase = platformConfig.platformFrontHost.replace(/\/$/, "");
 
+/** Shared Organization reference for JSON-LD `provider` / `parentOrganization`. */
+export const organizationRef = {
+  "@type": "Organization" as const,
+  name: "서울건설정보",
+  url: siteBase,
+};
+
+/** Shared WebSite reference for JSON-LD `isPartOf`. */
+export const websiteRef = {
+  "@type": "WebSite" as const,
+  name: "서울건설정보",
+  url: siteBase,
+};
+
 /**
  * BreadcrumbList schema — used by every sub-page for Google rich results.
  *

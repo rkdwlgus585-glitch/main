@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { platformConfig, widgetUrl } from "@/components/platform-config";
-import { breadcrumbSchema } from "@/lib/json-ld";
+import { breadcrumbSchema, organizationRef } from "@/lib/json-ld";
 import { WidgetFrame } from "@/components/widget-frame";
 
 const pageTitle = "건설업등록 검토 | 서울건설정보";
@@ -91,11 +91,7 @@ function PermitJsonLd() {
     name: "등록기준 AI 인허가 사전검토",
     description:
       "건설업·유사 업종 191개의 등록기준 충족 여부를 AI가 무료로 진단합니다.",
-    provider: {
-      "@type": "Organization",
-      name: "서울건설정보",
-      url: platformConfig.platformFrontHost,
-    },
+    provider: organizationRef,
     serviceType: "AI 등록기준 진단",
     areaServed: { "@type": "Country", name: "KR" },
     offers: {

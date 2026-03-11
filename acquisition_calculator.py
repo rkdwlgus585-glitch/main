@@ -11,6 +11,11 @@ _safe_json = safe_json_for_script
 
 
 def _pack_inline_script(js_code: str) -> str:
+    """Wrap *js_code* in a self-invoking ``<script>`` tag with eval + error boundary.
+
+    Special characters (``&``, U+2028/2029) are Unicode-escaped to survive
+    HTML serialisation and JSON round-tripping, then restored at runtime.
+    """
     payload = str(js_code or "").replace("&", "\\u0026").replace("\u2028", "\\u2028").replace("\u2029", "\\u2029")
     payload_json = json.dumps(payload, ensure_ascii=False)
     return (
@@ -24,6 +29,7 @@ def _pack_inline_script(js_code: str) -> str:
 
 
 def _digits_only(text: str) -> str:
+    """Return only digit characters from *text* (for ``tel:`` link hrefs)."""
     return "".join(ch for ch in str(text or "") if ch.isdigit())
 
 
@@ -36,6 +42,14 @@ def build_page_html(
     usage_endpoint: str = "",
     api_key: str = "",
 ) -> str:
+    """Build a complete self-contained HTML page for the new-registration cost calculator.
+
+    The page embeds an inline ``<script>`` with the calculation engine and
+    per-sector cost profiles (capital, guarantee, engineers, etc.).  Channel
+    branding is resolved via *channel_id* with optional overrides.
+
+    Returns a UTF-8 HTML string ready to be written to disk or served.
+    """
     branding = resolve_channel_branding(
         channel_id=str(channel_id or "").strip(),
         overrides={
@@ -1716,6 +1730,7 @@ __SCRIPT__
 
 
 def main() -> int:
+    """CLI entry-point: build the acquisition-calculator HTML and write to *--output*."""
     parser = argparse.ArgumentParser(description="Build permit precheck (new-registration) calculator HTML")
     parser.add_argument("--output", default="output/ai_license_acquisition_calculator.html")
     parser.add_argument("--title", default="")

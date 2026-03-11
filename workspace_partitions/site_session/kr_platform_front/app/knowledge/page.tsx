@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { platformConfig } from "@/components/platform-config";
-import { breadcrumbSchema } from "@/lib/json-ld";
+import { breadcrumbSchema, siteBase, websiteRef } from "@/lib/json-ld";
 
 const pageTitle = "건설실무 | 서울건설정보";
 const pageDescription =
@@ -95,12 +95,8 @@ function KnowledgeJsonLd() {
     "@type": "CollectionPage",
     name: pageTitle,
     description: pageDescription,
-    url: `${platformConfig.platformFrontHost}/knowledge`,
-    isPartOf: {
-      "@type": "WebSite",
-      name: "서울건설정보",
-      url: platformConfig.platformFrontHost,
-    },
+    url: `${siteBase}/knowledge`,
+    isPartOf: websiteRef,
     about: [
       { "@type": "Thing", name: "건설업 양도양수" },
       { "@type": "Thing", name: "건설업 인허가" },

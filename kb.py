@@ -109,6 +109,7 @@ def get_fact_prompt_injection() -> str:
 
 
 def _parse_eok_amount(amount_text: str) -> float | None:
+    """Parse a Korean-style amount string (e.g. ``"8억 5천만원"``) into *억* float."""
     import re
 
     s = re.sub(r"\s+", "", str(amount_text or ""))

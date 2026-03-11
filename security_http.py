@@ -150,6 +150,7 @@ class SlidingWindowRateLimiter:
     """
 
     def __init__(self, limit: int, window_seconds: int = 60, max_keys: int = 10000) -> None:
+        """Initialise with *limit* hits per *window_seconds* per key."""
         self.limit = max(1, int(limit or 1))
         self.window_seconds = max(1, int(window_seconds or 60))
         self.max_keys = max(100, int(max_keys or 10000))
@@ -157,6 +158,7 @@ class SlidingWindowRateLimiter:
         self._hits: Dict[str, Deque[float]] = {}
 
     def _purge_key(self, now: float, key: str) -> None:
+        """Remove timestamps older than the sliding window for *key*."""
         bucket = self._hits.get(key)
         if not bucket:
             return
@@ -167,6 +169,7 @@ class SlidingWindowRateLimiter:
             self._hits.pop(key, None)
 
     def _purge_overflow(self, now: float) -> None:
+        """Evict oldest keys when the map exceeds *max_keys* (memory bound)."""
         if len(self._hits) <= self.max_keys:
             return
         for key in list(self._hits.keys())[: max(1, len(self._hits) // 8)]:
@@ -208,6 +211,7 @@ class SecurityEventLogger:
     """
 
     def __init__(self, path: str) -> None:
+        """Create a logger writing to *path*.  Parent directories are auto-created."""
         self.path = str(path or "").strip()
         self._lock = Lock()
         if self.path:
