@@ -1083,6 +1083,7 @@ _BaseYangdoUsageStore = globals()["YangdoUsageStore"]
 
 class YangdoUsageStore(_BaseYangdoUsageStore):
     def usage_snapshot(self, *args, **kwargs) -> Dict[str, Any]:
+        """Return current API usage counts, falling back to zeros on any DB error."""
         try:
             return super().usage_snapshot(*args, **kwargs)
         except (sqlite3.Error, OSError, TypeError, KeyError, ValueError):
@@ -1102,6 +1103,7 @@ class YangdoUsageStore(_BaseYangdoUsageStore):
             }
 
     def insert_estimate_usage(self, *args, **kwargs) -> Optional[Dict[str, Any]]:
+        """Record a single estimate event, returning ``None`` on any DB error."""
         try:
             return super().insert_estimate_usage(*args, **kwargs)
         except (sqlite3.Error, OSError, TypeError, KeyError, ValueError):
@@ -1162,6 +1164,7 @@ class YangdoBlackboxEstimator(_BaseYangdoBlackboxEstimator):
         return out
 
     def estimate(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        """Run a full yangdo price estimation with post-processing (publication safety, recommendations)."""
         data = dict(payload or {})
         target = self._target_from_payload(data)
         result = dict(super().estimate(data) or {})

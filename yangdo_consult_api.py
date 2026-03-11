@@ -930,6 +930,8 @@ def main() -> None:
     parser.add_argument("--tenant-gateway-config", default=str(CONFIG.get("TENANT_GATEWAY_CONFIG", "tenant_config/tenant_registry.json")).strip())
     parser.add_argument("--tenant-gateway-default-tenant", default=str(CONFIG.get("TENANT_GATEWAY_DEFAULT_TENANT", "")).strip())
     args = parser.parse_args()
+    if not 1 <= args.port <= 65535:
+        parser.error(f"port must be 1-65535, got {args.port}")
 
     db_path = os.path.abspath(args.db_path)
     allow_origins = _parse_origins(args.allow_origins)

@@ -557,6 +557,7 @@ class PermitUsageStore:
         return int(token_model.get("error", 200) or 200)
 
     def usage_snapshot(self, tenant_id: str, plan: str) -> Dict[str, Any]:
+        """Return per-tenant usage counts for the current month."""
         key = _compact(tenant_id).lower() or "unknown"
         month = _month_key()
         limit = int(self._plan_config(plan).get("max_usage_events", 0) or 0)
@@ -608,6 +609,7 @@ class PermitUsageStore:
         result: Dict[str, Any],
         response_tier: str,
     ) -> Dict[str, Any]:
+        """Record a single precheck event and return the updated usage snapshot."""
         key = _compact(tenant_id).lower() or "unknown"
         status = "ok" if bool(result.get("ok")) else "error"
         estimated_tokens = self._token_estimate(status == "ok")
@@ -797,6 +799,7 @@ class PermitPrecheckEngine:
         self.refresh()
 
     def refresh(self) -> Dict[str, Any]:
+        """Reload catalogs and rule data from disk, returning an updated summary."""
         self.catalog = _load_catalog(DEFAULT_CATALOG_PATH.__class__(self.catalog_path))
         self.rule_catalog = _load_rule_catalog(DEFAULT_RULES_PATH.__class__(self.rules_path))
         self.rule_index = _build_rule_index(self.rule_catalog)
@@ -817,6 +820,7 @@ class PermitPrecheckEngine:
 
     @property
     def meta(self) -> Dict[str, Any]:
+        """Catalog metadata snapshot (industry count, focus targets, etc.)."""
         return dict(self._meta)
 
     def _resolve_rule(self, payload: Dict[str, Any]) -> Dict[str, Any] | None:
@@ -838,6 +842,7 @@ class PermitPrecheckEngine:
         return None
 
     def precheck(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        """Run a registration-criteria precheck against the loaded rule catalog."""
         if not isinstance(payload, dict):
             payload = {}
         if not self.rule_index:
@@ -1237,11 +1242,13 @@ class Handler(BaseHTTPRequestHandler):
         return payload if isinstance(payload, dict) else {}
 
     def do_OPTIONS(self) -> None:  # noqa: N802
+        """Handle CORS preflight requests."""
         if not self._allow_request():
             return
         self._write_json(200, {"ok": True})
 
     def do_GET(self) -> None:  # noqa: N802
+        """Route GET requests to /health or /meta endpoints."""
         if not self._allow_request():
             return
         if not self._require_channel_ready():
@@ -1260,6 +1267,7 @@ class Handler(BaseHTTPRequestHandler):
         self._write_json(404, {"ok": False, "error": "not_found"})
 
     def do_POST(self) -> None:  # noqa: N802
+        """Route POST requests to /precheck, /build, /usage, or /refresh."""
         path = self.path.split("?", 1)[0]
         if not self._allow_request():
             return
@@ -1363,6 +1371,7 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main() -> int:
+    """Parse CLI arguments and start the permit precheck HTTP server."""
     parser = argparse.ArgumentParser(description="Permit precheck API server")
     parser.add_argument("--host", default=_env_str("PERMIT_PRECHECK_API_HOST", "0.0.0.0"))
     parser.add_argument("--port", type=int, default=_env_int("PERMIT_PRECHECK_API_PORT", 8792))
@@ -1384,6 +1393,8 @@ def main() -> int:
     parser.add_argument("--channel-router-strict", default=_env_str("CHANNEL_ROUTER_STRICT", "false"))
     parser.add_argument("--channel-profiles-config", default=_env_str("CHANNEL_PROFILES_CONFIG", "tenant_config/channel_profiles.json"))
     args = parser.parse_args()
+    if not 1 <= args.port <= 65535:
+        parser.error(f"port must be 1-65535, got {args.port}")
 
     engine = PermitPrecheckEngine(str(args.catalog or ""), str(args.rules or ""))
     meta = engine.refresh()
