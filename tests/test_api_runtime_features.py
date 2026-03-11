@@ -4,10 +4,13 @@ Covers:
 - Startup fail-fast validation (permit_precheck_api, yangdo_consult_api)
 - X-Request-Id correlation (yangdo_consult_api)
 - Health check started_at field (both APIs)
+- _read_json / _read_json_body request validation
 """
 
 from __future__ import annotations
 
+import io
+import json
 import re
 import uuid
 from email.message import Message
@@ -211,3 +214,135 @@ class TestHealthCheckStartedAt:
         assert isinstance(_SERVER_STARTED_AT, str)
         assert "T" in _SERVER_STARTED_AT
         assert "+00:00" in _SERVER_STARTED_AT
+
+
+# ── _read_json / _read_json_body request validation ──────────────────
+
+
+class _BodyHandler:
+    """Minimal stub for testing _read_json / _read_json_body validation."""
+
+    def __init__(self, headers: dict[str, str], body: bytes = b"") -> None:
+        self.headers = _mock_headers(headers)
+        self.rfile = io.BytesIO(body)
+        self.server = SimpleNamespace(max_body_bytes=4096)
+
+
+class TestConsultReadJson:
+    """Tests for yangdo_consult_api _read_json request validation."""
+
+    def _make(self, headers: dict[str, str], body: bytes = b"") -> Any:
+        from yangdo_consult_api import YangdoConsultApiHandler
+
+        handler = _BodyHandler(headers, body)
+        handler.__class__ = type("_Stub", (_BodyHandler,), dict(YangdoConsultApiHandler.__dict__))
+        return handler
+
+    def test_valid_json_payload(self) -> None:
+        payload = {"key": "value"}
+        body = json.dumps(payload).encode("utf-8")
+        handler = self._make(
+            {"Content-Type": "application/json", "Content-Length": str(len(body))},
+            body,
+        )
+        result = handler._read_json()
+        assert result == payload
+
+    def test_rejects_non_json_content_type(self) -> None:
+        handler = self._make(
+            {"Content-Type": "text/plain", "Content-Length": "10"},
+            b'{"a": "b"}',
+        )
+        with pytest.raises(ValueError, match="content_type_must_be_application_json"):
+            handler._read_json()
+
+    def test_rejects_payload_too_large(self) -> None:
+        handler = self._make(
+            {"Content-Type": "application/json", "Content-Length": "999999"},
+            b"{}",
+        )
+        handler.server.max_body_bytes = 1024
+        with pytest.raises(ValueError, match="payload_too_large"):
+            handler._read_json()
+
+    def test_empty_body_returns_empty_dict(self) -> None:
+        handler = self._make({"Content-Type": "application/json", "Content-Length": "0"})
+        assert handler._read_json() == {}
+
+    def test_missing_content_length_returns_empty_dict(self) -> None:
+        handler = self._make({"Content-Type": "application/json"})
+        assert handler._read_json() == {}
+
+    def test_non_dict_json_returns_empty_dict(self) -> None:
+        body = json.dumps([1, 2, 3]).encode("utf-8")
+        handler = self._make(
+            {"Content-Type": "application/json", "Content-Length": str(len(body))},
+            body,
+        )
+        assert handler._read_json() == {}
+
+    def test_malformed_json_raises_error(self) -> None:
+        body = b"{invalid json"
+        handler = self._make(
+            {"Content-Type": "application/json", "Content-Length": str(len(body))},
+            body,
+        )
+        with pytest.raises(json.JSONDecodeError):
+            handler._read_json()
+
+    def test_allows_missing_content_type(self) -> None:
+        """Empty Content-Type should not trigger rejection (backwards compat)."""
+        body = json.dumps({"ok": True}).encode("utf-8")
+        handler = self._make({"Content-Length": str(len(body))}, body)
+        result = handler._read_json()
+        assert result == {"ok": True}
+
+
+class TestPermitReadJsonBody:
+    """Tests for permit_precheck_api _read_json_body request validation."""
+
+    def _make(self, headers: dict[str, str], body: bytes = b"") -> Any:
+        from permit_precheck_api import Handler as PermitApiHandler
+
+        handler = _BodyHandler(headers, body)
+        handler.__class__ = type("_Stub", (_BodyHandler,), dict(PermitApiHandler.__dict__))
+        return handler
+
+    def test_valid_json_payload(self) -> None:
+        payload = {"sector": "토목"}
+        body = json.dumps(payload).encode("utf-8")
+        handler = self._make(
+            {"Content-Type": "application/json", "Content-Length": str(len(body))},
+            body,
+        )
+        result = handler._read_json_body()
+        assert result == payload
+
+    def test_rejects_non_json_content_type(self) -> None:
+        handler = self._make(
+            {"Content-Type": "text/html", "Content-Length": "5"},
+            b'{"x":1}',
+        )
+        with pytest.raises(ValueError, match="content_type_must_be_application_json"):
+            handler._read_json_body()
+
+    def test_rejects_oversized_payload(self) -> None:
+        handler = self._make(
+            {"Content-Type": "application/json", "Content-Length": "500000"},
+            b"{}",
+        )
+        handler.server.max_body_bytes = 131072
+        with pytest.raises(ValueError, match="payload_too_large"):
+            handler._read_json_body()
+
+    def test_empty_body_returns_empty_dict(self) -> None:
+        handler = self._make({"Content-Type": "application/json", "Content-Length": "0"})
+        assert handler._read_json_body() == {}
+
+    def test_non_dict_json_returns_empty_dict(self) -> None:
+        body = b'"just a string"'
+        handler = self._make(
+            {"Content-Type": "application/json", "Content-Length": str(len(body))},
+            body,
+        )
+        assert handler._read_json_body() == {}
