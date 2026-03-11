@@ -66,6 +66,7 @@ CONFIG = load_config(
 logger = setup_logger(name="permit_precheck_api")
 
 SERVICE_NAME = "permit_precheck_api"
+_SERVER_STARTED_AT: str = now_iso()
 
 # ── Field truncation limits (chars) ──────────────────────────────────
 _LIM_SERVICE_CODE: int = 80       # service_code, rule_id, request_id, etc.
@@ -206,6 +207,7 @@ def _partner_health_payload() -> Dict[str, Any]:
     return {
         "ok": True,
         "service": SERVICE_NAME,
+        "started_at": _SERVER_STARTED_AT,
         "message": "healthy",
         "health_contract": load_widget_health_contract(),
     }
@@ -359,6 +361,13 @@ def _safe_sql_identifier(name: str) -> str:
 
 
 class PermitUsageStore:
+    """SQLite-backed usage tracker for permit precheck API calls.
+
+    Records each precheck request with input/output metadata and checks
+    configurable threshold alerts.  Auto-creates the database file and
+    parent directories on first instantiation.
+    """
+
     def __init__(self, db_path: str = "", thresholds_path: str = "") -> None:
         self.db_path = str(db_path or "").strip()
         self.thresholds_path = str(thresholds_path or "").strip()
@@ -789,6 +798,13 @@ class PermitUsageStore:
 
 
 class PermitPrecheckEngine:
+    """Core engine managing industry catalog and registration rule lifecycle.
+
+    Loads industry data and rule catalogs from JSON files, builds an
+    in-memory index for fast lookup, and prepares the UI payload.
+    Supports hot-reload via :meth:`refresh` without server restart.
+    """
+
     def __init__(self, catalog_path: str | None = None, rules_path: str | None = None) -> None:
         self.catalog_path = str(catalog_path or DEFAULT_CATALOG_PATH)
         self.rules_path = str(rules_path or DEFAULT_RULES_PATH)
@@ -924,6 +940,13 @@ class PermitPrecheckEngine:
 
 
 class PermitApiServer(ThreadingHTTPServer):
+    """Multi-tenant threading HTTP server for permit precheck.
+
+    Wires together :class:`PermitPrecheckEngine`, :class:`PermitUsageStore`,
+    and security primitives (rate limiter, tenant/channel gateways, CORS)
+    into a single server instance with admin and standard API key tiers.
+    """
+
     def __init__(
         self,
         addr: tuple[str, int],
@@ -959,6 +982,13 @@ class PermitApiServer(ThreadingHTTPServer):
 
 
 class Handler(BaseHTTPRequestHandler):
+    """HTTP request handler for the permit precheck API.
+
+    Routes GET (health, meta, build) and POST (precheck, reload, usage)
+    requests with per-request tenant/channel resolution, feature gating,
+    rate limiting, and CORS enforcement.
+    """
+
     server_version = "PermitPrecheckAPI/1.0"
 
     def _allow_origin(self) -> str:

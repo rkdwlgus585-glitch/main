@@ -8,6 +8,7 @@ import statistics
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from core_engine.api_response import now_iso
 from core_engine.yangdo_duplicate_cluster import collapse_duplicate_neighbors
 from core_engine.yangdo_listing_recommender import RecommendationOps, build_recommendation_bundle
 from scripts.widget_health_contract import load_widget_health_contract
@@ -25,6 +26,7 @@ _BASE = importlib.util.module_from_spec(_SPEC)
 _LOADER.exec_module(_BASE)
 
 SERVICE_NAME = "yangdo_blackbox_api"
+_SERVER_STARTED_AT: str = now_iso()
 
 for _name, _value in vars(_BASE).items():
     if _name in {"__name__", "__file__", "__package__", "__loader__", "__spec__", "__cached__"}:
@@ -113,6 +115,7 @@ def _partner_health_payload() -> Dict[str, Any]:
     return {
         "ok": True,
         "service": SERVICE_NAME,
+        "started_at": _SERVER_STARTED_AT,
         "message": "healthy",
         "health_contract": load_widget_health_contract(),
     }

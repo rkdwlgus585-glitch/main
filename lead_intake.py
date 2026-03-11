@@ -205,6 +205,11 @@ class LeadIntakeHub:
             json.dump(self.state, f, ensure_ascii=False, indent=2)
 
     def connect(self) -> None:
+        """Authenticate via service-account credentials and open the target Google Sheet.
+
+        Must be called before :meth:`intake_one` or :meth:`intake_csv`.
+        Creates or validates the header row on the active worksheet.
+        """
         scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
         creds = ServiceAccountCredentials.from_json_keyfile_name(self.json_file, scope)
         self.client = gspread.authorize(creds)
@@ -259,6 +264,12 @@ class LeadIntakeHub:
         return False, fp
 
     def intake_one(self, payload: Dict[str, Any], dry_run: bool = False) -> Dict[str, Any]:
+        """Ingest a single lead record into the sheet.
+
+        Checks for duplicates via content fingerprint, assigns a lead ID,
+        and appends a row.  Returns ``{"status": "inserted", "lead_id": ...}``
+        on success, or ``"skipped"``/``"duplicate"`` status dicts otherwise.
+        """
         now = datetime.now()
         title = _compact_text(payload.get("title", ""))
         content = _compact_text(payload.get("content", ""))
@@ -325,6 +336,13 @@ class LeadIntakeHub:
         return {"status": "inserted", "lead_id": lead_id}
 
     def intake_csv(self, path: str, default_channel: str = "", dry_run: bool = False, limit: int = 0) -> Dict[str, int]:
+        """Batch-import lead records from a CSV file.
+
+        Tries UTF-8-BOM, CP949, and UTF-8 encodings in order.  Maps
+        Korean/English column headers to canonical field names.  Returns
+        a summary dict with ``total``, ``inserted``, ``duplicated``,
+        and ``skipped`` counts.
+        """
         if not os.path.exists(path):
             raise FileNotFoundError(path)
 
@@ -429,6 +447,7 @@ def _write_sample_csv(path: str) -> None:
 
 
 def main() -> None:
+    """CLI entry point for lead intake — single record or CSV batch import."""
     parser = _build_parser()
     args = parser.parse_args()
 

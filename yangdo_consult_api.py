@@ -242,6 +242,13 @@ def _build_tags(payload: dict) -> list[str]:
 
 
 class ConsultStore:
+    """SQLite-backed store for consultation request records.
+
+    Creates or opens a local database at *db_path*, auto-creating parent
+    directories as needed.  Thread-safe for concurrent request handling
+    via per-call connections with a 30-second busy timeout.
+    """
+
     def __init__(self, db_path) -> None:
         self.db_path = str(db_path or "").strip()
         if self.db_path:
@@ -441,6 +448,13 @@ class ConsultStore:
 
 
 class UsageSheetWriter:
+    """Google Sheets writer for estimation usage telemetry.
+
+    Appends one row per API estimation call, capturing input parameters,
+    output results, and diagnostic metadata.  Silently no-ops when
+    credentials are unavailable so the main API path is never blocked.
+    """
+
     HEADERS = [
         "received_at",
         "source",
@@ -554,6 +568,13 @@ class UsageSheetWriter:
 
 
 class CrmBridge:
+    """Thread-safe bridge to the CRM lead intake system.
+
+    Lazily connects to :class:`LeadIntakeHub` on first use and caches
+    the connection behind a lock.  Normalises business payloads before
+    submission and maps CRM outcomes to a simple status dict.
+    """
+
     def __init__(self, enabled: bool = True, run_match: bool = False) -> None:
         self.enabled = bool(enabled)
         self.run_match = bool(run_match)
@@ -616,6 +637,13 @@ class CrmBridge:
 
 
 class YangdoConsultApiHandler(BaseHTTPRequestHandler):
+    """HTTP request handler for the yangdo consultation API.
+
+    Routes GET (health, status) and POST (submit, consult, usage)
+    requests with per-request tenant resolution, feature gating,
+    rate limiting, and CORS enforcement.
+    """
+
     server_version = "YangdoConsultAPI/1.1"
 
     def _allow_origin(self) -> str:
@@ -886,6 +914,13 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
 
 
 class YangdoConsultApiServer(ThreadingHTTPServer):
+    """Multi-tenant threading HTTP server for yangdo consultation.
+
+    Wires together :class:`ConsultStore`, :class:`UsageSheetWriter`,
+    :class:`CrmBridge`, and security primitives (rate limiter, tenant
+    gateway, CORS origins) into a single server instance.
+    """
+
     def __init__(
         self,
         addr: tuple[str, int],
