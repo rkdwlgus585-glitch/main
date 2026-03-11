@@ -216,12 +216,21 @@ class SecurityEventLogger:
                 os.makedirs(parent, exist_ok=True)
 
     def append(self, event: Dict[str, object]) -> None:
-        """Write *event* as a JSON line.  Adds ``ts`` (epoch seconds) if missing."""
+        """Write *event* as a JSON line.  Adds ``ts`` (epoch seconds) if missing.
+
+        Silently degrades to stderr on I/O failure so that logging never
+        crashes the request handler.
+        """
         if not self.path:
             return
         row = dict(event or {})
         row.setdefault("ts", int(time.time()))
         line = json.dumps(row, ensure_ascii=False, separators=(",", ":")) + "\n"
-        with self._lock:
-            with open(self.path, "a", encoding="utf-8") as fp:
-                fp.write(line)
+        try:
+            with self._lock:
+                with open(self.path, "a", encoding="utf-8") as fp:
+                    fp.write(line)
+        except OSError:
+            # Disk full, permissions, unmounted — degrade to stderr
+            import sys
+            print(f"[security_event_logger] write failed: {self.path}", file=sys.stderr)

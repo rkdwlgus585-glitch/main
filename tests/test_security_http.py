@@ -395,6 +395,23 @@ class TestSecurityEventLogger:
         logger.append(None)  # type: ignore[arg-type]
         # Should not crash
 
+    def test_write_failure_degrades_to_stderr(self, tmp_path, capsys) -> None:
+        """Disk full / permissions error must NOT crash the caller."""
+        path = str(tmp_path / "events.jsonl")
+        logger = SecurityEventLogger(path)
+        with patch("builtins.open", side_effect=OSError("disk full")):
+            logger.append({"action": "test"})  # must NOT raise
+        captured = capsys.readouterr()
+        assert "write failed" in captured.err
+
+    def test_write_failure_does_not_propagate(self, tmp_path) -> None:
+        """Ensure OSError is fully swallowed — caller gets no exception."""
+        path = str(tmp_path / "events.jsonl")
+        logger = SecurityEventLogger(path)
+        with patch("builtins.open", side_effect=PermissionError("read-only")):
+            # This MUST NOT raise
+            logger.append({"action": "critical_event"})
+
 
 # ────────────────────────────────────────────────
 # DEFAULT_SECURITY_HEADERS
