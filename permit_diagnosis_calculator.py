@@ -43,7 +43,7 @@ OBJECTIVE_SOURCE_HOSTS = (
 )
 
 
-def _load_json_safe(path: Path, default_factory) -> dict:
+def _load_json_safe(path: Path, default_factory: Any) -> dict:
     """Load JSON from *path*; return ``default_factory()`` on any failure."""
     if not path.exists():
         return default_factory()
@@ -87,7 +87,7 @@ def _get_int(data: dict, key: str, default: int = 0) -> int:
 # ───────────────────────────────────────────────────────────────────────
 
 
-def _gzip_base64_json(data) -> str:
+def _gzip_base64_json(data: Any) -> str:
     raw = json.dumps(data, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
     compressed = gzip.compress(raw, compresslevel=9, mtime=0)
     return base64.b64encode(compressed).decode("ascii")
@@ -657,7 +657,7 @@ def _merge_manual_rule_groups(rule_catalog: dict, overrides_catalog: dict) -> di
 _RE_NORMALIZE_KEY = re.compile(r"[^0-9a-z가-힣]+")
 
 
-def _normalize_key(value) -> str:
+def _normalize_key(value: Any) -> str:
     return _RE_NORMALIZE_KEY.sub("", str(value or "").strip().lower())
 
 
@@ -669,7 +669,7 @@ def _is_objective_source_url(url: str) -> bool:
     return any(netloc == host or netloc.endswith("." + host) for host in OBJECTIVE_SOURCE_HOSTS)
 
 
-def _coerce_non_negative_float(value) -> float:
+def _coerce_non_negative_float(value: Any) -> float:
     try:
         out = float(value)
     except (ValueError, TypeError):
@@ -679,7 +679,7 @@ def _coerce_non_negative_float(value) -> float:
     return out
 
 
-def _coerce_non_negative_int(value) -> int:
+def _coerce_non_negative_int(value: Any) -> int:
     try:
         out = int(float(value))
     except (ValueError, TypeError):
@@ -792,7 +792,7 @@ _PENDING_CRITERIA_TEMPLATES = {
 }
 
 
-def _synthesize_typed_criteria_from_pending(pending_lines) -> list:
+def _synthesize_typed_criteria_from_pending(pending_lines: list | None) -> list:
     out = []
     seen = set()
     for item in list(pending_lines or []):
@@ -817,7 +817,7 @@ def _synthesize_typed_criteria_from_pending(pending_lines) -> list:
     return out
 
 
-def _synthesize_document_templates(typed_criteria) -> list:
+def _synthesize_document_templates(typed_criteria: list | None) -> list:
     out = []
     seen = set()
     for criterion in list(typed_criteria or []):
@@ -1251,7 +1251,7 @@ def _prepare_ui_payload(catalog: dict, rule_catalog: dict) -> dict:
     }
 
 
-def _compact_candidate_lines(rows) -> list:
+def _compact_candidate_lines(rows: list | None) -> list:
     compact_rows = []
     for row in list(rows or []):
         if not isinstance(row, dict):
@@ -1263,7 +1263,7 @@ def _compact_candidate_lines(rows) -> list:
     return compact_rows
 
 
-def _compact_candidate_law_rows(rows) -> list:
+def _compact_candidate_law_rows(rows: list | None) -> list:
     compact_rows = []
     for row in list(rows or []):
         if not isinstance(row, dict):
