@@ -74,6 +74,9 @@ export function WidgetFrame({
 
       switch (msg.type) {
         case "widget-ready":
+          // Nonce validation: if widget echoes nonce, verify it matches.
+          // Accept messages without nonce for backward compatibility.
+          if (msg.nonce && msg.nonce !== nonceRef.current) break;
           // Confirm iframe JS initialised — clear timeout, mark loaded
           if (timeoutRef.current) clearTimeout(timeoutRef.current);
           setLoadState("loaded");
