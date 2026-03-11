@@ -736,7 +736,7 @@ def _build_settlement_output(
 
 
 
-def _tenant_plan_key(resolution) -> str:
+def _tenant_plan_key(resolution: Any) -> str:
     tenant = getattr(resolution, "tenant", None)
     if tenant is None:
         return ""
@@ -744,7 +744,7 @@ def _tenant_plan_key(resolution) -> str:
 
 
 
-def _tenant_id_value(resolution) -> str:
+def _tenant_id_value(resolution: Any) -> str:
     tenant = getattr(resolution, "tenant", None)
     if tenant is None:
         return ""
@@ -752,14 +752,14 @@ def _tenant_id_value(resolution) -> str:
 
 
 
-def _tenant_has_feature(server, resolution, feature: str) -> bool:
+def _tenant_has_feature(server: Any, resolution: Any, feature: str) -> bool:
     if not bool(getattr(server, "tenant_gateway_enabled", False)):
         return True
     return bool(server.tenant_gateway.check_feature(resolution, feature))
 
 
 
-def _estimate_response_tier(server, resolution) -> str:
+def _estimate_response_tier(server: Any, resolution: Any) -> str:
     if not bool(getattr(server, "tenant_gateway_enabled", False)):
         return "internal"
     if _tenant_has_feature(server, resolution, "estimate_internal"):
@@ -1095,15 +1095,15 @@ class YangdoUsageStore(_BaseYangdoUsageStore):
 
 class YangdoBlackboxEstimator(_BaseYangdoBlackboxEstimator):
     @classmethod
-    def _is_separate_balance_group_token(cls, raw) -> bool:
+    def _is_separate_balance_group_token(cls, raw: Any) -> bool:
         return _is_special_license_text(raw)
 
     @classmethod
-    def _is_balance_separate_paid_group(cls, target) -> bool:
+    def _is_balance_separate_paid_group(cls, target: Dict[str, Any] | None) -> bool:
         target = target or {}
         return _is_special_license_text(target.get("license_text") or target.get("raw_license_key") or target.get("license_tokens"))
 
-    def _target_from_payload(self, payload) -> Dict[str, Any]:
+    def _target_from_payload(self, payload: Dict[str, Any]) -> Dict[str, Any]:
         data = dict(payload or {})
         out = super()._target_from_payload(data)
         license_text = _normalize_license_text(data.get("license_text") or out.get("license_text"))
@@ -1146,7 +1146,7 @@ class YangdoBlackboxEstimator(_BaseYangdoBlackboxEstimator):
         out["buyer_takes_balance_as_credit"] = balance_mode == "credit_transfer"
         return out
 
-    def estimate(self, payload) -> Dict[str, Any]:
+    def estimate(self, payload: Dict[str, Any]) -> Dict[str, Any]:
         data = dict(payload or {})
         target = self._target_from_payload(data)
         result = dict(super().estimate(data) or {})
