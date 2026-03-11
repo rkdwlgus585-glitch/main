@@ -5,7 +5,7 @@ import os
 import time
 from collections import deque
 from threading import Lock
-from typing import Deque, Dict, Iterable, Sequence, Set, Tuple
+from typing import Any, Deque, Dict, Iterable, Sequence, Set, Tuple
 
 
 DEFAULT_SECURITY_HEADERS: Tuple[Tuple[str, str], ...] = (
@@ -41,7 +41,7 @@ def resolve_allow_origin(request_origin: str, allowlist: Iterable[str]) -> str:
     return ""
 
 
-def header_token(headers, expected: str) -> str:
+def header_token(headers: Any, expected: str) -> str:
     if not expected:
         return ""
     auth = str(headers.get("Authorization", "") or "").strip()
@@ -72,7 +72,7 @@ def parse_key_values(raw: str) -> Tuple[str, ...]:
     return tuple(uniq)
 
 
-def is_authorized_any(headers, expected_values: Sequence[str]) -> bool:
+def is_authorized_any(headers: Any, expected_values: Sequence[str]) -> bool:
     if not expected_values:
         return True
     candidate = header_token(headers, "x")
@@ -84,11 +84,11 @@ def is_authorized_any(headers, expected_values: Sequence[str]) -> bool:
     return False
 
 
-def is_authorized(headers, expected: str) -> bool:
+def is_authorized(headers: Any, expected: str) -> bool:
     return is_authorized_any(headers, parse_key_values(str(expected or "")))
 
 
-def safe_client_ip(handler, trust_x_forwarded_for: bool = False) -> str:
+def safe_client_ip(handler: Any, trust_x_forwarded_for: bool = False) -> str:
     if trust_x_forwarded_for:
         forwarded = str(handler.headers.get("X-Forwarded-For", "") or "").strip()
         if forwarded:
