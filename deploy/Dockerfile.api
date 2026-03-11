@@ -28,7 +28,7 @@ USER seoulmna
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8100/v1/health')" || exit 1
 
-EXPOSE 8100 8200
+EXPOSE 8100 8200 8788
 
 # Default: permit API (override in docker-compose)
 CMD ["python", "permit_precheck_api.py", "--port", "8100"]

@@ -1,0 +1,41 @@
+# =================================================================
+# .dockerignore — reduce Docker build context for seoulmna.kr APIs
+# Keeps only production-necessary files in the image.
+# =================================================================
+
+# Version control
+.git/
+.gitignore
+.gitattributes
+.editorconfig
+
+# Tests & development
+tests/
+logs/
+*.log
+__pycache__/
+*.pyc
+!tmp/*.pyc
+
+# Frontend / Next.js
+workspace_partitions/
+
+# Documentation & planning
+*.md
+!deploy/deploy_runbook.md
+patent/
+scripts/
+launchers/
+
+# CI / IDE
+.github/
+.vscode/
+.claude/
+*.code-workspace
+
+# Misc
+*.bat
+*.cmd
+*.ps1
+*.sh
+.env*

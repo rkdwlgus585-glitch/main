@@ -1,0 +1,27 @@
+[Unit]
+Description=SeoulMNA Consult Intake API
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=seoulmna
+Group=seoulmna
+WorkingDirectory=/opt/seoulmna/auto
+Environment=PYTHONUNBUFFERED=1
+Environment=SMNA_ENV=production
+ExecStart=/usr/bin/python3 yangdo_consult_api.py --port 8788
+Restart=on-failure
+RestartSec=5
+StartLimitBurst=5
+StartLimitIntervalSec=60
+
+# Security hardening
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/opt/seoulmna/auto/data /opt/seoulmna/auto/logs
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target
