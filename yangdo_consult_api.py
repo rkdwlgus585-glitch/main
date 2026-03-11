@@ -2,6 +2,7 @@ import argparse
 import json
 import os
 import re
+import signal
 import sqlite3
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -982,6 +983,12 @@ def main() -> None:
     logger.info("tenant gateway: enabled=%s strict=%s tenant_count=%s default_tenant=%s config=%s", bool(tenant_gateway_enabled), bool(tenant_gateway_strict), tenant_gateway.tenant_count, str(args.tenant_gateway_default_tenant or ""), str(args.tenant_gateway_config or ""))
     logger.info("consult endpoint: http://%s:%s/consult", args.host, args.port)
     logger.info("usage endpoint: http://%s:%s/usage", args.host, args.port)
+    def _graceful_shutdown(signum: int, _frame: object) -> None:
+        sig_name = signal.Signals(signum).name if hasattr(signal, "Signals") else str(signum)
+        logger.info("consult api received %s, shutting down", sig_name)
+        srv.shutdown()
+
+    signal.signal(signal.SIGTERM, _graceful_shutdown)
     try:
         srv.serve_forever()
     except KeyboardInterrupt:

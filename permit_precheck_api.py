@@ -3,6 +3,7 @@ import json
 import math
 import os
 import re
+import signal
 import sqlite3
 import uuid
 from datetime import datetime, timezone
@@ -1437,6 +1438,12 @@ def main() -> int:
     logger.info("permit precheck meta: %s", meta)
     logger.info("permit precheck allow origins: %s", ",".join(sorted(allow_origins)) if allow_origins else "(none)")
     logger.info("tenant gateway: enabled=%s strict=%s tenant_count=%s", bool(tenant_gateway_enabled), bool(tenant_gateway_strict), tenant_gateway.tenant_count)
+    def _graceful_shutdown(signum: int, _frame: object) -> None:
+        sig_name = signal.Signals(signum).name if hasattr(signal, "Signals") else str(signum)
+        logger.info("permit precheck api received %s, shutting down", sig_name)
+        srv.shutdown()
+
+    signal.signal(signal.SIGTERM, _graceful_shutdown)
     try:
         srv.serve_forever()
     except KeyboardInterrupt:

@@ -29,6 +29,8 @@ const nextConfig = {
               "frame-src 'self' https://seoulmna.kr https://*.seoulmna.co.kr",
               "connect-src 'self' https://seoulmna.kr https://*.seoulmna.co.kr",
               "media-src 'self'",
+              "worker-src 'self'",
+              "manifest-src 'self'",
               "object-src 'none'",
               "base-uri 'self'",
               "form-action 'self'",

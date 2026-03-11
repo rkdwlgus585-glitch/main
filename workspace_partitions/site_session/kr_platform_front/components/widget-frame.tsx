@@ -45,6 +45,26 @@ export function WidgetFrame({
     setLoadState("loading");
   }, []);
 
+  /* Speculative preconnect: when user hovers the launch button, start
+     DNS + TCP + TLS to the widget origin so the iframe loads faster. */
+  const prefetchedRef = useRef(false);
+  const handlePreconnect = useCallback(() => {
+    if (prefetchedRef.current || !widgetUrl) return;
+    try {
+      const origin = new URL(widgetUrl).origin;
+      if (origin && origin !== window.location.origin) {
+        const link = document.createElement("link");
+        link.rel = "preconnect";
+        link.href = origin;
+        link.crossOrigin = "anonymous";
+        document.head.appendChild(link);
+        prefetchedRef.current = true;
+      }
+    } catch {
+      // Invalid URL — ignore
+    }
+  }, [widgetUrl]);
+
   const handleLoad = useCallback(() => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     setLoadState("loaded");
@@ -132,6 +152,7 @@ export function WidgetFrame({
             className="widget-launch-button"
             data-traffic-gate-launch="true"
             onClick={handleLaunch}
+            onPointerEnter={handlePreconnect}
           >
             {launchLabel}
           </button>
