@@ -6,6 +6,7 @@ from core_engine.api_response import now_iso, safe_json_for_script
 from core_engine.channel_branding import resolve_channel_branding
 from core_engine.host_utils import sanitize_endpoint as _sanitize_endpoint
 
+__all__ = ["build_page_html", "main"]
 
 _safe_json = safe_json_for_script
 
