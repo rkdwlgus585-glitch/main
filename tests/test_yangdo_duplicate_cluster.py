@@ -5,6 +5,7 @@ Covers pure helper functions and the collapse_duplicate_neighbors pipeline.
 import unittest
 
 from core_engine.yangdo_duplicate_cluster import (
+    _choose_representative,
     _closeness,
     _completeness,
     _containment,
@@ -229,6 +230,74 @@ class CompletenessTest(unittest.TestCase):
     def test_partial_record(self):
         rec = {"specialty": 100, "company_type": "법인"}
         self.assertEqual(_completeness(rec), 2)
+
+
+# ── _choose_representative ───────────────────────────────────────────
+
+
+class ChooseRepresentativeTest(unittest.TestCase):
+    """Direct tests for _choose_representative: cluster → best record."""
+
+    def _full_rec(self, **overrides):
+        """Create a fully-populated record."""
+        base = {
+            "specialty": 100, "sales3_eok": 5, "capital_eok": 3,
+            "license_year": 2020, "display_low_eok": 2, "display_high_eok": 4,
+            "claim_price_eok": 3, "company_type": "법인",
+            "location": "서울", "association": "건설공제", "row": 1,
+        }
+        base.update(overrides)
+        return base
+
+    def test_selects_most_complete(self):
+        """Higher completeness wins regardless of similarity."""
+        full = self._full_rec(row=2)        # completeness = 10
+        sparse = {"specialty": 100, "row": 1}  # completeness = 1
+        sim, rep = _choose_representative([(0.99, sparse), (0.80, full)])
+        self.assertEqual(rep["row"], 2)
+
+    def test_similarity_breaks_completeness_tie(self):
+        """Among equal completeness, higher similarity wins."""
+        a = self._full_rec(row=1)
+        b = self._full_rec(row=2)
+        sim, rep = _choose_representative([(0.85, a), (0.95, b)])
+        self.assertAlmostEqual(sim, 0.95)
+        self.assertEqual(rep["row"], 2)
+
+    def test_row_number_breaks_all_ties(self):
+        """When completeness and similarity are identical, highest row wins."""
+        a = self._full_rec(row=10)
+        b = self._full_rec(row=20)
+        sim, rep = _choose_representative([(0.90, a), (0.90, b)])
+        self.assertEqual(rep["row"], 20)
+
+    def test_single_item_cluster(self):
+        """A single-item cluster returns that item."""
+        rec = self._full_rec(row=5)
+        sim, rep = _choose_representative([(0.88, rec)])
+        self.assertAlmostEqual(sim, 0.88)
+        self.assertEqual(rep["row"], 5)
+
+    def test_missing_row_key_defaults_zero(self):
+        """Records without 'row' key default to 0 and still rank."""
+        with_row = self._full_rec(row=1)
+        no_row = dict(self._full_rec())
+        del no_row["row"]
+        sim, rep = _choose_representative([(0.90, no_row), (0.90, with_row)])
+        self.assertEqual(rep["row"], 1)
+
+    def test_all_sparse_records(self):
+        """All sparse records: similarity is the only differentiator."""
+        a = {"specialty": 10, "row": 1}
+        b = {"specialty": 20, "row": 2}
+        sim, rep = _choose_representative([(0.70, a), (0.99, b)])
+        self.assertAlmostEqual(sim, 0.99)
+
+    def test_preserves_original_record_data(self):
+        """Returned record retains all original keys."""
+        rec = self._full_rec(custom_field="test_value", row=3)
+        _, rep = _choose_representative([(0.9, rec)])
+        self.assertEqual(rep["custom_field"], "test_value")
 
 
 # ── _duplicate_affinity ──────────────────────────────────────────────

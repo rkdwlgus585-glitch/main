@@ -35,6 +35,8 @@ class TenantResolution:
 
 
 class TenantGateway:
+    """Route requests to tenant profiles by host or origin, enforcing feature/system ACLs."""
+
     def __init__(
         self,
         tenants: Iterable[TenantProfile],
@@ -61,6 +63,7 @@ class TenantGateway:
         return len(self._tenants)
 
     def resolve(self, host: str = "", origin: str = "") -> TenantResolution:
+        """Resolve *host* or *origin* to a ``TenantResolution``."""
         candidates: List[tuple[str, str]] = []
         h = normalize_host(host)
         if h:
@@ -82,6 +85,7 @@ class TenantGateway:
         return TenantResolution(tenant=None, matched_host="", source="")
 
     def check_feature(self, resolution: TenantResolution, feature: str) -> bool:
+        """Return True if *feature* is allowed for the resolved tenant."""
         feature_key = str(feature or "").strip().lower()
         tenant = resolution.tenant
         if tenant is None:
@@ -94,6 +98,7 @@ class TenantGateway:
         return feature_key in allowed
 
     def check_system(self, resolution: TenantResolution, system: str) -> bool:
+        """Return True if *system* is exposed for the resolved tenant."""
         system_key = str(system or "").strip().lower()
         tenant = resolution.tenant
         if tenant is None:
@@ -106,6 +111,7 @@ class TenantGateway:
         return system_key in allowed
 
     def is_token_blocked(self, resolution: TenantResolution, token: str) -> bool:
+        """Return True if *token* appears in the tenant's blocked-token set."""
         tenant = resolution.tenant
         if tenant is None:
             return False
@@ -120,6 +126,7 @@ def tenant_from_json_entry(
     entry: dict,
     plan_feature_defaults: Optional[Dict[str, Set[str]]] = None,
 ) -> Optional[TenantProfile]:
+    """Parse a raw JSON dict into a ``TenantProfile``; return None on invalid input."""
     if not isinstance(entry, dict):
         return None
     tenant_id = str(entry.get("tenant_id") or "").strip()
@@ -188,6 +195,7 @@ def tenant_from_json_entry(
 
 
 def load_tenant_gateway_from_file(path: str, *, strict: bool = False, default_tenant_id: str = "") -> TenantGateway:
+    """Load a ``TenantGateway`` from a JSON tenant-profiles file."""
     src = str(path or "").strip()
     if not src:
         return TenantGateway([], strict=strict, default_tenant_id=default_tenant_id)

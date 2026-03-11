@@ -11,6 +11,8 @@ __all__ = ["MappingBatch", "apply_mapping_pipeline"]
 
 @dataclass(frozen=True)
 class MappingBatch:
+    """Immutable descriptor for one batch of industry mapping work."""
+
     batch_id: str
     major_code: str
     major_name: str
@@ -39,6 +41,11 @@ def apply_mapping_pipeline(
     *,
     batch_size: int = 12,
 ) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+    """Run the criteria-mapping pipeline over an industry catalog.
+
+    Partition pending rows by major-code, chunk them into batches, assign
+    collection metadata, and return the updated catalog together with a
+    summary dict containing batch descriptors and aggregate statistics."""
     updated: List[Dict[str, Any]] = []
     pending_by_major: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
     major_names: Dict[str, str] = {}

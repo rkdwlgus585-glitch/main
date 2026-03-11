@@ -9,6 +9,8 @@ __all__ = ["RecommendationOps", "build_recommendation_bundle"]
 
 @dataclass(frozen=True)
 class RecommendationOps:
+    """Callable bundle injected into the recommendation engine for domain logic."""
+
     canonical_tokens: Callable[[Any], set]
     single_token_target_core: Callable[[set], str]
     is_single_token_same_core: Callable[[set, set, Any], bool]
@@ -495,6 +497,11 @@ def build_recommendation_bundle(
     ops: RecommendationOps,
     limit: int = 4,
 ) -> Dict[str, Any]:
+    """Score, filter, and rank candidate listings into a recommendation bundle.
+
+    Evaluate each candidate against the *target* on fit (price, sales,
+    company-type), penalise scale mismatches, apply diversity reranking,
+    and return up to *limit* recommended listings with metadata."""
     src = [(float(ops.to_float(sim) or 0.0), rec) for sim, rec in list(rows or []) if isinstance(rec, dict)]
     if not src:
         return {

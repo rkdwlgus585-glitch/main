@@ -194,6 +194,12 @@ def _evaluate_operator(current_value: Any, required_value: Any, operator: str, v
 
 
 def evaluate_typed_criteria(rule: Dict[str, Any], inputs: Dict[str, Any], *, base_date: Optional[date] = None) -> Dict[str, Any]:
+    """Evaluate typed registration criteria against user-supplied inputs.
+
+    Walk each criterion in *rule* (office, qualification, facility, safety,
+    etc.), compare required vs. current values, and produce per-criterion
+    verdicts, an evidence checklist, document templates, and an overall
+    readiness status (``met`` / ``not_met`` / ``review_needed``)."""
     typed = []
     for item in _safe_list(rule.get("typed_criteria")):
         normalized = _normalize_criterion(item)

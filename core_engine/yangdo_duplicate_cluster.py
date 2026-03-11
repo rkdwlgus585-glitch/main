@@ -191,6 +191,10 @@ def _completeness(rec: Dict[str, Any]) -> int:
 
 
 def _choose_representative(cluster_rows: List[Tuple[float, Dict[str, Any]]]) -> Tuple[float, Dict[str, Any]]:
+    """Select the best representative from a duplicate cluster.
+
+    Rank by completeness (descending), then similarity (descending),
+    then row number (descending, i.e. newest first)."""
     ranked = sorted(
         cluster_rows,
         key=lambda item: (
@@ -205,6 +209,11 @@ def _choose_representative(cluster_rows: List[Tuple[float, Dict[str, Any]]]) -> 
 def collapse_duplicate_neighbors(
     neighbors: List[Tuple[float, Dict[str, Any]]],
 ) -> Dict[str, Any]:
+    """Deduplicate a neighbor list by merging records in the same cluster.
+
+    Group near-identical rows using affinity scoring, pick the best
+    representative per cluster, and return collapsed neighbors with
+    cluster metadata and an adjusted effective count."""
     rows = [(float(sim), dict(rec)) for sim, rec in list(neighbors or []) if isinstance(rec, dict)]
     raw_neighbor_count = len(rows)
     if raw_neighbor_count <= 1:

@@ -600,7 +600,7 @@ class CrmBridge:
         normalized = _normalize_business_payload(payload)
         try:
             hub = self._connect()
-        except Exception:
+        except Exception:  # pragma: no cover - external CRM SDK
             logger.exception("crm connect failed")
             return {"status": "crm_connect_error", "lead_id": ""}
 
@@ -628,7 +628,7 @@ class CrmBridge:
                 },
                 dry_run=False,
             )
-        except Exception:
+        except Exception:  # pragma: no cover - external CRM SDK
             logger.exception("crm intake failed")
             return {"status": "crm_insert_error", "lead_id": ""}
 
