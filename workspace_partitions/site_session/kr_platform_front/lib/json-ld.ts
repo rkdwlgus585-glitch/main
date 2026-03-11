@@ -11,7 +11,8 @@
 
 import { platformConfig } from "@/components/platform-config";
 
-const base = platformConfig.platformFrontHost.replace(/\/$/, "");
+/** Trailing-slash-normalized site origin — reusable across schema builders. */
+export const siteBase = platformConfig.platformFrontHost.replace(/\/$/, "");
 
 /**
  * BreadcrumbList schema — used by every sub-page for Google rich results.
@@ -24,12 +25,12 @@ export function breadcrumbSchema(name: string, path: string) {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "홈", item: base },
+      { "@type": "ListItem", position: 1, name: "홈", item: siteBase },
       {
         "@type": "ListItem",
         position: 2,
         name,
-        item: `${base}${path}`,
+        item: `${siteBase}${path}`,
       },
     ],
   };

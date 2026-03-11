@@ -4,7 +4,7 @@ import { HomeMarketPreview } from "@/components/home-market-preview";
 import { HomeOperations } from "@/components/home-operations";
 import { HomeProcess } from "@/components/home-process";
 import { HomeShortcuts } from "@/components/home-shortcuts";
-import { platformConfig } from "@/components/platform-config";
+import { siteBase } from "@/lib/json-ld";
 import { PlatformStatus } from "@/components/platform-status";
 
 /*
@@ -14,17 +14,16 @@ import { PlatformStatus } from "@/components/platform-status";
  * pattern for structured data (see: next.js docs on JSON-LD).
  */
 function HomeJsonLd() {
-  const base = platformConfig.platformFrontHost.replace(/\/$/, "");
   const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: "서울건설정보",
-    url: base,
+    url: siteBase,
     description:
       "건설업 면허 양도가격 AI 산정, 191개 업종 등록기준 사전검토, 실시간 매물 — 건설업 전문 플랫폼",
     potentialAction: {
       "@type": "SearchAction",
-      target: { "@type": "EntryPoint", urlTemplate: `${base}/knowledge?q={search_term_string}` },
+      target: { "@type": "EntryPoint", urlTemplate: `${siteBase}/knowledge?q={search_term_string}` },
       "query-input": "required name=search_term_string",
     },
   };
@@ -39,11 +38,11 @@ function HomeJsonLd() {
       "고객센터",
     ],
     url: [
-      `${base}/mna-market`,
-      `${base}/permit`,
-      `${base}/yangdo`,
-      `${base}/knowledge`,
-      `${base}/consult`,
+      `${siteBase}/mna-market`,
+      `${siteBase}/permit`,
+      `${siteBase}/yangdo`,
+      `${siteBase}/knowledge`,
+      `${siteBase}/consult`,
     ],
   };
   return (
