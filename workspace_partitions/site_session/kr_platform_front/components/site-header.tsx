@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { platformConfig } from "@/components/platform-config";
 
@@ -14,13 +14,36 @@ const navItems = [
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const navRef = useRef<HTMLElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
 
-  /* close drawer on route change (resize) */
+  /* Close drawer on desktop resize */
   useEffect(() => {
     const onResize = () => { if (window.innerWidth > 960) setOpen(false); };
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
+
+  /* Escape key closes drawer + return focus to toggle (WCAG 2.1 AA) */
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        toggleRef.current?.focus();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
+
+  /* Focus first nav link when drawer opens */
+  useEffect(() => {
+    if (open) {
+      const firstLink = navRef.current?.querySelector<HTMLElement>("a");
+      firstLink?.focus();
+    }
+  }, [open]);
 
   return (
     <header className="site-header">
@@ -33,15 +56,19 @@ export function SiteHeader() {
       </Link>
 
       <button
+        ref={toggleRef}
         className="nav-toggle"
         aria-label={open ? "메뉴 닫기" : "메뉴 열기"}
         aria-expanded={open}
+        aria-controls="main-nav"
         onClick={() => setOpen((v) => !v)}
       >
         <span className={`hamburger${open ? " hamburger--open" : ""}`} />
       </button>
 
       <nav
+        ref={navRef}
+        id="main-nav"
         className={`site-nav${open ? " site-nav--open" : ""}`}
         aria-label="주요 메뉴"
       >

@@ -1690,3 +1690,19 @@ img { max-width: 100%; display: block; }
     padding: 32px 16px;
   }
 }
+
+/* ── Print ─────────────────────────────────────────────────── */
+@media print {
+  .site-header,
+  .site-footer,
+  .skip-link,
+  .cta-section,
+  .back-link,
+  .status-bar,
+  .nav-toggle { display: none !important; }
+
+  body { background: white; color: black; font-size: 12pt; }
+  .page-shell { max-width: 100%; padding: 0; }
+  a { color: inherit; text-decoration: underline; }
+  a[href^="tel:"] { text-decoration: none; }
+}
