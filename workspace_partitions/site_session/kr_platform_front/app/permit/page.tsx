@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { platformConfig, widgetUrl } from "@/components/platform-config";
+import { breadcrumbSchema } from "@/lib/json-ld";
 import { WidgetFrame } from "@/components/widget-frame";
 
 const pageTitle = "건설업등록 검토 | 서울건설정보";
@@ -84,19 +85,6 @@ function PermitJsonLd() {
       acceptedAnswer: { "@type": "Answer", text: f.answer },
     })),
   };
-  const breadcrumbSchema = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "홈", item: platformConfig.platformFrontHost },
-      {
-        "@type": "ListItem",
-        position: 2,
-        name: "건설업등록 검토",
-        item: `${platformConfig.platformFrontHost}/permit`,
-      },
-    ],
-  };
   const serviceSchema = {
     "@context": "https://schema.org",
     "@type": "Service",
@@ -125,7 +113,7 @@ function PermitJsonLd() {
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema("건설업등록 검토", "/permit")) }}
       />
       <script
         type="application/ld+json"

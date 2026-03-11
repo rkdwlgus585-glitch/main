@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { platformConfig } from "@/components/platform-config";
+import { breadcrumbSchema } from "@/lib/json-ld";
 
 const pageTitle = "건설실무 | 서울건설정보";
 const pageDescription =
@@ -89,19 +90,6 @@ const categories: {
 /* NOTE: JSON-LD uses dangerouslySetInnerHTML which is safe here because
    all data comes from compile-time string literals (not user input). */
 function KnowledgeJsonLd() {
-  const breadcrumb = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "홈", item: platformConfig.platformFrontHost },
-      {
-        "@type": "ListItem",
-        position: 2,
-        name: "건설업 가이드",
-        item: `${platformConfig.platformFrontHost}/knowledge`,
-      },
-    ],
-  };
   const schema = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
@@ -140,7 +128,7 @@ function KnowledgeJsonLd() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema("건설업 가이드", "/knowledge")) }}
       />
       <script
         type="application/ld+json"

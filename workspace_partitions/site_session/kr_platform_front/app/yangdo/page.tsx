@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { platformConfig, widgetUrl } from "@/components/platform-config";
+import { breadcrumbSchema } from "@/lib/json-ld";
 import { WidgetFrame } from "@/components/widget-frame";
 
 const pageTitle = "AI 양도가 산정 | 서울건설정보";
@@ -84,19 +85,6 @@ function YangdoJsonLd() {
       acceptedAnswer: { "@type": "Answer", text: f.answer },
     })),
   };
-  const breadcrumbSchema = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "홈", item: platformConfig.platformFrontHost },
-      {
-        "@type": "ListItem",
-        position: 2,
-        name: "AI 양도가 산정",
-        item: `${platformConfig.platformFrontHost}/yangdo`,
-      },
-    ],
-  };
   const serviceSchema = {
     "@context": "https://schema.org",
     "@type": "Service",
@@ -124,7 +112,7 @@ function YangdoJsonLd() {
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema("AI 양도가 산정", "/yangdo")) }}
       />
       <script
         type="application/ld+json"

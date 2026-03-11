@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { platformConfig } from "@/components/platform-config";
+import { breadcrumbSchema } from "@/lib/json-ld";
 
 const pageTitle = "고객센터 | 서울건설정보";
 const pageDescription =
@@ -73,19 +74,6 @@ const benefits = [
 /* NOTE: JSON-LD uses dangerouslySetInnerHTML which is safe here because
    all data comes from compile-time string literals (not user input). */
 function ConsultJsonLd() {
-  const breadcrumb = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "홈", item: platformConfig.platformFrontHost },
-      {
-        "@type": "ListItem",
-        position: 2,
-        name: "고객센터",
-        item: `${platformConfig.platformFrontHost}/consult`,
-      },
-    ],
-  };
   const schema = {
     "@context": "https://schema.org",
     "@type": "ProfessionalService",
@@ -119,7 +107,7 @@ function ConsultJsonLd() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema("고객센터", "/consult")) }}
       />
       <script
         type="application/ld+json"
