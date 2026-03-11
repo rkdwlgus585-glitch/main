@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { platformConfig } from "@/components/platform-config";
+import { siteBase } from "@/lib/json-ld";
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -8,6 +8,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: ["/", "/yangdo", "/permit", "/consult", "/knowledge", "/mna-market", "/terms", "/privacy"],
       disallow: ["/widget/", "/api/"],
     },
-    sitemap: `${platformConfig.platformFrontHost.replace(/\/$/, "")}/sitemap.xml`,
+    sitemap: `${siteBase}/sitemap.xml`,
   };
 }
