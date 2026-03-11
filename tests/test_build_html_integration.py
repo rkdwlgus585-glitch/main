@@ -180,6 +180,22 @@ class PermitBuildHtmlTest(unittest.TestCase):
         """renderProofClaim should use safeHref for proof source URLs."""
         self.assertIn("safeHref(proofUrls[0])", self._html)
 
+    def test_safehref_validates_https_protocol(self):
+        """safeHref must check for https: or http: protocol."""
+        self.assertIn('"https:"', self._html)
+        self.assertIn('"http:"', self._html)
+        self.assertIn(".protocol", self._html)
+
+    def test_safehref_allows_relative_paths(self):
+        """safeHref must allow paths starting with / (but not //)."""
+        # Uses charAt-based check to avoid Python regex escape warnings
+        self.assertIn('charAt(0) === "/"', self._html)
+        self.assertIn('charAt(1) !== "/"', self._html)
+
+    def test_safehref_rejects_empty_input(self):
+        """safeHref returns empty string for falsy input."""
+        self.assertIn('if (!s) return ""', self._html)
+
     # -- Overall size sanity --------------------------------------------------
     def test_html_minimum_size(self):
         self.assertGreater(len(self._html), 100_000, "HTML should be >100KB")
