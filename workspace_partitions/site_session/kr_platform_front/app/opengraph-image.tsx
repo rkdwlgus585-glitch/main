@@ -9,7 +9,14 @@ const fontUrl =
   "https://fonts.gstatic.com/s/notosanskr/v39/PbyxFmXiEBPT4ITbgNA5Cgms3VYcOA-vvnIzzg01eLQ.ttf";
 
 export default async function OgImage() {
-  const fontData = await fetch(fontUrl).then((res) => res.arrayBuffer());
+  let fontData: ArrayBuffer | null = null;
+  try {
+    fontData = await fetch(fontUrl, { signal: AbortSignal.timeout(5_000) }).then(
+      (res) => res.arrayBuffer(),
+    );
+  } catch {
+    /* CDN unreachable — render without custom font */
+  }
 
   return new ImageResponse(
     (
@@ -22,7 +29,7 @@ export default async function OgImage() {
           justifyContent: "center",
           alignItems: "center",
           background: "linear-gradient(145deg, #021225 0%, #05325f 55%, #0a4d8c 100%)",
-          fontFamily: "NotoSansKR",
+          fontFamily: fontData ? "NotoSansKR" : "system-ui, sans-serif",
           padding: "60px 80px",
           position: "relative",
           overflow: "hidden",
@@ -152,7 +159,9 @@ export default async function OgImage() {
     ),
     {
       ...size,
-      fonts: [{ name: "NotoSansKR", data: fontData, weight: 700, style: "normal" as const }],
+      ...(fontData
+        ? { fonts: [{ name: "NotoSansKR", data: fontData, weight: 700, style: "normal" as const }] }
+        : {}),
     },
   );
 }
