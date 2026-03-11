@@ -1,9 +1,9 @@
 openapi: "3.0.3"
 info:
   title: "서울건설정보 AI 플랫폼 API"
-  version: "1.0.0"
+  version: "1.1.0"
   description: |
-    건설업 면허 양도가 산정(Track A) 및 인허가 사전검토(Track B) API.
+    건설업 면허 양도가 산정(Track A), 인허가 사전검토(Track B), 상담 접수(Consult) API.
     독립 시스템으로 운영되며, 공유 플랫폼 레이어(tenant/channel/usage)를 통해 접근합니다.
 
     ## Sandbox Mode
@@ -23,6 +23,8 @@ servers:
     description: "Permit API local dev"
   - url: "http://localhost:8200"
     description: "Yangdo API local dev"
+  - url: "http://localhost:8788"
+    description: "Consult API local dev"
 
 paths:
   /v1/health:
@@ -223,6 +225,112 @@ paths:
                     type: boolean
                   meta:
                     type: object
+
+  /consult:
+    post:
+      summary: "상담 접수"
+      description: |
+        건설업 면허 양도·양수 또는 인허가 관련 상담 요청을 접수합니다.
+        - 고객 정보 및 상담 내용을 DB에 저장
+        - CRM 시스템 연동 (활성화 시)
+        - 리드 우선순위/긴급도 자동 산정
+        - 상담 유형별 태그 자동 생성
+      operationId: consultIntake
+      tags: [Consult]
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConsultIntakeRequest"
+            examples:
+              basic:
+                summary: "기본 양도 상담 접수"
+                value:
+                  customer_name: "홍길동"
+                  customer_phone: "010-1234-5678"
+                  license_type: "토목건축공사업"
+                  consultation_type: "양도"
+                  message: "면허 양도를 희망합니다."
+      responses:
+        "200":
+          description: "접수 성공"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConsultIntakeResponse"
+          headers:
+            X-Request-Id:
+              description: "요청 상관관계 ID"
+              schema:
+                type: string
+        "400":
+          description: "입력 오류 (이름 또는 연락처 누락)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                name_required:
+                  value:
+                    ok: false
+                    error: "customer_name_required"
+                contact_required:
+                  value:
+                    ok: false
+                    error: "phone_or_email_required"
+        "403":
+          description: "인증 실패"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: "요청 한도 초과"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /usage:
+    post:
+      summary: "사용량 기록"
+      description: |
+        위젯 사용량(양도가 산정/인허가 검토 조회)을 기록합니다.
+        - SQLite DB 저장
+        - Google Sheets 연동 (활성화 시)
+      operationId: usageLog
+      tags: [Consult]
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: "사용량 페이로드 (유연한 구조)"
+      responses:
+        "200":
+          description: "기록 성공"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsageLogResponse"
+        "400":
+          description: "입력 오류"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: "인증 실패"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
 components:
   securitySchemes:
@@ -500,6 +608,96 @@ components:
               description: "근거 법령 참조"
               items:
                 type: string
+
+    ConsultIntakeRequest:
+      type: object
+      required: [customer_name]
+      properties:
+        customer_name:
+          type: string
+          description: "고객명"
+          example: "홍길동"
+        customer_phone:
+          type: string
+          description: "연락처 (phone 또는 email 중 하나 필수)"
+          example: "010-1234-5678"
+        customer_email:
+          type: string
+          description: "이메일 (phone 또는 email 중 하나 필수)"
+          example: "hong@example.com"
+        license_type:
+          type: string
+          description: "면허/업종명"
+          example: "토목건축공사업"
+        consultation_type:
+          type: string
+          description: "상담 유형"
+          example: "양도"
+        message:
+          type: string
+          description: "상담 요청 내용"
+        consult_mode:
+          type: string
+          description: "상담 모드 (양도/양수/인허가)"
+
+    ConsultIntakeResponse:
+      type: object
+      required: [ok, request_id, received_at]
+      properties:
+        ok:
+          type: boolean
+          example: true
+        request_id:
+          type: integer
+          description: "DB 저장 요청 ID"
+          example: 42
+        lead_priority:
+          type: string
+          description: "리드 우선순위 (high/normal/low)"
+          example: "normal"
+        lead_urgency:
+          type: string
+          description: "리드 긴급도 (urgent/normal)"
+          example: "normal"
+        lead_tags:
+          type: array
+          items:
+            type: string
+          description: "자동 생성된 상담 태그"
+          example: ["양도", "토목건축공사업"]
+        crm_status:
+          type: string
+          description: "CRM 연동 상태 (ok/disabled/error)"
+          example: "ok"
+        crm_lead_id:
+          type: string
+          description: "CRM 리드 ID (연동 시)"
+        received_at:
+          type: string
+          format: date-time
+          description: "접수 시각 (ISO 8601 UTC)"
+          example: "2026-03-11T15:30:45+00:00"
+
+    UsageLogResponse:
+      type: object
+      required: [ok, usage_id, received_at]
+      properties:
+        ok:
+          type: boolean
+          example: true
+        usage_id:
+          type: integer
+          description: "사용량 기록 ID"
+        sheet_logged:
+          type: boolean
+          description: "Google Sheets 기록 성공 여부"
+        sheet_reason:
+          type: string
+          description: "시트 기록 실패 사유 (실패 시)"
+        received_at:
+          type: string
+          format: date-time
+          description: "기록 시각 (ISO 8601 UTC)"
 
     ErrorResponse:
       type: object

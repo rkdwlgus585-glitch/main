@@ -18,3 +18,39 @@ norecursedirs = [
     "docs",
     ".playwright-mcp",
 ]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+src = [".", "core_engine", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "B",    # flake8-bugbear
+    "UP",   # pyupgrade
+    "S",    # flake8-bandit (security)
+    "T20",  # flake8-print (no print in lib code)
+]
+ignore = [
+    "E501",   # line length — enforced by line-length above, but f-strings exempt
+    "S101",   # assert — used extensively in tests
+    "S603",   # subprocess without shell=True — intentional in scripts
+    "S607",   # partial path — CLI tools use PATH
+    "T201",   # print — used in CLI entrypoints and scripts
+    "B008",   # function call in default arg — argparse pattern
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101", "T201", "B011"]
+"scripts/*" = ["T201"]
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false  # gradual adoption — core files already 100%
+ignore_missing_imports = true  # third-party stubs not all available
