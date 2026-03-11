@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { platformConfig } from "@/components/platform-config";
 import { SiteFooter } from "@/components/site-footer";
@@ -7,6 +7,12 @@ import { SiteHeader } from "@/components/site-header";
 const siteTitle = "서울건설정보 | 건설업 AI 양도가 산정 · 건설업등록 전문 플랫폼";
 const siteDescription =
   "건설업 면허 양도가격을 AI가 무료로 산정합니다. 191개 업종 등록기준 사전검토와 신규 취득 비용 계산까지 원스톱으로 제공하는 건설업 전문 플랫폼.";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
 
 export const metadata: Metadata = {
   title: siteTitle,
