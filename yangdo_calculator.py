@@ -1,3 +1,34 @@
+"""AI 양도가 산정 엔진 (AI Construction License Transfer Pricing Engine).
+
+건설업 면허 양도·양수 거래에서 적정 양도가격을 산정하는 핵심 알고리즘을 구현한다.
+
+Algorithm overview
+------------------
+1. **입력 수집** — 업종, 연차별 시공실적, 보유 기술자 수, 자본금, 사무실 여부 등
+2. **시장 데이터 클러스터링** — ``core_engine.yangdo_listing_recommender`` 가 제공하는
+   동종 업종 매물 데이터를 기반으로 유사 매물 클러스터 구성
+3. **기저 양도가 산정** — 시공실적·자본금·기술인력 가중 종합 점수에서 업종별
+   scale multiplier(전기/정보통신 1.5×, 소방 1.0×) 적용
+4. **신뢰도 산출** — 데이터 밀도, 분산, 직접 매칭률을 종합한 0-100 점수.
+   ``singleCorePublicationCap()`` 로 업종별 상한 적용
+5. **특수 업종 정산** — ``SPECIAL_BALANCE_AUTO_POLICIES`` 에 정의된 전기/정보통신/소방
+   자동 정산 비율(minAutoBalanceShare, reorgOverrides)을 적용하여 최종 양도가 범위 산출
+6. **결과 HTML 생성** — Python f-string 으로 클라이언트 JavaScript 포함 HTML 페이지를
+   직접 렌더링. ``{`` / ``}}`` 이스케이프 패턴 사용
+
+Core functions
+--------------
+- ``build_page_html()`` → 전체 양도가 산정 결과 HTML 페이지
+- ``build_training_dataset()`` → 매물 학습 데이터셋 구성
+- ``build_meta()`` → API 응답용 메타데이터 생성
+
+See also
+--------
+- ``yangdo_blackbox_api.py`` — HTTP API 서버 (이 모듈을 호출)
+- ``core_engine/yangdo_listing_recommender.py`` — 매물 추천/클러스터링
+- ``core_engine/yangdo_duplicate_cluster.py`` — 중복 매물 탐지
+"""
+
 import os
 import re
 from html import escape

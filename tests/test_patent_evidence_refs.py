@@ -29,7 +29,7 @@ EVIDENCE_EXPECTATIONS: dict[str, str] = {
     "yangdo_blackbox_api.py:1089": "usage_snapshot",
     # Track B
     "core_engine/permit_criteria_schema.py:196": "evaluate_typed_criteria",
-    "permit_diagnosis_calculator.py:486": "_merge_expanded_rule_metadata",
+    "permit_diagnosis_calculator.py:519": "_merge_expanded_rule_metadata",
     "permit_precheck_api.py:569": "usage_snapshot",
     "permit_precheck_api.py:264": "check_system",
     "permit_precheck_api.py:1301": "do_POST",
@@ -38,6 +38,12 @@ EVIDENCE_EXPECTATIONS: dict[str, str] = {
     "core_engine/tenant_gateway.py:37": "TenantGateway",
     "core_engine/channel_profiles.py:46": "ChannelRouter",
     "core_engine/api_response.py:35": "build_response_envelope",
+    # Track C — Production resilience (graceful shutdown + infrastructure)
+    "yangdo_blackbox_api.py:1360": "_graceful_shutdown",
+    "permit_precheck_api.py:1482": "_graceful_shutdown",
+    "yangdo_consult_api.py:1065": "_graceful_shutdown",
+    "tests/test_deploy_infrastructure.py:21": "_SERVICES",
+    "deploy/smoke_test.py:149": "test_consult_intake",
 }
 
 

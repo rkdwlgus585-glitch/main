@@ -85,7 +85,7 @@
   - 증빙 체크리스트 생성
 - Evidence:
   - typed criteria evaluator: H:\auto\core_engine\permit_criteria_schema.py:196
-  - 규칙 병합 및 typed criteria 연결: H:\auto\permit_diagnosis_calculator.py:486
+  - 규칙 병합 및 typed criteria 연결: H:\auto\permit_diagnosis_calculator.py:519
   - permit API usage 적재: H:\auto\permit_precheck_api.py:569
   - permit 시스템 차단: H:\auto\permit_precheck_api.py:264
   - permit precheck 엔드포인트: H:\auto\permit_precheck_api.py:1301
@@ -123,6 +123,20 @@
   - 파트너 활성화: H:\auto\scripts\activate_partner_tenant.py:170
   - 파트너 scaffold: H:\auto\scripts\scaffold_partner_offering.py:51
   - 서울 widget release: H:\auto\scripts\deploy_seoul_widget_embed_release.py:52
+
+## Track C - Production Resilience (Cross-cutting)
+- Scope: A/B/P 전체에 걸친 운영 안정성 인프라
+- Not a separate patent — A/B 명세서의 실시예 및 사업화 배경으로 사용
+- Core steps:
+  - SIGTERM graceful shutdown (3 API 서버)
+  - Infrastructure consistency 자동 검증 (7-file synchronization)
+  - Production smoke test (9 endpoint checks)
+- Evidence:
+  - yangdo SIGTERM handler: H:\auto\yangdo_blackbox_api.py:1360
+  - permit SIGTERM handler: H:\auto\permit_precheck_api.py:1482
+  - consult SIGTERM handler: H:\auto\yangdo_consult_api.py:1065
+  - 인프라 일관성 검증: H:\auto\tests\test_deploy_infrastructure.py:21
+  - consult smoke test: H:\auto\deploy\smoke_test.py:149
 
 ## Claim Strategy
 - A와 B는 별개 시스템/별개 특허로 유지

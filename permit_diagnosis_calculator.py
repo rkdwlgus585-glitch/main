@@ -1,3 +1,36 @@
+"""AI 인허가 사전검토 엔진 (AI Construction Permit Pre-screening Engine).
+
+건설업 인허가(면허 등록·신규 취득) 요건을 자동으로 진단하여 사전검토 결과를 제공한다.
+
+Algorithm overview
+------------------
+1. **업종 식별** — 입력된 업종코드를 ``kr_permit_industries_localdata.json`` 카탈로그에서
+   매칭하고, ``permit_focus_family_registry.json`` 으로 핵심 가족 그룹 판별
+2. **등록기준 로딩** — ``permit_registration_criteria_expanded.json`` (6.3MB) 에서
+   해당 업종의 자본금·기술인력·사무실·시설·자격 등 다층 요건 추출
+3. **typed_criteria 평가** — ``core_engine.permit_criteria_schema.evaluate_typed_criteria()``
+   가 각 요건을 capital/technician/office/facility/qualification/safety 6개 타입으로
+   분류하여 충족·미충족·blocking 여부 판정
+4. **규칙 메타데이터 병합** — ``_merge_expanded_rule_metadata()`` 로 확장 카탈로그의
+   부가 정보(근거 법령, 세부 조건, 면제 사항)를 기본 규칙에 병합
+5. **mapping pipeline 적용** — ``core_engine.permit_mapping_pipeline.apply_mapping_pipeline()``
+   로 코드 매핑·업종 전환·유사 업종 탐색까지 다단계 파이프라인 실행
+6. **결과 HTML 생성** — Python f-string 으로 클라이언트 JavaScript 포함 HTML 페이지를
+   직접 렌더링. 전기공사업/정보통신공사업/소방시설공사업 등 특수 업종별 기준 차등 적용
+
+Core functions
+--------------
+- ``build_html()`` → 전체 인허가 사전검토 결과 HTML 페이지
+- ``evaluate_registration_diagnosis()`` → 단일 업종 등록기준 진단
+- ``build_bootstrap_payload()`` → 클라이언트 부트스트랩 데이터 생성
+
+See also
+--------
+- ``permit_precheck_api.py`` — HTTP API 서버 (이 모듈을 호출)
+- ``core_engine/permit_criteria_schema.py`` — typed_criteria 평가 스키마
+- ``core_engine/permit_mapping_pipeline.py`` — 업종 코드 매핑 파이프라인
+"""
+
 import argparse
 import base64
 import gzip
