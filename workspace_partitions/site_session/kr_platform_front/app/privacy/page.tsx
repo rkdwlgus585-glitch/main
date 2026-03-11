@@ -4,6 +4,7 @@ import { platformConfig } from "@/components/platform-config";
 export const metadata: Metadata = {
   title: "개인정보처리방침 | 서울건설정보",
   description: "서울건설정보 개인정보처리방침입니다.",
+  alternates: { canonical: "/privacy" },
 };
 
 export default function PrivacyPage() {
