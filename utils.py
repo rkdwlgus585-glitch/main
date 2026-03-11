@@ -99,16 +99,16 @@ def retry_request(max_retries: int = 3, delay: int = 2, backoff: int = 2, except
                     return func(*args, **kwargs)
                 except exceptions as e:
                     if getattr(e, "no_retry", False):
-                        logger.warning(f"[재시도 중단] {func.__name__}: {e}")
+                        logger.warning(f"[재시도 중단] {func.__name__}: {type(e).__name__}")
                         raise
                     last_exception = e
                     if attempt < max_retries:
                         wait_time = delay * (backoff ** attempt)
-                        logger.warning(f"[재시도 {attempt + 1}/{max_retries}] {func.__name__} 실패: {e}")
+                        logger.warning(f"[재시도 {attempt + 1}/{max_retries}] {func.__name__} 실패: {type(e).__name__}")
                         logger.info(f"   {wait_time}초 후 재시도...")
                         time.sleep(wait_time)
                     else:
-                        logger.error(f"[실패] {func.__name__} - 최대 재시도 횟수 초과: {e}")
+                        logger.error(f"[실패] {func.__name__} - 최대 재시도 횟수 초과: {type(e).__name__}")
             
             raise last_exception
         return wrapper

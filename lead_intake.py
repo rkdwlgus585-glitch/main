@@ -552,13 +552,13 @@ def main() -> None:
                 result = subprocess.run([sys.executable, _match_path], check=False)
                 print(f"match.py finished with exit code {result.returncode}")
             except (OSError, ValueError) as e:
-                print(f"failed to run match.py: {e}")
+                print(f"failed to run match.py: {type(e).__name__}")
 
 
 if __name__ == "__main__":
     try:
         main()
     except ValueError as e:
-        print(str(e))
+        print(f"configuration error: {type(e).__name__}")
         raise SystemExit(1)
 
