@@ -6,6 +6,14 @@ from typing import Dict, Iterable, List, Optional, Set
 
 from core_engine.host_utils import host_from_origin, normalize_host, to_bool
 
+__all__ = [
+    "TenantProfile",
+    "TenantResolution",
+    "TenantGateway",
+    "tenant_from_json_entry",
+    "load_tenant_gateway_from_file",
+]
+
 
 @dataclass(frozen=True)
 class TenantProfile:

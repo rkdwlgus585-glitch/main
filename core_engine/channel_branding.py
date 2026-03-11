@@ -6,6 +6,8 @@ import re
 from pathlib import Path
 from typing import Any, Dict
 
+__all__ = ["resolve_channel_branding"]
+
 
 DEFAULT_BRANDING: Dict[str, str] = {
     "brand_name": "\uc11c\uc6b8\uac74\uc124\uc815\ubcf4",

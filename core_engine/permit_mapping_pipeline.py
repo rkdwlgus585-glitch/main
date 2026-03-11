@@ -6,6 +6,8 @@ from typing import Any, Dict, Iterable, List, Tuple
 
 from core_engine.api_response import now_iso
 
+__all__ = ["MappingBatch", "apply_mapping_pipeline"]
+
 
 @dataclass(frozen=True)
 class MappingBatch:

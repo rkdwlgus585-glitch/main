@@ -5,6 +5,8 @@ import json
 from datetime import datetime, timezone
 from typing import Any, Dict
 
+__all__ = ["now_iso", "safe_json_for_script", "build_response_envelope"]
+
 
 def now_iso() -> str:
     """Return the current UTC time as an ISO-8601 string (seconds precision)."""

@@ -2,6 +2,7 @@ import argparse
 import base64
 import gzip
 import json
+import math
 import re
 from datetime import date, timedelta
 from urllib.parse import urlparse
@@ -674,7 +675,7 @@ def _coerce_non_negative_float(value: Any) -> float:
         out = float(value)
     except (ValueError, TypeError):
         return 0.0
-    if out != out or out < 0:
+    if math.isnan(out) or out < 0:
         return 0.0
     return out
 

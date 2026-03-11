@@ -9,9 +9,9 @@ services:
     build:
       context: ..
       dockerfile: deploy/Dockerfile.api
-    command: ["python", "yangdo_blackbox_api.py", "--port", "8200"]
+    command: ["python", "yangdo_blackbox_api.py", "--port", "${YANGDO_API_PORT:-8200}"]
     ports:
-      - "127.0.0.1:8200:8200"
+      - "127.0.0.1:${YANGDO_API_PORT:-8200}:${YANGDO_API_PORT:-8200}"
     environment:
       - SMNA_ENV=production
       - PYTHONUNBUFFERED=1
@@ -20,7 +20,7 @@ services:
       - api-logs:/app/logs
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8200/v1/health')"]
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:${YANGDO_API_PORT:-8200}/v1/health')\""]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -39,9 +39,9 @@ services:
     build:
       context: ..
       dockerfile: deploy/Dockerfile.api
-    command: ["python", "permit_precheck_api.py", "--port", "8100"]
+    command: ["python", "permit_precheck_api.py", "--port", "${PERMIT_API_PORT:-8100}"]
     ports:
-      - "127.0.0.1:8100:8100"
+      - "127.0.0.1:${PERMIT_API_PORT:-8100}:${PERMIT_API_PORT:-8100}"
     environment:
       - SMNA_ENV=production
       - PYTHONUNBUFFERED=1
@@ -50,7 +50,7 @@ services:
       - api-logs:/app/logs
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8100/v1/health')"]
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:${PERMIT_API_PORT:-8100}/v1/health')\""]
       interval: 30s
       timeout: 5s
       retries: 3

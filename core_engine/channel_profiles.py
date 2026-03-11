@@ -6,6 +6,14 @@ from typing import Dict, Iterable, List, Optional
 
 from core_engine.host_utils import host_from_origin, normalize_host, to_bool
 
+__all__ = [
+    "ChannelProfile",
+    "ChannelResolution",
+    "ChannelRouter",
+    "channel_profile_from_json_entry",
+    "load_channel_router_from_file",
+]
+
 
 @dataclass(frozen=True)
 class ChannelProfile:

@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import math
 from typing import Any, Dict, List, Optional, Tuple
+
+__all__ = ["collapse_duplicate_neighbors"]
 
 
 def _to_float(value: Any) -> Optional[float]:
@@ -10,7 +13,7 @@ def _to_float(value: Any) -> Optional[float]:
         out = float(value)
     except (ValueError, TypeError):
         return None
-    if out != out:
+    if math.isnan(out):
         return None
     return out
 

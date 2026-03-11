@@ -4,6 +4,8 @@ from dataclasses import dataclass
 from functools import cmp_to_key
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
+__all__ = ["RecommendationOps", "build_recommendation_bundle"]
+
 
 @dataclass(frozen=True)
 class RecommendationOps:

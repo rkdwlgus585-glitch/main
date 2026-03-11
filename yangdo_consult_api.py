@@ -900,7 +900,7 @@ class YangdoConsultApiServer(ThreadingHTTPServer):
         self.usage_sheet = usage_sheet
         self.api_keys = parse_key_values(str(api_key or ""))
         self.max_body_bytes = max(1024, int(max_body_bytes or 131072))
-        self.rate_limiter = SlidingWindowRateLimiter(limit=max(1, int(rate_limit_per_min or 120)), window_seconds=60)
+        self.rate_limiter = SlidingWindowRateLimiter(limit=max(1, min(10000, int(rate_limit_per_min or 120))), window_seconds=60)
         self.trust_x_forwarded_for = bool(trust_x_forwarded_for)
         self.security_events = SecurityEventLogger(str(security_log_file or ""))
         self.tenant_gateway_enabled = bool(tenant_gateway_enabled)

@@ -1,5 +1,6 @@
 import argparse
 import json
+import math
 import os
 import re
 import sqlite3
@@ -125,9 +126,9 @@ def _coerce_float_or_none(value: Any) -> float | None:
         if value is None:
             return None
         out = float(value)
-    except (ValueError, TypeError):
+    except (ValueError, TypeError, OverflowError):
         return None
-    if out != out:
+    if math.isnan(out):
         return None
     return out
 
@@ -941,7 +942,7 @@ class PermitApiServer(ThreadingHTTPServer):
         self.api_keys = parse_key_values(str(api_key or ""))
         self.admin_api_keys = parse_key_values(str(admin_api_key or ""))
         self.max_body_bytes = max(1024, int(max_body_bytes or 65536))
-        self.rate_limiter = SlidingWindowRateLimiter(limit=max(1, int(rate_limit_per_min or 90)), window_seconds=60)
+        self.rate_limiter = SlidingWindowRateLimiter(limit=max(1, min(10000, int(rate_limit_per_min or 90))), window_seconds=60)
         self.trust_x_forwarded_for = bool(trust_x_forwarded_for)
         self.security_events = SecurityEventLogger(str(security_log_file or ""))
         self.tenant_gateway_enabled = bool(tenant_gateway_enabled)

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from urllib.parse import urlparse
 
+__all__ = ["normalize_host", "host_from_origin", "sanitize_endpoint", "to_bool"]
+
 
 def normalize_host(raw: str) -> str:
     src = str(raw or "").strip().lower()
