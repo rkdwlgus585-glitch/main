@@ -731,6 +731,7 @@ img { max-width: 100%; display: block; }
   margin-top: 8px !important;
   font-size: 0.75rem !important;
   line-height: 1.5;
+  word-break: keep-all;
 }
 
 /* ── Widget pages ──────────────────────────────────────────── */
@@ -1266,6 +1267,7 @@ img { max-width: 100%; display: block; }
   color: var(--muted);
   font-size: 1.05rem;
   max-width: 56ch;
+  word-break: keep-all;
 }
 .consult-hero-actions {
   display: flex;
@@ -1523,6 +1525,7 @@ img { max-width: 100%; display: block; }
   color: var(--muted);
   font-size: 1.05rem;
   max-width: 56ch;
+  word-break: keep-all;
 }
 .market-stats {
   display: grid;
@@ -2356,6 +2359,7 @@ img { max-width: 100%; display: block; }
   font-size: 1.05rem;
   line-height: 1.75;
   margin: 0;
+  word-break: keep-all;
 }
 
 /* ── Service Features Grid ── */
@@ -2613,6 +2617,7 @@ img { max-width: 100%; display: block; }
   font-size: 1.05rem;
   max-width: 56ch;
   line-height: 1.75;
+  word-break: keep-all;
 }
 .about-mission {
   margin-bottom: 64px;
@@ -2628,6 +2633,7 @@ img { max-width: 100%; display: block; }
   color: var(--muted);
   font-size: 1rem;
   line-height: 1.75;
+  word-break: keep-all;
 }
 .about-values {
   margin-bottom: 64px;

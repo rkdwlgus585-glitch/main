@@ -135,8 +135,9 @@ export default function AboutPage() {
             </h2>
           </div>
           <p className="about-mission-body">
-            기존 면허 양도양수 시장은 가격 비대칭, 수작업 검토, 분산된 절차로 비효율이 큽니다.
-            AI 기술과 건설업 전문 행정사의 노하우를 결합하여 이 문제를 해결합니다.
+            기존 면허 양도양수 시장은 가격 비대칭, 수작업 검토, 분산된 절차로
+            비효율이 큽니다. 서울건설정보는 AI와 전문 행정사의 역량을 결합해
+            이 문제를 해결합니다.
           </p>
         </section>
       </ScrollAnimate>
