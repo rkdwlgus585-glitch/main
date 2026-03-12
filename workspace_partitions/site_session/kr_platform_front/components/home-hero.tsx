@@ -30,8 +30,7 @@ export function HomeHero() {
           <span>양도가 산정 · 인허가 사전검토</span>
         </h1>
         <p className="home-hero-body">
-          건설업 면허 양도가를 AI가 무료로 산정하고,{" "}
-          191개 업종의 등록 비용·요건을 사전검토합니다.
+          면허 양도가 무료 산정 · 191개 업종 등록요건 사전검토
         </p>
 
         {/* ── Two AI Systems: Primary CTA ── */}
