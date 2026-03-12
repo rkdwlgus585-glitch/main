@@ -1,6 +1,6 @@
 {
   "name": "seoulmna-kr-platform-front",
-  "version": "0.65.0",
+  "version": "0.70.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
