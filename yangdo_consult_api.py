@@ -12,6 +12,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any
 
 from core_engine.api_response import _compact, now_iso
+from core_engine.sandbox import is_sandbox_request, sandbox_consult_response
 from core_engine.tenant_gateway import TenantGateway
 from lead_intake import LeadIntakeHub
 from scripts.widget_health_contract import load_widget_health_contract
@@ -775,7 +776,7 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
         if allow_origin:
             self.send_header("Access-Control-Allow-Origin", allow_origin)
             self.send_header("Vary", "Origin")
-            self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-API-Key, X-Request-Id, X-Correlation-Id")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-API-Key, X-Request-Id, X-Correlation-Id, X-Sandbox")
             self.send_header("Access-Control-Expose-Headers", "X-Request-Id")
             self.send_header("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
         if isinstance(extra_headers, dict):
@@ -934,6 +935,9 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
             return
 
         if path == "/consult":
+            if is_sandbox_request(self.headers, api_key=header_token(self.headers)):
+                self._write_json(200, sandbox_consult_response())
+                return
             if not self._require_feature("consult"):
                 return
             self._handle_consult(payload)

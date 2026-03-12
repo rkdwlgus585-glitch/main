@@ -134,7 +134,7 @@
 - Evidence:
   - yangdo SIGTERM handler: H:\auto\yangdo_blackbox_api.py:1358
   - permit SIGTERM handler: H:\auto\permit_precheck_api.py:1497
-  - consult SIGTERM handler: H:\auto\yangdo_consult_api.py:1071
+  - consult SIGTERM handler: H:\auto\yangdo_consult_api.py:1075
   - 인프라 일관성 검증: H:\auto\tests\test_deploy_infrastructure.py:21
   - consult smoke test: H:\auto\deploy\smoke_test.py:149
 

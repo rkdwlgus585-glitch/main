@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from core_engine.sandbox import (
     is_sandbox_request,
+    sandbox_consult_response,
     sandbox_permit_response,
     sandbox_yangdo_response,
 )
@@ -157,3 +158,42 @@ def test_sandbox_with_realistic_header_no_sandbox():
     msg = Message()
     msg["X-API-Key"] = "real_key_abc"
     assert is_sandbox_request(msg) is False
+
+
+# ── sandbox_consult_response ──────────────────────────────────────
+
+
+def test_consult_response_structure():
+    resp = sandbox_consult_response()
+    assert resp["ok"] is True
+    assert resp["sandbox"] is True
+    assert "received_at" in resp
+    assert isinstance(resp["request_id"], int)
+    assert isinstance(resp["lead_tags"], list)
+
+
+def test_consult_response_fields():
+    resp = sandbox_consult_response()
+    assert resp["lead_priority"] == "normal"
+    assert resp["lead_urgency"] == "normal"
+    assert resp["crm_status"] == "sandbox"
+    assert resp["crm_lead_id"] == "SB-0000"
+
+
+def test_consult_response_isolation():
+    """Each call returns an independent copy."""
+    r1 = sandbox_consult_response()
+    r2 = sandbox_consult_response()
+    r1["lead_tags"].append("mutated")
+    assert "mutated" not in r2["lead_tags"]
+
+
+# ── Integration: consult API sandbox import ───────────────────────
+
+import yangdo_consult_api as _consult_api
+
+
+def test_consult_api_imports_sandbox():
+    """yangdo_consult_api should import sandbox functions."""
+    assert hasattr(_consult_api, "is_sandbox_request")
+    assert hasattr(_consult_api, "sandbox_consult_response")

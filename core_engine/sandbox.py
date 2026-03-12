@@ -14,7 +14,12 @@ from typing import Any
 
 from core_engine.api_response import now_iso
 
-__all__ = ["is_sandbox_request", "sandbox_permit_response", "sandbox_yangdo_response"]
+__all__ = [
+    "is_sandbox_request",
+    "sandbox_permit_response",
+    "sandbox_yangdo_response",
+    "sandbox_consult_response",
+]
 
 
 _PERMIT_SANDBOX_RESPONSE: dict[str, Any] = {
@@ -114,4 +119,24 @@ def sandbox_yangdo_response() -> dict[str, Any]:
     resp = dict(_YANGDO_SANDBOX_RESPONSE)
     resp["timestamp"] = now_iso()
     resp["result"] = dict(resp["result"])  # shallow copy
+    return resp
+
+
+_CONSULT_SANDBOX_RESPONSE: dict[str, Any] = {
+    "ok": True,
+    "sandbox": True,
+    "request_id": 0,
+    "lead_priority": "normal",
+    "lead_urgency": "normal",
+    "lead_tags": ["sandbox", "양도양수"],
+    "crm_status": "sandbox",
+    "crm_lead_id": "SB-0000",
+}
+
+
+def sandbox_consult_response() -> dict[str, Any]:
+    """Return a static consult intake response for sandbox mode."""
+    resp = dict(_CONSULT_SANDBOX_RESPONSE)
+    resp["received_at"] = now_iso()
+    resp["lead_tags"] = list(resp["lead_tags"])  # fresh list copy
     return resp

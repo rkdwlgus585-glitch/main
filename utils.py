@@ -32,7 +32,7 @@ def setup_logger(name: str = "mnakr", log_dir: str = "logs") -> logging.Logger:
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
 
-    log_file = os.path.join(log_dir, f"{name}_{datetime.now().strftime('%Y%m%d')}.log")
+    log_file = os.path.join(log_dir, f"{name}_{datetime.now(UTC).strftime('%Y%m%d')}.log")
     log_file_abs = os.path.abspath(log_file)
 
     logger = logging.getLogger(name)
