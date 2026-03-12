@@ -4,6 +4,8 @@
 # 최종 업데이트: 2026-02-06
 # =================================================================
 
+from __future__ import annotations
+
 __all__ = [
     "CONSTRUCTION_STANDARDS",
     "get_capital_info",

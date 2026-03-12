@@ -85,10 +85,10 @@
   - 증빙 체크리스트 생성
 - Evidence:
   - typed criteria evaluator: H:\auto\core_engine\permit_criteria_schema.py:196
-  - 규칙 병합 및 typed criteria 연결: H:\auto\permit_diagnosis_calculator.py:519
-  - permit API usage 적재: H:\auto\permit_precheck_api.py:569
-  - permit 시스템 차단: H:\auto\permit_precheck_api.py:264
-  - permit precheck 엔드포인트: H:\auto\permit_precheck_api.py:1301
+  - 규칙 병합 및 typed criteria 연결: H:\auto\permit_diagnosis_calculator.py:521
+  - permit API usage 적재: H:\auto\permit_precheck_api.py:571
+  - permit 시스템 차단: H:\auto\permit_precheck_api.py:266
+  - permit precheck 엔드포인트: H:\auto\permit_precheck_api.py:1303
   - 확장 기준 수집: H:\auto\scripts\collect_permit_extended_criteria.py:390
   - 법령 매핑 파이프라인: H:\auto\core_engine\permit_mapping_pipeline.py:40
 
@@ -133,8 +133,8 @@
   - Production smoke test (9 endpoint checks)
 - Evidence:
   - yangdo SIGTERM handler: H:\auto\yangdo_blackbox_api.py:1360
-  - permit SIGTERM handler: H:\auto\permit_precheck_api.py:1482
-  - consult SIGTERM handler: H:\auto\yangdo_consult_api.py:1064
+  - permit SIGTERM handler: H:\auto\permit_precheck_api.py:1484
+  - consult SIGTERM handler: H:\auto\yangdo_consult_api.py:1066
   - 인프라 일관성 검증: H:\auto\tests\test_deploy_infrastructure.py:21
   - consult smoke test: H:\auto\deploy\smoke_test.py:149
 

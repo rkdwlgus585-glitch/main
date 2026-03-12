@@ -29,10 +29,10 @@ EVIDENCE_EXPECTATIONS: dict[str, str] = {
     "yangdo_blackbox_api.py:1089": "usage_snapshot",
     # Track B
     "core_engine/permit_criteria_schema.py:196": "evaluate_typed_criteria",
-    "permit_diagnosis_calculator.py:519": "_merge_expanded_rule_metadata",
-    "permit_precheck_api.py:569": "usage_snapshot",
-    "permit_precheck_api.py:264": "check_system",
-    "permit_precheck_api.py:1301": "do_POST",
+    "permit_diagnosis_calculator.py:521": "_merge_expanded_rule_metadata",
+    "permit_precheck_api.py:571": "usage_snapshot",
+    "permit_precheck_api.py:266": "check_system",
+    "permit_precheck_api.py:1303": "do_POST",
     "core_engine/permit_mapping_pipeline.py:40": "apply_mapping_pipeline",
     # Track P
     "core_engine/tenant_gateway.py:37": "TenantGateway",
@@ -40,8 +40,8 @@ EVIDENCE_EXPECTATIONS: dict[str, str] = {
     "core_engine/api_response.py:35": "build_response_envelope",
     # Track C — Production resilience (graceful shutdown + infrastructure)
     "yangdo_blackbox_api.py:1360": "_graceful_shutdown",
-    "permit_precheck_api.py:1482": "_graceful_shutdown",
-    "yangdo_consult_api.py:1064": "_graceful_shutdown",
+    "permit_precheck_api.py:1484": "_graceful_shutdown",
+    "yangdo_consult_api.py:1066": "_graceful_shutdown",
     "tests/test_deploy_infrastructure.py:21": "_SERVICES",
     "deploy/smoke_test.py:149": "test_consult_intake",
 }

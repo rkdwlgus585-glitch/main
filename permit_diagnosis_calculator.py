@@ -31,6 +31,8 @@ See also
 - ``core_engine/permit_mapping_pipeline.py`` — 업종 코드 매핑 파이프라인
 """
 
+from __future__ import annotations
+
 import argparse
 import base64
 import gzip

@@ -2,6 +2,8 @@
 # [유틸리티 모듈] 재시도, 로깅, 알림 기능
 # =================================================================
 
+from __future__ import annotations
+
 __all__ = [
     "setup_logger",
     "retry_request",

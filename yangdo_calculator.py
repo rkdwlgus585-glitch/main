@@ -29,6 +29,8 @@ See also
 - ``core_engine/yangdo_duplicate_cluster.py`` — 중복 매물 탐지
 """
 
+from __future__ import annotations
+
 import os
 import re
 from html import escape
