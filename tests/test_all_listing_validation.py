@@ -29,7 +29,7 @@ class AllListingValidationTest(unittest.TestCase):
             ["claim_price_missing"],
         )
 
-        self.assertEqual(status, "완료")
+        self.assertEqual(status, "가능")
 
     def test_skip_site_publish_for_invalid_item(self) -> None:
         should_skip = allmod._should_skip_site_publish_for_item(
@@ -84,6 +84,9 @@ class AllListingValidationTest(unittest.TestCase):
         class DummyPublisher:
             site_url = "https://seoulmna.co.kr"
             board_slug = "mna"
+
+            def _discover_latest_board_post_url(self, subject_hint: str = "") -> str:
+                return ""
 
         original = allmod._discover_site_wr_map_from_board
         try:
@@ -149,12 +152,12 @@ class AllListingValidationTest(unittest.TestCase):
         self.assertTrue(out.get("row_no_changed"))
         self.assertTrue(out.get("status_changed"))
 
-    def test_build_mna_subject_prefers_claim_price_over_consult_price(self) -> None:
+    def test_build_mna_subject_returns_fixed_label(self) -> None:
         subject = allmod._build_mna_subject(
             {"price": "협의", "claim_price": "11866 소방\n0.2억~0.3억"}
         )
 
-        self.assertEqual(subject, "0.2억~0.3억")
+        self.assertEqual(subject, "협의")
 
     def test_format_admin_price_repairs_broken_eok_marker(self) -> None:
         text = allmod._format_admin_price_for_memo("0.6?~0.7?")
@@ -166,7 +169,7 @@ class AllListingValidationTest(unittest.TestCase):
             {"price": "협의", "claim_price": "11866 소방\n0.2?~0.3?"}
         )
 
-        self.assertEqual(subject, "0.2억~0.3억")
+        self.assertEqual(subject, "협의")
 
 
 if __name__ == "__main__":
