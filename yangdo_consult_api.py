@@ -527,14 +527,16 @@ class UsageSheetWriter:
             return self._ws
 
     def append_usage(self, payload: dict) -> dict:
-        """Append a usage row to the Google Sheet, returning status."""
+        """Append a usage row to the Google Sheet, returning status.
+
+        The entire write operation (connect + append_row) runs under
+        ``_lock`` so concurrent ``ThreadingHTTPServer`` request threads
+        do not race on the shared gspread worksheet object.
+        """
         if not self.enabled:
             return {"ok": False, "reason": "disabled"}
         try:
             payload = _normalize_business_payload(payload)
-            ws = self._connect()
-            if ws is None:
-                return {"ok": False, "reason": "worksheet_unavailable"}
             row = [
                 now_iso(),
                 _compact(payload.get("source"), 100),
@@ -565,7 +567,11 @@ class UsageSheetWriter:
                 _compact(payload.get("page_url"), 500),
                 _compact(payload.get("requested_at"), 80),
             ]
-            ws.append_row(row, value_input_option="USER_ENTERED")
+            with self._lock:
+                ws = self._connect()
+                if ws is None:
+                    return {"ok": False, "reason": "worksheet_unavailable"}
+                ws.append_row(row, value_input_option="USER_ENTERED")
             return {"ok": True}
         except Exception:  # pragma: no cover - external dependency
             logger.exception("usage sheet append failed")

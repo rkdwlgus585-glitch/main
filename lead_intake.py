@@ -255,7 +255,8 @@ class LeadIntakeHub:
 
     def _ensure_header(self) -> None:
         """Ensure the worksheet header row matches ``CONSULT_HEADERS`` (auto-repair)."""
-        assert self.ws is not None, "call connect() first"
+        if self.ws is None:
+            raise RuntimeError("call connect() first")
         row1 = self.ws.row_values(1)
         if not row1:
             self.ws.update(range_name="A1:P1", values=[CONSULT_HEADERS])
@@ -282,7 +283,8 @@ class LeadIntakeHub:
         if fp in self.state.get("fingerprints", {}):
             return True, fp
 
-        assert self.ws is not None, "call connect() first"
+        if self.ws is None:
+            raise RuntimeError("call connect() first")
         rows = self.ws.get_all_values()
         if len(rows) > 1:
             scan_rows = rows[-self.dup_scan_rows :]
@@ -364,7 +366,8 @@ class LeadIntakeHub:
         if dry_run:
             return {"status": "dry_run", "lead_id": lead_id, "row": row}
 
-        assert self.ws is not None, "call connect() first"
+        if self.ws is None:
+            raise RuntimeError("call connect() first")
         self.ws.append_row(row, value_input_option="RAW")  # type: ignore[arg-type]
 
         self.state.setdefault("fingerprints", {})[fp] = {

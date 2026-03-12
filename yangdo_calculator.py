@@ -81,7 +81,7 @@ def _normalize_price_text(raw: Any) -> str:
         .replace("\uFF0F", "/")
     )
     src = re.sub(r"(?<=\d)\s*\uC5D0", "\uC5B5", src)
-    src = re.sub(r"<br\s*/?>", "\n", src, flags=re.I)
+    src = re.sub(r"<br\s*/?>", "\n", src, flags=re.IGNORECASE)
     return src
 def _price_token_to_eok(token: Any) -> float | None:
     src = str(token or "").strip().replace(",", "")

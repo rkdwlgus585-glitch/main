@@ -70,10 +70,8 @@ def _price_overlap_score(
 ) -> float:
     l1, h1 = _range_pair_from_record(left or {}, to_float=ops.to_float, derive_display_range_eok=ops.derive_display_range_eok)
     l2, h2 = _range_pair_from_record(right or {}, to_float=ops.to_float, derive_display_range_eok=ops.derive_display_range_eok)
-    if None in {l1, h1, l2, h2}:
+    if l1 is None or h1 is None or l2 is None or h2 is None:
         return 0.0
-    # None guard above guarantees all four values are non-None below
-    assert l1 is not None and h1 is not None and l2 is not None and h2 is not None
     overlap_low = max(l1, l2)
     overlap_high = min(h1, h2)
     if overlap_high >= overlap_low:

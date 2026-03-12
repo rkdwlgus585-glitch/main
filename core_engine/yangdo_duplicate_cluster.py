@@ -80,9 +80,8 @@ def _range_pair(rec: dict[str, Any]) -> tuple[float | None, float | None]:
 def _price_overlap_score(left: dict[str, Any], right: dict[str, Any]) -> float:
     l1, h1 = _range_pair(left)
     l2, h2 = _range_pair(right)
-    if None in {l1, h1, l2, h2}:
+    if l1 is None or h1 is None or l2 is None or h2 is None:
         return 0.0
-    assert l1 is not None and h1 is not None and l2 is not None and h2 is not None
     overlap_low = max(float(l1), float(l2))
     overlap_high = min(float(h1), float(h2))
     if overlap_high >= overlap_low:

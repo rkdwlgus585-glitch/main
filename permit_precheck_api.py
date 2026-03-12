@@ -7,6 +7,7 @@ import os
 import re
 import signal
 import sqlite3
+import threading
 import uuid
 from datetime import UTC, datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -810,6 +811,7 @@ class PermitPrecheckEngine:
     def __init__(self, catalog_path: str | None = None, rules_path: str | None = None) -> None:
         self.catalog_path = str(catalog_path or DEFAULT_CATALOG_PATH)
         self.rules_path = str(rules_path or DEFAULT_RULES_PATH)
+        self._lock = threading.Lock()
         self.catalog: dict[str, Any] = {}
         self.rule_catalog: dict[str, Any] = {}
         self.rule_index: dict[str, Any] = {}
@@ -818,14 +820,19 @@ class PermitPrecheckEngine:
         self.refresh()
 
     def refresh(self) -> dict[str, Any]:
-        """Reload catalogs and rule data from disk, returning an updated summary."""
-        self.catalog = _load_catalog(DEFAULT_CATALOG_PATH.__class__(self.catalog_path))
-        self.rule_catalog = _load_rule_catalog(DEFAULT_RULES_PATH.__class__(self.rules_path))
-        self.rule_index = _build_rule_index(self.rule_catalog)
-        self.payload = _prepare_ui_payload(self.catalog, self.rule_catalog)
-        summary = dict(self.payload.get("summary") or {})
-        rule_meta = dict(self.payload.get("rule_catalog_meta") or {})
-        self._meta = {
+        """Reload catalogs and rule data from disk, returning an updated summary.
+
+        All state is built into local variables first, then swapped atomically
+        under a lock so concurrent request threads never observe a half-updated
+        engine.
+        """
+        new_catalog = _load_catalog(DEFAULT_CATALOG_PATH.__class__(self.catalog_path))
+        new_rule_catalog = _load_rule_catalog(DEFAULT_RULES_PATH.__class__(self.rules_path))
+        new_rule_index = _build_rule_index(new_rule_catalog)
+        new_payload = _prepare_ui_payload(new_catalog, new_rule_catalog)
+        summary = dict(new_payload.get("summary") or {})
+        rule_meta = dict(new_payload.get("rule_catalog_meta") or {})
+        new_meta: dict[str, Any] = {
             "industry_total": int(summary.get("industry_total", 0) or 0),
             "with_registration_rule_total": int(summary.get("with_registration_rule_total", 0) or 0),
             "coverage_pct": float(summary.get("coverage_pct", 0.0) or 0.0),
@@ -835,7 +842,13 @@ class PermitPrecheckEngine:
             "public_claim_level": str(summary.get("public_claim_level", "") or ""),
             "public_claim_message": str(summary.get("public_claim_message", "") or ""),
         }
-        return dict(self._meta)
+        with self._lock:
+            self.catalog = new_catalog
+            self.rule_catalog = new_rule_catalog
+            self.rule_index = new_rule_index
+            self.payload = new_payload
+            self._meta = new_meta
+        return dict(new_meta)
 
     @property
     def meta(self) -> dict[str, Any]:

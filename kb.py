@@ -94,7 +94,8 @@ CONSTRUCTION_STANDARDS = {
 def get_capital_info(업종명: str) -> dict:
     """업종별 자본금 정보 조회"""
     종합 = CONSTRUCTION_STANDARDS["종합건설업"]
-    assert isinstance(종합, dict)
+    if not isinstance(종합, dict):
+        return {}
     result = 종합.get(업종명, {})
     return result if isinstance(result, dict) else {}
 

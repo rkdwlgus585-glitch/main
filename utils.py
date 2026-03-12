@@ -190,7 +190,8 @@ class Notifier:
                 }
             ]
         }
-        assert self.discord_url is not None  # guarded by caller
+        if self.discord_url is None:
+            return False
         ok = self._post_with_retry(self.discord_url, payload, {200, 204}, "Discord")
         if ok:
             self.logger.info("Discord notification sent")
@@ -201,7 +202,8 @@ class Notifier:
         payload = {
             "text": f"*{str(title or '알림')[:120]}*\n{message}"
         }
-        assert self.slack_url is not None  # guarded by caller
+        if self.slack_url is None:
+            return False
         ok = self._post_with_retry(self.slack_url, payload, {200}, "Slack")
         if ok:
             self.logger.info("Slack notification sent")

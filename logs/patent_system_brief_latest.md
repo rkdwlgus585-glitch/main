@@ -45,7 +45,7 @@
   - cluster-weight 제한
 - Evidence:
   - 요청 투영/응답 tier: H:\auto\yangdo_blackbox_api.py:781
-  - 유사 매물 추천 코어: H:\auto\core_engine\yangdo_listing_recommender.py:492
+  - 유사 매물 추천 코어: H:\auto\core_engine\yangdo_listing_recommender.py:490
   - 추천 정밀도 QA 매트릭스: H:\auto\scripts\generate_yangdo_recommendation_precision_matrix.py:384
   - 추천 다양성 감사: H:\auto\scripts\generate_yangdo_recommendation_diversity_audit.py:407
   - 특수 업종 정밀화 packet: H:\auto\scripts\generate_yangdo_special_sector_packet.py:130
@@ -86,9 +86,9 @@
 - Evidence:
   - typed criteria evaluator: H:\auto\core_engine\permit_criteria_schema.py:196
   - 규칙 병합 및 typed criteria 연결: H:\auto\permit_diagnosis_calculator.py:522
-  - permit API usage 적재: H:\auto\permit_precheck_api.py:571
-  - permit 시스템 차단: H:\auto\permit_precheck_api.py:266
-  - permit precheck 엔드포인트: H:\auto\permit_precheck_api.py:1303
+  - permit API usage 적재: H:\auto\permit_precheck_api.py:572
+  - permit 시스템 차단: H:\auto\permit_precheck_api.py:267
+  - permit precheck 엔드포인트: H:\auto\permit_precheck_api.py:1316
   - 확장 기준 수집: H:\auto\scripts\collect_permit_extended_criteria.py:390
   - 법령 매핑 파이프라인: H:\auto\core_engine\permit_mapping_pipeline.py:40
 
@@ -133,8 +133,8 @@
   - Production smoke test (9 endpoint checks)
 - Evidence:
   - yangdo SIGTERM handler: H:\auto\yangdo_blackbox_api.py:1360
-  - permit SIGTERM handler: H:\auto\permit_precheck_api.py:1484
-  - consult SIGTERM handler: H:\auto\yangdo_consult_api.py:1066
+  - permit SIGTERM handler: H:\auto\permit_precheck_api.py:1497
+  - consult SIGTERM handler: H:\auto\yangdo_consult_api.py:1072
   - 인프라 일관성 검증: H:\auto\tests\test_deploy_infrastructure.py:21
   - consult smoke test: H:\auto\deploy\smoke_test.py:149
 

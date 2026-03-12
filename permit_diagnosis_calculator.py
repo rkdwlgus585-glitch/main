@@ -8056,10 +8056,10 @@ def _wrap_wordpress_safe_scripts(html: str) -> str:
 
 def _build_wordpress_fragment(full_html: str) -> str:
     wrapper_selector = "#smna-permit-precheck"
-    style_blocks = re.findall(r"<style>\s*(.*?)\s*</style>", full_html, flags=re.S)
+    style_blocks = re.findall(r"<style>\s*(.*?)\s*</style>", full_html, flags=re.DOTALL)
     scoped_style = "\n\n".join(_scope_embed_css(block, wrapper_selector) for block in style_blocks if block.strip())
     scoped_style = scoped_style.replace(f"{wrapper_selector} @media", "@media")
-    body_match = re.search(r"<body>\s*(.*?)\s*</body>", full_html, flags=re.S)
+    body_match = re.search(r"<body>\s*(.*?)\s*</body>", full_html, flags=re.DOTALL)
     body_inner = body_match.group(1).strip() if body_match else full_html
     body_inner = body_inner.replace("실��종", "실업종")
     return f"""<section id="smna-permit-precheck" class="smna-permit-embed">
