@@ -7,7 +7,7 @@ export function SiteFooter() {
       <div className="footer-inner">
         <div className="footer-brand">
           <strong>{platformConfig.companyName}</strong>
-          <p>건설업 양도양수 &middot; 건설업등록 &middot; 실무 브리프 플랫폼</p>
+          <p>건설업 양도양수 &middot; 건설업등록 &middot; 실무 가이드 플랫폼</p>
         </div>
         <div className="footer-links">
           <div>
@@ -30,6 +30,41 @@ export function SiteFooter() {
             <Link href="/privacy">개인정보처리방침</Link>
           </div>
         </div>
+
+        {/* ── 사업자 정보 (전자상거래법 필수) ── */}
+        <div className="footer-biz-info">
+          <p>
+            <span>상호: {platformConfig.companyName}</span>
+            <span>대표: {platformConfig.ceoName}</span>
+            <span>주소: {platformConfig.companyAddress}</span>
+          </p>
+          <p>
+            {platformConfig.businessRegNo && (
+              <span>사업자등록번호: {platformConfig.businessRegNo}</span>
+            )}
+            {platformConfig.ecommerceRegNo && (
+              <span>통신판매업 신고번호: {platformConfig.ecommerceRegNo}</span>
+            )}
+            <span>호스팅 서비스: {platformConfig.hostingProvider}</span>
+          </p>
+          <p>
+            <span>전화: {platformConfig.contactPhone}</span>
+            <span>이메일: {platformConfig.contactEmail}</span>
+            <span>개인정보보호 책임자: {platformConfig.ceoName}</span>
+          </p>
+          {platformConfig.businessRegNo && (
+            <p>
+              <a
+                href={`https://www.ftc.go.kr/bizCommPop.do?wrkr_no=${platformConfig.businessRegNo.replace(/-/g, "")}`}
+                target="_blank"
+                rel="noreferrer noopener"
+              >
+                사업자정보확인 →
+              </a>
+            </p>
+          )}
+        </div>
+
         <div className="footer-bottom">
           <p>&copy; {new Date().getFullYear()} {platformConfig.companyName}. All rights reserved.</p>
           <p className="footer-disclaimer">

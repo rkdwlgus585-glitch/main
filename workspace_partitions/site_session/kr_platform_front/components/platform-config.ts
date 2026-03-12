@@ -12,11 +12,19 @@ interface PlatformConfig {
   readonly tenantId: string;
   readonly companyName: string;
   readonly companyAddress: string;
+  /** 대표자 성명 (전자상거래법 필수) */
+  readonly ceoName: string;
+  /** 사업자등록번호 (전자상거래법 필수) */
+  readonly businessRegNo: string;
+  /** 통신판매업 신고번호 (전자상거래법 필수) */
+  readonly ecommerceRegNo: string;
+  /** 호스팅 서비스 제공자 (전자상거래법 권고) */
+  readonly hostingProvider: string;
 }
 
 export const platformConfig: PlatformConfig = {
   brandName: "서울건설정보",
-  brandTagline: "건설업 AI 전문 플랫폼",
+  brandTagline: "건설업 AI 분석 플랫폼",
   platformFrontHost: process.env.NEXT_PUBLIC_PLATFORM_FRONT_HOST || "https://seoulmna.kr",
   listingHost: process.env.NEXT_PUBLIC_LISTING_HOST || "https://seoulmna.co.kr",
   contentHost: process.env.NEXT_PUBLIC_CONTENT_HOST || "https://seoulmna.co.kr",
@@ -29,6 +37,10 @@ export const platformConfig: PlatformConfig = {
   tenantId: process.env.NEXT_PUBLIC_TENANT_ID || "seoul_main",
   companyName: "서울건설정보",
   companyAddress: "서울특별시",
+  ceoName: "강지현",
+  businessRegNo: process.env.NEXT_PUBLIC_BIZ_REG_NO || "",
+  ecommerceRegNo: process.env.NEXT_PUBLIC_ECOMMERCE_REG_NO || "",
+  hostingProvider: "Vercel Inc.",
 };
 
 export function widgetUrl(widget: "yangdo" | "permit") {

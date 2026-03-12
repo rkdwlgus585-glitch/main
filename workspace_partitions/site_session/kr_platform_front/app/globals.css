@@ -548,6 +548,34 @@ img { max-width: 100%; display: block; }
   color: white;
 }
 
+.footer-biz-info {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.footer-biz-info p {
+  margin: 0 0 4px;
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.6;
+}
+.footer-biz-info span {
+  display: inline;
+}
+.footer-biz-info span + span::before {
+  content: " · ";
+  opacity: 0.5;
+}
+.footer-biz-info a {
+  color: rgba(255,255,255,0.6);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 200ms;
+}
+.footer-biz-info a:hover {
+  color: rgba(255,255,255,0.85);
+}
+
 .footer-bottom {
   margin-top: 24px;
 }
