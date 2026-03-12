@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { Building, FileText, Landmark, ShieldCheck } from "lucide-react";
+import { FileText, Handshake, Landmark, ShieldCheck } from "lucide-react";
 
 const operations: Array<{
   title: string;
@@ -8,13 +8,13 @@ const operations: Array<{
 }> = [
   {
     title: "양도양수 상담",
-    body: "양도양수 조건과 가격 협상을 전문 행정사가 1:1로 도와드립니다.",
+    body: "AI 산정 결과를 바탕으로 양도양수 조건과 가격 협상을 전문 행정사가 1:1로 도와드립니다.",
     icon: Landmark,
   },
   {
-    title: "AI 인허가 검토",
-    body: "191개 업종의 등록기준 충족 여부를 AI가 사전검토하고, 신규 취득 비용을 계산합니다.",
-    icon: Building,
+    title: "면허 취득 컨설팅",
+    body: "등록기준 충족 방안과 필요 비용을 안내하고, 신규 면허 취득까지 행정사가 지원합니다.",
+    icon: Handshake,
   },
   {
     title: "법인·구조 점검",
@@ -33,11 +33,11 @@ export function HomeOperations() {
     <section className="home-operations-section" aria-label="서비스 안내">
       <div className="home-operations-layout">
         <div className="home-operations-spotlight">
-          <p className="eyebrow">서비스 안내</p>
-          <h2>건설업 면허 양도양수와 등록에 필요한 모든 것</h2>
+          <p className="eyebrow">전문 행정사 서비스</p>
+          <h2>AI 분석 이후, 전문가가 실무를 처리합니다</h2>
           <p>
-            AI 양도가 산정, AI 인허가 검토, 전문 상담까지<br />
-            하나의 플랫폼에서 처리합니다.
+            AI가 분석한 결과를 바탕으로<br />
+            건설업 전문 행정사가 상담·대행까지 완결합니다.
           </p>
         </div>
 
