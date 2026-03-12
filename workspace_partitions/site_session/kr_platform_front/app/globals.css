@@ -783,16 +783,19 @@ img { max-width: 100%; display: block; }
 .page-shell .home-hero-kicker {
   color: #4AEDB5;
   font-size: 0.9rem;
+  margin: 0 0 16px;
 }
 .page-shell .home-hero-body {
   color: rgba(255, 255, 255, 0.98);
   font-size: 1.1rem;
   line-height: 1.75;
+  margin: 20px auto 0;
 }
 .page-shell .cta-content p {
   color: inherit;
   font-size: inherit;
   line-height: inherit;
+  margin: inherit;
 }
 .page-shell section ul {
   margin: 8px 0 12px;
