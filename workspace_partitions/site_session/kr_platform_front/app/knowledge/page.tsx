@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { BarChart3, ClipboardList, Scale, TrendingUp } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { ScrollAnimate } from "@/components/scroll-animate";
 import { platformConfig } from "@/components/platform-config";
 import { breadcrumbSchema, siteBase, websiteRef } from "@/lib/json-ld";
 
@@ -157,33 +158,35 @@ export default function KnowledgePage() {
         </p>
       </section>
 
-      <div className="knowledge-grid" role="region" aria-label="지식 카테고리">
-        {categories.map((cat) => {
-          const Icon = cat.icon;
-          return (
-          <div key={cat.title} className="knowledge-card">
-            <div className="knowledge-card-header">
-              <span className="knowledge-icon" aria-hidden="true"><Icon size={22} /></span>
-              <h2>{cat.title}</h2>
+      <ScrollAnimate>
+        <div className="knowledge-grid" role="region" aria-label="지식 카테고리">
+          {categories.map((cat) => {
+            const Icon = cat.icon;
+            return (
+            <div key={cat.title} className="knowledge-card">
+              <div className="knowledge-card-header">
+                <span className="knowledge-icon" aria-hidden="true"><Icon size={22} /></span>
+                <h2>{cat.title}</h2>
+              </div>
+              <p className="knowledge-card-desc">{cat.description}</p>
+              <ul className="knowledge-articles">
+                {cat.articles.map((a) => (
+                  <li key={a.slug}>
+                    <a
+                      href={`${platformConfig.contentHost}/category/건설업-지식/${cat.categorySlug}/${a.slug}`}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                    >
+                      {a.title}
+                    </a>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <p className="knowledge-card-desc">{cat.description}</p>
-            <ul className="knowledge-articles">
-              {cat.articles.map((a) => (
-                <li key={a.slug}>
-                  <a
-                    href={`${platformConfig.contentHost}/category/건설업-지식/${cat.categorySlug}/${a.slug}`}
-                    target="_blank"
-                    rel="noreferrer noopener"
-                  >
-                    {a.title}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      </ScrollAnimate>
 
       <section className="knowledge-cta" aria-label="블로그 안내">
         <p>

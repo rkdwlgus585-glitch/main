@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { platformConfig } from "@/components/platform-config";
 import { breadcrumbSchema, organizationRef, siteBase } from "@/lib/json-ld";
+import { ScrollAnimate } from "@/components/scroll-animate";
 
 const pageTitle = "회사소개 | 서울건설정보";
 const pageDescription =
@@ -127,85 +128,93 @@ export default function AboutPage() {
         </p>
       </section>
 
-      <section className="about-mission" aria-label="미션">
-        <div className="section-header" style={{ textAlign: "center" }}>
-          <p className="eyebrow">미션</p>
-          <h2>
-            &ldquo;건설업 면허 거래에서 정보 비대칭을 없앤다&rdquo;
-          </h2>
-        </div>
-        <p className="about-mission-body">
-          기존 건설업 면허 양도양수 시장은 가격 정보의 비대칭,
-          수작업 중심의 검토 과정, 분산된 절차로 인해 비효율이
-          큽니다. 서울건설정보는 AI 기술과 건설업 전문 행정사의
-          노하우를 결합하여 이 문제를 해결합니다.
-        </p>
-      </section>
-
-      <section className="about-values" aria-label="핵심 가치">
-        <div className="section-header" style={{ textAlign: "center" }}>
-          <p className="eyebrow">핵심 가치</p>
-          <h2>우리가 중요하게 생각하는 것</h2>
-        </div>
-        <div className="about-values-grid">
-          {values.map((v, i) => (
-            <article key={v.title} className="about-value-card">
-              <span className="about-value-index">{String(i + 1).padStart(2, "0")}</span>
-              <h3>{v.title}</h3>
-              <p>{v.description}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="about-tech" aria-label="기술 역량">
-        <div className="section-header" style={{ textAlign: "center" }}>
-          <p className="eyebrow">기술 역량</p>
-          <h2>AI 기술 · 특허 출원 · 데이터 인프라</h2>
-        </div>
-        <div className="about-tech-grid">
-          <div className="about-tech-card">
-            <h3>AI 양도가 산정 엔진</h3>
-            <p>
-              공시 재무 데이터, 시장 거래 사례, 업종별 특성을
-              종합 분석하여 적정 양도가격 범위를 산정합니다.
-              신뢰도 지표와 근거 데이터를 함께 제공합니다.
-            </p>
+      <ScrollAnimate>
+        <section className="about-mission" aria-label="미션">
+          <div className="section-header" style={{ textAlign: "center" }}>
+            <p className="eyebrow">미션</p>
+            <h2>
+              &ldquo;건설업 면허 거래에서 정보 비대칭을 없앤다&rdquo;
+            </h2>
           </div>
-          <div className="about-tech-card">
-            <h3>AI 인허가 사전검토 엔진</h3>
-            <p>
-              191개 업종의 법정 등록기준을 실시간으로
-              비교 분석합니다. 자본금, 기술인력, 시설 등
-              항목별 충족 여부를 즉시 진단하고 신규 취득 비용을
-              계산합니다.
-            </p>
-          </div>
-          <div className="about-tech-card">
-            <h3>특허 출원 기술</h3>
-            <p>
-              양도가 산정 알고리즘과 인허가 사전검토 방법론은
-              한국특허청(KIPO)에 특허 출원되었으며,
-              독자적인 지적재산으로 보호됩니다.
-            </p>
-          </div>
-        </div>
-      </section>
+          <p className="about-mission-body">
+            기존 건설업 면허 양도양수 시장은 가격 정보의 비대칭,
+            수작업 중심의 검토 과정, 분산된 절차로 인해 비효율이
+            큽니다. 서울건설정보는 AI 기술과 건설업 전문 행정사의
+            노하우를 결합하여 이 문제를 해결합니다.
+          </p>
+        </section>
+      </ScrollAnimate>
 
-      <section className="about-timeline" aria-label="연혁">
-        <div className="section-header" style={{ textAlign: "center" }}>
-          <p className="eyebrow">연혁</p>
-          <h2>주요 이정표</h2>
-        </div>
-        <div className="about-timeline-list">
-          {milestones.map((m, i) => (
-            <div key={i} className="about-milestone">
-              <span className="about-milestone-year">{m.year}</span>
-              <p className="about-milestone-event">{m.event}</p>
+      <ScrollAnimate delay={80}>
+        <section className="about-values" aria-label="핵심 가치">
+          <div className="section-header" style={{ textAlign: "center" }}>
+            <p className="eyebrow">핵심 가치</p>
+            <h2>우리가 중요하게 생각하는 것</h2>
+          </div>
+          <div className="about-values-grid">
+            {values.map((v, i) => (
+              <article key={v.title} className="about-value-card">
+                <span className="about-value-index">{String(i + 1).padStart(2, "0")}</span>
+                <h3>{v.title}</h3>
+                <p>{v.description}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+      </ScrollAnimate>
+
+      <ScrollAnimate delay={120}>
+        <section className="about-tech" aria-label="기술 역량">
+          <div className="section-header" style={{ textAlign: "center" }}>
+            <p className="eyebrow">기술 역량</p>
+            <h2>AI 기술 · 특허 출원 · 데이터 인프라</h2>
+          </div>
+          <div className="about-tech-grid">
+            <div className="about-tech-card">
+              <h3>AI 양도가 산정 엔진</h3>
+              <p>
+                공시 재무 데이터, 시장 거래 사례, 업종별 특성을
+                종합 분석하여 적정 양도가격 범위를 산정합니다.
+                신뢰도 지표와 근거 데이터를 함께 제공합니다.
+              </p>
             </div>
-          ))}
-        </div>
-      </section>
+            <div className="about-tech-card">
+              <h3>AI 인허가 사전검토 엔진</h3>
+              <p>
+                191개 업종의 법정 등록기준을 실시간으로
+                비교 분석합니다. 자본금, 기술인력, 시설 등
+                항목별 충족 여부를 즉시 진단하고 신규 취득 비용을
+                계산합니다.
+              </p>
+            </div>
+            <div className="about-tech-card">
+              <h3>특허 출원 기술</h3>
+              <p>
+                양도가 산정 알고리즘과 인허가 사전검토 방법론은
+                한국특허청(KIPO)에 특허 출원되었으며,
+                독자적인 지적재산으로 보호됩니다.
+              </p>
+            </div>
+          </div>
+        </section>
+      </ScrollAnimate>
+
+      <ScrollAnimate delay={80}>
+        <section className="about-timeline" aria-label="연혁">
+          <div className="section-header" style={{ textAlign: "center" }}>
+            <p className="eyebrow">연혁</p>
+            <h2>주요 이정표</h2>
+          </div>
+          <div className="about-timeline-list">
+            {milestones.map((m, i) => (
+              <div key={i} className="about-milestone">
+                <span className="about-milestone-year">{m.year}</span>
+                <p className="about-milestone-event">{m.event}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      </ScrollAnimate>
 
       <section className="consult-start" aria-label="상담 안내">
         <h2>함께 시작하시겠습니까?</h2>

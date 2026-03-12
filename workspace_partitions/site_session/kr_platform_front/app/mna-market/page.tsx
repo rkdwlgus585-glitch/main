@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { BarChart3, Search, Tag, Target } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { ScrollAnimate } from "@/components/scroll-animate";
 import { platformConfig } from "@/components/platform-config";
 import { breadcrumbSchema, organizationRef, siteBase, websiteRef } from "@/lib/json-ld";
 
@@ -119,33 +120,37 @@ export default function MnaMarketPage() {
         </a>
       </section>
 
-      <section className="market-stats" aria-label="매물 통계">
-        {stats.map((s) => (
-          <div key={s.label} className="market-stat-card">
-            <span className="market-stat-value">
-              {s.value}<small>{s.suffix}</small>
-            </span>
-            <span className="market-stat-label">{s.label}</span>
-          </div>
-        ))}
-        <p className="market-stats-disclaimer">{STATS_DISCLAIMER}</p>
-      </section>
-
-      <section className="market-features" aria-label="주요 기능">
-        <div className="section-header">
-          <p className="eyebrow">주요 기능</p>
-          <h2>실시간 매물이 특별한 이유</h2>
-        </div>
-        <div className="features-grid">
-          {marketFeatures.map(({ title, description, icon: Icon }) => (
-            <div key={title} className="feature-card">
-              <span className="feature-icon" aria-hidden="true"><Icon size={22} /></span>
-              <h3>{title}</h3>
-              <p>{description}</p>
+      <ScrollAnimate>
+        <section className="market-stats" aria-label="매물 통계">
+          {stats.map((s) => (
+            <div key={s.label} className="market-stat-card">
+              <span className="market-stat-value">
+                {s.value}<small>{s.suffix}</small>
+              </span>
+              <span className="market-stat-label">{s.label}</span>
             </div>
           ))}
-        </div>
-      </section>
+          <p className="market-stats-disclaimer">{STATS_DISCLAIMER}</p>
+        </section>
+      </ScrollAnimate>
+
+      <ScrollAnimate delay={80}>
+        <section className="market-features" aria-label="주요 기능">
+          <div className="section-header">
+            <p className="eyebrow">주요 기능</p>
+            <h2>실시간 매물이 특별한 이유</h2>
+          </div>
+          <div className="features-grid">
+            {marketFeatures.map(({ title, description, icon: Icon }) => (
+              <div key={title} className="feature-card">
+                <span className="feature-icon" aria-hidden="true"><Icon size={22} /></span>
+                <h3>{title}</h3>
+                <p>{description}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      </ScrollAnimate>
 
       <section className="market-bridge" aria-label="양도가 산정 안내">
         <div className="bridge-card">

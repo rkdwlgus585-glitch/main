@@ -7,7 +7,7 @@ export function GET() {
   return NextResponse.json(
     {
       ok: true,
-      version: "0.65.0",
+      version: "0.70.0",
       bootedAt: BOOT_TIME,
       frontHost: platformConfig.platformFrontHost,
       systems: [

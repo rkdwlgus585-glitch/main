@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Gem, HardHat, Phone, Target, Zap } from "lucide-react";
+import { ScrollAnimate } from "@/components/scroll-animate";
 import type { LucideIcon } from "lucide-react";
 import { platformConfig } from "@/components/platform-config";
 import { ConsultForm } from "@/components/consult-form";
@@ -149,53 +150,59 @@ export default function ConsultPage() {
         </div>
       </section>
 
-      <section className="consult-benefits" aria-label="상담 장점">
-        <div className="section-header">
-          <p className="eyebrow">상담 장점</p>
-          <h2>왜 서울건설정보인가요?</h2>
-        </div>
-        <div className="benefits-grid">
-          {benefits.map(({ title, description, icon: Icon }) => (
-            <div key={title} className="benefit-card">
-              <span className="benefit-icon" aria-hidden="true"><Icon size={22} /></span>
-              <h3>{title}</h3>
-              <p>{description}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="consult-steps" aria-label="진행 절차">
-        <div className="section-header">
-          <p className="eyebrow">진행 절차</p>
-          <h2>상담은 이렇게 진행됩니다</h2>
-        </div>
-        <div className="steps-timeline">
-          {steps.map((s) => (
-            <div key={s.step} className="step-item">
-              <span className="step-number">{s.step}</span>
-              <div className="step-content">
-                <h3>{s.title}</h3>
-                <p>{s.description}</p>
+      <ScrollAnimate>
+        <section className="consult-benefits" aria-label="상담 장점">
+          <div className="section-header">
+            <p className="eyebrow">상담 장점</p>
+            <h2>왜 서울건설정보인가요?</h2>
+          </div>
+          <div className="benefits-grid">
+            {benefits.map(({ title, description, icon: Icon }) => (
+              <div key={title} className="benefit-card">
+                <span className="benefit-icon" aria-hidden="true"><Icon size={22} /></span>
+                <h3>{title}</h3>
+                <p>{description}</p>
               </div>
-            </div>
-          ))}
-        </div>
-      </section>
+            ))}
+          </div>
+        </section>
+      </ScrollAnimate>
 
-      <section className="consult-form-section" aria-label="온라인 상담 신청">
-        <div className="section-header">
-          <p className="eyebrow">온라인 접수</p>
-          <h2>상담 신청서</h2>
-        </div>
-        <p className="consult-form-intro">
-          아래 양식을 작성하시면 전문 행정사가 확인 후 연락드립니다.
-          전화 상담을 원하시면{" "}
-          <a href={`tel:${platformConfig.contactPhone}`}>{platformConfig.contactPhone}</a>으로
-          바로 연락 주세요.
-        </p>
-        <ConsultForm />
-      </section>
+      <ScrollAnimate delay={80}>
+        <section className="consult-steps" aria-label="진행 절차">
+          <div className="section-header">
+            <p className="eyebrow">진행 절차</p>
+            <h2>상담은 이렇게 진행됩니다</h2>
+          </div>
+          <div className="steps-timeline">
+            {steps.map((s) => (
+              <div key={s.step} className="step-item">
+                <span className="step-number">{s.step}</span>
+                <div className="step-content">
+                  <h3>{s.title}</h3>
+                  <p>{s.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </ScrollAnimate>
+
+      <ScrollAnimate delay={120}>
+        <section className="consult-form-section" aria-label="온라인 상담 신청">
+          <div className="section-header">
+            <p className="eyebrow">온라인 접수</p>
+            <h2>상담 신청서</h2>
+          </div>
+          <p className="consult-form-intro">
+            아래 양식을 작성하시면 전문 행정사가 확인 후 연락드립니다.
+            전화 상담을 원하시면{" "}
+            <a href={`tel:${platformConfig.contactPhone}`}>{platformConfig.contactPhone}</a>으로
+            바로 연락 주세요.
+          </p>
+          <ConsultForm />
+        </section>
+      </ScrollAnimate>
 
       <section className="consult-start" aria-label="상담 시작 안내">
         <h2>지금 바로 시작하세요</h2>
