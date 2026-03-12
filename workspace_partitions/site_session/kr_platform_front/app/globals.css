@@ -753,6 +753,14 @@ img { max-width: 100%; display: block; }
   margin-top: 24px;
   flex-wrap: wrap;
 }
+.consult-hero-actions .cta-secondary {
+  background: var(--bg-warm);
+  border: 1px solid var(--line);
+  color: var(--brand);
+}
+.consult-hero-actions .cta-secondary:hover {
+  background: var(--bg);
+}
 .consult-benefits,
 .consult-steps {
   margin-bottom: 56px;
