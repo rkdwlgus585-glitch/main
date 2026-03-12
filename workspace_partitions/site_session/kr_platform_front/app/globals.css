@@ -1233,7 +1233,7 @@ img { max-width: 100%; display: block; }
   font-size: 1.1rem;
   line-height: 1.8;
   word-break: keep-all;
-  text-wrap: pretty;
+  text-wrap: balance;
 }
 .consult-hero-actions {
   display: flex;
@@ -1360,6 +1360,8 @@ img { max-width: 100%; display: block; }
   margin: 0 auto 28px;
   font-size: 1.08rem;
   line-height: 1.7;
+  text-wrap: balance;
+  word-break: keep-all;
 }
 .consult-start-actions {
   position: relative;
@@ -1397,7 +1399,9 @@ img { max-width: 100%; display: block; }
   line-height: 1.8;
   margin-bottom: 24px;
   text-align: center;
-  max-width: 540px;
+  text-wrap: balance;
+  word-break: keep-all;
+  max-width: 480px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -1457,7 +1461,7 @@ img { max-width: 100%; display: block; }
   margin: 0;
 }
 .consult-form-submit {
-  justify-self: start;
+  justify-self: center;
 }
 .consult-form-submit:disabled {
   opacity: 0.6;
@@ -1467,6 +1471,7 @@ img { max-width: 100%; display: block; }
   margin: 0;
   color: var(--muted);
   font-size: 1rem;
+  text-align: center;
 }
 .consult-form-success {
   padding: 32px 24px;
@@ -1747,15 +1752,19 @@ img { max-width: 100%; display: block; }
 
 .home-shortcuts-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  max-width: 960px;
+  margin: 0 auto;
 }
 
 .home-shortcut-card {
-  display: grid;
-  gap: 10px;
-  min-height: 160px;
-  padding: 22px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding: 32px 24px 28px;
   border-radius: 22px;
   background: rgba(255, 255, 255, 0.94);
   border: 1px solid var(--line);
@@ -1774,23 +1783,26 @@ img { max-width: 100%; display: block; }
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   border-radius: 14px;
   background: rgba(0, 163, 255, 0.08);
   color: var(--point);
 }
 
 .home-shortcut-card strong {
-  font-size: 1rem;
+  font-size: 1.08rem;
+  font-weight: 700;
   line-height: 1.3;
 }
 
 .home-shortcut-card p {
   margin: 0;
   color: var(--muted);
-  font-size: 0.86rem;
-  line-height: 1.6;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  text-wrap: balance;
+  word-break: keep-all;
 }
 
 
@@ -1918,10 +1930,6 @@ img { max-width: 100%; display: block; }
     grid-template-columns: 1fr;
   }
 
-  .home-shortcuts-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
 }
 
 @media (max-width: 960px) {
@@ -1935,7 +1943,10 @@ img { max-width: 100%; display: block; }
     padding: 24px;
   }
 
-  .home-hero-metrics,
+  .home-hero-metrics {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
   .home-process-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -2053,7 +2064,7 @@ img { max-width: 100%; display: block; }
   line-height: 1.8;
   margin: 0;
   word-break: keep-all;
-  text-wrap: pretty;
+  text-wrap: balance;
 }
 
 /* ── Service Features Grid ── */
@@ -2094,6 +2105,7 @@ img { max-width: 100%; display: block; }
   max-width: 720px;
   margin-left: auto;
   margin-right: auto;
+  text-align: center;
 }
 .faq-list {
   margin: 0;
@@ -2101,23 +2113,30 @@ img { max-width: 100%; display: block; }
 }
 .faq-item {
   border-bottom: 1px solid var(--line);
-  padding: 20px 0;
+  padding: 24px 16px;
 }
 .faq-item:first-child {
   border-top: 1px solid var(--line);
 }
 .faq-item dt {
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 1.05rem;
   color: var(--ink);
-  margin: 0 0 8px;
+  margin: 0 0 10px;
   line-height: 1.5;
+  text-wrap: balance;
+  word-break: keep-all;
 }
 .faq-item dd {
   margin: 0;
   color: var(--muted);
-  font-size: 1.15rem;
-  line-height: 1.7;
+  font-size: 1rem;
+  line-height: 1.75;
+  text-wrap: balance;
+  word-break: keep-all;
+  max-width: 56ch;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* ── Service Bottom CTA ── */
@@ -2133,6 +2152,8 @@ img { max-width: 100%; display: block; }
   color: var(--ink);
   margin: 0 0 20px;
   font-weight: 600;
+  text-wrap: balance;
+  word-break: keep-all;
 }
 .service-bottom-actions {
   display: flex;
