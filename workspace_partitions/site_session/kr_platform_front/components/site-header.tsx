@@ -10,7 +10,7 @@ const navItems = [
   { href: "/mna-market", label: "실시간 매물" },
   { href: "/permit", label: "건설업등록" },
   { href: "/yangdo", label: "양도가 산정" },
-  { href: "/knowledge", label: "건설실무" },
+  { href: "/partners", label: "시스템 도입" },
   { href: "/consult", label: "고객센터" },
 ];
 

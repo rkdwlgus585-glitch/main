@@ -33,9 +33,9 @@ const shortcuts: Array<{
     icon: Calculator,
   },
   {
-    title: "건설실무",
-    description: "양도양수·등록기준·시장 동향 가이드를 모았습니다.",
-    href: "/knowledge",
+    title: "시스템 도입",
+    description: "AI 양도가·인허가 시스템을 귀사에 도입하세요.",
+    href: "/partners",
     icon: Files,
   },
   {

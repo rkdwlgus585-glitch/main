@@ -17,8 +17,8 @@ export function SiteFooter() {
             <Link href="/yangdo">양도가 산정</Link>
           </div>
           <div>
-            <h4>정보 · 상담</h4>
-            <Link href="/knowledge">건설실무</Link>
+            <h4>도입 · 상담</h4>
+            <Link href="/partners">시스템 도입</Link>
             <Link href="/consult">고객센터</Link>
             <a href={`tel:${platformConfig.contactPhone}`} aria-label={`전화: ${platformConfig.contactPhone}`}>{platformConfig.contactPhone}</a>
             <a href={`mailto:${platformConfig.contactEmail}`} aria-label={`이메일: ${platformConfig.contactEmail}`}>{platformConfig.contactEmail}</a>
