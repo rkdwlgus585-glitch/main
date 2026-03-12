@@ -6,6 +6,8 @@ import { HomeOperations } from "@/components/home-operations";
 import { HomeProcess } from "@/components/home-process";
 import { HomeShortcuts } from "@/components/home-shortcuts";
 import { HomeTrust } from "@/components/home-trust";
+import { HomeExpert } from "@/components/home-expert";
+import { HomeComparison } from "@/components/home-comparison";
 import { siteBase } from "@/lib/json-ld";
 import { PlatformStatus } from "@/components/platform-status";
 import { ScrollAnimate } from "@/components/scroll-animate";
@@ -83,6 +85,8 @@ export default function HomePage() {
       <ScrollAnimate delay={120}>
         <HomeTrust />
       </ScrollAnimate>
+      <HomeComparison />
+      <HomeExpert />
       <ConsultationCTA />
     </main>
   );

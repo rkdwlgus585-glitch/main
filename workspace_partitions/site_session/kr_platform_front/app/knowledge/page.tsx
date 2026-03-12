@@ -153,8 +153,8 @@ export default function KnowledgePage() {
         <p className="eyebrow">건설실무</p>
         <h1>건설업 전문가 수준의 지식,<br />누구나 쉽게 이해하도록</h1>
         <p className="knowledge-hero-body">
-          서울건설정보가 보유한 공시 데이터와 실무 경험을 바탕으로
-          건설업 양도양수, 인허가, 시장 동향을 정리했습니다.
+          건설업 양도양수, 인허가 등록기준, 시장 동향에 관한
+          핵심 정보를 쉽게 정리했습니다. 궁금한 내용을 바로 찾아보세요.
         </p>
       </section>
 

@@ -10,7 +10,7 @@ const highlights = [
   {
     icon: TrendingUp,
     title: "실적·재무 검증",
-    body: "3개년 실적 추이와 재무 상태를 사전 점검한 매물만 안내합니다.",
+    body: "3개년 실적 추이와 재무 상태를 검증한 매물만 안내합니다.",
   },
   {
     icon: BarChart3,

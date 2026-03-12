@@ -1,4 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
   <rect width="32" height="32" rx="6" fill="#003764"/>
-  <text x="16" y="22" font-family="system-ui,-apple-system,sans-serif" font-size="15" font-weight="900" fill="white" text-anchor="middle">SM</text>
+  <!-- Left building (red) with chevron patterns -->
+  <rect x="3" y="12" width="10" height="17" rx="1" fill="#E8222E"/>
+  <path d="M4 15 L8 13.5 L12 15" stroke="white" stroke-width="0.8" fill="none" opacity="0.7"/>
+  <path d="M4 17.5 L8 16 L12 17.5" stroke="white" stroke-width="0.8" fill="none" opacity="0.7"/>
+  <path d="M4 20 L8 18.5 L12 20" stroke="white" stroke-width="0.8" fill="none" opacity="0.7"/>
+  <path d="M4 22.5 L8 21 L12 22.5" stroke="white" stroke-width="0.8" fill="none" opacity="0.7"/>
+  <!-- Right building (navy-dark) with grid windows -->
+  <rect x="14" y="4" width="14" height="25" rx="1" fill="white"/>
+  <rect x="14" y="4" width="7" height="25" rx="0" fill="#002244"/>
+  <rect x="16" y="7" width="2" height="2.5" rx="0.3" fill="rgba(255,255,255,0.5)"/>
+  <rect x="16" y="11" width="2" height="2.5" rx="0.3" fill="rgba(255,255,255,0.5)"/>
+  <rect x="16" y="15" width="2" height="2.5" rx="0.3" fill="rgba(255,255,255,0.5)"/>
+  <!-- Right half windows -->
+  <rect x="22" y="7" width="2.5" height="2.5" rx="0.3" fill="#E8222E" opacity="0.4"/>
+  <rect x="22" y="11" width="2.5" height="2.5" rx="0.3" fill="#E8222E" opacity="0.4"/>
+  <rect x="22" y="15" width="2.5" height="2.5" rx="0.3" fill="#E8222E" opacity="0.4"/>
+  <rect x="22" y="19" width="2.5" height="2.5" rx="0.3" fill="#E8222E" opacity="0.4"/>
+  <!-- Arc -->
+  <path d="M2 28 Q16 24 30 28" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" fill="none"/>
 </svg>

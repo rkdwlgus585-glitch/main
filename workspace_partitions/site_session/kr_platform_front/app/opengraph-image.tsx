@@ -49,21 +49,24 @@ export default async function OgImage() {
           }}
         />
 
-        {/* Brand mark */}
+        {/* Brand mark — two-building icon */}
         <div
           style={{
             display: "flex",
-            alignItems: "center",
+            alignItems: "flex-end",
             justifyContent: "center",
+            gap: "4px",
             width: "72px",
             height: "72px",
             borderRadius: "18px",
             background: "#003764",
             border: "2px solid rgba(255,255,255,0.15)",
             marginBottom: "28px",
+            padding: "10px 12px",
           }}
         >
-          <span style={{ color: "white", fontSize: "28px", fontWeight: 700 }}>SM</span>
+          <div style={{ width: "18px", height: "32px", background: "#E8222E", borderRadius: "3px", display: "flex" }} />
+          <div style={{ width: "24px", height: "44px", background: "white", borderRadius: "3px", display: "flex" }} />
         </div>
 
         {/* Title */}

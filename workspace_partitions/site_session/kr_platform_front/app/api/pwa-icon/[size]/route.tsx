@@ -5,7 +5,7 @@ import { type NextRequest, NextResponse } from "next/server";
  * GET /api/pwa-icon/:size
  *
  * Dynamically generates PNG icons for the PWA manifest.
- * Reproduces the icon.svg design (navy rounded-rect + "SM" text)
+ * Reproduces the brand logo design (navy+red two-building icon)
  * at any allowed pixel size. Cached aggressively on the CDN.
  */
 
@@ -25,9 +25,8 @@ export async function GET(
     );
   }
 
-  /* Proportions matching icon.svg (32×32 base) */
   const radius = Math.round(size * (6 / 32));
-  const fontSize = Math.round(size * (15 / 32));
+  const s = (v: number) => Math.round(size * (v / 32));
 
   return new ImageResponse(
     (
@@ -40,13 +39,28 @@ export async function GET(
           justifyContent: "center",
           backgroundColor: "#003764",
           borderRadius: radius,
-          color: "white",
-          fontSize,
-          fontWeight: 900,
-          fontFamily: "system-ui, -apple-system, sans-serif",
+          position: "relative",
+          overflow: "hidden",
         }}
       >
-        SM
+        {/* Left building (red) */}
+        <div style={{ position: "absolute", left: s(3), top: s(12), width: s(10), height: s(17), background: "#E8222E", borderRadius: s(1), display: "flex" }} />
+        {/* Right building (dark navy) */}
+        <div style={{ position: "absolute", left: s(14), top: s(4), width: s(7), height: s(25), background: "#002244", borderRadius: s(1), display: "flex" }} />
+        {/* Right building right half (red tint) */}
+        <div style={{ position: "absolute", left: s(21), top: s(4), width: s(7), height: s(25), background: "#C41E24", borderRadius: s(0.5), display: "flex", opacity: 0.7 }} />
+        {/* Windows - left building chevrons (simplified as bars) */}
+        <div style={{ position: "absolute", left: s(4.5), top: s(15), width: s(7), height: s(1), background: "rgba(255,255,255,0.5)", display: "flex" }} />
+        <div style={{ position: "absolute", left: s(4.5), top: s(18), width: s(7), height: s(1), background: "rgba(255,255,255,0.5)", display: "flex" }} />
+        <div style={{ position: "absolute", left: s(4.5), top: s(21), width: s(7), height: s(1), background: "rgba(255,255,255,0.5)", display: "flex" }} />
+        <div style={{ position: "absolute", left: s(4.5), top: s(24), width: s(7), height: s(1), background: "rgba(255,255,255,0.5)", display: "flex" }} />
+        {/* Windows - right building */}
+        <div style={{ position: "absolute", left: s(16), top: s(7), width: s(2.5), height: s(2.5), background: "rgba(255,255,255,0.45)", borderRadius: s(0.3), display: "flex" }} />
+        <div style={{ position: "absolute", left: s(16), top: s(11), width: s(2.5), height: s(2.5), background: "rgba(255,255,255,0.45)", borderRadius: s(0.3), display: "flex" }} />
+        <div style={{ position: "absolute", left: s(16), top: s(15), width: s(2.5), height: s(2.5), background: "rgba(255,255,255,0.45)", borderRadius: s(0.3), display: "flex" }} />
+        <div style={{ position: "absolute", left: s(22), top: s(7), width: s(2.5), height: s(2.5), background: "rgba(255,255,255,0.3)", borderRadius: s(0.3), display: "flex" }} />
+        <div style={{ position: "absolute", left: s(22), top: s(11), width: s(2.5), height: s(2.5), background: "rgba(255,255,255,0.3)", borderRadius: s(0.3), display: "flex" }} />
+        <div style={{ position: "absolute", left: s(22), top: s(15), width: s(2.5), height: s(2.5), background: "rgba(255,255,255,0.3)", borderRadius: s(0.3), display: "flex" }} />
       </div>
     ),
     {

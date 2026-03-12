@@ -51,7 +51,14 @@ export function SiteHeader() {
   return (
     <header className="site-header">
       <Link href="/" className="site-brand" onClick={() => setOpen(false)}>
-        <span className="site-brand-mark">SM</span>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/media/logo.png"
+          alt={platformConfig.brandName}
+          className="site-brand-logo"
+          width={44}
+          height={44}
+        />
         <span className="site-brand-copy">
           <strong>{platformConfig.brandName}</strong>
           <small>{platformConfig.brandTagline}</small>

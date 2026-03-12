@@ -1,4 +1,4 @@
-import { Award, Database, Scale, Shield } from "lucide-react";
+import { Award, Database, Scale, Shield, Server } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { AnimatedCounter } from "@/components/animated-counter";
 
@@ -12,13 +12,13 @@ const trustItems: Array<{
     icon: Database,
     stat: <AnimatedCounter end={191} suffix="개" />,
     label: "분석 대상 업종",
-    detail: "건설업 전 업종 등록기준 데이터를 AI가 실시간으로 분석합니다.",
+    detail: "건설업·전기·소방·정보통신 전 업종을 빠짐없이 커버합니다.",
   },
   {
-    icon: Scale,
-    stat: <><AnimatedCounter end={100} suffix="%" /></>,
-    label: "데이터 기반 산정",
-    detail: "실거래 데이터와 공시 정보를 교차 검증하여 양도가를 산정합니다.",
+    icon: Server,
+    stat: <><AnimatedCounter end={6300} suffix="+" /></>,
+    label: "등록기준 데이터",
+    detail: "업종별 자본금·기술인력·시설 등 6,300건 이상의 등록기준을 AI가 교차 검증합니다.",
   },
   {
     icon: Shield,
@@ -29,8 +29,8 @@ const trustItems: Array<{
   {
     icon: Award,
     stat: "원스톱",
-    label: "분석→상담→대행",
-    detail: "AI 분석부터 전문 행정사 상담, 행정 대행까지 한 곳에서 완결합니다.",
+    label: "AI 분석→전문가 검증→대행",
+    detail: "AI가 즉시 분석하고, 공인 행정사가 검증·상담·대행까지 한 곳에서 완결합니다.",
   },
 ];
 

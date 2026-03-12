@@ -38,21 +38,24 @@ export default async function TwitterImage() {
           }}
         />
 
-        {/* Brand mark */}
+        {/* Brand mark — two-building icon */}
         <div
           style={{
             display: "flex",
-            alignItems: "center",
+            alignItems: "flex-end",
             justifyContent: "center",
+            gap: "3px",
             width: "64px",
             height: "64px",
             borderRadius: "16px",
             background: "#003764",
             border: "2px solid rgba(255,255,255,0.15)",
             marginBottom: "24px",
+            padding: "8px 10px",
           }}
         >
-          <span style={{ color: "white", fontSize: "24px", fontWeight: 700 }}>SM</span>
+          <div style={{ width: "16px", height: "28px", background: "#E8222E", borderRadius: "3px", display: "flex" }} />
+          <div style={{ width: "22px", height: "40px", background: "white", borderRadius: "3px", display: "flex" }} />
         </div>
 
         {/* Title */}
