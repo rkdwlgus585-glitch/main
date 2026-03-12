@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from collections.abc import Iterable
 from dataclasses import dataclass
+from typing import Any
 
 from core_engine.host_utils import host_from_origin, normalize_host, to_bool
 
@@ -123,7 +124,7 @@ class TenantGateway:
 
 
 def tenant_from_json_entry(
-    entry: dict,
+    entry: dict[str, Any],
     plan_feature_defaults: dict[str, set[str]] | None = None,
 ) -> TenantProfile | None:
     """Parse a raw JSON dict into a ``TenantProfile``; return None on invalid input."""

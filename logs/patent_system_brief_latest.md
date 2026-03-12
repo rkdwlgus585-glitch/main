@@ -85,7 +85,7 @@
   - 증빙 체크리스트 생성
 - Evidence:
   - typed criteria evaluator: H:\auto\core_engine\permit_criteria_schema.py:196
-  - 규칙 병합 및 typed criteria 연결: H:\auto\permit_diagnosis_calculator.py:521
+  - 규칙 병합 및 typed criteria 연결: H:\auto\permit_diagnosis_calculator.py:522
   - permit API usage 적재: H:\auto\permit_precheck_api.py:571
   - permit 시스템 차단: H:\auto\permit_precheck_api.py:266
   - permit precheck 엔드포인트: H:\auto\permit_precheck_api.py:1303
@@ -116,7 +116,7 @@
   - response tier
   - activation and smoke rollback
 - Evidence:
-  - tenant system gate: H:\auto\core_engine\tenant_gateway.py:37
+  - tenant system gate: H:\auto\core_engine\tenant_gateway.py:38
   - channel system gate: H:\auto\core_engine\channel_profiles.py:47
   - 공통 응답 envelope: H:\auto\core_engine\api_response.py:35
   - 공통 요청 contract: H:\auto\core_engine\api_contract.py

@@ -18,7 +18,7 @@ def _to_float(value: Any) -> float | None:
     return out
 
 
-def _tokens(rec: dict[str, Any]) -> set:
+def _tokens(rec: dict[str, Any]) -> set[str]:
     raw = rec.get("license_tokens") or rec.get("tokens") or []
     if isinstance(raw, set):
         return set(x for x in raw if str(x).strip())
@@ -27,7 +27,7 @@ def _tokens(rec: dict[str, Any]) -> set:
     return set()
 
 
-def _jaccard(left: set, right: set) -> float:
+def _jaccard(left: set[str], right: set[str]) -> float:
     if not left or not right:
         return 0.0
     inter = len(left & right)
@@ -35,7 +35,7 @@ def _jaccard(left: set, right: set) -> float:
     return inter / float(max(1, union))
 
 
-def _containment(left: set, right: set) -> float:
+def _containment(left: set[str], right: set[str]) -> float:
     if not left or not right:
         return 0.0
     inter = len(left & right)

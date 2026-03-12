@@ -43,6 +43,7 @@ from datetime import date, timedelta
 from urllib.parse import urlparse
 from html import escape
 from pathlib import Path
+from collections.abc import Callable
 from typing import Any
 
 from core_engine.api_response import safe_json_for_script
@@ -79,7 +80,7 @@ OBJECTIVE_SOURCE_HOSTS = (
 )
 
 
-def _load_json_safe(path: Path, default_factory: Any) -> dict:
+def _load_json_safe(path: Path, default_factory: Callable[[], dict[str, Any]]) -> dict[str, Any]:
     """Load JSON from *path*; return ``default_factory()`` on any failure."""
     if not path.exists():
         return default_factory()
@@ -94,7 +95,7 @@ def _load_json_safe(path: Path, default_factory: Any) -> dict:
     return base
 
 
-def _ensure_keys(base: dict, dict_keys: tuple = (), list_keys: tuple = ()) -> dict:
+def _ensure_keys(base: dict[str, Any], dict_keys: tuple[str, ...] = (), list_keys: tuple[str, ...] = ()) -> dict[str, Any]:
     """Ensure *base* has expected key types; fix in-place and return."""
     for k in dict_keys:
         if not isinstance(base.get(k), dict):
@@ -108,12 +109,12 @@ def _ensure_keys(base: dict, dict_keys: tuple = (), list_keys: tuple = ()) -> di
 # ── Dict extraction helpers ────────────────────────────────────────────
 # Replace hundreds of `_get_str(d, "k")` boilerplate.
 
-def _get_str(data: dict, key: str, default: str = "") -> str:
+def _get_str(data: dict[str, Any], key: str, default: str = "") -> str:
     """Safely extract a stripped string from *data[key]*."""
     return str(data.get(key, default) or "").strip()
 
 
-def _get_int(data: dict, key: str, default: int = 0) -> int:
+def _get_int(data: dict[str, Any], key: str, default: int = 0) -> int:
     """Safely extract a non-negative int from *data[key]*."""
     try:
         out = int(float(data.get(key, default)))
@@ -164,7 +165,7 @@ _METADATA_MERGE_KEYS: tuple[str, ...] = (
 )
 
 
-def _blank_catalog() -> dict:
+def _blank_catalog() -> dict[str, Any]:
     return {
         "summary": {"industry_total": 0, "major_category_total": 0},
         "major_categories": [],
@@ -172,7 +173,7 @@ def _blank_catalog() -> dict:
     }
 
 
-def _blank_rule_catalog() -> dict:
+def _blank_rule_catalog() -> dict[str, Any]:
     return {
         "version": "",
         "effective_date": "",
@@ -181,7 +182,7 @@ def _blank_rule_catalog() -> dict:
     }
 
 
-def _blank_expanded_criteria_catalog() -> dict:
+def _blank_expanded_criteria_catalog() -> dict[str, Any]:
     return {
         "generated_at": "",
         "source": {},
@@ -191,7 +192,7 @@ def _blank_expanded_criteria_catalog() -> dict:
     }
 
 
-def _blank_focus_scope_overrides() -> dict:
+def _blank_focus_scope_overrides() -> dict[str, Any]:
     return {
         "manual_rule_groups": [],
         "profile_overrides": [],
@@ -222,7 +223,7 @@ def _prompt_surface_excerpt_lines(text: str, limit: int = 4) -> list[str]:
     return lines
 
 
-def _compact_critical_prompt_lens(packet: dict) -> dict:
+def _compact_critical_prompt_lens(packet: dict[str, Any]) -> dict[str, Any]:
     lens = dict((packet or {}).get("compact_decision_lens") or {})
     summary = dict((packet or {}).get("summary") or {})
     if not lens:
@@ -258,28 +259,28 @@ def _compact_critical_prompt_lens(packet: dict) -> dict:
     }
 
 
-def _blank_patent_evidence_bundle() -> dict:
+def _blank_patent_evidence_bundle() -> dict[str, Any]:
     return {
         "summary": {},
         "families": [],
     }
 
 
-def _blank_review_case_presets_report() -> dict:
+def _blank_review_case_presets_report() -> dict[str, Any]:
     return {
         "summary": {},
         "families": [],
     }
 
 
-def _blank_case_story_surface_report() -> dict:
+def _blank_case_story_surface_report() -> dict[str, Any]:
     return {
         "summary": {},
         "families": [],
     }
 
 
-def _blank_operator_demo_packet_report() -> dict:
+def _blank_operator_demo_packet_report() -> dict[str, Any]:
     return {
         "summary": {},
         "source_paths": {},
@@ -287,14 +288,14 @@ def _blank_operator_demo_packet_report() -> dict:
     }
 
 
-def _blank_review_reason_decision_ladder_report() -> dict:
+def _blank_review_reason_decision_ladder_report() -> dict[str, Any]:
     return {
         "summary": {},
         "ladders": [],
     }
 
 
-def _blank_critical_prompt_surface_packet() -> dict:
+def _blank_critical_prompt_surface_packet() -> dict[str, Any]:
     return {
         "summary": {},
         "critical_prompt_block": {},
@@ -302,15 +303,15 @@ def _blank_critical_prompt_surface_packet() -> dict:
     }
 
 
-def _load_catalog_file(path: Path) -> dict:
+def _load_catalog_file(path: Path) -> dict[str, Any]:
     base = _load_json_safe(path, _blank_catalog)
     return _ensure_keys(base, dict_keys=("summary",), list_keys=("major_categories", "industries"))
 
 
-def _merge_catalog_payloads(base_catalog: dict, *overlay_layers: tuple[str, dict]) -> dict:
+def _merge_catalog_payloads(base_catalog: dict[str, Any], *overlay_layers: tuple[str, dict]) -> dict[str, Any]:
     base = dict(base_catalog or {})
     base_summary = dict(base.get("summary") or {})
-    merged_rows: list[dict] = []
+    merged_rows: list[dict[str, Any]] = []
     seen_codes: dict[str, int] = {}
 
     def _append_rows(rows: list[Any], source_name: str) -> None:
@@ -385,7 +386,7 @@ def _load_catalog(
     *,
     merge_focus_seed: bool = True,
     merge_focus_family_registry: bool = True,
-) -> dict:
+) -> dict[str, Any]:
     base = _load_catalog_file(path)
     overlay_layers: list[tuple[str, dict]] = []
     if merge_focus_seed:
@@ -401,7 +402,7 @@ def _load_catalog(
     return _merge_catalog_payloads(base, *overlay_layers)
 
 
-def _load_rule_catalog(path: Path) -> dict:
+def _load_rule_catalog(path: Path) -> dict[str, Any]:
     base = _load_json_safe(path, _blank_rule_catalog)
     groups = base.get("rule_groups")
     if not isinstance(groups, list):
@@ -413,37 +414,37 @@ def _load_rule_catalog(path: Path) -> dict:
     return _merge_manual_rule_groups(merged, _load_focus_scope_overrides(DEFAULT_FOCUS_SCOPE_OVERRIDES_PATH))
 
 
-def _load_expanded_criteria_catalog(path: Path) -> dict:
+def _load_expanded_criteria_catalog(path: Path) -> dict[str, Any]:
     base = _load_json_safe(path, _blank_expanded_criteria_catalog)
     return _ensure_keys(base, list_keys=("industries", "rule_criteria_packs"))
 
 
-def _load_focus_scope_overrides(path: Path) -> dict:
+def _load_focus_scope_overrides(path: Path) -> dict[str, Any]:
     base = _load_json_safe(path, _blank_focus_scope_overrides)
     return _ensure_keys(base, list_keys=("manual_rule_groups", "profile_overrides"))
 
 
-def _load_patent_evidence_bundle(path: Path) -> dict:
+def _load_patent_evidence_bundle(path: Path) -> dict[str, Any]:
     base = _load_json_safe(path, _blank_patent_evidence_bundle)
     return _ensure_keys(base, dict_keys=("summary",), list_keys=("families",))
 
 
-def _load_review_case_presets_report(path: Path) -> dict:
+def _load_review_case_presets_report(path: Path) -> dict[str, Any]:
     base = _load_json_safe(path, _blank_review_case_presets_report)
     return _ensure_keys(base, dict_keys=("summary",), list_keys=("families",))
 
 
-def _load_case_story_surface_report(path: Path) -> dict:
+def _load_case_story_surface_report(path: Path) -> dict[str, Any]:
     base = _load_json_safe(path, _blank_case_story_surface_report)
     return _ensure_keys(base, dict_keys=("summary",), list_keys=("families",))
 
 
-def _load_operator_demo_packet_report(path: Path) -> dict:
+def _load_operator_demo_packet_report(path: Path) -> dict[str, Any]:
     base = _load_json_safe(path, _blank_operator_demo_packet_report)
     return _ensure_keys(base, dict_keys=("summary", "source_paths"), list_keys=("families",))
 
 
-def _load_review_reason_decision_ladder_report(path: Path) -> dict:
+def _load_review_reason_decision_ladder_report(path: Path) -> dict[str, Any]:
     base = _load_json_safe(path, _blank_review_reason_decision_ladder_report)
     _ensure_keys(base, dict_keys=("summary",))
     ladders = base.get("ladders")
@@ -454,12 +455,12 @@ def _load_review_reason_decision_ladder_report(path: Path) -> dict:
     return base
 
 
-def _load_critical_prompt_surface_packet(path: Path) -> dict:
+def _load_critical_prompt_surface_packet(path: Path) -> dict[str, Any]:
     base = _load_json_safe(path, _blank_critical_prompt_surface_packet)
     return _ensure_keys(base, dict_keys=("summary", "critical_prompt_block", "compact_decision_lens"))
 
 
-def _build_expanded_industry_lookup(expanded_catalog: dict) -> dict:
+def _build_expanded_industry_lookup(expanded_catalog: dict[str, Any]) -> dict[str, Any]:
     lookup = {}
     for row in list(expanded_catalog.get("industries") or []):
         if not isinstance(row, dict):
@@ -470,7 +471,7 @@ def _build_expanded_industry_lookup(expanded_catalog: dict) -> dict:
     return lookup
 
 
-def _build_candidate_rule(service_code: str, service_name: str, expanded_row: dict) -> dict[str, Any] | None:
+def _build_candidate_rule(service_code: str, service_name: str, expanded_row: dict[str, Any]) -> dict[str, Any] | None:
     """Build a lightweight rule from candidate typed_criteria for industries
     without a verified rule_pack.  Returns None if no usable criteria exist."""
     typed_criteria = [
@@ -518,7 +519,7 @@ def _build_candidate_rule(service_code: str, service_name: str, expanded_row: di
     }
 
 
-def _merge_expanded_rule_metadata(rule_catalog: dict, expanded_catalog: dict) -> dict:
+def _merge_expanded_rule_metadata(rule_catalog: dict[str, Any], expanded_catalog: dict[str, Any]) -> dict[str, Any]:
     base = dict(rule_catalog or {})
     groups = [dict(x) for x in list(base.get("rule_groups") or []) if isinstance(x, dict)]
     packs = [dict(x) for x in list((expanded_catalog or {}).get("rule_criteria_packs") or []) if isinstance(x, dict)]
@@ -526,7 +527,7 @@ def _merge_expanded_rule_metadata(rule_catalog: dict, expanded_catalog: dict) ->
         base["rule_groups"] = groups
         return base
 
-    pack_by_rule_id = {}
+    pack_by_rule_id: dict[str, dict[str, Any]] = {}
     for pack in packs:
         rule_id = _get_str(pack, "rule_id")
         if rule_id and rule_id not in pack_by_rule_id:
@@ -535,8 +536,8 @@ def _merge_expanded_rule_metadata(rule_catalog: dict, expanded_catalog: dict) ->
     merged = []
     for group in groups:
         rule_id = _get_str(group, "rule_id")
-        pack = pack_by_rule_id.get(rule_id)
-        if not pack:
+        matched_pack = pack_by_rule_id.get(rule_id)
+        if not matched_pack:
             merged.append(group)
             continue
 
@@ -549,7 +550,7 @@ def _merge_expanded_rule_metadata(rule_catalog: dict, expanded_catalog: dict) ->
             }
         else:
             seen_pending = set()
-        for item in list(pack.get("additional_criteria_lines") or []):
+        for item in list(matched_pack.get("additional_criteria_lines") or []):
             if not isinstance(item, dict):
                 continue
             key = (
@@ -596,7 +597,7 @@ def _merge_expanded_rule_metadata(rule_catalog: dict, expanded_catalog: dict) ->
     return base
 
 
-def _merge_manual_rule_groups(rule_catalog: dict, overrides_catalog: dict) -> dict:
+def _merge_manual_rule_groups(rule_catalog: dict[str, Any], overrides_catalog: dict[str, Any]) -> dict[str, Any]:
     base = dict(rule_catalog or {})
     groups = [dict(x) for x in list(base.get("rule_groups") or []) if isinstance(x, dict)]
     manual_groups = [dict(x) for x in list((overrides_catalog or {}).get("manual_rule_groups") or []) if isinstance(x, dict)]
@@ -828,7 +829,7 @@ _PENDING_CRITERIA_TEMPLATES = {
 }
 
 
-def _synthesize_typed_criteria_from_pending(pending_lines: list | None) -> list:
+def _synthesize_typed_criteria_from_pending(pending_lines: list | None) -> list[dict[str, Any]]:
     out = []
     seen = set()
     for item in list(pending_lines or []):
@@ -853,7 +854,7 @@ def _synthesize_typed_criteria_from_pending(pending_lines: list | None) -> list:
     return out
 
 
-def _synthesize_document_templates(typed_criteria: list | None) -> list:
+def _synthesize_document_templates(typed_criteria: list | None) -> list[dict[str, Any]]:
     out = []
     seen = set()
     for criterion in list(typed_criteria or []):
@@ -880,7 +881,7 @@ def _synthesize_document_templates(typed_criteria: list | None) -> list:
     return out
 
 
-def _expand_rule_groups(rule_catalog: dict) -> list:
+def _expand_rule_groups(rule_catalog: dict[str, Any]) -> list[dict[str, Any]]:
     rows = []
     groups = list(rule_catalog.get("rule_groups") or [])
     for group in groups:
@@ -963,7 +964,7 @@ def _expand_rule_groups(rule_catalog: dict) -> list:
     return rows
 
 
-def _build_rule_index(rule_catalog: dict) -> dict:
+def _build_rule_index(rule_catalog: dict[str, Any]) -> dict[str, Any]:
     rules = _expand_rule_groups(rule_catalog)
     by_service_code = {}
     by_key = {}
@@ -984,29 +985,31 @@ def _build_rule_index(rule_catalog: dict) -> dict:
     }
 
 
-def _resolve_rule_for_industry(industry: dict, rule_index: dict) -> dict[str, Any] | None:
+def _resolve_rule_for_industry(industry: dict[str, Any], rule_index: dict[str, Any]) -> dict[str, Any] | None:
     service_code = _get_str(industry, "service_code")
-    by_service_code = rule_index.get("by_service_code", {})
+    by_service_code: dict[str, Any] = rule_index.get("by_service_code") or {}
     if service_code and service_code in by_service_code:
-        return by_service_code[service_code]
+        result: Any = by_service_code[service_code]
+        return result if isinstance(result, dict) else None
     service_name = _get_str(industry, "service_name")
     if service_name:
         key = _normalize_key(service_name)
-        hit = rule_index.get("by_key", {}).get(key)
-        if hit:
+        by_key: dict[str, Any] = rule_index.get("by_key") or {}
+        hit: Any = by_key.get(key)
+        if isinstance(hit, dict):
             return hit
     return None
 
 
 def evaluate_registration_diagnosis(
-    rule: dict,
+    rule: dict[str, Any],
     current_capital_eok,
     current_technicians,
     current_equipment_count,
     raw_capital_input="",
     base_date: date | None = None,
     extra_inputs: dict[str, Any] | None = None,
-) -> dict:
+) -> dict[str, Any]:
     """Evaluate a single industry registration rule against current user assets.
 
     Compare the legal requirements (capital, technicians, equipment, typed
@@ -1100,7 +1103,7 @@ def evaluate_registration_diagnosis(
     }
 
 
-def _prepare_ui_payload(catalog: dict, rule_catalog: dict) -> dict:
+def _prepare_ui_payload(catalog: dict[str, Any], rule_catalog: dict[str, Any]) -> dict[str, Any]:
     rule_index = _build_rule_index(rule_catalog)
     expanded_catalog = _load_expanded_criteria_catalog(DEFAULT_EXPANDED_CRITERIA_PATH)
     expanded_lookup = _build_expanded_industry_lookup(expanded_catalog)
@@ -1120,9 +1123,9 @@ def _prepare_ui_payload(catalog: dict, rule_catalog: dict) -> dict:
             }
         )
 
-    industries = []
-    rules_lookup = {}
-    seen_codes = set()
+    industries: list[dict[str, Any]] = []
+    rules_lookup: dict[str, dict[str, Any]] = {}
+    seen_codes: set[str] = set()
     seen_rule_names = set()
     for row in list(catalog.get("industries") or []):
         if not isinstance(row, dict):
@@ -1294,7 +1297,7 @@ def _prepare_ui_payload(catalog: dict, rule_catalog: dict) -> dict:
     }
 
 
-def _compact_candidate_lines(rows: list | None) -> list:
+def _compact_candidate_lines(rows: list | None) -> list[dict[str, Any]]:
     compact_rows = []
     for row in list(rows or []):
         if not isinstance(row, dict):
@@ -1306,7 +1309,7 @@ def _compact_candidate_lines(rows: list | None) -> list:
     return compact_rows
 
 
-def _compact_candidate_law_rows(rows: list | None) -> list:
+def _compact_candidate_law_rows(rows: list | None) -> list[dict[str, Any]]:
     compact_rows = []
     for row in list(rows or []):
         if not isinstance(row, dict):
@@ -1326,7 +1329,7 @@ def _compact_candidate_law_rows(rows: list | None) -> list:
     return compact_rows
 
 
-def _compact_raw_source_proof(proof: Any) -> dict:
+def _compact_raw_source_proof(proof: Any) -> dict[str, Any]:
     if not isinstance(proof, dict):
         return {}
     source_urls = [
@@ -1353,8 +1356,8 @@ def _compact_raw_source_proof(proof: Any) -> dict:
     return {key: value for key, value in compact.items() if value not in ("", [], {})}
 
 
-def _build_claim_packet_lookup(bundle: dict) -> dict[str, dict]:
-    lookup: dict[str, dict] = {}
+def _build_claim_packet_lookup(bundle: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    lookup: dict[str, dict[str, Any]] = {}
     for family in list((bundle or {}).get("families") or []):
         if not isinstance(family, dict):
             continue
@@ -1365,7 +1368,7 @@ def _build_claim_packet_lookup(bundle: dict) -> dict[str, dict]:
     return lookup
 
 
-def _row_claim_family_key(row: dict) -> str:
+def _row_claim_family_key(row: dict[str, Any]) -> str:
     proof = row.get("raw_source_proof") or {}
     capture_meta = proof.get("capture_meta") or {} if isinstance(proof, dict) else {}
     candidates = (
@@ -1380,7 +1383,7 @@ def _row_claim_family_key(row: dict) -> str:
     return ""
 
 
-def _build_row_claim_packet_summary(row: dict, claim_packet_lookup: dict[str, dict]) -> dict:
+def _build_row_claim_packet_summary(row: dict[str, Any], claim_packet_lookup: dict[str, dict[str, Any]]) -> dict[str, Any]:
     family_key = _row_claim_family_key(row)
     claim_packet = claim_packet_lookup.get(family_key) or {}
     if not isinstance(claim_packet, dict) or not claim_packet:
@@ -1431,11 +1434,11 @@ def _build_row_claim_packet_summary(row: dict, claim_packet_lookup: dict[str, di
     return {key: value for key, value in compact.items() if value not in ("", [], {})}
 
 
-def _attach_claim_packet_summaries(rows: list[dict], patent_bundle: dict) -> list[dict]:
+def _attach_claim_packet_summaries(rows: list[dict[str, Any]], patent_bundle: dict[str, Any]) -> list[dict[str, Any]]:
     claim_packet_lookup = _build_claim_packet_lookup(patent_bundle)
     if not claim_packet_lookup:
         return [dict(row) for row in list(rows or []) if isinstance(row, dict)]
-    enriched_rows: list[dict] = []
+    enriched_rows: list[dict[str, Any]] = []
     for row in list(rows or []):
         if not isinstance(row, dict):
             continue
@@ -1447,9 +1450,9 @@ def _attach_claim_packet_summaries(rows: list[dict], patent_bundle: dict) -> lis
     return enriched_rows
 
 
-def _build_family_key_lookup(report: dict) -> dict[str, dict]:
+def _build_family_key_lookup(report: dict[str, Any]) -> dict[str, dict[str, Any]]:
     """Build a family_key→family dict from any report with a 'families' list."""
-    lookup: dict[str, dict] = {}
+    lookup: dict[str, dict[str, Any]] = {}
     for family in list((report or {}).get("families") or []):
         if not isinstance(family, dict):
             continue
@@ -1465,9 +1468,11 @@ _build_case_story_surface_lookup = _build_family_key_lookup
 _build_operator_demo_lookup = _build_family_key_lookup
 
 
-def _compact_review_case_preset(preset: dict) -> dict:
-    input_payload = preset.get("input_payload") if isinstance(preset.get("input_payload"), dict) else {}
-    expected_outcome = preset.get("expected_outcome") if isinstance(preset.get("expected_outcome"), dict) else {}
+def _compact_review_case_preset(preset: dict[str, Any]) -> dict[str, Any]:
+    raw_input = preset.get("input_payload")
+    input_payload: dict[str, Any] = raw_input if isinstance(raw_input, dict) else {}
+    raw_outcome = preset.get("expected_outcome")
+    expected_outcome: dict[str, Any] = raw_outcome if isinstance(raw_outcome, dict) else {}
     compact = {
         "preset_id": _get_str(preset, "preset_id"),
         "case_id": _get_str(preset, "case_id"),
@@ -1482,7 +1487,7 @@ def _compact_review_case_preset(preset: dict) -> dict:
             "capital_eok": round(_coerce_non_negative_float(input_payload.get("capital_eok", 0)), 2),
             "technicians_count": _get_int(input_payload, "technicians_count"),
             "other_requirement_checklist": (
-                dict(input_payload.get("other_requirement_checklist"))
+                dict(input_payload["other_requirement_checklist"])
                 if isinstance(input_payload.get("other_requirement_checklist"), dict)
                 else {}
             ),
@@ -1503,7 +1508,7 @@ def _compact_review_case_preset(preset: dict) -> dict:
     }
 
 
-def _compact_case_story_surface(family: dict) -> dict:
+def _compact_case_story_surface(family: dict[str, Any]) -> dict[str, Any]:
     representative_cases = []
     review_reasons: list[str] = []
     for item in list(family.get("representative_cases") or []):
@@ -1544,7 +1549,7 @@ def _compact_case_story_surface(family: dict) -> dict:
     }
 
 
-def _compact_operator_demo_family(family: dict) -> dict:
+def _compact_operator_demo_family(family: dict[str, Any]) -> dict[str, Any]:
     demo_cases = []
     review_reasons: list[str] = []
     representative_services: list[str] = []
@@ -1603,8 +1608,8 @@ def _compact_operator_demo_family(family: dict) -> dict:
     }
 
 
-def _compact_runtime_reasoning_ladder_map(report: dict) -> dict:
-    ladder_map: dict[str, dict] = {}
+def _compact_runtime_reasoning_ladder_map(report: dict[str, Any]) -> dict[str, Any]:
+    ladder_map: dict[str, dict[str, Any]] = {}
     for item in list(report.get("ladders") or []):
         if not isinstance(item, dict):
             continue
@@ -1645,16 +1650,16 @@ def _compact_runtime_reasoning_ladder_map(report: dict) -> dict:
 
 
 def _attach_review_case_artifacts(
-    rows: list[dict],
-    review_case_presets_report: dict,
-    case_story_surface_report: dict,
-) -> list[dict]:
+    rows: list[dict[str, Any]],
+    review_case_presets_report: dict[str, Any],
+    case_story_surface_report: dict[str, Any],
+) -> list[dict[str, Any]]:
     preset_lookup = _build_review_case_preset_lookup(review_case_presets_report)
     story_lookup = _build_case_story_surface_lookup(case_story_surface_report)
     if not preset_lookup and not story_lookup:
         return [dict(row) for row in list(rows or []) if isinstance(row, dict)]
 
-    enriched_rows: list[dict] = []
+    enriched_rows: list[dict[str, Any]] = []
     for row in list(rows or []):
         if not isinstance(row, dict):
             continue
@@ -1678,12 +1683,12 @@ def _attach_review_case_artifacts(
     return enriched_rows
 
 
-def _attach_operator_demo_artifacts(rows: list[dict], operator_demo_packet_report: dict) -> list[dict]:
+def _attach_operator_demo_artifacts(rows: list[dict[str, Any]], operator_demo_packet_report: dict[str, Any]) -> list[dict[str, Any]]:
     demo_lookup = _build_operator_demo_lookup(operator_demo_packet_report)
     if not demo_lookup:
         return [dict(row) for row in list(rows or []) if isinstance(row, dict)]
 
-    enriched_rows: list[dict] = []
+    enriched_rows: list[dict[str, Any]] = []
     for row in list(rows or []):
         if not isinstance(row, dict):
             continue
@@ -1698,7 +1703,7 @@ def _attach_operator_demo_artifacts(rows: list[dict], operator_demo_packet_repor
     return enriched_rows
 
 
-def _compact_industry_row_for_client(row: dict) -> dict:
+def _compact_industry_row_for_client(row: dict[str, Any]) -> dict[str, Any]:
     compact = {
         "service_code": _get_str(row, "service_code"),
         "service_name": _get_str(row, "service_name"),
@@ -1785,14 +1790,14 @@ def _compact_industry_row_for_client(row: dict) -> dict:
     return compact
 
 
-def _is_capital_technical_scope(row: dict) -> bool:
+def _is_capital_technical_scope(row: dict[str, Any]) -> bool:
     profile = row.get("registration_requirement_profile") or {}
     if not isinstance(profile, dict):
         return False
     return bool(profile.get("capital_required")) and bool(profile.get("technical_personnel_required"))
 
 
-def _build_major_categories_for_rows(rows: list[dict]) -> list[dict]:
+def _build_major_categories_for_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     category_meta: dict[str, dict[str, str]] = {}
     category_counts: dict[str, int] = {}
     for row in list(rows or []):
@@ -1816,7 +1821,7 @@ def _build_major_categories_for_rows(rows: list[dict]) -> list[dict]:
     return out
 
 
-def _build_selector_entry(row: dict, selector_kind: str) -> dict:
+def _build_selector_entry(row: dict[str, Any], selector_kind: str) -> dict[str, Any]:
     compact = _compact_industry_row_for_client(row)
     canonical_service_code = _get_str(compact, "service_code")
     selector_suffix = canonical_service_code
@@ -1839,7 +1844,7 @@ def _build_selector_entry(row: dict, selector_kind: str) -> dict:
     return compact
 
 
-def _build_selector_catalog_row(selector_entry: dict) -> dict:
+def _build_selector_catalog_row(selector_entry: dict[str, Any]) -> dict[str, Any]:
     row = dict(selector_entry or {})
     selector_code = _get_str(row, "selector_code")
     selector_category_code = _get_str(row, "selector_category_code")
@@ -1856,10 +1861,10 @@ def _build_selector_catalog_row(selector_entry: dict) -> dict:
 
 
 def _build_selector_catalog(
-    focus_selector_entries: list[dict], inferred_selector_entries: list[dict]
-) -> dict:
-    categories = []
-    rows = []
+    focus_selector_entries: list[dict[str, Any]], inferred_selector_entries: list[dict[str, Any]]
+) -> dict[str, Any]:
+    categories: list[dict[str, Any]] = []
+    rows: list[dict[str, Any]] = []
     if focus_selector_entries:
         categories.append(
             {
@@ -1893,7 +1898,7 @@ def _build_selector_catalog(
     }
 
 
-def _normalize_selector_alias(row: dict) -> dict:
+def _normalize_selector_alias(row: dict[str, Any]) -> dict[str, Any]:
     return {
         "selector_code": str(row.get("service_code", row.get("selector_code", "")) or "").strip(),
         "service_name": _get_str(row, "service_name"),
@@ -1903,11 +1908,11 @@ def _normalize_selector_alias(row: dict) -> dict:
     }
 
 
-def _build_platform_catalog(compact_rows: list[dict], selector_catalog: dict) -> dict:
+def _build_platform_catalog(compact_rows: list[dict[str, Any]], selector_catalog: dict[str, Any]) -> dict[str, Any]:
     platform_rows = []
     real_rows = []
     focus_registry_rows = []
-    target_rows_by_code: dict[str, dict] = {}
+    target_rows_by_code: dict[str, dict[str, Any]] = {}
 
     for row in list(compact_rows or []):
         if not isinstance(row, dict):
@@ -1966,7 +1971,7 @@ def _build_platform_catalog(compact_rows: list[dict], selector_catalog: dict) ->
         platform_rows.append(absorbed)
         absorbed_rows.append(absorbed)
 
-    category_meta: dict[str, dict] = {}
+    category_meta: dict[str, dict[str, Any]] = {}
     category_counts: dict[str, int] = {}
     for row in platform_rows:
         code = _get_str(row, "major_code")
@@ -2017,7 +2022,7 @@ def _build_platform_catalog(compact_rows: list[dict], selector_catalog: dict) ->
     }
 
 
-def _build_master_catalog(platform_catalog: dict, selector_catalog: dict) -> dict:
+def _build_master_catalog(platform_catalog: dict[str, Any], selector_catalog: dict[str, Any]) -> dict[str, Any]:
     platform_summary = (
         dict(platform_catalog.get("summary") or {}) if isinstance(platform_catalog, dict) else {}
     )
@@ -2089,7 +2094,7 @@ def _build_master_catalog(platform_catalog: dict, selector_catalog: dict) -> dic
     }
 
 
-def build_bootstrap_payload(catalog: dict, rule_catalog: dict) -> dict:
+def build_bootstrap_payload(catalog: dict[str, Any], rule_catalog: dict[str, Any]) -> dict[str, Any]:
     """Assemble the complete client-side bootstrap JSON payload.
 
     Merge the industry catalog, objective legal rules, patent evidence
@@ -2352,8 +2357,8 @@ def build_bootstrap_payload(catalog: dict, rule_catalog: dict) -> dict:
 
 def build_html(
     title: str,
-    catalog: dict,
-    rule_catalog: dict,
+    catalog: dict[str, Any],
+    rule_catalog: dict[str, Any],
     channel_id: str = "",
     contact_phone: str = "",
     notice_url: str = "",
@@ -2385,7 +2390,7 @@ def build_html(
     resolved_phone_digits = "".join(ch for ch in resolved_phone if ch.isdigit()) or DEFAULT_CONTACT_PHONE_DIGITS
     resolved_data_url = str(data_url or "").strip()
     resolved_data_encoding = str(data_encoding or "").strip().lower()
-    inline_bootstrap_json = {}
+    inline_bootstrap_json: dict[str, Any] = {}
     inline_bootstrap_gzip_base64 = ""
     if not resolved_data_url:
         inline_bootstrap_gzip_base64 = _gzip_base64_json(bundle)

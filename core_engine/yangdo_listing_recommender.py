@@ -12,12 +12,12 @@ __all__ = ["RecommendationOps", "build_recommendation_bundle"]
 class RecommendationOps:
     """Callable bundle injected into the recommendation engine for domain logic."""
 
-    canonical_tokens: Callable[[Any], set]
-    single_token_target_core: Callable[[set], str]
-    is_single_token_same_core: Callable[[set, set, Any], bool]
+    canonical_tokens: Callable[[Any], set[str]]
+    single_token_target_core: Callable[[set[str]], str]
+    is_single_token_same_core: Callable[[set[str], set[str], Any], bool]
     company_type_key: Callable[[Any], str]
     feature_scale_mismatch: Callable[..., tuple[int, int]]
-    token_containment: Callable[[set, set], float]
+    token_containment: Callable[[set[str], set[str]], float]
     relative_closeness: Callable[[Any, Any], float]
     sales_fit_score: Callable[[dict[str, Any], dict[str, Any]], float]
     yearly_shape_similarity: Callable[[dict[str, Any], dict[str, Any]], dict[str, float]]
@@ -102,7 +102,7 @@ def _yearly_fit_score(target: dict[str, Any], rec: dict[str, Any], *, ops: Recom
     return yearly_fit, strength
 
 
-def _infer_balance_excluded(target: dict[str, Any], *, target_tokens: set) -> bool:
+def _infer_balance_excluded(target: dict[str, Any], *, target_tokens: set[str]) -> bool:
     if bool(target.get("balance_excluded")):
         return True
     for token in target_tokens or set():

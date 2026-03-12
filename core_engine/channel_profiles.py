@@ -109,7 +109,7 @@ class ChannelRouter:
 
 
 
-def channel_profile_from_json_entry(entry: dict) -> ChannelProfile | None:
+def channel_profile_from_json_entry(entry: dict[str, Any]) -> ChannelProfile | None:
     """Parse a raw JSON dict into a ``ChannelProfile``; return ``None`` on invalid input."""
     if not isinstance(entry, dict):
         return None
