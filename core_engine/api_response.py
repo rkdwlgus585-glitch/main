@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import copy
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 __all__ = ["now_iso", "safe_json_for_script", "build_response_envelope"]
@@ -10,7 +10,7 @@ __all__ = ["now_iso", "safe_json_for_script", "build_response_envelope"]
 
 def now_iso() -> str:
     """Return the current UTC time as an ISO-8601 string (seconds precision)."""
-    return datetime.now(timezone.utc).isoformat(timespec="seconds")
+    return datetime.now(UTC).isoformat(timespec="seconds")
 
 
 def safe_json_for_script(data: Any) -> str:
