@@ -82,6 +82,7 @@ def _price_overlap_score(left: Dict[str, Any], right: Dict[str, Any]) -> float:
     l2, h2 = _range_pair(right)
     if None in {l1, h1, l2, h2}:
         return 0.0
+    assert l1 is not None and h1 is not None and l2 is not None and h2 is not None
     overlap_low = max(float(l1), float(l2))
     overlap_high = min(float(h1), float(h2))
     if overlap_high >= overlap_low:

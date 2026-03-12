@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
-from typing import Dict, Iterable, List, Optional
+from typing import Any, Dict, Iterable, List, Optional
 
 from core_engine.host_utils import host_from_origin, normalize_host, to_bool
 
@@ -128,7 +128,8 @@ def channel_profile_from_json_entry(entry: dict) -> Optional[ChannelProfile]:
             norm = normalize_host(str(host))
             if norm:
                 hosts.append(norm)
-    branding = entry.get("branding") if isinstance(entry.get("branding"), dict) else {}
+    raw_branding = entry.get("branding")
+    branding: dict[str, Any] = raw_branding if isinstance(raw_branding, dict) else {}
     canonical_public_host = normalize_host(str(entry.get("canonical_public_host") or ""))
     if not canonical_public_host:
         canonical_public_host = normalize_host(str(branding.get("site_url") or ""))
@@ -179,7 +180,7 @@ def load_channel_router_from_file(
         data = json.load(fp)
 
     default_id = str(default_channel_id or "").strip().lower()
-    profiles_raw = []
+    profiles_raw: list[Any] = []
     if isinstance(data, dict):
         profiles_raw = data.get("channels") or []
         if not default_id:

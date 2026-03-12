@@ -100,7 +100,7 @@ def retry_request(max_retries: int = 3, delay: int = 2, backoff: int = 2, except
             for attempt in range(max_retries + 1):
                 try:
                     return func(*args, **kwargs)
-                except exceptions as e:
+                except exceptions as e:  # type: ignore[misc]
                     if getattr(e, "no_retry", False):
                         logger.warning(f"[재시도 중단] {func.__name__}: {type(e).__name__}")
                         raise
@@ -113,7 +113,7 @@ def retry_request(max_retries: int = 3, delay: int = 2, backoff: int = 2, except
                     else:
                         logger.error(f"[실패] {func.__name__} - 최대 재시도 횟수 초과: {type(e).__name__}")
 
-            raise last_exception
+            raise last_exception  # type: ignore[misc]
         return wrapper
     return decorator
 
@@ -188,6 +188,7 @@ class Notifier:
                 }
             ]
         }
+        assert self.discord_url is not None  # guarded by caller
         ok = self._post_with_retry(self.discord_url, payload, {200, 204}, "Discord")
         if ok:
             self.logger.info("Discord notification sent")
@@ -198,6 +199,7 @@ class Notifier:
         payload = {
             "text": f"*{str(title or '알림')[:120]}*\n{message}"
         }
+        assert self.slack_url is not None  # guarded by caller
         ok = self._post_with_retry(self.slack_url, payload, {200}, "Slack")
         if ok:
             self.logger.info("Slack notification sent")
@@ -217,7 +219,7 @@ def _parse_bool(value: object, default: bool = False) -> bool:
 
 def _load_env_file(env_path: str) -> dict[str, str]:
     """Parse a simple ``KEY=VALUE`` env file, ignoring comments and empty lines."""
-    loaded = {}
+    loaded: dict[str, str] = {}
     if not os.path.exists(env_path):
         return loaded
 

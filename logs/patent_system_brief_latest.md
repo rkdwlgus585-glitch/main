@@ -45,7 +45,7 @@
   - cluster-weight 제한
 - Evidence:
   - 요청 투영/응답 tier: H:\auto\yangdo_blackbox_api.py:781
-  - 유사 매물 추천 코어: H:\auto\core_engine\yangdo_listing_recommender.py:490
+  - 유사 매물 추천 코어: H:\auto\core_engine\yangdo_listing_recommender.py:491
   - 추천 정밀도 QA 매트릭스: H:\auto\scripts\generate_yangdo_recommendation_precision_matrix.py:384
   - 추천 다양성 감사: H:\auto\scripts\generate_yangdo_recommendation_diversity_audit.py:407
   - 특수 업종 정밀화 packet: H:\auto\scripts\generate_yangdo_special_sector_packet.py:130

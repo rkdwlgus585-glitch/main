@@ -91,7 +91,10 @@ CONSTRUCTION_STANDARDS = {
 
 def get_capital_info(업종명: str) -> dict:
     """업종별 자본금 정보 조회"""
-    return CONSTRUCTION_STANDARDS["종합건설업"].get(업종명, {})
+    종합 = CONSTRUCTION_STANDARDS["종합건설업"]
+    assert isinstance(종합, dict)
+    result = 종합.get(업종명, {})
+    return result if isinstance(result, dict) else {}
 
 
 def get_fact_prompt_injection() -> str:
@@ -99,13 +102,14 @@ def get_fact_prompt_injection() -> str:
     facts = []
     facts.append("=== 건설업 등록기준 법정 데이터 (반드시 이 수치만 사용할 것) ===")
 
-    for 업종, 정보 in CONSTRUCTION_STANDARDS["종합건설업"].items():
+    종합: dict = CONSTRUCTION_STANDARDS["종합건설업"]  # type: ignore[assignment]
+    for 업종, 정보 in 종합.items():
         facts.append(f"\n[{업종}]")
         facts.append(f"- 법인 자본금: {정보.get('법인_자본금_표시', 'N/A')}")
         facts.append(f"- 개인 자본금: {정보.get('개인_자본금_표시', 'N/A')}")
         facts.append(f"- 기술인력: {정보.get('기술인력_총원', 'N/A')}명")
 
-    공통 = CONSTRUCTION_STANDARDS["공통"]
+    공통: dict = CONSTRUCTION_STANDARDS["공통"]  # type: ignore[assignment]
     facts.append("\n[공통 규정]")
     facts.append(f"- 공제조합 출자율: {공통['공제조합_출자율_표시']}")
     facts.append(f"- 기술자 충원기한: {공통['기술자_충원기한_일']}일 이내")

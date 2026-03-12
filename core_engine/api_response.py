@@ -3,7 +3,7 @@ from __future__ import annotations
 import copy
 import json
 from datetime import datetime, timezone
-from typing import Any, Dict
+from typing import Any
 
 __all__ = ["now_iso", "safe_json_for_script", "build_response_envelope"]
 
@@ -33,7 +33,7 @@ def _compact(value: Any, limit: int = 2000) -> str:
 
 
 def build_response_envelope(
-    payload: Dict[str, Any] | None,
+    payload: dict[str, Any] | None,
     *,
     service: str,
     api_version: str,
@@ -41,7 +41,7 @@ def build_response_envelope(
     channel_id: str = "",
     tenant_plan: str = "",
     response_tier: str = "",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Wrap a business *payload* in a standard API response envelope.
 
     Attach ``response_meta`` (service, version, request_id, channel, plan,
@@ -51,7 +51,8 @@ def build_response_envelope(
     business_payload = dict(payload or {})
     response_payload = dict(business_payload)
     ok = bool(response_payload.get("ok"))
-    policy = response_payload.get("response_policy") if isinstance(response_payload.get("response_policy"), dict) else {}
+    raw_policy = response_payload.get("response_policy")
+    policy: dict[str, Any] = raw_policy if isinstance(raw_policy, dict) else {}
     resolved_tier = _compact(response_tier or policy.get("tier"), 40)
     resolved_plan = _compact(tenant_plan or policy.get("tenant_plan"), 60)
     resolved_channel = _compact(channel_id or response_payload.get("channel_id"), 80)

@@ -24,7 +24,7 @@ BRIEF = ROOT / "logs" / "patent_system_brief_latest.md"
 EVIDENCE_EXPECTATIONS: dict[str, str] = {
     # Track A
     "yangdo_blackbox_api.py:781": "_estimate_response_tier",
-    "core_engine/yangdo_listing_recommender.py:490": "build_recommendation_bundle",
+    "core_engine/yangdo_listing_recommender.py:491": "build_recommendation_bundle",
     "yangdo_blackbox_api.py:1170": "def estimate",
     "yangdo_blackbox_api.py:1089": "usage_snapshot",
     # Track B

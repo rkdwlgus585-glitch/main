@@ -23,7 +23,7 @@ class RecommendationOps:
     derive_display_range_eok: Callable[[Any, Any, Any, Any], Tuple[Any, Any]]
     listing_number_band: Callable[[Any], int]
     to_float: Callable[[Any], Optional[float]]
-    compact: Callable[[Any, int], str]
+    compact: Callable[..., str]
     round4: Callable[[Any], Any]
     site_url: str
 
@@ -72,6 +72,7 @@ def _price_overlap_score(
     if None in {l1, h1, l2, h2}:
         return 0.0
     # None guard above guarantees all four values are non-None below
+    assert l1 is not None and h1 is not None and l2 is not None and h2 is not None
     overlap_low = max(l1, l2)
     overlap_high = min(h1, h2)
     if overlap_high >= overlap_low:

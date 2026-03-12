@@ -211,9 +211,9 @@ class LeadIntakeHub:
         self.dup_scan_rows = max(50, _cfg_int("LEAD_DUP_SCAN_ROWS", 250))
         self.followup_hours = max(1, _cfg_int("LEAD_FOLLOWUP_HOURS", 2))
 
-        self.client = None
-        self.sheet = None
-        self.ws = None
+        self.client: gspread.Client | None = None
+        self.sheet: gspread.Spreadsheet | None = None
+        self.ws: gspread.Worksheet | None = None
 
         self.state = self._load_state()
 
@@ -253,6 +253,7 @@ class LeadIntakeHub:
 
     def _ensure_header(self) -> None:
         """Ensure the worksheet header row matches ``CONSULT_HEADERS`` (auto-repair)."""
+        assert self.ws is not None, "call connect() first"
         row1 = self.ws.row_values(1)
         if not row1:
             self.ws.update(range_name="A1:P1", values=[CONSULT_HEADERS])
@@ -279,6 +280,7 @@ class LeadIntakeHub:
         if fp in self.state.get("fingerprints", {}):
             return True, fp
 
+        assert self.ws is not None, "call connect() first"
         rows = self.ws.get_all_values()
         if len(rows) > 1:
             scan_rows = rows[-self.dup_scan_rows :]
@@ -360,7 +362,8 @@ class LeadIntakeHub:
         if dry_run:
             return {"status": "dry_run", "lead_id": lead_id, "row": row}
 
-        self.ws.append_row(row, value_input_option="RAW")
+        assert self.ws is not None, "call connect() first"
+        self.ws.append_row(row, value_input_option="RAW")  # type: ignore[arg-type]
 
         self.state.setdefault("fingerprints", {})[fp] = {
             "lead_id": lead_id,
