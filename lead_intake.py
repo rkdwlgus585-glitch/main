@@ -175,7 +175,7 @@ def _fingerprint(record: dict[str, str]) -> str:
         _normalize_token(record.get("channel", "")),
     ]
     base = "|".join(parts)
-    return hashlib.sha1(base.encode("utf-8")).hexdigest()
+    return hashlib.sha256(base.encode("utf-8")).hexdigest()
 
 
 _FORMULA_PREFIXES = frozenset("=+@-\t\r")
@@ -564,5 +564,5 @@ if __name__ == "__main__":
         main()
     except ValueError as e:
         print(f"configuration error: {type(e).__name__}")
-        raise SystemExit(1)
+        raise SystemExit(1) from None
 

@@ -269,7 +269,7 @@ class TestFingerprint(unittest.TestCase):
 
     def test_empty_record(self) -> None:
         fp = _fingerprint({})
-        assert len(fp) == 40  # SHA1 hex length
+        assert len(fp) == 64  # SHA-256 hex length
 
     def test_is_hex(self) -> None:
         fp = _fingerprint({"title": "test"})
