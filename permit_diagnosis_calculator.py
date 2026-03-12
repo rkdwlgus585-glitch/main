@@ -41,7 +41,7 @@ from datetime import date, timedelta
 from urllib.parse import urlparse
 from html import escape
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 from core_engine.api_response import safe_json_for_script
 from core_engine.channel_branding import resolve_channel_branding
@@ -468,7 +468,7 @@ def _build_expanded_industry_lookup(expanded_catalog: dict) -> dict:
     return lookup
 
 
-def _build_candidate_rule(service_code: str, service_name: str, expanded_row: dict) -> Dict[str, Any] | None:
+def _build_candidate_rule(service_code: str, service_name: str, expanded_row: dict) -> dict[str, Any] | None:
     """Build a lightweight rule from candidate typed_criteria for industries
     without a verified rule_pack.  Returns None if no usable criteria exist."""
     typed_criteria = [
@@ -982,7 +982,7 @@ def _build_rule_index(rule_catalog: dict) -> dict:
     }
 
 
-def _resolve_rule_for_industry(industry: dict, rule_index: dict) -> Dict[str, Any] | None:
+def _resolve_rule_for_industry(industry: dict, rule_index: dict) -> dict[str, Any] | None:
     service_code = _get_str(industry, "service_code")
     by_service_code = rule_index.get("by_service_code", {})
     if service_code and service_code in by_service_code:
@@ -1003,7 +1003,7 @@ def evaluate_registration_diagnosis(
     current_equipment_count,
     raw_capital_input="",
     base_date: date | None = None,
-    extra_inputs: Dict[str, Any] | None = None,
+    extra_inputs: dict[str, Any] | None = None,
 ) -> dict:
     """Evaluate a single industry registration rule against current user assets.
 

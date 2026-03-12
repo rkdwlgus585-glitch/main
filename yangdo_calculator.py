@@ -32,7 +32,7 @@ See also
 import os
 import re
 from html import escape
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 from core_engine.api_response import now_iso, safe_json_for_script
 from core_engine.channel_branding import resolve_channel_branding
@@ -43,7 +43,7 @@ DEFAULT_LISTING_BASE_URL: str = "https://seoulmna.co.kr"
 DEFAULT_CONTACT_PHONE: str = "1668-3548"
 DEFAULT_CONTACT_PHONE_DIGITS: str = "16683548"
 
-def _round4(value: object) -> Optional[float]:
+def _round4(value: object) -> float | None:
     """Round *value* to 4 decimal places; return ``None`` on non-numeric input."""
     if value is None:
         return None
@@ -81,7 +81,7 @@ def _normalize_price_text(raw: object) -> str:
     src = re.sub(r"(?<=\d)\s*\uC5D0", "\uC5B5", src)
     src = re.sub(r"<br\s*/?>", "\n", src, flags=re.I)
     return src
-def _price_token_to_eok(token: object) -> Optional[float]:
+def _price_token_to_eok(token: object) -> float | None:
     src = str(token or "").strip().replace(",", "")
     if not src:
         return None
@@ -100,7 +100,7 @@ def _price_token_to_eok(token: object) -> Optional[float]:
         val = float(m.group(0))
         return _round4(val) if val > 0 else None
     return None
-def _extract_price_values_eok(raw: object) -> List[float]:
+def _extract_price_values_eok(raw: object) -> list[float]:
     src = _normalize_price_text(raw)
     if not src:
         return []
@@ -118,7 +118,7 @@ def _extract_price_values_eok(raw: object) -> List[float]:
         seen.add(key)
         uniq.append(v)
     return uniq
-def _derive_display_range_eok(current_price_text: object, claim_price_text: object, current_price_eok: object, claim_price_eok: object) -> Tuple[Optional[float], Optional[float]]:
+def _derive_display_range_eok(current_price_text: object, claim_price_text: object, current_price_eok: object, claim_price_eok: object) -> tuple[float | None, float | None]:
     claim_txt = _normalize_price_text(claim_price_text)
     current_txt = _normalize_price_text(current_price_text)
     claim_vals = _extract_price_values_eok(claim_txt)
@@ -137,7 +137,7 @@ def _derive_display_range_eok(current_price_text: object, claim_price_text: obje
     if not vals:
         return None, None
     return _round4(min(vals)), _round4(max(vals))
-def build_training_dataset(records: object, site_url: str = "") -> List[Dict[str, Any]]:
+def build_training_dataset(records: object, site_url: str = "") -> list[dict[str, Any]]:
     """Transform raw listing records into normalised training rows for the AI engine.
 
     Extracts price ranges, financial ratios, license tokens, and listing URLs.
@@ -225,7 +225,7 @@ def _compact_train_row(row: object) -> list:
         src.get("display_high_eok"),  # 19
         str(src.get("url", "") or ""),  # 20
     ]
-def calc_quantile(values: object, q: float) -> Optional[float]:
+def calc_quantile(values: object, q: float) -> float | None:
     nums = []
     for raw in list(values or []):
         try:
@@ -243,12 +243,12 @@ def calc_quantile(values: object, q: float) -> Optional[float]:
     hi = min(len(nums) - 1, lo + 1)
     frac = idx - lo
     return nums[lo] + (nums[hi] - nums[lo]) * frac
-def mean_or_none(values: object) -> Optional[float]:
+def mean_or_none(values: object) -> float | None:
     nums = _finite_numbers(values)
     if not nums:
         return None
     return _round4(sum(nums) / float(len(nums)))
-def build_meta(all_records: object, train_dataset: object) -> Dict[str, Any]:
+def build_meta(all_records: object, train_dataset: object) -> dict[str, Any]:
     """Compute aggregate statistics (quantiles, counts, top licenses) for the AI engine UI."""
     prices = [row.get("price_eok") for row in list(train_dataset or [])]
     specialty_vals = [row.get("specialty") for row in list(train_dataset or [])]
@@ -300,7 +300,7 @@ def _normalize_license_key_py(raw: object) -> str:
     return text
 
 
-def _finite_numbers(values: object) -> List[float]:
+def _finite_numbers(values: object) -> list[float]:
     out = []
     for raw in list(values or []):
         try:
@@ -313,7 +313,7 @@ def _finite_numbers(values: object) -> List[float]:
     return out
 
 
-def _median_or_none(values: object) -> Optional[float]:
+def _median_or_none(values: object) -> float | None:
     nums = _finite_numbers(values)
     if not nums:
         return None
@@ -364,7 +364,7 @@ def _fallback_min_balance_eok(key: object, median_balance_eok: object = None) ->
     return 0.2
 
 
-def _build_license_ui_profiles(train_dataset: object, license_canonical_by_key: object = None, generic_license_keys: object = None) -> Dict[str, Any]:
+def _build_license_ui_profiles(train_dataset: object, license_canonical_by_key: object = None, generic_license_keys: object = None) -> dict[str, Any]:
     canonical_map = {}
     for raw_key, raw_label in dict(license_canonical_by_key or {}).items():
         key = _normalize_license_key_py(raw_key)
