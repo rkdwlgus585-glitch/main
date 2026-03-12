@@ -24,7 +24,8 @@ export function SiteFooter() {
             <a href={`mailto:${platformConfig.contactEmail}`} aria-label={`이메일: ${platformConfig.contactEmail}`}>{platformConfig.contactEmail}</a>
           </div>
           <div>
-            <h4>법적 고지</h4>
+            <h4>회사</h4>
+            <Link href="/about">회사소개</Link>
             <Link href="/terms">이용약관</Link>
             <Link href="/privacy">개인정보처리방침</Link>
           </div>

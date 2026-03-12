@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { platformConfig } from "@/components/platform-config";
 
 const navItems = [
+  { href: "/about", label: "회사소개" },
   { href: "/mna-market", label: "실시간 매물" },
   { href: "/permit", label: "건설업등록" },
   { href: "/yangdo", label: "양도가 산정" },

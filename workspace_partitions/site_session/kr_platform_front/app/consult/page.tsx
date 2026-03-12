@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Gem, HardHat, Phone, Target, Zap } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { platformConfig } from "@/components/platform-config";
 import { ConsultForm } from "@/components/consult-form";
 import { breadcrumbSchema, organizationRef, siteBase } from "@/lib/json-ld";
@@ -49,26 +51,30 @@ const steps = [
   },
 ];
 
-const benefits = [
+const benefits: Array<{
+  title: string;
+  description: string;
+  icon: LucideIcon;
+}> = [
   {
     title: "데이터 기반 상담",
     description: "감이 아닌 AI 분석 데이터를 기초로 합리적 협상을 지원합니다.",
-    icon: "🎯",
+    icon: Target,
   },
   {
     title: "건설업 전문",
     description: "건설업 면허 양도양수·인허가만 전문으로 다루는 행정사가 직접 담당합니다.",
-    icon: "🏗️",
+    icon: HardHat,
   },
   {
     title: "원스톱 처리",
     description: "분석부터 계약, 행정 대행까지 한 곳에서 끝납니다. 별도 업체를 찾을 필요가 없습니다.",
-    icon: "⚡",
+    icon: Zap,
   },
   {
     title: "비용 투명성",
     description: "AI 산정가와 시장 비교 데이터를 함께 제공하여 합리적 비용 판단을 돕습니다.",
-    icon: "💎",
+    icon: Gem,
   },
 ];
 
@@ -135,7 +141,7 @@ export default function ConsultPage() {
         </p>
         <div className="consult-hero-actions">
           <a className="cta-primary" href={`tel:${platformConfig.contactPhone}`}>
-            <span aria-hidden="true">📞</span> {platformConfig.contactPhone}
+            <Phone size={16} aria-hidden="true" /> {platformConfig.contactPhone}
           </a>
           <a className="cta-secondary" href={`mailto:${platformConfig.contactEmail}`}>
             이메일 문의
@@ -149,11 +155,11 @@ export default function ConsultPage() {
           <h2>왜 서울건설정보인가요?</h2>
         </div>
         <div className="benefits-grid">
-          {benefits.map((b) => (
-            <div key={b.title} className="benefit-card">
-              <span className="benefit-icon" aria-hidden="true">{b.icon}</span>
-              <h3>{b.title}</h3>
-              <p>{b.description}</p>
+          {benefits.map(({ title, description, icon: Icon }) => (
+            <div key={title} className="benefit-card">
+              <span className="benefit-icon" aria-hidden="true"><Icon size={22} /></span>
+              <h3>{title}</h3>
+              <p>{description}</p>
             </div>
           ))}
         </div>
@@ -205,7 +211,7 @@ export default function ConsultPage() {
             건설업등록 검토하기
           </Link>
           <a className="cta-secondary" href={`tel:${platformConfig.contactPhone}`}>
-            <span aria-hidden="true">📞</span> 바로 전화하기
+            <Phone size={16} aria-hidden="true" /> 바로 전화하기
           </a>
         </div>
       </section>

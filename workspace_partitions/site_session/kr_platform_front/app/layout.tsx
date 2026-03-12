@@ -5,6 +5,7 @@ import "./globals.css";
 import { platformConfig } from "@/components/platform-config";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { ScrollToTop } from "@/components/scroll-to-top";
 
 const siteTitle = "서울건설정보 | 건설업 AI 양도가 산정 · 건설업등록 전문 플랫폼";
 const siteDescription =
@@ -118,6 +119,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <SiteHeader />
         {children}
         <SiteFooter />
+        <ScrollToTop />
         <Analytics />
         <SpeedInsights />
       </body>

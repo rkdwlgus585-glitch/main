@@ -6,6 +6,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [
     { url: siteBase, lastModified: now, changeFrequency: "daily", priority: 1 },
+    { url: `${siteBase}/about`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
     { url: `${siteBase}/yangdo`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     { url: `${siteBase}/permit`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     { url: `${siteBase}/consult`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },

@@ -4,8 +4,10 @@ import { HomeMarketPreview } from "@/components/home-market-preview";
 import { HomeOperations } from "@/components/home-operations";
 import { HomeProcess } from "@/components/home-process";
 import { HomeShortcuts } from "@/components/home-shortcuts";
+import { HomeTrust } from "@/components/home-trust";
 import { siteBase } from "@/lib/json-ld";
 import { PlatformStatus } from "@/components/platform-status";
+import { ScrollAnimate } from "@/components/scroll-animate";
 
 /*
  * NOTE: JSON-LD uses dangerouslySetInnerHTML which is safe here because
@@ -24,6 +26,7 @@ function HomeJsonLd() {
     /* SearchAction은 실제 검색 기능 구현 후 추가 예정 */
   };
   const navItems = [
+    { name: "회사소개", path: "/about" },
     { name: "실시간 매물", path: "/mna-market" },
     { name: "건설업등록", path: "/permit" },
     { name: "양도가 산정", path: "/yangdo" },
@@ -60,10 +63,21 @@ export default function HomePage() {
       <HomeJsonLd />
       <PlatformStatus />
       <HomeHero />
-      <HomeShortcuts />
-      <HomeMarketPreview />
-      <HomeOperations />
-      <HomeProcess />
+      <ScrollAnimate>
+        <HomeShortcuts />
+      </ScrollAnimate>
+      <ScrollAnimate delay={80}>
+        <HomeMarketPreview />
+      </ScrollAnimate>
+      <ScrollAnimate delay={120}>
+        <HomeOperations />
+      </ScrollAnimate>
+      <ScrollAnimate delay={80}>
+        <HomeProcess />
+      </ScrollAnimate>
+      <ScrollAnimate delay={120}>
+        <HomeTrust />
+      </ScrollAnimate>
       <ConsultationCTA />
     </main>
   );
