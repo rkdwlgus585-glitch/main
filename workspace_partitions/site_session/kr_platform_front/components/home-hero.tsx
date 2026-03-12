@@ -30,7 +30,9 @@ export function HomeHero() {
           <span>양도가 산정 · 인허가 사전검토</span>
         </h1>
         <p className="home-hero-body">
-          면허 양도가 무료 산정 · 191개 업종 등록요건 사전검토
+          면허 양도가 무료 산정
+          <br />
+          191개 업종 등록요건 사전검토
         </p>
 
         {/* ── Two AI Systems: Primary CTA ── */}

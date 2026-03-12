@@ -290,7 +290,7 @@ img { max-width: 100%; display: block; }
 
 /* ── Expert Section ───────────────────────────────────────── */
 .home-expert-section {
-  margin-top: 80px;
+  margin-top: 60px;
 }
 
 .expert-card {
@@ -574,10 +574,11 @@ img { max-width: 100%; display: block; }
 
 .comp-highlight {
   color: var(--brand) !important;
+  font-weight: 800;
 }
 
 .comp-highlight-cell {
-  background: rgba(0, 55, 100, 0.03);
+  background: rgba(0, 55, 100, 0.06);
 }
 
 .comp-feature {
