@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { platformConfig } from "@/components/platform-config";
+import { ConsultForm } from "@/components/consult-form";
 import { breadcrumbSchema, organizationRef, siteBase } from "@/lib/json-ld";
 
 const pageTitle = "고객센터 | 서울건설정보";
@@ -174,6 +175,20 @@ export default function ConsultPage() {
             </div>
           ))}
         </div>
+      </section>
+
+      <section className="consult-form-section" aria-label="온라인 상담 신청">
+        <div className="section-header">
+          <p className="eyebrow">온라인 접수</p>
+          <h2>상담 신청서</h2>
+        </div>
+        <p className="consult-form-intro">
+          아래 양식을 작성하시면 전문 행정사가 확인 후 연락드립니다.
+          전화 상담을 원하시면{" "}
+          <a href={`tel:${platformConfig.contactPhone}`}>{platformConfig.contactPhone}</a>으로
+          바로 연락 주세요.
+        </p>
+        <ConsultForm />
       </section>
 
       <section className="consult-start" aria-label="상담 시작 안내">

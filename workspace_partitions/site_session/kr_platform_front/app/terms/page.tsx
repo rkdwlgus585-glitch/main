@@ -1,9 +1,24 @@
 import type { Metadata } from "next";
 
+const pageTitle = "이용약관 | 서울건설정보";
+const pageDescription = "서울건설정보 서비스 이용약관입니다.";
+
 export const metadata: Metadata = {
-  title: "이용약관 | 서울건설정보",
-  description: "서울건설정보 서비스 이용약관입니다.",
+  title: pageTitle,
+  description: pageDescription,
   alternates: { canonical: "/terms" },
+  openGraph: {
+    title: pageTitle,
+    description: pageDescription,
+    url: "/terms",
+    type: "website",
+    locale: "ko_KR",
+  },
+  twitter: {
+    card: "summary",
+    title: pageTitle,
+    description: pageDescription,
+  },
 };
 
 export default function TermsPage() {

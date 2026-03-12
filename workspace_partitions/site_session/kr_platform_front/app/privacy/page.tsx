@@ -1,10 +1,25 @@
 import type { Metadata } from "next";
 import { platformConfig } from "@/components/platform-config";
 
+const pageTitle = "개인정보처리방침 | 서울건설정보";
+const pageDescription = "서울건설정보 개인정보처리방침입니다.";
+
 export const metadata: Metadata = {
-  title: "개인정보처리방침 | 서울건설정보",
-  description: "서울건설정보 개인정보처리방침입니다.",
+  title: pageTitle,
+  description: pageDescription,
   alternates: { canonical: "/privacy" },
+  openGraph: {
+    title: pageTitle,
+    description: pageDescription,
+    url: "/privacy",
+    type: "website",
+    locale: "ko_KR",
+  },
+  twitter: {
+    card: "summary",
+    title: pageTitle,
+    description: pageDescription,
+  },
 };
 
 export default function PrivacyPage() {

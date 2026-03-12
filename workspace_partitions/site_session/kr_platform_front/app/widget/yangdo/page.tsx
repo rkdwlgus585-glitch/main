@@ -16,6 +16,7 @@ export default function YangdoWidgetPage() {
       <Link className="back-link" href="/yangdo">
         ← 양도가 안내 페이지로
       </Link>
+      <h1 className="sr-only">건설업 AI 양도가 산정 실행</h1>
       <WidgetFrame
         title="건설업 AI 양도가 산정"
         description="양도가 범위를 추정하는 전용 실행 화면입니다."
