@@ -807,7 +807,7 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
         path = self.path.split("?", 1)[0].rstrip("/")
         if not self._allow_request():
             return
-        if path == "/health":
+        if path in {"/health", "/v1/health"}:
             self._write_json(
                 200,
                 {
