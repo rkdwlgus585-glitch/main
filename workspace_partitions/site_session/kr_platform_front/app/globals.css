@@ -827,7 +827,7 @@ img { max-width: 100%; display: block; }
 }
 /* No explicit color — h2 inherits from parent (body --ink or dark-bg white).
    Previous `color: var(--ink)` at specificity (0,1,2) caused invisible h2s
-   inside dark-bg sections (.bridge-card, .consult-start, .cta-section). */
+   inside dark-bg sections (.consult-start, .cta-section). */
 .page-shell section h2 {
   margin: 0 0 8px;
   font-size: 1.1rem;
@@ -1202,109 +1202,6 @@ img { max-width: 100%; display: block; }
 }
 
 /* ══════════════════════════════════════════════════════════════════
-   /knowledge — 건설업 지식
-   ══════════════════════════════════════════════════════════════════ */
-
-.knowledge-hero {
-  margin-bottom: 48px;
-  text-align: center;
-  max-width: 640px;
-  margin-left: auto;
-  margin-right: auto;
-}
-.knowledge-hero .eyebrow {
-  color: var(--point);
-  font-weight: 700;
-  font-size: 1.15rem;
-  margin-bottom: 8px;
-}
-.knowledge-hero h1 {
-  margin: 0 0 24px;
-  font-size: clamp(1.8rem, 3.5vw, 2.6rem);
-  font-weight: 800;
-  line-height: 1.2;
-  letter-spacing: -0.02em;
-  text-wrap: balance;
-  word-break: keep-all;
-}
-.knowledge-hero-body {
-  margin: 0;
-  color: var(--muted);
-  font-size: 1.1rem;
-  line-height: 1.8;
-  word-break: keep-all;
-  text-wrap: pretty;
-}
-.knowledge-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
-  margin-bottom: 48px;
-}
-.knowledge-card {
-  padding: 28px;
-  border-radius: var(--radius-lg);
-  background: var(--surface);
-  border: 1px solid var(--line);
-  transition: box-shadow 200ms var(--ease), border-color 200ms var(--ease);
-}
-.knowledge-card:hover,
-.knowledge-card:focus-within {
-  border-color: rgba(0, 163, 255, 0.25);
-  box-shadow: var(--shadow-md);
-}
-.knowledge-card-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-.knowledge-icon {
-  font-size: 1.6rem;
-}
-.knowledge-card-header h2 {
-  margin: 0;
-  font-size: 1.15rem;
-  font-weight: 700;
-}
-.knowledge-card-desc {
-  color: var(--muted);
-  font-size: 1rem;
-  line-height: 1.6;
-  margin-bottom: 16px;
-}
-.knowledge-articles {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.knowledge-articles li {
-  padding: 8px 0;
-  border-top: 1px solid var(--line);
-  font-size: 0.98rem;
-}
-.knowledge-articles a {
-  color: var(--brand);
-  font-weight: 500;
-  text-decoration: underline transparent;
-  text-underline-offset: 3px;
-  transition: color 200ms var(--ease), text-decoration-color 200ms var(--ease);
-}
-.knowledge-articles a:hover,
-.knowledge-articles a:focus-visible {
-  color: var(--point);
-  text-decoration-color: var(--point);
-}
-.knowledge-cta {
-  text-align: center;
-  padding: 32px 0;
-}
-.knowledge-cta p {
-  color: var(--muted);
-  margin-bottom: 16px;
-}
-
-/* ══════════════════════════════════════════════════════════════════
    /consult — 전문 상담
    ══════════════════════════════════════════════════════════════════ */
 
@@ -1606,257 +1503,6 @@ img { max-width: 100%; display: block; }
   }
 }
 
-/* ══════════════════════════════════════════════════════════════════
-   /mna-market — 양도양수 매물 시장
-   ══════════════════════════════════════════════════════════════════ */
-
-.market-hero {
-  margin-bottom: 48px;
-  text-align: center;
-  max-width: 640px;
-  margin-left: auto;
-  margin-right: auto;
-}
-.market-hero .eyebrow {
-  color: var(--point);
-  font-weight: 700;
-  font-size: 1.15rem;
-  margin-bottom: 8px;
-}
-.market-hero h1 {
-  margin: 0 0 24px;
-  font-size: clamp(1.8rem, 3.5vw, 2.6rem);
-  font-weight: 800;
-  line-height: 1.2;
-  letter-spacing: -0.02em;
-  text-wrap: balance;
-  word-break: keep-all;
-}
-.market-hero-body {
-  margin: 0 0 24px;
-  color: var(--muted);
-  font-size: 1.1rem;
-  line-height: 1.8;
-  word-break: keep-all;
-  text-wrap: pretty;
-}
-.market-stats {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-bottom: 56px;
-}
-.market-stat-card {
-  padding: 20px;
-  border-radius: var(--radius-lg);
-  background: var(--surface);
-  border: 1px solid var(--line);
-  text-align: center;
-}
-.market-stat-value {
-  display: block;
-  font-size: 1.8rem;
-  font-weight: 800;
-  color: var(--brand);
-}
-.market-stat-value small {
-  font-size: 0.7em;
-  font-weight: 600;
-  color: var(--muted);
-}
-.market-stat-label {
-  display: block;
-  margin-top: 4px;
-  font-size: 1rem;
-  color: var(--muted);
-  font-weight: 500;
-}
-.market-stats-disclaimer {
-  grid-column: 1 / -1;
-  text-align: center;
-  font-size: 1.15rem;
-  color: var(--muted);
-  margin: 8px 0 0;
-}
-.market-features {
-  margin-bottom: 56px;
-}
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-}
-.feature-card {
-  padding: 24px;
-  border-radius: var(--radius-lg);
-  background: var(--surface);
-  border: 1px solid var(--line);
-  transition: box-shadow 200ms var(--ease), border-color 200ms var(--ease);
-}
-.feature-card:hover,
-.feature-card:focus-within {
-  border-color: rgba(0, 163, 255, 0.18);
-  box-shadow: var(--shadow-md);
-}
-.feature-icon {
-  font-size: 1.6rem;
-  display: block;
-  margin-bottom: 10px;
-}
-.feature-card h3 {
-  margin: 0 0 6px;
-  font-size: 1rem;
-  font-weight: 700;
-}
-.feature-card p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.98rem;
-  line-height: 1.6;
-}
-.market-bridge {
-  margin-bottom: 32px;
-}
-.bridge-card {
-  padding: 72px 48px;
-  border-radius: var(--radius-xl);
-  background: linear-gradient(145deg, var(--brand-dark) 0%, var(--brand) 40%, var(--brand-light) 100%);
-  color: white;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
-.bridge-card::before {
-  content: "";
-  position: absolute;
-  top: -40px;
-  right: -40px;
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(0,163,255,0.15) 0%, transparent 70%);
-  pointer-events: none;
-}
-.bridge-content {
-  position: relative;
-  max-width: 540px;
-  margin: 0 auto;
-}
-.bridge-content h2 {
-  margin: 0 0 20px;
-  font-size: clamp(1.4rem, 2.8vw, 1.9rem);
-  font-weight: 800;
-  line-height: 1.3;
-  letter-spacing: -0.01em;
-}
-.bridge-content p {
-  color: rgba(255, 255, 255, 0.88);
-  margin: 0 0 28px;
-  font-size: 1.08rem;
-  line-height: 1.8;
-}
-.bridge-actions {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-.bridge-card .cta-primary {
-  background: white;
-  color: var(--brand);
-}
-.bridge-card .cta-primary:hover {
-  background: #F0F7FF;
-  box-shadow: 0 4px 16px rgba(255, 255, 255, 0.3);
-}
-.bridge-card .cta-secondary {
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-}
-.bridge-card .cta-secondary:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-/* ── Responsive: knowledge/consult/market ──────────────────── */
-@media (max-width: 960px) {
-  .knowledge-grid,
-  .benefits-grid,
-  .features-grid {
-    grid-template-columns: 1fr;
-  }
-  .market-stats {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-@media (max-width: 640px) {
-  /* ── Hero sections: tighten spacing on mobile ── */
-  .knowledge-hero,
-  .consult-hero,
-  .market-hero {
-    margin-bottom: 32px;
-  }
-  .knowledge-hero h1,
-  .consult-hero h1,
-  .market-hero h1 {
-    font-size: 1.6rem;
-  }
-  .consult-benefits,
-  .consult-steps {
-    margin-bottom: 36px;
-  }
-
-  /* ── Cards: reduce padding ── */
-  .knowledge-card,
-  .benefit-card {
-    padding: 20px;
-  }
-
-  /* ── Steps timeline: compact on mobile ── */
-  .step-item {
-    gap: 12px;
-  }
-
-  /* ── Market stats: 2-col compact ── */
-  .market-stats {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-  }
-  .market-stat-card {
-    padding: 16px 12px;
-  }
-
-  /* ── Bridge/CTA dark sections: tighten padding ── */
-  .consult-start {
-    padding: 32px 20px;
-  }
-  .bridge-card {
-    padding: 32px 20px;
-  }
-  .consult-start-actions,
-  .bridge-actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .consult-start-actions .cta-primary,
-  .consult-start-actions .cta-secondary,
-  .bridge-actions .cta-primary,
-  .bridge-actions .cta-secondary {
-    text-align: center;
-  }
-  .cta-ai-shortcuts {
-    grid-template-columns: 1fr;
-  }
-}
-@media (max-width: 479px) {
-  .market-stats {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-@media (max-width: 359px) {
-  .market-stats {
-    grid-template-columns: 1fr;
-  }
-}
 
 /* ------------------------------------------------------------------
    Home upgrade
@@ -2147,89 +1793,6 @@ img { max-width: 100%; display: block; }
   line-height: 1.6;
 }
 
-.market-brief-section,
-.home-operations-section,
-.home-process-section {
-  margin-top: 96px;
-}
-
-.market-brief-header {
-  margin-bottom: 28px;
-}
-
-.market-brief-subtitle {
-  margin: 12px 0 0;
-  color: var(--muted);
-  font-size: 1rem;
-  line-height: 1.75;
-  max-width: 64ch;
-}
-
-.market-highlights-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 18px;
-  margin-top: 32px;
-}
-
-.market-highlight-card {
-  padding: 24px;
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow-sm);
-  transition: transform 220ms var(--ease), box-shadow 220ms var(--ease);
-}
-
-.market-highlight-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-md);
-}
-
-.market-highlight-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 42px;
-  height: 42px;
-  border-radius: 14px;
-  background: rgba(0, 163, 255, 0.08);
-  color: var(--point);
-}
-
-.market-highlight-card h3 {
-  margin: 16px 0 8px;
-  font-size: 1rem;
-  font-weight: 700;
-}
-
-.market-highlight-card p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.98rem;
-  line-height: 1.65;
-}
-
-.market-brief-cta {
-  display: flex;
-  gap: 12px;
-  margin-top: 32px;
-  flex-wrap: wrap;
-}
-
-.market-brief-cta .cta-primary svg {
-  margin-left: 8px;
-}
-
-.market-cta-secondary {
-  background: var(--bg-warm);
-  border: 1px solid var(--line);
-  color: var(--brand);
-}
-
-.market-cta-secondary:hover {
-  background: var(--bg);
-}
 
 .home-operations-spotlight,
 .home-operation-card,
@@ -2359,9 +1922,6 @@ img { max-width: 100%; display: block; }
     grid-template-columns: repeat(3, 1fr);
   }
 
-  .market-highlights-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
 }
 
 @media (max-width: 960px) {
@@ -2439,14 +1999,8 @@ img { max-width: 100%; display: block; }
   }
 
   .home-operations-grid,
-  .home-process-grid,
-  .market-highlights-grid {
+  .home-process-grid {
     grid-template-columns: 1fr;
-  }
-
-  .market-brief-header {
-    flex-direction: column;
-    align-items: flex-start;
   }
 }
 
@@ -2506,7 +2060,11 @@ img { max-width: 100%; display: block; }
 .service-features {
   margin-bottom: 40px;
 }
-/* .features-grid: single definition is in mna-market section above */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
 .feature-item {
   background: var(--surface);
   border: 1px solid var(--line);
@@ -2593,8 +2151,44 @@ img { max-width: 100%; display: block; }
   background: var(--bg);
 }
 
-/* ── Responsive: service pages ── */
+/* ── Responsive: consult + service pages ── */
+@media (max-width: 960px) {
+  .benefits-grid,
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+}
 @media (max-width: 640px) {
+  .consult-hero {
+    margin-bottom: 32px;
+  }
+  .consult-hero h1 {
+    font-size: 1.6rem;
+  }
+  .consult-benefits,
+  .consult-steps {
+    margin-bottom: 36px;
+  }
+  .benefit-card {
+    padding: 20px;
+  }
+  .consult-start {
+    padding: 32px 20px;
+  }
+  .consult-start-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .consult-start-actions .cta-primary,
+  .consult-start-actions .cta-secondary {
+    text-align: center;
+  }
+  .step-item {
+    gap: 12px;
+  }
+  .cta-ai-shortcuts {
+    grid-template-columns: 1fr;
+  }
   .features-grid {
     grid-template-columns: 1fr;
   }
