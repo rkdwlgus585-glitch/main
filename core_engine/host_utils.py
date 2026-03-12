@@ -50,7 +50,7 @@ def sanitize_endpoint(url: str) -> str:
     # Block loopback, link-local, and unspecified addresses (SSRF defense)
     if "localhost" in lowered or "127.0.0.1" in lowered or "::1" in lowered:
         return ""
-    if "0.0.0.0" in lowered or "169.254." in lowered:
+    if "0.0.0.0" in lowered or "169.254." in lowered:  # noqa: S104 — blocking, not binding
         return ""
     return src
 

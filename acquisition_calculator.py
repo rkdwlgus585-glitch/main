@@ -1232,7 +1232,7 @@ def build_page_html(
     }}
     if (major.enabled) {{
       noteLines.unshift(
-        '주력분야 ' + major.selected.join(', ') + ' 선택 기준으로 기술자 특례를 반영했습니다(시행령 제16조 제5항 취지: '
+        '주력분야 ' + escHtml(major.selected.join(', ')) + ' 선택 기준으로 기술자 특례를 반영했습니다(시행령 제16조 제5항 취지: '
         + Number(major.without_exception_engineers || 0).toLocaleString('ko-KR') + '명 → '
         + Number(major.required_engineers || 0).toLocaleString('ko-KR') + '명).'
       );

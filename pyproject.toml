@@ -49,6 +49,9 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S101", "T201", "B011"]
 "scripts/*" = ["T201"]
+"yangdo_blackbox_api.py" = ["F821"]  # globals injected from compiled bytecode at runtime
+"permit_precheck_api.py" = ["S104"]  # 0.0.0.0 bind intentional for Docker/production
+"yangdo_consult_api.py" = ["S104"]   # 0.0.0.0 bind intentional for Docker/production
 
 [tool.mypy]
 python_version = "3.12"

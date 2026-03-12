@@ -10,7 +10,7 @@ import re
 import subprocess
 import sys
 from collections.abc import Sequence
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -103,8 +103,8 @@ def _safe_contact(value: object) -> str:
 
 def _lead_id(now: datetime | None = None) -> str:
     """Generate a timestamped lead identifier like ``LD20260311143012456``."""
-    now = now or datetime.now()
-    return f"LD{now.strftime('%Y%m%d%H%M%S')}{random.randint(100, 999)}"
+    now = now or datetime.now(UTC)
+    return f"LD{now.strftime('%Y%m%d%H%M%S')}{random.randint(100, 999)}"  # noqa: S311 — not cryptographic
 
 
 def _infer_intent(text: object) -> str:
@@ -132,7 +132,7 @@ def _normalize_intent_label(value: object) -> str:
     token = _normalize_token(text)
     if any(k in token for k in ["인허가", "사전검토", "신규등록", "면허등록", "등록기준"]):
         return "인허가(신규등록)"
-    if token == "신규":
+    if token == "신규":  # noqa: S105 — not a password, intent classification token
         return "인허가(신규등록)"
     return text or "기타"
 
@@ -236,7 +236,7 @@ class LeadIntakeHub:
 
     def _save_state(self) -> None:
         """Persist fingerprint state to disk with an ``updated_at`` timestamp."""
-        self.state["updated_at"] = datetime.now().isoformat(timespec="seconds")
+        self.state["updated_at"] = datetime.now(UTC).isoformat(timespec="seconds")
         with open(self.state_file, "w", encoding="utf-8") as f:
             json.dump(self.state, f, ensure_ascii=False, indent=2)
 
@@ -312,7 +312,7 @@ class LeadIntakeHub:
         and appends a row.  Returns ``{"status": "inserted", "lead_id": ...}``
         on success, or ``"skipped"``/``"duplicate"`` status dicts otherwise.
         """
-        now = datetime.now()
+        now = datetime.now(UTC)
         title = _compact_text(payload.get("title", ""))[:_MAX_CELL_LEN]
         content = _compact_text(payload.get("content", ""))[:_MAX_CELL_LEN]
         if not title and not content:

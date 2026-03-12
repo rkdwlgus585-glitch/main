@@ -85,7 +85,7 @@ def setup_logger(name: str = "mnakr", log_dir: str = "logs") -> logging.Logger:
 def retry_request(max_retries: int = 3, delay: int = 2, backoff: int = 2, exceptions: tuple[type, ...] = (Exception,)) -> Callable:
     """
     API 호출 재시도 데코레이터
-    
+
     Args:
         max_retries: 최대 재시도 횟수
         delay: 초기 대기 시간 (초)
