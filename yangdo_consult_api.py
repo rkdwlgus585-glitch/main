@@ -11,10 +11,8 @@ from typing import Any
 
 from core_engine.api_response import _compact, now_iso
 from core_engine.tenant_gateway import TenantGateway
-from scripts.widget_health_contract import load_widget_health_contract
-from tenant_config.loader import load_gateway
-
 from lead_intake import LeadIntakeHub
+from scripts.widget_health_contract import load_widget_health_contract
 from security_http import (
     DEFAULT_SECURITY_HEADERS,
     SecurityEventLogger,
@@ -26,6 +24,7 @@ from security_http import (
     resolve_allow_origin,
     safe_client_ip,
 )
+from tenant_config.loader import load_gateway
 from utils import load_config, setup_logger
 
 try:
@@ -660,7 +659,7 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
         )
         if not incoming:
             incoming = uuid.uuid4().hex
-        setattr(self, "_cached_request_id", incoming)
+        self._cached_request_id = incoming
         return incoming
 
     def _allow_origin(self) -> str:

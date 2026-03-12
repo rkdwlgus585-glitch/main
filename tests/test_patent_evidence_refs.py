@@ -41,7 +41,7 @@ EVIDENCE_EXPECTATIONS: dict[str, str] = {
     # Track C — Production resilience (graceful shutdown + infrastructure)
     "yangdo_blackbox_api.py:1360": "_graceful_shutdown",
     "permit_precheck_api.py:1482": "_graceful_shutdown",
-    "yangdo_consult_api.py:1065": "_graceful_shutdown",
+    "yangdo_consult_api.py:1064": "_graceful_shutdown",
     "tests/test_deploy_infrastructure.py:21": "_SERVICES",
     "deploy/smoke_test.py:149": "test_consult_intake",
 }

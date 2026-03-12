@@ -6,7 +6,7 @@ import json
 import sqlite3
 import statistics
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 from core_engine.api_response import now_iso
 from core_engine.yangdo_duplicate_cluster import collapse_duplicate_neighbors
@@ -33,15 +33,15 @@ for _name, _value in vars(_BASE).items():
         continue
     globals()[_name] = _value
 
-core = getattr(_BASE, "core")
-_compact = getattr(_BASE, "_compact")
-_to_float = getattr(_BASE, "_to_float")
-_relative_closeness = getattr(_BASE, "_relative_closeness")
-_sales_fit_score = getattr(_BASE, "_sales_fit_score")
-_yearly_shape_similarity = getattr(_BASE, "_yearly_shape_similarity")
-_derive_display_range_eok = getattr(_BASE, "_derive_display_range_eok")
-_listing_number_band = getattr(_BASE, "_listing_number_band")
-_token_containment = getattr(_BASE, "_token_containment")
+core = _BASE.core
+_compact = _BASE._compact
+_to_float = _BASE._to_float
+_relative_closeness = _BASE._relative_closeness
+_sales_fit_score = _BASE._sales_fit_score
+_yearly_shape_similarity = _BASE._yearly_shape_similarity
+_derive_display_range_eok = _BASE._derive_display_range_eok
+_listing_number_band = _BASE._listing_number_band
+_token_containment = _BASE._token_containment
 
 # ── Output field truncation limits (chars) ───────────────────────────
 _LIM_CHANNEL_ID: int = 80
@@ -59,13 +59,13 @@ _PUB_CENTER_AMOUNT_MIN: float = 0.25
 _PUB_CONFIDENCE_MIN: float = 90.0
 
 _SPECIAL_BALANCE_LOAN_UTILIZATION = 0.60
-_SPECIAL_SETTLEMENT_SCENARIO_INPUT_MODES: Tuple[str, ...] = ("auto", "credit_transfer", "none")
+_SPECIAL_SETTLEMENT_SCENARIO_INPUT_MODES: tuple[str, ...] = ("auto", "credit_transfer", "none")
 _FIRE_GUARDED_PRIOR_BLEND = 0.55
 _FIRE_GUARDED_PRIOR_CAP_QUANTILE = 0.60
 _FIRE_GUARDED_PRIOR_CAP_MULT = 1.02
 _FIRE_GUARDED_PRIOR_CURRENT_CAP = 1.60
 _FIRE_GUARDED_PRIOR_Q25_FLOOR = 0.90
-_SPECIAL_BALANCE_AUTO_POLICIES: Dict[str, Dict[str, Any]] = {
+_SPECIAL_BALANCE_AUTO_POLICIES: dict[str, dict[str, Any]] = {
     "전기": {
         "sector": "전기",
         "auto_mode": "loan_withdrawal",
@@ -111,7 +111,7 @@ _SPECIAL_BALANCE_AUTO_POLICIES: Dict[str, Dict[str, Any]] = {
 }
 
 
-def _partner_health_payload() -> Dict[str, Any]:
+def _partner_health_payload() -> dict[str, Any]:
     return {
         "ok": True,
         "service": SERVICE_NAME,
@@ -180,14 +180,14 @@ def _write_partner_health_json(handler: Any, status: int = 200) -> None:
         pass
 
 
-def _round4(value: Any) -> Optional[float]:
+def _round4(value: Any) -> float | None:
     num = _to_float(value)
     if num is None:
         return None
     return float(core._round4(float(num)))
 
 
-def _plain_quantile(values: List[float], q: float) -> float:
+def _plain_quantile(values: list[float], q: float) -> float:
     seq = sorted(float(v) for v in values if _to_float(v) is not None)
     if not seq:
         return 0.0
@@ -200,7 +200,7 @@ def _plain_quantile(values: List[float], q: float) -> float:
     return (seq[lo] * (1.0 - frac)) + (seq[hi] * frac)
 
 
-def _trimmed_plain_median(values: List[float], lower_q: float = 0.20, upper_q: float = 0.80) -> float:
+def _trimmed_plain_median(values: list[float], lower_q: float = 0.20, upper_q: float = 0.80) -> float:
     seq = sorted(float(v) for v in values if _to_float(v) is not None)
     if not seq:
         return 0.0
@@ -210,7 +210,7 @@ def _trimmed_plain_median(values: List[float], lower_q: float = 0.20, upper_q: f
     return float(statistics.median(trimmed or seq))
 
 
-def _sector_signal_value(source: Dict[str, Any] | None) -> Optional[float]:
+def _sector_signal_value(source: dict[str, Any] | None) -> float | None:
     source = dict(source or {})
     sales3 = _to_float(source.get("sales3_eok"))
     specialty = _to_float(source.get("specialty"))
@@ -223,8 +223,8 @@ def _sector_signal_value(source: Dict[str, Any] | None) -> Optional[float]:
     return None
 
 
-def _single_license_special_sector_rows(records: List[Dict[str, Any]], sector_name: str) -> List[Dict[str, Any]]:
-    out: List[Dict[str, Any]] = []
+def _single_license_special_sector_rows(records: list[dict[str, Any]], sector_name: str) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
     for row in list(records or []):
         token_list = list(row.get("license_tokens") or [])
         token_set = {str(token or "").strip() for token in token_list if str(token or "").strip()}
@@ -241,15 +241,15 @@ def _single_license_special_sector_rows(records: List[Dict[str, Any]], sector_na
 
 def _maybe_apply_fire_single_license_guarded_prior(
     *,
-    records: List[Dict[str, Any]],
-    target: Dict[str, Any],
+    records: list[dict[str, Any]],
+    target: dict[str, Any],
     total: float,
     low: float,
     high: float,
-    public_total: Optional[float],
-    public_low: Optional[float],
-    public_high: Optional[float],
-) -> Optional[Dict[str, Any]]:
+    public_total: float | None,
+    public_low: float | None,
+    public_high: float | None,
+) -> dict[str, Any] | None:
     target_tokens = {str(token or "").strip() for token in list(target.get("license_tokens") or []) if str(token or "").strip()}
     if len(target_tokens) != 1:
         return None
@@ -265,7 +265,7 @@ def _maybe_apply_fire_single_license_guarded_prior(
     prices = [float(_to_float(row.get("current_price_eok")) or 0.0) for row in sector_rows if (_to_float(row.get("current_price_eok")) or 0.0) > 0]
     if len(prices) < 8:
         return None
-    ratio_samples: List[float] = []
+    ratio_samples: list[float] = []
     for row in sector_rows:
         price = _to_float(row.get("current_price_eok"))
         signal = _sector_signal_value(row)
@@ -311,8 +311,8 @@ def _normalize_license_text(raw: Any) -> str:
 
 
 
-def _license_text_parts(raw: Any) -> List[str]:
-    parts: List[str] = []
+def _license_text_parts(raw: Any) -> list[str]:
+    parts: list[str] = []
     if isinstance(raw, dict):
         parts.append(_compact(raw.get("license_text")))
         parts.append(_compact(raw.get("raw_license_key")))
@@ -405,7 +405,7 @@ def _normalize_admin_history(raw: Any) -> str:
 
 
 
-def _get_special_balance_auto_policy(*, license_text: Any, reorg_mode: Any) -> Dict[str, Any]:
+def _get_special_balance_auto_policy(*, license_text: Any, reorg_mode: Any) -> dict[str, Any]:
     sector = _special_balance_sector_name(license_text)
     normalized_reorg = _normalize_reorg_mode(reorg_mode)
     base = dict(_SPECIAL_BALANCE_AUTO_POLICIES.get(sector) or {})
@@ -439,7 +439,7 @@ def _get_special_balance_auto_policy(*, license_text: Any, reorg_mode: Any) -> D
 
 
 
-def _resolve_special_auto_mode(*, policy: Dict[str, Any] | None, total_transfer_value_eok: float, raw_balance_input_eok: float) -> Dict[str, Any]:
+def _resolve_special_auto_mode(*, policy: dict[str, Any] | None, total_transfer_value_eok: float, raw_balance_input_eok: float) -> dict[str, Any]:
     sector = _compact((policy or {}).get("sector"))
     base_mode = _compact((policy or {}).get("auto_mode") or "loan_withdrawal")
     total = max(0.05, float(_to_float(total_transfer_value_eok) or 0.0))
@@ -533,15 +533,15 @@ def _build_single_settlement_view(
     total_transfer_value_eok: float,
     total_low_eok: float,
     total_high_eok: float,
-    public_total_transfer_value_eok: Optional[float],
-    public_total_low_eok: Optional[float],
-    public_total_high_eok: Optional[float],
-    raw_balance_input_eok: Optional[float],
+    public_total_transfer_value_eok: float | None,
+    public_total_low_eok: float | None,
+    public_total_high_eok: float | None,
+    raw_balance_input_eok: float | None,
     balance_excluded: bool,
     resolved_mode: str,
-    effective_balance_rate: Optional[float],
-    special_policy: Dict[str, Any] | None = None,
-) -> Dict[str, Any]:
+    effective_balance_rate: float | None,
+    special_policy: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     total = max(0.05, float(_to_float(total_transfer_value_eok) or 0.0))
     low = max(0.05, float(_to_float(total_low_eok) or total))
     high = max(low, float(_to_float(total_high_eok) or total))
@@ -553,7 +553,7 @@ def _build_single_settlement_view(
     loan_utilization = float(_to_float((special_policy or {}).get("loan_utilization")) or _SPECIAL_BALANCE_LOAN_UTILIZATION)
     embedded_rate = max(0.0, min(1.0, float(_to_float(effective_balance_rate) or 0.0)))
     realizable_rate = 0.0
-    notes: List[str] = []
+    notes: list[str] = []
     if mode == "credit_transfer":
         realizable_rate = 1.0 if raw_balance > 0 else 0.0
         notes.append("1:1 차감 기준")
@@ -599,18 +599,18 @@ def _build_settlement_output(
     total_transfer_value_eok: float,
     total_low_eok: float,
     total_high_eok: float,
-    public_total_transfer_value_eok: Optional[float],
-    public_total_low_eok: Optional[float],
-    public_total_high_eok: Optional[float],
-    raw_balance_input_eok: Optional[float],
+    public_total_transfer_value_eok: float | None,
+    public_total_low_eok: float | None,
+    public_total_high_eok: float | None,
+    raw_balance_input_eok: float | None,
     balance_excluded: bool,
     balance_usage_mode: str,
-    effective_balance_rate: Optional[float],
+    effective_balance_rate: float | None,
     split_optional_pricing: bool,
     license_text: Any = "",
     reorg_mode: Any = "",
     requested_balance_usage_mode: Any = "",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     policy = _get_special_balance_auto_policy(license_text=license_text, reorg_mode=reorg_mode)
     requested_mode_normalized = _normalize_balance_usage_mode(requested_balance_usage_mode)
     mode = _resolve_balance_usage_mode(
@@ -651,7 +651,7 @@ def _build_settlement_output(
         effective_balance_rate=effective_balance_rate,
         special_policy=policy if balance_excluded else None,
     )
-    out: Dict[str, Any] = {
+    out: dict[str, Any] = {
         "balance_usage_mode": primary.get("mode"),
         "balance_usage_mode_requested": requested_mode_normalized,
         "raw_balance_input_eok": primary.get("raw_balance_input_eok"),
@@ -699,7 +699,7 @@ def _build_settlement_output(
     }
     out["settlement_breakdown"]["policy"] = dict(out["settlement_policy"])
     if balance_excluded and balance_input > 0:
-        rows: List[Dict[str, Any]] = []
+        rows: list[dict[str, Any]] = []
         for idx, input_mode in enumerate(_SPECIAL_SETTLEMENT_SCENARIO_INPUT_MODES):
             resolved_mode = (
                 _compact(auto_decision.get("mode") or mode)
@@ -794,7 +794,7 @@ def _estimate_response_tier(server: Any, resolution: Any) -> str:
 
 
 
-def _range_pair_from_record(rec: Dict[str, Any]) -> Tuple[Optional[float], Optional[float]]:
+def _range_pair_from_record(rec: dict[str, Any]) -> tuple[float | None, float | None]:
     low = _to_float(rec.get("display_low_eok"))
     high = _to_float(rec.get("display_high_eok"))
     current_price = _to_float(rec.get("current_price_eok"))
@@ -823,10 +823,10 @@ def _range_pair_from_record(rec: Dict[str, Any]) -> Tuple[Optional[float], Optio
 
 
 
-def _prioritize_display_neighbors(target: Dict[str, Any], rows: List[Tuple[float, Dict[str, Any]]]) -> List[Tuple[float, Dict[str, Any]]]:
+def _prioritize_display_neighbors(target: dict[str, Any], rows: list[tuple[float, dict[str, Any]]]) -> list[tuple[float, dict[str, Any]]]:
     if not rows:
         return []
-    ranked: List[Tuple[int, int, float, float, float, Dict[str, Any]]] = []
+    ranked: list[tuple[int, int, float, float, float, dict[str, Any]]] = []
     target_has_sales = any((_to_float(target.get(field)) or 0.0) > 0.0 for field in ("sales3_eok", "sales5_eok"))
     for sim, rec in rows:
         rec_obj = rec if isinstance(rec, dict) else {}
@@ -865,7 +865,7 @@ def _recommendation_ops() -> RecommendationOps:
 
 
 
-def _build_recommendation_result(*, target: Dict[str, Any], rows: List[Tuple[float, Dict[str, Any]]], center: Any, low: Any, high: Any, limit: int = 4) -> Dict[str, Any]:
+def _build_recommendation_result(*, target: dict[str, Any], rows: list[tuple[float, dict[str, Any]]], center: Any, low: Any, high: Any, limit: int = 4) -> dict[str, Any]:
     return build_recommendation_bundle(
         target=target,
         rows=rows,
@@ -878,14 +878,14 @@ def _build_recommendation_result(*, target: Dict[str, Any], rows: List[Tuple[flo
 
 
 
-def _build_recommended_listings(*, target: Dict[str, Any], rows: List[Tuple[float, Dict[str, Any]]], center: Any, low: Any, high: Any, limit: int = 4) -> List[Dict[str, Any]]:
+def _build_recommended_listings(*, target: dict[str, Any], rows: list[tuple[float, dict[str, Any]]], center: Any, low: Any, high: Any, limit: int = 4) -> list[dict[str, Any]]:
     result = _build_recommendation_result(target=target, rows=rows, center=center, low=low, high=high, limit=limit)
     recommended = list(result.get("recommended_listings") or [])
     if recommended:
         return recommended
     src = [(float(_to_float(sim) or 0.0), rec) for sim, rec in list(rows or []) if isinstance(rec, dict)]
     fallback_rows = _prioritize_display_neighbors(target, src)[: max(1, min(int(limit or 0), 3))]
-    fallback: List[Dict[str, Any]] = []
+    fallback: list[dict[str, Any]] = []
     for sim, rec in fallback_rows:
         display_low, display_high = _range_pair_from_record(rec)
         seoul_no = int(_to_float(rec.get("number")) or 0)
@@ -908,7 +908,7 @@ def _build_recommended_listings(*, target: Dict[str, Any], rows: List[Tuple[floa
     return fallback
 
 
-def _apply_special_sector_publication_guard(result: Dict[str, Any], target: Dict[str, Any]) -> Dict[str, Any]:
+def _apply_special_sector_publication_guard(result: dict[str, Any], target: dict[str, Any]) -> dict[str, Any]:
     out = dict(result or {})
     sector_name = _special_balance_sector_name(target.get("license_tokens") or target.get("license_text"))
     if sector_name != "정보통신":
@@ -928,7 +928,7 @@ def _apply_special_sector_publication_guard(result: Dict[str, Any], target: Dict
     if not (too_wide or too_small or insufficient_confidence):
         return out
 
-    reason_parts: List[str] = []
+    reason_parts: list[str] = []
     if too_wide:
         reason_parts.append("추정 범위 폭이 넓음")
     if too_small:
@@ -948,7 +948,7 @@ def _apply_special_sector_publication_guard(result: Dict[str, Any], target: Dict
 
 
 
-def _project_estimate_result(server, resolution, result: Dict[str, Any]) -> Dict[str, Any]:
+def _project_estimate_result(server, resolution, result: dict[str, Any]) -> dict[str, Any]:
     payload = dict(result or {})
     tier = _estimate_response_tier(server, resolution)
     policy = {
@@ -961,7 +961,7 @@ def _project_estimate_result(server, resolution, result: Dict[str, Any]) -> Dict
         payload["response_policy"] = policy
         return _json_ready(payload)
 
-    def _detail_recommendation_row(row: Dict[str, Any]) -> Dict[str, Any]:
+    def _detail_recommendation_row(row: dict[str, Any]) -> dict[str, Any]:
         return {
             "seoul_no": int(_to_float(row.get("seoul_no")) or 0),
             "license_text": _compact(row.get("license_text"), _LIM_LICENSE_TEXT),
@@ -1060,7 +1060,7 @@ def _json_ready(value: Any) -> Any:
 
 
 
-def _pick_total_value(result: Dict[str, Any]) -> float:
+def _pick_total_value(result: dict[str, Any]) -> float:
     for key in ("total_transfer_value_eok", "internal_estimate_eok", "estimate_center_eok", "public_center_eok"):
         value = _to_float(result.get(key))
         if value is not None:
@@ -1073,7 +1073,7 @@ def _pick_total_value(result: Dict[str, Any]) -> float:
 
 
 
-def _clean_row_license_text(row: Dict[str, Any], fallback_license: str) -> Dict[str, Any]:
+def _clean_row_license_text(row: dict[str, Any], fallback_license: str) -> dict[str, Any]:
     out = dict(row or {})
     current = _compact(out.get("license_text"))
     if not current or current.replace("?", "") == "":
@@ -1086,7 +1086,7 @@ _BaseYangdoUsageStore = globals()["YangdoUsageStore"]
 
 
 class YangdoUsageStore(_BaseYangdoUsageStore):
-    def usage_snapshot(self, *args, **kwargs) -> Dict[str, Any]:
+    def usage_snapshot(self, *args, **kwargs) -> dict[str, Any]:
         """Return current API usage counts, falling back to zeros on any DB error."""
         try:
             return super().usage_snapshot(*args, **kwargs)
@@ -1106,7 +1106,7 @@ class YangdoUsageStore(_BaseYangdoUsageStore):
                 "blocked": False,
             }
 
-    def insert_estimate_usage(self, *args, **kwargs) -> Optional[Dict[str, Any]]:
+    def insert_estimate_usage(self, *args, **kwargs) -> dict[str, Any] | None:
         """Record a single estimate event, returning ``None`` on any DB error."""
         try:
             return super().insert_estimate_usage(*args, **kwargs)
@@ -1120,11 +1120,11 @@ class YangdoBlackboxEstimator(_BaseYangdoBlackboxEstimator):
         return _is_special_license_text(raw)
 
     @classmethod
-    def _is_balance_separate_paid_group(cls, target: Dict[str, Any] | None) -> bool:
+    def _is_balance_separate_paid_group(cls, target: dict[str, Any] | None) -> bool:
         target = target or {}
         return _is_special_license_text(target.get("license_text") or target.get("raw_license_key") or target.get("license_tokens"))
 
-    def _target_from_payload(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+    def _target_from_payload(self, payload: dict[str, Any]) -> dict[str, Any]:
         data = dict(payload or {})
         out = super()._target_from_payload(data)
         license_text = _normalize_license_text(data.get("license_text") or out.get("license_text"))
@@ -1167,7 +1167,7 @@ class YangdoBlackboxEstimator(_BaseYangdoBlackboxEstimator):
         out["buyer_takes_balance_as_credit"] = balance_mode == "credit_transfer"
         return out
 
-    def estimate(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+    def estimate(self, payload: dict[str, Any]) -> dict[str, Any]:
         """Run a full yangdo price estimation with post-processing (publication safety, recommendations)."""
         data = dict(payload or {})
         target = self._target_from_payload(data)

@@ -4,12 +4,13 @@ import hashlib
 import json
 import os
 import random
-import subprocess
 import re
+import subprocess
 import sys
+from collections.abc import Sequence
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, Sequence, Tuple
+from typing import Any
 
 __all__ = [
     "CONSULT_HEADERS",
@@ -165,7 +166,7 @@ def _default_next_action(intent: str, urgency: str) -> str:
     return action
 
 
-def _fingerprint(record: Dict[str, str]) -> str:
+def _fingerprint(record: dict[str, str]) -> str:
     """SHA-1 hash of normalised record fields for duplicate detection."""
     parts = [
         _normalize_token(record.get("title", "")),
@@ -188,7 +189,7 @@ def _defang_cell(value: str) -> str:
     return value
 
 
-def _pick(source: Dict[str, Any], keys: Sequence[str]) -> str:
+def _pick(source: dict[str, Any], keys: Sequence[str]) -> str:
     """Return the first non-empty value from *source* for any of *keys*."""
     for key in keys:
         if key in source and str(source.get(key, "")).strip():
@@ -216,12 +217,12 @@ class LeadIntakeHub:
 
         self.state = self._load_state()
 
-    def _load_state(self) -> Dict[str, Any]:
+    def _load_state(self) -> dict[str, Any]:
         """Load the duplicate-fingerprint state from disk (returns empty on error)."""
         if not self.state_file or not os.path.exists(self.state_file):
             return {"fingerprints": {}}
         try:
-            with open(self.state_file, "r", encoding="utf-8") as f:
+            with open(self.state_file, encoding="utf-8") as f:
                 data = json.load(f)
             if not isinstance(data, dict):
                 return {"fingerprints": {}}
@@ -272,7 +273,7 @@ class LeadIntakeHub:
                 merged[i] = CONSULT_HEADERS[i]
             self.ws.update(range_name="A1:P1", values=[merged[:16]])
 
-    def _is_duplicate(self, record: Dict[str, str]) -> Tuple[bool, str]:
+    def _is_duplicate(self, record: dict[str, str]) -> tuple[bool, str]:
         """Check in-memory state + last *dup_scan_rows* sheet rows for duplicates."""
         fp = _fingerprint(record)
         if fp in self.state.get("fingerprints", {}):
@@ -298,7 +299,7 @@ class LeadIntakeHub:
 
         return False, fp
 
-    def intake_one(self, payload: Dict[str, Any], dry_run: bool = False) -> Dict[str, Any]:
+    def intake_one(self, payload: dict[str, Any], dry_run: bool = False) -> dict[str, Any]:
         """Ingest a single lead record into the sheet.
 
         Checks for duplicates via content fingerprint, assigns a lead ID,
@@ -370,7 +371,7 @@ class LeadIntakeHub:
 
         return {"status": "inserted", "lead_id": lead_id}
 
-    def intake_csv(self, path: str, default_channel: str = "", dry_run: bool = False, limit: int = 0) -> Dict[str, int]:
+    def intake_csv(self, path: str, default_channel: str = "", dry_run: bool = False, limit: int = 0) -> dict[str, int]:
         """Batch-import lead records from a CSV file.
 
         Tries UTF-8-BOM, CP949, and UTF-8 encodings in order.  Maps
@@ -387,7 +388,7 @@ class LeadIntakeHub:
 
         for enc in encodings:
             try:
-                with open(path, "r", encoding=enc, newline="") as f:
+                with open(path, encoding=enc, newline="") as f:
                     reader = csv.DictReader(f)
                     data_rows = list(reader)
                 break

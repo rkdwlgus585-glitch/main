@@ -11,13 +11,16 @@ __all__ = [
     "ProgressCallback",
 ]
 
+import logging
 import os
 import time
-import logging
-import requests
-from datetime import datetime, timezone
+from collections.abc import Callable, Sequence
+from datetime import UTC, datetime, timezone
 from functools import wraps
-from typing import Any, Callable, Dict, Sequence, Tuple
+from typing import Any
+
+import requests
+
 
 # =================================================================
 # [로깅 설정]
@@ -77,7 +80,7 @@ def setup_logger(name: str = "mnakr", log_dir: str = "logs") -> logging.Logger:
 
     return logger
 
-def retry_request(max_retries: int = 3, delay: int = 2, backoff: int = 2, exceptions: Tuple[type, ...] = (Exception,)) -> Callable:
+def retry_request(max_retries: int = 3, delay: int = 2, backoff: int = 2, exceptions: tuple[type, ...] = (Exception,)) -> Callable:
     """
     API 호출 재시도 데코레이터
     
@@ -93,7 +96,7 @@ def retry_request(max_retries: int = 3, delay: int = 2, backoff: int = 2, except
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             logger = logging.getLogger("mnakr")
             last_exception = None
-            
+
             for attempt in range(max_retries + 1):
                 try:
                     return func(*args, **kwargs)
@@ -109,7 +112,7 @@ def retry_request(max_retries: int = 3, delay: int = 2, backoff: int = 2, except
                         time.sleep(wait_time)
                     else:
                         logger.error(f"[실패] {func.__name__} - 최대 재시도 횟수 초과: {type(e).__name__}")
-            
+
             raise last_exception
         return wrapper
     return decorator
@@ -181,7 +184,7 @@ class Notifier:
                     "title": str(title or "알림")[:240],
                     "description": message,
                     "color": 3066993,
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "timestamp": datetime.now(UTC).isoformat(),
                 }
             ]
         }
@@ -212,13 +215,13 @@ def _parse_bool(value: object, default: bool = False) -> bool:
     return default
 
 
-def _load_env_file(env_path: str) -> Dict[str, str]:
+def _load_env_file(env_path: str) -> dict[str, str]:
     """Parse a simple ``KEY=VALUE`` env file, ignoring comments and empty lines."""
     loaded = {}
     if not os.path.exists(env_path):
         return loaded
 
-    with open(env_path, "r", encoding="utf-8") as f:
+    with open(env_path, encoding="utf-8") as f:
         for raw in f:
             line = raw.strip()
             if not line or line.startswith("#") or "=" not in line:
@@ -229,7 +232,7 @@ def _load_env_file(env_path: str) -> Dict[str, str]:
     return loaded
 
 
-def load_config(extra_defaults: Dict[str, Any] | None = None) -> Dict[str, Any]:
+def load_config(extra_defaults: dict[str, Any] | None = None) -> dict[str, Any]:
     """Load settings from .env + OS environment."""
     defaults = {
         "GEMINI_API_KEY": "",
@@ -285,7 +288,7 @@ def load_config(extra_defaults: Dict[str, Any] | None = None) -> Dict[str, Any]:
     return config
 
 
-def require_config(config: Dict[str, Any], required_keys: Sequence[str], context: str = "app") -> Dict[str, Any]:
+def require_config(config: dict[str, Any], required_keys: Sequence[str], context: str = "app") -> dict[str, Any]:
     """Raise ValueError if required keys are missing/empty."""
     missing = [k for k in required_keys if not str(config.get(k, "")).strip()]
     if missing:
@@ -299,7 +302,7 @@ def require_config(config: Dict[str, Any], required_keys: Sequence[str], context
 # =================================================================
 class ProgressCallback:
     """GUI 진행률 업데이트용 콜백 클래스"""
-    
+
     def __init__(self, callback_func: Callable | None = None) -> None:
         """Initialise with an optional GUI callback (receives ``(progress, message)``)."""
         self.callback = callback_func
@@ -312,17 +315,17 @@ class ProgressCallback:
             "WordPress 업로드 중...",
             "완료!"
         ]
-    
-    def update(self, step: int | None = None, message: str | None = None) -> Tuple[float, str]:
+
+    def update(self, step: int | None = None, message: str | None = None) -> tuple[float, str]:
         """진행 상태 업데이트"""
         if step is not None:
             self.current_step = step
-        
+
         msg = message or self.steps[min(self.current_step, len(self.steps)-1)]
         progress = (self.current_step / self.total_steps) * 100
-        
+
         if self.callback:
             self.callback(progress, msg)
-        
+
         return progress, msg
 

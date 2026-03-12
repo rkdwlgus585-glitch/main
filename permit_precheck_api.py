@@ -6,16 +6,16 @@ import re
 import signal
 import sqlite3
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 from core_engine.api_contract import normalize_v1_request
 from core_engine.api_response import _compact, build_response_envelope, now_iso
+from core_engine.channel_profiles import ChannelRouter
 from core_engine.sandbox import is_sandbox_request, sandbox_permit_response
 from core_engine.tenant_gateway import TenantGateway
-from core_engine.channel_profiles import ChannelRouter
 from permit_diagnosis_calculator import (
     DEFAULT_CATALOG_PATH,
     DEFAULT_RULES_PATH,
@@ -26,6 +26,7 @@ from permit_diagnosis_calculator import (
     _resolve_rule_for_industry,
     evaluate_registration_diagnosis,
 )
+from scripts.widget_health_contract import load_widget_health_contract
 from security_http import (
     DEFAULT_SECURITY_HEADERS,
     SecurityEventLogger,
@@ -38,7 +39,6 @@ from security_http import (
     safe_client_ip,
 )
 from tenant_config.loader import load_channel_router, load_gateway
-from scripts.widget_health_contract import load_widget_health_contract
 from utils import load_config, setup_logger
 
 CONFIG = load_config(
@@ -87,7 +87,7 @@ def _json_dumps_compact(value: Any) -> str:
         return "{}"
 
 
-def _first_present(mapping: Dict[str, Any], *keys: str) -> Any:
+def _first_present(mapping: dict[str, Any], *keys: str) -> Any:
     if not isinstance(mapping, dict):
         return None
     for key in keys:
@@ -135,7 +135,7 @@ def _coerce_float_or_none(value: Any) -> float | None:
     return out
 
 
-def _canonical_permit_input_snapshot(inputs: Dict[str, Any], result: Dict[str, Any]) -> Dict[str, Any]:
+def _canonical_permit_input_snapshot(inputs: dict[str, Any], result: dict[str, Any]) -> dict[str, Any]:
     snapshot = {
         "service_code": _compact(_first_present(inputs, "service_code"), _LIM_SERVICE_CODE),
         "service_name": _compact(_first_present(inputs, "service_name", "industry_name"), _LIM_SERVICE_NAME),
@@ -176,7 +176,7 @@ def _canonical_permit_input_snapshot(inputs: Dict[str, Any], result: Dict[str, A
     return snapshot
 
 
-def _required_ok_flag(required_summary: Dict[str, Any], key: str) -> str:
+def _required_ok_flag(required_summary: dict[str, Any], key: str) -> str:
     block = dict((required_summary or {}).get(key) or {})
     parsed = _coerce_bool_flag(block.get("ok"))
     if parsed is not None:
@@ -184,7 +184,7 @@ def _required_ok_flag(required_summary: Dict[str, Any], key: str) -> str:
     return "0"
 
 
-def _result_summary_payload(result: Dict[str, Any]) -> Dict[str, Any]:
+def _result_summary_payload(result: dict[str, Any]) -> dict[str, Any]:
     return {
         "ok": bool(result.get("ok")),
         "industry_name": _compact(result.get("industry_name"), _LIM_SERVICE_NAME),
@@ -203,7 +203,7 @@ def _result_summary_payload(result: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-def _partner_health_payload() -> Dict[str, Any]:
+def _partner_health_payload() -> dict[str, Any]:
     return {
         "ok": True,
         "service": SERVICE_NAME,
@@ -235,7 +235,7 @@ def _env_bool(key: str, default: bool = False) -> bool:
 
 
 def _month_key() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m")
+    return datetime.now(UTC).strftime("%Y-%m")
 
 
 def _tenant_plan_key(resolution: Any) -> str:
@@ -295,7 +295,7 @@ def _permit_response_tier(server: Any, resolution: Any) -> str:
     return "summary"
 
 
-def _project_precheck_result(server: Any, resolution: Any, result: Dict[str, Any]) -> Dict[str, Any]:
+def _project_precheck_result(server: Any, resolution: Any, result: dict[str, Any]) -> dict[str, Any]:
     payload = dict(result or {})
     tier = _permit_response_tier(server, resolution)
     tenant_plan = _tenant_plan_key(resolution)
@@ -376,7 +376,7 @@ class PermitUsageStore:
             os.makedirs(os.path.dirname(self.db_path) or ".", exist_ok=True)
             self._init_db()
 
-    def _load_thresholds(self) -> Dict[str, Any]:
+    def _load_thresholds(self) -> dict[str, Any]:
         path = Path(self.thresholds_path)
         if not path.is_absolute():
             path = Path.cwd() / path
@@ -541,7 +541,7 @@ class PermitUsageStore:
         if "last_received_at" not in columns:
             conn.execute("ALTER TABLE tenant_usage_monthly ADD COLUMN last_received_at TEXT NOT NULL DEFAULT ''")
 
-    def _plan_config(self, plan: str) -> Dict[str, Any]:
+    def _plan_config(self, plan: str) -> dict[str, Any]:
         plans = self._thresholds.get("plans") if isinstance(self._thresholds, dict) else {}
         if not isinstance(plans, dict):
             return {}
@@ -566,7 +566,7 @@ class PermitUsageStore:
             return int(token_model.get("permit_ok", 900) or 900)
         return int(token_model.get("error", 200) or 200)
 
-    def usage_snapshot(self, tenant_id: str, plan: str) -> Dict[str, Any]:
+    def usage_snapshot(self, tenant_id: str, plan: str) -> dict[str, Any]:
         """Return per-tenant usage counts for the current month."""
         key = _compact(tenant_id).lower() or "unknown"
         month = _month_key()
@@ -615,10 +615,10 @@ class PermitUsageStore:
         source: str,
         page_url: str,
         requested_at: str,
-        inputs: Dict[str, Any],
-        result: Dict[str, Any],
+        inputs: dict[str, Any],
+        result: dict[str, Any],
         response_tier: str,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Record a single precheck event and return the updated usage snapshot."""
         key = _compact(tenant_id).lower() or "unknown"
         status = "ok" if bool(result.get("ok")) else "error"
@@ -808,14 +808,14 @@ class PermitPrecheckEngine:
     def __init__(self, catalog_path: str | None = None, rules_path: str | None = None) -> None:
         self.catalog_path = str(catalog_path or DEFAULT_CATALOG_PATH)
         self.rules_path = str(rules_path or DEFAULT_RULES_PATH)
-        self.catalog: Dict[str, Any] = {}
-        self.rule_catalog: Dict[str, Any] = {}
-        self.rule_index: Dict[str, Any] = {}
-        self.payload: Dict[str, Any] = {}
-        self._meta: Dict[str, Any] = {}
+        self.catalog: dict[str, Any] = {}
+        self.rule_catalog: dict[str, Any] = {}
+        self.rule_index: dict[str, Any] = {}
+        self.payload: dict[str, Any] = {}
+        self._meta: dict[str, Any] = {}
         self.refresh()
 
-    def refresh(self) -> Dict[str, Any]:
+    def refresh(self) -> dict[str, Any]:
         """Reload catalogs and rule data from disk, returning an updated summary."""
         self.catalog = _load_catalog(DEFAULT_CATALOG_PATH.__class__(self.catalog_path))
         self.rule_catalog = _load_rule_catalog(DEFAULT_RULES_PATH.__class__(self.rules_path))
@@ -836,11 +836,11 @@ class PermitPrecheckEngine:
         return dict(self._meta)
 
     @property
-    def meta(self) -> Dict[str, Any]:
+    def meta(self) -> dict[str, Any]:
         """Catalog metadata snapshot (industry count, focus targets, etc.)."""
         return dict(self._meta)
 
-    def _resolve_rule(self, payload: Dict[str, Any]) -> Dict[str, Any] | None:
+    def _resolve_rule(self, payload: dict[str, Any]) -> dict[str, Any] | None:
         service_code = _compact(payload.get("service_code"))
         service_name = _compact(payload.get("service_name") or payload.get("industry_name"))
         industry = {
@@ -858,7 +858,7 @@ class PermitPrecheckEngine:
                 return item
         return None
 
-    def precheck(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+    def precheck(self, payload: dict[str, Any]) -> dict[str, Any]:
         """Run a registration-criteria precheck against the loaded rule catalog."""
         if not isinstance(payload, dict):
             payload = {}
@@ -1012,12 +1012,12 @@ class Handler(BaseHTTPRequestHandler):
             host=_compact(self.headers.get("Host")),
             origin=_compact(self.headers.get("Origin")),
         )
-        setattr(self, "_cached_channel_resolution", resolution)
+        self._cached_channel_resolution = resolution
         return resolution
 
-    def _channel_headers(self) -> Dict[str, str]:
+    def _channel_headers(self) -> dict[str, str]:
         resolution = self._channel_resolution()
-        headers: Dict[str, str] = {}
+        headers: dict[str, str] = {}
         channel_id = _channel_id_value(resolution)
         if channel_id:
             headers["X-Channel-Id"] = channel_id
@@ -1025,7 +1025,7 @@ class Handler(BaseHTTPRequestHandler):
             headers["X-Channel-Source"] = str(resolution.source)
         return headers
 
-    def _require_channel_hint_match(self, request_meta: Dict[str, Any]) -> bool:
+    def _require_channel_hint_match(self, request_meta: dict[str, Any]) -> bool:
         hinted = _compact((request_meta or {}).get("channel_id_hint"), _LIM_SERVICE_CODE).lower()
         if not hinted:
             return True
@@ -1086,7 +1086,7 @@ class Handler(BaseHTTPRequestHandler):
         self._write_json(403, {"ok": False, "error": "channel_system_not_allowed", "required_system": str(system or "")})
         return False
 
-    def _usage_headers(self, usage_snapshot: Dict[str, Any], response_tier: str = "") -> Dict[str, str]:
+    def _usage_headers(self, usage_snapshot: dict[str, Any], response_tier: str = "") -> dict[str, str]:
         headers = {
             "X-Tenant-Plan": str(usage_snapshot.get("plan") or "unknown"),
             "X-Usage-Month": str(usage_snapshot.get("year_month") or ""),
@@ -1175,7 +1175,7 @@ class Handler(BaseHTTPRequestHandler):
         self._write_json(403, {"ok": False, "error": "system_not_allowed", "required_system": str(system or "")})
         return False
 
-    def _write_json(self, status: int, payload: Dict[str, Any], extra_headers: Dict[str, str] | None = None) -> None:
+    def _write_json(self, status: int, payload: dict[str, Any], extra_headers: dict[str, str] | None = None) -> None:
         request_id = self._request_id()
         channel_id = _channel_id_value(self._channel_resolution())
         response_tier = ""
@@ -1227,7 +1227,7 @@ class Handler(BaseHTTPRequestHandler):
         incoming = _compact(self.headers.get("X-Request-Id") or self.headers.get("X-Correlation-Id"), _LIM_SERVICE_CODE)
         if not incoming:
             incoming = uuid.uuid4().hex
-        setattr(self, "_cached_request_id", incoming)
+        self._cached_request_id = incoming
         return incoming
 
     def _allow_request(self) -> bool:
@@ -1260,7 +1260,7 @@ class Handler(BaseHTTPRequestHandler):
         self._write_json(401, {"ok": False, "error": "unauthorized"})
         return False
 
-    def _read_json_body(self) -> Dict[str, Any]:
+    def _read_json_body(self) -> dict[str, Any]:
         content_type = str(self.headers.get("Content-Type", "") or "").lower()
         if content_type and "application/json" not in content_type:
             raise ValueError("content_type_must_be_application_json")
@@ -1344,7 +1344,7 @@ class Handler(BaseHTTPRequestHandler):
             request_meta = dict(bundle.get("request_meta") or {})
             hinted_request_id = _compact(request_meta.get("request_id_hint"), _LIM_SERVICE_CODE)
             if hinted_request_id and not getattr(self, "_cached_request_id", ""):
-                setattr(self, "_cached_request_id", hinted_request_id)
+                self._cached_request_id = hinted_request_id
             if not self._require_channel_hint_match(request_meta):
                 return
             resolution = self._tenant_resolution()

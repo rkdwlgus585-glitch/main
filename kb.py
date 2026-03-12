@@ -61,7 +61,7 @@ CONSTRUCTION_STANDARDS = {
             "기술인력_총원": 6
         }
     },
-    
+
     # 공통 규정
     "공통": {
         "공제조합_출자율_최소": 25,  # %
@@ -72,12 +72,12 @@ CONSTRUCTION_STANDARDS = {
         "진단보고서_발급자격": ["공인회계사", "세무사", "경영지도사"],
         "부실자산_예시": [
             "대표이사 가지급금",
-            "주주 임원 대여금", 
+            "주주 임원 대여금",
             "건설업 무관 유가증권",
             "과도한 현금 보유"
         ]
     },
-    
+
     # 메타데이터
     "_meta": {
         "법령": "건설산업기본법 시행령 [별표 2]",
@@ -98,20 +98,20 @@ def get_fact_prompt_injection() -> str:
     """AI 프롬프트에 주입할 팩트 데이터 문자열 생성"""
     facts = []
     facts.append("=== 건설업 등록기준 법정 데이터 (반드시 이 수치만 사용할 것) ===")
-    
+
     for 업종, 정보 in CONSTRUCTION_STANDARDS["종합건설업"].items():
         facts.append(f"\n[{업종}]")
         facts.append(f"- 법인 자본금: {정보.get('법인_자본금_표시', 'N/A')}")
         facts.append(f"- 개인 자본금: {정보.get('개인_자본금_표시', 'N/A')}")
         facts.append(f"- 기술인력: {정보.get('기술인력_총원', 'N/A')}명")
-    
+
     공통 = CONSTRUCTION_STANDARDS["공통"]
-    facts.append(f"\n[공통 규정]")
+    facts.append("\n[공통 규정]")
     facts.append(f"- 공제조합 출자율: {공통['공제조합_출자율_표시']}")
     facts.append(f"- 기술자 충원기한: {공통['기술자_충원기한_일']}일 이내")
     facts.append(f"- 실질자본금 예치기간: {공통['실질자본금_예치기간_일']}일 이상")
     facts.append(f"- 진단보고서 발급자격: {', '.join(공통['진단보고서_발급자격'])}")
-    
+
     return "\n".join(facts)
 
 

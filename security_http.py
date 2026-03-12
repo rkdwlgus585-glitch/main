@@ -4,8 +4,9 @@ import json
 import os
 import time
 from collections import deque
+from collections.abc import Iterable, Sequence
 from threading import Lock
-from typing import Any, Deque, Dict, Iterable, Sequence, Set, Tuple
+from typing import Any
 
 __all__ = [
     "DEFAULT_SECURITY_HEADERS",
@@ -21,7 +22,7 @@ __all__ = [
 ]
 
 
-DEFAULT_SECURITY_HEADERS: Tuple[Tuple[str, str], ...] = (
+DEFAULT_SECURITY_HEADERS: tuple[tuple[str, str], ...] = (
     ("X-Content-Type-Options", "nosniff"),
     ("X-Frame-Options", "DENY"),
     ("Referrer-Policy", "no-referrer"),
@@ -30,13 +31,13 @@ DEFAULT_SECURITY_HEADERS: Tuple[Tuple[str, str], ...] = (
 )
 
 
-def parse_origin_allowlist(raw: str) -> Set[str]:
+def parse_origin_allowlist(raw: str) -> set[str]:
     """Parse a comma-separated CORS origin allowlist into a set of normalised origins.
 
     Returns ``{"*"}`` immediately if the wildcard is present.  Trailing
     slashes are stripped so ``https://example.com/`` matches ``https://example.com``.
     """
-    out: Set[str] = set()
+    out: set[str] = set()
     for piece in str(raw or "").split(","):
         origin = str(piece or "").strip().rstrip("/")
         if not origin:
@@ -77,7 +78,7 @@ def header_token(headers: Any, expected: str) -> str:
     return str(headers.get("X-API-Key", "") or "").strip()
 
 
-def parse_key_values(raw: str) -> Tuple[str, ...]:
+def parse_key_values(raw: str) -> tuple[str, ...]:
     """Parse a comma-separated list of API keys into a deduplicated tuple.
 
     Supports ``name:key`` format (the ``name:`` prefix is stripped).
@@ -168,7 +169,7 @@ class SlidingWindowRateLimiter:
         self.window_seconds = max(1, int(window_seconds or 60))
         self.max_keys = max(100, int(max_keys or 10000))
         self._lock = Lock()
-        self._hits: Dict[str, Deque[float]] = {}
+        self._hits: dict[str, deque[float]] = {}
 
     def _purge_key(self, now: float, key: str) -> None:
         """Remove timestamps older than the sliding window for *key*."""
@@ -190,7 +191,7 @@ class SlidingWindowRateLimiter:
             if len(self._hits) <= self.max_keys:
                 break
 
-    def allow(self, key: str) -> Tuple[bool, int]:
+    def allow(self, key: str) -> tuple[bool, int]:
         """Check whether *key* is within the rate limit.
 
         Returns ``(True, 0)`` when allowed, or ``(False, retry_after_seconds)``
@@ -232,7 +233,7 @@ class SecurityEventLogger:
             if parent:
                 os.makedirs(parent, exist_ok=True)
 
-    def append(self, event: Dict[str, object]) -> None:
+    def append(self, event: dict[str, object]) -> None:
         """Write *event* as a JSON line.  Adds ``ts`` (epoch seconds) if missing.
 
         Silently degrades to stderr on I/O failure so that logging never
