@@ -68,8 +68,7 @@ export function SiteFooter() {
         <div className="footer-bottom">
           <p>&copy; {new Date().getFullYear()} {platformConfig.companyName}. All rights reserved.</p>
           <p className="footer-disclaimer">
-            본 서비스의 AI 분석 결과는 참고용이며, 법적 효력이 있는 공식 감정 결과가 아닙니다.
-            정확한 양도가 확정, 신규 등록 비용 및 인허가 절차는 반드시 전문가와 상담하시기 바랍니다.
+            AI 분석 결과는 참고용이며 공식 감정이 아닙니다. 양도가 확정·등록 비용·인허가 절차는 전문가 상담을 권장합니다.
           </p>
         </div>
       </div>

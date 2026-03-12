@@ -15,7 +15,7 @@ const credentials = [
   {
     icon: Shield,
     label: "AI 시스템 설계",
-    detail: "양도가 산정·인허가 사전검토 알고리즘 개발 주도",
+    detail: "양도가·인허가 AI 알고리즘 설계",
   },
   {
     icon: Award,
