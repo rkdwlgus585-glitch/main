@@ -39,17 +39,16 @@ import gzip
 import json
 import math
 import re
+from collections.abc import Callable
 from datetime import date, timedelta
-from urllib.parse import urlparse
 from html import escape
 from pathlib import Path
-from collections.abc import Callable
 from typing import Any
+from urllib.parse import urlparse
 
 from core_engine.api_response import safe_json_for_script
 from core_engine.channel_branding import resolve_channel_branding
 from core_engine.permit_criteria_schema import evaluate_typed_criteria
-
 
 ROOT = Path(__file__).resolve().parent
 
@@ -2375,7 +2374,7 @@ def build_html(
     """
     bundle = dict(bootstrap_payload or build_bootstrap_payload(catalog, rule_catalog))
     permit_catalog = dict(bundle.get("permitCatalog") or {})
-    rules_lookup = dict(bundle.get("ruleLookup") or {})
+    _rules_lookup = dict(bundle.get("ruleLookup") or {})  # noqa: F841 — extracted for future use
     rule_catalog_meta = dict(bundle.get("ruleCatalogMeta") or {})
     summary = dict(permit_catalog.get("summary") or {})
     branding = resolve_channel_branding(

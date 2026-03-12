@@ -34,6 +34,8 @@ select = [
     "UP",   # pyupgrade
     "S",    # flake8-bandit (security)
     "T20",  # flake8-print (no print in lib code)
+    "FURB", # refurb — modern Python idioms
+    "PERF", # perflint — performance anti-patterns
 ]
 ignore = [
     "E501",   # line length — enforced by line-length above, but f-strings exempt

@@ -316,11 +316,9 @@ def _license_text_parts(raw: Any) -> list[str]:
     if isinstance(raw, dict):
         parts.append(_compact(raw.get("license_text")))
         parts.append(_compact(raw.get("raw_license_key")))
-        for token in list(raw.get("license_tokens") or []):
-            parts.append(_compact(token))
+        parts.extend(_compact(token) for token in list(raw.get("license_tokens") or []))
     elif isinstance(raw, (list, tuple, set)):
-        for item in raw:
-            parts.append(_compact(item))
+        parts.extend(_compact(item) for item in raw)
     else:
         parts.append(_compact(raw))
     return [part for part in parts if part]

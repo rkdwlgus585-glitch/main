@@ -78,6 +78,12 @@ def _range_pair(rec: dict[str, Any]) -> tuple[float | None, float | None]:
 
 
 def _price_overlap_score(left: dict[str, Any], right: dict[str, Any]) -> float:
+    """Compute price-range overlap between two listing records (0.0–1.0).
+
+    Uses IoU (Intersection-over-Union) when ranges overlap; falls back to
+    centre-point closeness when they are disjoint.  Returns 0.0 if either
+    record lacks a parseable price range.
+    """
     l1, h1 = _range_pair(left)
     l2, h2 = _range_pair(right)
     if l1 is None or h1 is None or l2 is None or h2 is None:

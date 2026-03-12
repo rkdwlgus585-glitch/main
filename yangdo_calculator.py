@@ -517,7 +517,7 @@ def build_page_html(
     openchat_url = str(branding.get("openchat_url") or openchat_url or "").strip()
     brand_name = str(branding.get("brand_name") or "서울건설정보").strip()
     brand_label = str(branding.get("brand_label") or brand_name).strip()
-    brand_notice_url = str(branding.get("notice_url") or "").strip()
+    _brand_notice_url = str(branding.get("notice_url") or "").strip()  # noqa: F841 — extracted for future template use
     consult_email = str(branding.get("contact_email") or "").strip()
     source_tag_prefix = str(branding.get("source_tag_prefix") or "channel").strip()
     contact_phone_digits = str(branding.get("contact_phone_digits") or "").strip()

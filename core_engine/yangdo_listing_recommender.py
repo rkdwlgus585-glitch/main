@@ -68,6 +68,12 @@ def _price_overlap_score(
     *,
     ops: RecommendationOps,
 ) -> float:
+    """Compute price-range overlap between target and candidate (0.0–1.0).
+
+    Delegates range extraction to *ops* callbacks so the caller controls
+    how raw record fields are parsed.  Uses IoU when ranges overlap and
+    ``ops.relative_closeness`` for disjoint centre-points.
+    """
     l1, h1 = _range_pair_from_record(left or {}, to_float=ops.to_float, derive_display_range_eok=ops.derive_display_range_eok)
     l2, h2 = _range_pair_from_record(right or {}, to_float=ops.to_float, derive_display_range_eok=ops.derive_display_range_eok)
     if l1 is None or h1 is None or l2 is None or h2 is None:

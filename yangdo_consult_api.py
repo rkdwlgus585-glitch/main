@@ -231,8 +231,7 @@ def _build_tags(payload: dict) -> list[str]:
     service_track = _compact(normalized.get("service_track"), limit=_LIM_MEDIUM)
     if service_track:
         tags.append(service_track)
-    for token in _tokenize_license(normalized.get("license_text", "")):
-        tags.append(token)
+    tags.extend(_tokenize_license(normalized.get("license_text", "")))
     if str(normalized.get("estimated_neighbors", "")).strip():
         tags.append("ai산정")
     out = []
@@ -956,10 +955,10 @@ class YangdoConsultApiServer(ThreadingHTTPServer):
         self,
         addr: tuple[str, int],
         handler_cls: type,
-        store: "ConsultStore",
-        crm_bridge: "CrmBridge",
+        store: ConsultStore,
+        crm_bridge: CrmBridge,
         allowed_origins: set[str] | list[str] | None,
-        usage_sheet: "UsageSheetWriter",
+        usage_sheet: UsageSheetWriter,
         api_key: str,
         max_body_bytes: int,
         rate_limit_per_min: int,

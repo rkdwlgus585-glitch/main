@@ -966,7 +966,7 @@ class PermitApiServer(ThreadingHTTPServer):
         self,
         addr: tuple[str, int],
         handler_cls: type,
-        engine: "PermitPrecheckEngine",
+        engine: PermitPrecheckEngine,
         allowed_origins: set[str] | None,
         api_key: str,
         admin_api_key: str,
