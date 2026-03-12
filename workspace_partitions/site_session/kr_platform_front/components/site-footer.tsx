@@ -6,15 +6,14 @@ export function SiteFooter() {
     <footer className="site-footer">
       <div className="footer-inner">
         <div className="footer-brand">
-          <strong>{platformConfig.companyName}</strong>
-          <p>건설업 양도양수 &middot; 건설업등록 &middot; 실무 가이드 플랫폼</p>
+          <strong>{platformConfig.brandName}</strong>
+          <p>AI 양도가 산정 &middot; AI 인허가 검토 &middot; 건설업 전문 플랫폼</p>
         </div>
         <div className="footer-links">
           <div>
             <h4>서비스</h4>
-            <Link href="/mna-market">실시간 매물</Link>
-            <Link href="/permit">건설업등록</Link>
-            <Link href="/yangdo">양도가 산정</Link>
+            <Link href="/yangdo">AI 양도가 산정</Link>
+            <Link href="/permit">AI 인허가 검토</Link>
           </div>
           <div>
             <h4>도입 · 상담</h4>
@@ -66,7 +65,7 @@ export function SiteFooter() {
         </div>
 
         <div className="footer-bottom">
-          <p>&copy; {new Date().getFullYear()} {platformConfig.companyName}. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} {platformConfig.brandName} ({platformConfig.companyName}). All rights reserved.</p>
           <p className="footer-disclaimer">
             AI 분석 결과는 참고용이며 공식 감정이 아닙니다. 양도가 확정·등록 비용·인허가 절차는 전문가 상담을 권장합니다.
           </p>

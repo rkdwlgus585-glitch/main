@@ -27,7 +27,7 @@ export function HomeHero() {
         <h1>
           AI가 분석하는
           <br />
-          <span>양도가 산정 · 인허가 사전검토</span>
+          <span>AI 양도가 산정 · AI 인허가 검토</span>
         </h1>
         <p className="home-hero-body">
           면허 양도가 무료 산정
@@ -39,13 +39,13 @@ export function HomeHero() {
         <div className="home-hero-twin-cta">
           <Link className="hero-system-card" href="/yangdo">
             <span className="hero-system-badge">AI 시스템 1</span>
-            <strong>양도가 산정</strong>
+            <strong>AI 양도가 산정</strong>
             <span className="hero-system-desc">면허 적정 가격을 AI가 무료 분석</span>
             <span className="hero-system-arrow"><ArrowRight size={18} strokeWidth={2.4} aria-hidden="true" /></span>
           </Link>
           <Link className="hero-system-card" href="/permit">
             <span className="hero-system-badge">AI 시스템 2</span>
-            <strong>인허가 사전검토</strong>
+            <strong>AI 인허가 검토</strong>
             <span className="hero-system-desc">등록기준 충족 여부·비용 즉시 확인</span>
             <span className="hero-system-arrow"><ArrowRight size={18} strokeWidth={2.4} aria-hidden="true" /></span>
           </Link>

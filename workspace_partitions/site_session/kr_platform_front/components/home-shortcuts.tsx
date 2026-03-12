@@ -1,10 +1,8 @@
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import {
-  BriefcaseBusiness,
   Building2,
   Calculator,
-  Files,
   MessagesSquare,
 } from "lucide-react";
 
@@ -15,28 +13,16 @@ const shortcuts: Array<{
   icon: LucideIcon;
 }> = [
   {
-    title: "실시간 매물",
-    description: "지금 거래 가능한 건설업 면허 매물을 확인하세요.",
-    href: "/mna-market",
-    icon: BriefcaseBusiness,
-  },
-  {
-    title: "건설업등록",
-    description: "191개 업종 등록기준과 비용을 바로 확인합니다.",
-    href: "/permit",
-    icon: Building2,
-  },
-  {
-    title: "양도가 산정",
+    title: "AI 양도가 산정",
     description: "AI가 적정 양도가격을 무료로 분석해 드립니다.",
     href: "/yangdo",
     icon: Calculator,
   },
   {
-    title: "시스템 도입",
-    description: "AI 양도가·인허가 시스템을 귀사에 도입하세요.",
-    href: "/partners",
-    icon: Files,
+    title: "AI 인허가 검토",
+    description: "191개 업종 등록기준과 비용을 바로 확인합니다.",
+    href: "/permit",
+    icon: Building2,
   },
   {
     title: "고객센터",

@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "404 — 페이지를 찾을 수 없습니다 | 서울건설정보",
   description:
-    "요청하신 페이지를 찾을 수 없습니다. 서울건설정보 홈, AI 양도가 산정, 건설업등록 검토 페이지를 방문해 보세요.",
+    "요청하신 페이지를 찾을 수 없습니다. 서울건설정보 홈, AI 양도가 산정, AI 인허가 검토 페이지를 방문해 보세요.",
 };
 
 export default function NotFound() {
@@ -18,7 +18,7 @@ export default function NotFound() {
       <div className="not-found-links">
         <Link href="/" className="cta-primary">홈으로 돌아가기</Link>
         <Link href="/yangdo" className="cta-secondary not-found-secondary">AI 양도가 산정</Link>
-        <Link href="/permit" className="cta-secondary not-found-secondary">건설업등록</Link>
+        <Link href="/permit" className="cta-secondary not-found-secondary">AI 인허가 검토</Link>
       </div>
     </main>
   );

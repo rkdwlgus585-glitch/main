@@ -17,14 +17,15 @@ export const siteBase = platformConfig.platformFrontHost.replace(/\/$/, "");
 /** Shared Organization reference for JSON-LD `provider` / `parentOrganization`. */
 export const organizationRef = {
   "@type": "Organization" as const,
-  name: "서울건설정보",
+  name: platformConfig.brandName,
+  legalName: platformConfig.companyName,
   url: siteBase,
 };
 
 /** Shared WebSite reference for JSON-LD `isPartOf`. */
 export const websiteRef = {
   "@type": "WebSite" as const,
-  name: "서울건설정보",
+  name: platformConfig.brandName,
   url: siteBase,
 };
 

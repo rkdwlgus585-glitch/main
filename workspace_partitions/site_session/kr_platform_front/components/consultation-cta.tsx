@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Phone, Mail, Bot, UserCheck, Clock } from "lucide-react";
+import { Phone, Mail, Bot, UserCheck, Clock, ArrowRight } from "lucide-react";
 import { platformConfig } from "@/components/platform-config";
 
 export function ConsultationCTA() {
@@ -13,7 +13,21 @@ export function ConsultationCTA() {
           양도가 협상부터 신규 등록, 면허 관리까지 원스톱 지원합니다.
         </p>
 
-        {/* ── #11 Hybrid AI + Expert 2-step 시각화 ── */}
+        {/* ── AI 기능 바로가기 카드 ── */}
+        <div className="cta-ai-shortcuts">
+          <Link href="/yangdo" className="cta-ai-card">
+            <strong>AI 양도가 산정</strong>
+            <span>면허 적정 가격을 무료로 분석</span>
+            <ArrowRight size={16} aria-hidden="true" />
+          </Link>
+          <Link href="/permit" className="cta-ai-card">
+            <strong>AI 인허가 검토</strong>
+            <span>191개 업종 등록기준 즉시 확인</span>
+            <ArrowRight size={16} aria-hidden="true" />
+          </Link>
+        </div>
+
+        {/* ── Hybrid AI + Expert 2-step 시각화 ── */}
         <div className="cta-hybrid-flow" aria-label="서비스 흐름">
           <div className="cta-hybrid-step">
             <Bot size={20} aria-hidden="true" />
@@ -26,7 +40,7 @@ export function ConsultationCTA() {
           </div>
         </div>
 
-        {/* ── #7 Trust signals directly above CTA ── */}
+        {/* ── Trust signals directly above CTA ── */}
         <div className="cta-trust-bar" aria-label="신뢰 지표">
           <span><Clock size={14} aria-hidden="true" /> 평균 응답 2시간 이내</span>
           <span>공인 행정사 직접 상담</span>

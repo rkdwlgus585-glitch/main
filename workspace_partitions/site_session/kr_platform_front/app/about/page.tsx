@@ -45,7 +45,7 @@ const values = [
   {
     title: "투명한 비용",
     description:
-      "AI 양도가 산정과 인허가 사전검토는 무료이며, 모든 비용을 사전에 안내합니다.",
+      "AI 양도가 산정과 AI 인허가 검토는 무료이며, 모든 비용을 사전에 안내합니다.",
   },
 ];
 
@@ -53,7 +53,7 @@ const milestones = [
   { year: "2024", event: "건설업 양도양수 시장 분석 데이터 구축 착수" },
   { year: "2025", event: "AI 양도가 산정 시스템 v1.0 개발 완료" },
   { year: "2025", event: "AI 인허가 사전검토 시스템 v1.0 개발 완료" },
-  { year: "2026", event: "양도가 산정·인허가 사전검토 알고리즘 특허 출원" },
+  { year: "2026", event: "AI 양도가 산정 · AI 인허가 사전검토 알고리즘 특허 출원" },
   { year: "2026", event: "seoulmna.kr 플랫폼 정식 오픈 · 191개 업종 분석 지원" },
 ];
 
@@ -115,36 +115,31 @@ export default function AboutPage() {
 
       <section className="about-hero" aria-label="회사 소개">
         <p className="eyebrow">회사소개</p>
-        <h1>
-          건설업 면허 거래의
-          <br />
-          새로운 기준을 만듭니다
-        </h1>
+        <h1>건설업 면허 거래의 새로운 기준을 만듭니다</h1>
         <p className="about-hero-body">
-          건설업 양도양수와 인허가를 데이터·AI로 혁신하는 전문 플랫폼입니다.
-          불투명했던 면허 시장에 객관적 분석과 전문 상담을 결합해 합리적인 거래 환경을 만듭니다.
+          건설업 양도양수와 인허가를 데이터·AI로 혁신하는 전문 플랫폼입니다.<br />
+          불투명했던 면허 시장에 객관적 분석과 전문 상담을 더합니다.
         </p>
       </section>
 
       <ScrollAnimate>
         <section className="about-mission" aria-label="미션">
-          <div className="section-header" style={{ textAlign: "center" }}>
+          <div className="section-header">
             <p className="eyebrow">미션</p>
             <h2>
               &ldquo;건설업 면허 거래에서 정보 비대칭을 없앤다&rdquo;
             </h2>
           </div>
           <p className="about-mission-body">
-            기존 면허 양도양수 시장은 가격 비대칭, 수작업 검토, 분산된 절차로
-            비효율이 큽니다. 서울건설정보는 AI와 전문 행정사의 역량을 결합해
-            이 문제를 해결합니다.
+            기존 면허 시장은 가격 비대칭과 수작업 검토로 비효율이 큽니다.<br />
+            서울건설정보는 AI와 전문 행정사의 역량을 결합해 이 문제를 해결합니다.
           </p>
         </section>
       </ScrollAnimate>
 
       <ScrollAnimate delay={80}>
         <section className="about-values" aria-label="핵심 가치">
-          <div className="section-header" style={{ textAlign: "center" }}>
+          <div className="section-header">
             <p className="eyebrow">핵심 가치</p>
             <h2>우리가 중요하게 생각하는 것</h2>
           </div>
@@ -162,7 +157,7 @@ export default function AboutPage() {
 
       <ScrollAnimate delay={120}>
         <section className="about-tech" aria-label="기술 역량">
-          <div className="section-header" style={{ textAlign: "center" }}>
+          <div className="section-header">
             <p className="eyebrow">기술 역량</p>
             <h2>AI 기술 · 특허 출원 · 데이터 인프라</h2>
           </div>
@@ -170,26 +165,22 @@ export default function AboutPage() {
             <div className="about-tech-card">
               <h3>AI 양도가 산정 엔진</h3>
               <p>
-                공시 재무 데이터, 시장 거래 사례, 업종별 특성을
-                종합 분석하여 적정 양도가격 범위를 산정합니다.
-                신뢰도 지표와 근거 데이터를 함께 제공합니다.
+                공시 재무·시장 거래·업종별 특성을 종합 분석해<br />
+                적정 양도가격 범위와 신뢰도 지표를 함께 제공합니다.
               </p>
             </div>
             <div className="about-tech-card">
-              <h3>AI 인허가 사전검토 엔진</h3>
+              <h3>AI 인허가 검토 엔진</h3>
               <p>
-                191개 업종의 법정 등록기준을 실시간으로
-                비교 분석합니다. 자본금, 기술인력, 시설 등
-                항목별 충족 여부를 즉시 진단하고 신규 취득 비용을
-                계산합니다.
+                191개 업종의 등록기준을 실시간 비교 분석합니다.<br />
+                항목별 충족 여부를 진단하고 신규 취득 비용을 계산합니다.
               </p>
             </div>
             <div className="about-tech-card">
               <h3>특허 출원 기술</h3>
               <p>
-                양도가 산정 알고리즘과 인허가 사전검토 방법론은
-                한국특허청(KIPO)에 특허 출원되었으며,
-                독자적인 지적재산으로 보호됩니다.
+                AI 양도가 산정과 AI 인허가 사전검토 알고리즘은<br />
+                한국특허청(KIPO)에 특허 출원된 독자 기술입니다.
               </p>
             </div>
           </div>
@@ -198,7 +189,7 @@ export default function AboutPage() {
 
       <ScrollAnimate delay={80}>
         <section className="about-timeline" aria-label="연혁">
-          <div className="section-header" style={{ textAlign: "center" }}>
+          <div className="section-header">
             <p className="eyebrow">연혁</p>
             <h2>주요 이정표</h2>
           </div>
@@ -214,17 +205,20 @@ export default function AboutPage() {
       </ScrollAnimate>
 
       <section className="consult-start" aria-label="상담 안내">
-        <h2>함께 시작하시겠습니까?</h2>
+        <h2>건설업 면허, 지금 바로 분석해 보세요</h2>
         <p>
-          AI 분석부터 전문 상담까지, 건설업 면허에 관한 모든 것을
-          서울건설정보와 함께하세요.
+          AI가 양도가격과 등록기준을 즉시 분석하고,<br />
+          전문 행정사가 맞춤 상담을 제공합니다.
         </p>
         <div className="consult-start-actions">
-          <Link className="cta-primary" href="/consult">
-            상담 신청하기
+          <Link className="cta-primary" href="/yangdo">
+            AI 양도가 무료 산정
           </Link>
-          <Link className="cta-secondary" href="/yangdo">
-            양도가 무료 산정
+          <Link className="cta-secondary" href="/permit">
+            AI 인허가 검토
+          </Link>
+          <Link className="cta-secondary" href="/consult">
+            전문 상담 신청
           </Link>
         </div>
       </section>

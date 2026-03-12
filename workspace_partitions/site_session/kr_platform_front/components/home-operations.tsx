@@ -12,7 +12,7 @@ const operations: Array<{
     icon: Landmark,
   },
   {
-    title: "건설업등록 검토",
+    title: "AI 인허가 검토",
     body: "191개 업종의 등록기준 충족 여부를 AI가 사전검토하고, 신규 취득 비용을 계산합니다.",
     icon: Building,
   },
@@ -22,8 +22,8 @@ const operations: Array<{
     icon: ShieldCheck,
   },
   {
-    title: "건설실무 가이드",
-    body: "등록기준 해석, 서류 준비, 절차 안내 등 실무에 필요한 정보를 모아 제공합니다.",
+    title: "서류·절차 안내",
+    body: "양도양수 계약서, 등록 서류, 관할 기관 접수까지 필요한 절차를 안내합니다.",
     icon: FileText,
   },
 ];
@@ -36,8 +36,8 @@ export function HomeOperations() {
           <p className="eyebrow">서비스 안내</p>
           <h2>건설업 면허 양도양수와 등록에 필요한 모든 것</h2>
           <p>
-            양도가 산정, 등록기준 검토, 전문 상담까지 하나의 플랫폼에서 처리합니다.
-            복잡한 건설업 인허가 절차를 데이터와 전문가의 도움으로 간소화합니다.
+            AI 양도가 산정, AI 인허가 검토, 전문 상담까지<br />
+            하나의 플랫폼에서 처리합니다.
           </p>
         </div>
 

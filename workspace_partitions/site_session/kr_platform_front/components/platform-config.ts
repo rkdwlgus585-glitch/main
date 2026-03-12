@@ -35,11 +35,11 @@ export const platformConfig: PlatformConfig = {
   contactPhone: process.env.NEXT_PUBLIC_CONTACT_PHONE || "1668-3548",
   contactEmail: process.env.NEXT_PUBLIC_CONTACT_EMAIL || "seoulmna@gmail.com",
   tenantId: process.env.NEXT_PUBLIC_TENANT_ID || "seoul_main",
-  companyName: "서울건설정보",
-  companyAddress: "서울특별시",
+  companyName: "행정사사무소하랑",
+  companyAddress: "서울시 영등포구 국제금융로 8길 27-8, 4층",
   ceoName: "강지현",
-  businessRegNo: process.env.NEXT_PUBLIC_BIZ_REG_NO || "",
-  ecommerceRegNo: process.env.NEXT_PUBLIC_ECOMMERCE_REG_NO || "",
+  businessRegNo: process.env.NEXT_PUBLIC_BIZ_REG_NO || "781-01-02142",
+  ecommerceRegNo: process.env.NEXT_PUBLIC_ECOMMERCE_REG_NO || "2023-서울강남-04297",
   hostingProvider: "Vercel Inc.",
 };
 

@@ -105,7 +105,7 @@ export default async function OgImage() {
             marginTop: "42px",
           }}
         >
-          {["양도가 AI 산정", "191개 업종 등록 검토", "전문 행정사 상담"].map(
+          {["AI 양도가 산정", "AI 인허가 검토", "전문 행정사 상담"].map(
             (feature) => (
               <div
                 key={feature}

@@ -16,9 +16,9 @@ export default function PermitWidgetPage() {
       <Link className="back-link" href="/permit">
         ← 인허가 안내 페이지로
       </Link>
-      <h1 className="sr-only">등록기준 AI 인허가 사전검토 실행</h1>
+      <h1 className="sr-only">AI 인허가 검토 실행</h1>
       <WidgetFrame
-        title="등록기준 AI 인허가 사전검토"
+        title="AI 인허가 검토"
         description="등록기준 충족 여부를 점검하는 전용 실행 화면입니다."
         widgetUrl={widgetUrl("permit")}
         eyebrow="전용 실행 화면"

@@ -82,7 +82,7 @@ export default async function TwitterImage() {
             textAlign: "center",
           }}
         >
-          건설업 면허 양도가 산정 · 건설업등록 검토 · 전문 상담
+          AI 양도가 산정 · AI 인허가 검토 · 전문 상담
         </p>
       </div>
     ),

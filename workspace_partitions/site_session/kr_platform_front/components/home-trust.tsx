@@ -24,7 +24,7 @@ const trustItems: Array<{
     icon: Shield,
     stat: "특허 출원",
     label: "AI 분석 알고리즘",
-    detail: "양도가 산정 및 인허가 사전검토 엔진은 특허 출원 중입니다.",
+    detail: "AI 양도가 산정 및 AI 인허가 검토 엔진은 특허 출원 중입니다.",
   },
   {
     icon: Award,

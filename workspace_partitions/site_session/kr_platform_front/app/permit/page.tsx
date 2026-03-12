@@ -4,7 +4,7 @@ import { platformConfig, widgetUrl } from "@/components/platform-config";
 import { breadcrumbSchema, organizationRef } from "@/lib/json-ld";
 import { WidgetFrame } from "@/components/widget-frame";
 
-const pageTitle = "건설업등록 검토 | 서울건설정보";
+const pageTitle = "AI 인허가 검토 | 서울건설정보";
 const pageDescription =
   "191개 건설 업종 등록기준 충족 여부를 AI가 즉시 검토합니다. 자본금·기술인력·사무실 요건 진단과 신규 취득 비용 계산까지 무료 제공.";
 
@@ -47,9 +47,9 @@ const features = [
 
 const faqs = [
   {
-    question: "인허가 사전검토 비용이 정말 무료인가요?",
+    question: "AI 인허가 검토 비용이 정말 무료인가요?",
     answer:
-      "네, AI 인허가 사전검토는 완전 무료입니다. 간편 소셜 로그인(카카오·네이버·구글) 후 바로 이용할 수 있습니다.",
+      "네, AI 인허가 검토는 완전 무료입니다. 간편 소셜 로그인(카카오·네이버·구글) 후 바로 이용할 수 있습니다.",
   },
   {
     question: "어떤 업종을 검토할 수 있나요?",
@@ -88,7 +88,7 @@ function PermitJsonLd() {
   const serviceSchema = {
     "@context": "https://schema.org",
     "@type": "Service",
-    name: "등록기준 AI 인허가 사전검토",
+    name: "AI 인허가 사전검토 시스템",
     description:
       "건설업·유사 업종 191개의 등록기준 충족 여부를 AI가 무료로 진단합니다.",
     provider: organizationRef,
@@ -109,7 +109,7 @@ function PermitJsonLd() {
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema("건설업등록 검토", "/permit")) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema("AI 인허가 검토", "/permit")) }}
       />
       <script
         type="application/ld+json"
@@ -129,15 +129,11 @@ export default function PermitPage() {
 
       {/* ── 서비스 소개 ── */}
       <section className="service-intro" aria-label="서비스 소개">
-        <p className="eyebrow">건설업등록 검토</p>
-        <h1>
-          등록기준 충족 여부,
-          <br />
-          AI가 즉시 점검합니다
-        </h1>
+        <p className="eyebrow">AI 인허가 검토</p>
+        <h1>등록기준 충족 여부, AI가 즉시 점검합니다</h1>
         <p className="service-intro-body">
-          건설업 면허 취득에 필요한 자본금, 기술인력, 사무실 요건을 항목별로
-          진단합니다. 부족 항목과 신규 취득 예상 비용까지 바로 확인하세요.
+          자본금, 기술인력, 사무실 요건을 항목별로 진단합니다.<br />
+          부족 항목과 신규 취득 예상 비용까지 바로 확인하세요.
         </p>
       </section>
 
@@ -155,12 +151,12 @@ export default function PermitPage() {
 
       {/* ── 위젯 실행 ── */}
       <WidgetFrame
-        title="등록기준 AI 인허가 사전검토"
+        title="AI 인허가 검토"
         description="등록기준 충족 여부를 바로 검토하고, 부족 항목과 보완 방법을 즉시 확인할 수 있습니다."
         widgetUrl={widgetUrl("permit")}
         openUrl="/widget/permit"
-        eyebrow="건설업등록 검토 화면"
-        launchLabel="건설업등록 검토 실행"
+        eyebrow="AI 인허가 검토 화면"
+        launchLabel="AI 인허가 검토 실행"
         gateNote="페이지 진입만으로는 검토가 시작되지 않습니다. 점검을 원할 때 직접 실행하세요."
       />
 
@@ -168,7 +164,7 @@ export default function PermitPage() {
       <section className="service-faq" aria-label="자주 묻는 질문">
         <div className="section-header">
           <p className="eyebrow">자주 묻는 질문</p>
-          <h2>인허가 사전검토, 이것이 궁금합니다</h2>
+          <h2>AI 인허가 검토, 이것이 궁금합니다</h2>
         </div>
         <dl className="faq-list">
           {faqs.map((f) => (

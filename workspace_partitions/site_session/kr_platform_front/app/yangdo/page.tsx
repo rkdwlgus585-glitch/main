@@ -88,7 +88,7 @@ function YangdoJsonLd() {
   const serviceSchema = {
     "@context": "https://schema.org",
     "@type": "Service",
-    name: "건설업 AI 양도가 산정",
+    name: "AI 양도가 산정 시스템",
     description: "건설업 면허 양도가격을 공시 데이터 기반 AI가 무료로 산정합니다.",
     provider: organizationRef,
     serviceType: "AI 가격 산정",
@@ -129,14 +129,10 @@ export default function YangdoPage() {
       {/* ── 서비스 소개 ── */}
       <section className="service-intro" aria-label="서비스 소개">
         <p className="eyebrow">AI 양도가 산정</p>
-        <h1>
-          건설업 면허 양도가,
-          <br />
-          데이터로 바로 확인하세요
-        </h1>
+        <h1>건설업 면허 양도가, 데이터로 바로 확인하세요</h1>
         <p className="service-intro-body">
-          행정사 방문 없이 공시 실적 기반으로 양도가 범위를 즉시 산정합니다. 복합면허
-          분해, 중복매물 보정, 신뢰도 지표까지 한 번에 확인하세요.
+          공시 실적 기반으로 양도가 범위를 즉시 산정합니다.<br />
+          복합면허 분해, 중복매물 보정, 신뢰도 지표까지 한 번에 확인하세요.
         </p>
       </section>
 
@@ -154,12 +150,12 @@ export default function YangdoPage() {
 
       {/* ── 위젯 실행 ── */}
       <WidgetFrame
-        title="건설업 AI 양도가 산정"
+        title="AI 양도가 산정"
         description="양도가 산정을 바로 실행하고, 결과 확인 후 전문 상담까지 이어집니다."
         widgetUrl={widgetUrl("yangdo")}
         openUrl="/widget/yangdo"
         eyebrow="양도가 실행 화면"
-        launchLabel="양도가 산정 실행"
+        launchLabel="AI 양도가 산정 실행"
         gateNote="페이지 진입만으로는 분석이 시작되지 않습니다. 산정을 원할 때 직접 실행하세요."
       />
 
@@ -167,7 +163,7 @@ export default function YangdoPage() {
       <section className="service-faq" aria-label="자주 묻는 질문">
         <div className="section-header">
           <p className="eyebrow">자주 묻는 질문</p>
-          <h2>양도가 산정, 이것이 궁금합니다</h2>
+          <h2>AI 양도가 산정, 이것이 궁금합니다</h2>
         </div>
         <dl className="faq-list">
           {faqs.map((f) => (

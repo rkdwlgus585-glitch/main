@@ -7,7 +7,7 @@ import { breadcrumbSchema, organizationRef, siteBase } from "@/lib/json-ld";
 
 const pageTitle = "시스템 도입 | 서울건설정보";
 const pageDescription =
-  "건설업 AI 양도가 산정·인허가 사전검토 시스템을 귀사에 도입하세요. 행정사무소, 건설 컨설팅, 공공기관 맞춤 솔루션.";
+  "행정사사무소 대상 AI 양도가·인허가 시스템 도입, 건설 컨설팅·공공기관 대상 시장 데이터·뉴스레터 제공. 맞춤 솔루션 안내.";
 
 export const metadata: Metadata = {
   title: pageTitle,
@@ -29,25 +29,25 @@ export const metadata: Metadata = {
 
 const targets = [
   {
-    title: "행정사무소",
+    title: "행정사사무소",
     description:
-      "면허 양도양수 상담 시 AI 양도가 데이터를 즉시 활용하세요. 고객 신뢰도와 업무 효율이 높아집니다.",
+      "면허 양도양수 상담 시 AI 양도가 산정 · AI 인허가 검토 시스템을 즉시 활용하세요. 고객 신뢰도와 업무 효율이 높아집니다.",
     icon: Briefcase,
-    benefits: ["고객 상담 시 실시간 시세 제공", "양도가 근거 자료 자동 생성", "복합면허 분해 분석 지원"],
+    benefits: ["AI 양도가 산정 시스템 직접 운영", "AI 인허가 검토 시스템 탑재", "복합면허 분해 분석 · 근거 자료 자동 생성"],
   },
   {
-    title: "건설 컨설팅 기업",
+    title: "건설 컨설팅 · 법인",
     description:
-      "인허가 사전검토를 자동화하고, 191개 업종 등록기준을 실시간으로 비교 분석할 수 있습니다.",
+      "업종별 시장 동향, 면허 시세 데이터, 정책 변동 뉴스레터를 주기적으로 제공합니다.",
     icon: Building2,
-    benefits: ["191개 업종 등록기준 자동 비교", "신규 취득 비용 즉시 산정", "고객 보고서 데이터 연동"],
+    benefits: ["면허 시세 · 업종 트렌드 데이터 수신", "정책 변동 뉴스레터 정기 발송", "맞춤 데이터 리포트 · API 연동"],
   },
   {
     title: "공공기관 · 협회",
     description:
-      "건설업 면허 시장 데이터와 AI 분석 인프라를 기관 업무에 연동하여 정책 수립을 지원합니다.",
+      "건설업 면허 시장 분석 데이터와 업종별 통계를 기관 업무·정책 수립에 활용할 수 있습니다.",
     icon: Users,
-    benefits: ["시장 데이터 대시보드 제공", "업종별 트렌드 분석 리포트", "맞춤 API 연동 지원"],
+    benefits: ["시장 통계 대시보드 제공", "업종별 트렌드 분석 리포트", "정기 데이터 뉴스레터 발송"],
   },
 ];
 
@@ -61,7 +61,7 @@ const steps = [
 const benefitStats = [
   { label: "업무 시간 절감", value: "70%", detail: "수작업 분석 대비 AI 자동 산정으로 대폭 절감" },
   { label: "분석 업종 수", value: "191개", detail: "건설업 전 업종 등록기준 실시간 비교" },
-  { label: "특허 출원 기술", value: "2건", detail: "양도가 산정 + 인허가 사전검토 알고리즘" },
+  { label: "특허 출원 기술", value: "2건", detail: "AI 양도가 산정 + AI 인허가 검토 알고리즘" },
 ];
 
 /*
@@ -104,14 +104,10 @@ export default function PartnersPage() {
 
       <section className="partners-hero" aria-label="시스템 도입 안내">
         <p className="eyebrow">시스템 도입</p>
-        <h1>
-          AI 분석 시스템,
-          <br />
-          귀사에 도입하세요
-        </h1>
+        <h1>AI 분석 시스템, 귀사에 도입하세요</h1>
         <p className="partners-hero-body">
-          양도가 산정과 인허가 사전검토, 두 가지 AI 시스템을 귀사의 업무 환경에
-          맞춰 도입할 수 있습니다. 특허 출원 기술로 차별화된 분석력을 제공합니다.
+          AI 양도가 산정과 AI 인허가 검토, 두 가지 AI 시스템을<br />
+          귀사 업무 환경에 맞춰 도입할 수 있습니다.
         </p>
         <div className="partners-hero-actions">
           <a className="cta-primary" href={`tel:${platformConfig.contactPhone}`}>
@@ -141,7 +137,7 @@ export default function PartnersPage() {
       {/* ── 도입 대상 ── */}
       <ScrollAnimate delay={80}>
         <section className="partners-targets" aria-label="도입 대상">
-          <div className="section-header" style={{ textAlign: "center" }}>
+          <div className="section-header">
             <p className="eyebrow">도입 대상</p>
             <h2>이런 기관에 적합합니다</h2>
           </div>
@@ -169,7 +165,7 @@ export default function PartnersPage() {
       {/* ── 도입 절차 ── */}
       <ScrollAnimate delay={120}>
         <section className="partners-steps" aria-label="도입 절차">
-          <div className="section-header" style={{ textAlign: "center" }}>
+          <div className="section-header">
             <p className="eyebrow">도입 절차</p>
             <h2>4단계로 완료됩니다</h2>
           </div>
@@ -177,10 +173,8 @@ export default function PartnersPage() {
             {steps.map((s) => (
               <div key={s.step} className="partners-step-item">
                 <span className="partners-step-number">{s.step}</span>
-                <div>
-                  <h3>{s.title}</h3>
-                  <p>{s.description}</p>
-                </div>
+                <h3>{s.title}</h3>
+                <p>{s.description}</p>
               </div>
             ))}
           </div>
@@ -191,8 +185,7 @@ export default function PartnersPage() {
       <section className="consult-start" aria-label="도입 문의 안내">
         <h2>도입을 검토하고 계신가요?</h2>
         <p>
-          무료 데모 시연부터 맞춤 견적까지, 전문 담당자가 안내합니다.
-          <br />
+          무료 데모 시연부터 맞춤 견적까지 전문 담당자가 안내합니다.<br />
           부담 없이 문의해 주세요.
         </p>
         <div className="consult-start-actions">

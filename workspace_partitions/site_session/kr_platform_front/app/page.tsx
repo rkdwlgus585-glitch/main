@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { ConsultationCTA } from "@/components/consultation-cta";
 import { HomeHero } from "@/components/home-hero";
-import { HomeMarketPreview } from "@/components/home-market-preview";
 import { HomeOperations } from "@/components/home-operations";
 import { HomeProcess } from "@/components/home-process";
 import { HomeShortcuts } from "@/components/home-shortcuts";
@@ -29,14 +28,13 @@ function HomeJsonLd() {
     name: "서울건설정보",
     url: siteBase,
     description:
-      "건설업 면허 양도가격 AI 산정, 191개 업종 등록기준 사전검토, 실시간 매물 — 건설업 전문 플랫폼",
+      "건설업 면허 양도가격 AI 산정, 191개 업종 등록기준 사전검토 — 건설업 전문 플랫폼",
     /* SearchAction은 실제 검색 기능 구현 후 추가 예정 */
   };
   const navItems = [
     { name: "회사소개", path: "/about" },
-    { name: "실시간 매물", path: "/mna-market" },
-    { name: "건설업등록", path: "/permit" },
-    { name: "양도가 산정", path: "/yangdo" },
+    { name: "AI 양도가 산정", path: "/yangdo" },
+    { name: "AI 인허가 검토", path: "/permit" },
     { name: "시스템 도입", path: "/partners" },
     { name: "고객센터", path: "/consult" },
   ];
@@ -74,9 +72,6 @@ export default function HomePage() {
         <HomeShortcuts />
       </ScrollAnimate>
       <ScrollAnimate delay={80}>
-        <HomeMarketPreview />
-      </ScrollAnimate>
-      <ScrollAnimate delay={120}>
         <HomeOperations />
       </ScrollAnimate>
       <ScrollAnimate delay={80}>

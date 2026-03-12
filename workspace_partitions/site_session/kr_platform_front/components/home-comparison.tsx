@@ -9,14 +9,14 @@ const rows: Array<{
   platformNote: string;
 }> = [
   {
-    feature: "양도가 산정",
+    feature: "AI 양도가 산정",
     traditional: "partial",
     traditionalNote: "경험 기반 추정",
     platform: "full",
     platformNote: "AI가 6,300+ 기준 교차 분석",
   },
   {
-    feature: "등록기준 검토",
+    feature: "AI 인허가 검토",
     traditional: "partial",
     traditionalNote: "수동 확인, 누락 위험",
     platform: "full",

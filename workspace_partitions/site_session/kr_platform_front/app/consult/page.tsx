@@ -33,7 +33,7 @@ const steps = [
   {
     step: "01",
     title: "AI 무료 분석",
-    description: "양도가 산정 또는 인허가 사전검토를 먼저 실행하세요. 분석 결과가 상담의 출발점이 됩니다.",
+    description: "AI 양도가 산정 또는 AI 인허가 검토를 먼저 실행하세요. 분석 결과가 상담의 출발점이 됩니다.",
   },
   {
     step: "02",
@@ -135,9 +135,9 @@ export default function ConsultPage() {
 
       <section className="consult-hero" aria-label="고객센터 소개">
         <p className="eyebrow">고객센터</p>
-        <h1>AI 분석 다음 단계,<br />전문가가 이어갑니다</h1>
+        <h1>AI 분석 다음 단계, 전문가가 이어갑니다</h1>
         <p className="consult-hero-body">
-          AI가 산정한 양도가와 인허가 진단 결과를 바탕으로
+          AI가 산정한 양도가와 인허가 진단 결과를 바탕으로<br />
           건설업 전문 행정사가 맞춤 상담을 제공합니다.
         </p>
         <div className="consult-hero-actions">
@@ -207,15 +207,15 @@ export default function ConsultPage() {
       <section className="consult-start" aria-label="상담 시작 안내">
         <h2>지금 바로 시작하세요</h2>
         <p>
-          AI 분석을 아직 안 해보셨다면, 먼저 무료 분석부터 시작하세요.
+          AI 분석을 아직 안 해보셨다면 먼저 무료 분석부터 시작하세요.<br />
           분석 결과가 없어도 전화 상담은 언제든 가능합니다.
         </p>
         <div className="consult-start-actions">
           <Link className="cta-primary" href="/yangdo">
-            양도가 산정하기
+            AI 양도가 산정하기
           </Link>
           <Link className="cta-secondary" href="/permit">
-            건설업등록 검토하기
+            AI 인허가 검토하기
           </Link>
           <a className="cta-secondary" href={`tel:${platformConfig.contactPhone}`}>
             <Phone size={16} aria-hidden="true" /> 바로 전화하기
