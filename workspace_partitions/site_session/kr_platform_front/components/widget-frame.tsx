@@ -134,7 +134,7 @@ export function WidgetFrame({
   }, [loadState]);
 
   return (
-    <section className="widget-shell">
+    <section className="widget-shell" aria-label={title}>
       <header className="widget-header">
         <div>
           <p className="eyebrow">{eyebrow}</p>

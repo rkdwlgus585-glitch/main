@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { ConsultationCTA } from "@/components/consultation-cta";
 import { HomeHero } from "@/components/home-hero";
 import { HomeMarketPreview } from "@/components/home-market-preview";
@@ -8,6 +9,10 @@ import { HomeTrust } from "@/components/home-trust";
 import { siteBase } from "@/lib/json-ld";
 import { PlatformStatus } from "@/components/platform-status";
 import { ScrollAnimate } from "@/components/scroll-animate";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 /*
  * NOTE: JSON-LD uses dangerouslySetInnerHTML which is safe here because
