@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
 from collections.abc import Iterable
+from dataclasses import dataclass
 
 from core_engine.host_utils import host_from_origin, normalize_host, to_bool
 
@@ -200,7 +200,7 @@ def load_tenant_gateway_from_file(path: str, *, strict: bool = False, default_te
     if not src:
         return TenantGateway([], strict=strict, default_tenant_id=default_tenant_id)
 
-    with open(src, "r", encoding="utf-8-sig") as fp:
+    with open(src, encoding="utf-8-sig") as fp:
         data = json.load(fp)
 
     tenants_raw = data.get("tenants") if isinstance(data, dict) else []

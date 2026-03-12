@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import Any
-from collections.abc import Iterable
 
 from core_engine.host_utils import host_from_origin, normalize_host, to_bool
 
@@ -177,7 +177,7 @@ def load_channel_router_from_file(
     if not src:
         return ChannelRouter([], strict=strict, default_channel_id=default_channel_id)
 
-    with open(src, "r", encoding="utf-8-sig") as fp:
+    with open(src, encoding="utf-8-sig") as fp:
         data = json.load(fp)
 
     default_id = str(default_channel_id or "").strip().lower()

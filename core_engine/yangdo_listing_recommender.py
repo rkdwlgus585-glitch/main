@@ -1,9 +1,9 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from functools import cmp_to_key
 from typing import Any
-from collections.abc import Callable
 
 __all__ = ["RecommendationOps", "build_recommendation_bundle"]
 
