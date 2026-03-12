@@ -941,8 +941,9 @@ img { max-width: 100%; display: block; }
   text-align: center;
 }
 .consult-form-success-icon {
-  font-size: 2rem;
-  display: block;
+  display: flex;
+  justify-content: center;
+  color: var(--mint);
   margin-bottom: 12px;
 }
 .consult-form-success h3 {
