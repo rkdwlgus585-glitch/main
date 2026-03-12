@@ -4,12 +4,12 @@ import json
 import os
 import re
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 __all__ = ["resolve_channel_branding"]
 
 
-DEFAULT_BRANDING: Dict[str, str] = {
+DEFAULT_BRANDING: dict[str, str] = {
     "brand_name": "\uc11c\uc6b8\uac74\uc124\uc815\ubcf4",
     "brand_label": "\uc11c\uc6b8\uac74\uc124\uc815\ubcf4 \u00b7 SEOUL CONSTRUCTION INFO",
     "site_url": "https://seoulmna.co.kr",
@@ -48,7 +48,7 @@ def _config_path(config_path: str = "") -> Path:
     return path
 
 
-def _load_raw_channel_config(config_path: str = "") -> Dict[str, Any]:
+def _load_raw_channel_config(config_path: str = "") -> dict[str, Any]:
     path = _config_path(config_path)
     if not path.exists():
         return {}
@@ -63,8 +63,8 @@ def resolve_channel_branding(
     *,
     channel_id: str = "",
     config_path: str = "",
-    overrides: Dict[str, Any] | None = None,
-) -> Dict[str, str]:
+    overrides: dict[str, Any] | None = None,
+) -> dict[str, str]:
     """Resolve the final branding dict for a given channel.
 
     Load the channel profiles config, select the matching channel entry,
@@ -76,7 +76,7 @@ def resolve_channel_branding(
     default_channel_id = str((data.get("default_channel_id") if isinstance(data, dict) else "") or "").strip().lower()
     channels = data.get("channels") if isinstance(data, dict) else []
 
-    selected: Dict[str, Any] = {}
+    selected: dict[str, Any] = {}
     if isinstance(channels, list):
         for item in channels:
             if not isinstance(item, dict):

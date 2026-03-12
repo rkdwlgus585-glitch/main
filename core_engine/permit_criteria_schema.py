@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import math
 from datetime import date, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 __all__ = ["evaluate_typed_criteria"]
 
 
-def _to_float(value: Any) -> Optional[float]:
+def _to_float(value: Any) -> float | None:
     try:
         if value is None:
             return None
@@ -19,7 +19,7 @@ def _to_float(value: Any) -> Optional[float]:
     return out
 
 
-def _to_int(value: Any) -> Optional[int]:
+def _to_int(value: Any) -> int | None:
     try:
         if value is None:
             return None
@@ -28,7 +28,7 @@ def _to_int(value: Any) -> Optional[int]:
         return None
 
 
-def _to_bool(value: Any) -> Optional[bool]:
+def _to_bool(value: Any) -> bool | None:
     if isinstance(value, bool):
         return value
     if value is None:
@@ -41,7 +41,7 @@ def _to_bool(value: Any) -> Optional[bool]:
     return None
 
 
-def _safe_list(values: Any) -> List[Any]:
+def _safe_list(values: Any) -> list[Any]:
     if isinstance(values, list):
         return list(values)
     if values is None:
@@ -49,7 +49,7 @@ def _safe_list(values: Any) -> List[Any]:
     return [values]
 
 
-_INPUT_ALIASES: Dict[str, List[str]] = {
+_INPUT_ALIASES: dict[str, list[str]] = {
     "capital_eok": ["current_capital_eok"],
     "technicians": ["technicians_count", "current_technicians"],
     "technicians_count": ["technicians", "current_technicians"],
@@ -66,7 +66,7 @@ _INPUT_ALIASES: Dict[str, List[str]] = {
 }
 
 
-def _resolve_input(inputs: Dict[str, Any], key: str) -> Any:
+def _resolve_input(inputs: dict[str, Any], key: str) -> Any:
     if not key:
         return None
     if key in inputs:
@@ -77,7 +77,7 @@ def _resolve_input(inputs: Dict[str, Any], key: str) -> Any:
     return None
 
 
-def _normalize_criterion(raw: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+def _normalize_criterion(raw: dict[str, Any]) -> dict[str, Any] | None:
     if not isinstance(raw, dict):
         return None
     criterion_id = str(raw.get("criterion_id") or "").strip()
@@ -119,7 +119,7 @@ def _coerce_value(value: Any, value_type: str) -> Any:
     return _to_float(value)
 
 
-def _evaluate_operator(current_value: Any, required_value: Any, operator: str, value_type: str) -> Dict[str, Any]:
+def _evaluate_operator(current_value: Any, required_value: Any, operator: str, value_type: str) -> dict[str, Any]:
     current = _coerce_value(current_value, value_type)
     required = _coerce_value(required_value, value_type)
     op = str(operator or "").strip().lower() or ">="
@@ -193,7 +193,7 @@ def _evaluate_operator(current_value: Any, required_value: Any, operator: str, v
     }
 
 
-def evaluate_typed_criteria(rule: Dict[str, Any], inputs: Dict[str, Any], *, base_date: Optional[date] = None) -> Dict[str, Any]:
+def evaluate_typed_criteria(rule: dict[str, Any], inputs: dict[str, Any], *, base_date: date | None = None) -> dict[str, Any]:
     """Evaluate typed registration criteria against user-supplied inputs.
 
     Walk each criterion in *rule* (office, qualification, facility, safety,
@@ -210,8 +210,8 @@ def evaluate_typed_criteria(rule: Dict[str, Any], inputs: Dict[str, Any], *, bas
     pending_lines = [x for x in _safe_list(rule.get("pending_criteria_lines")) if isinstance(x, dict)]
     doc_templates = [x for x in _safe_list(rule.get("document_templates")) if isinstance(x, dict)]
 
-    criterion_results: List[Dict[str, Any]] = []
-    evidence_checklist: List[Dict[str, Any]] = []
+    criterion_results: list[dict[str, Any]] = []
+    evidence_checklist: list[dict[str, Any]] = []
     blocking_failure_count = 0
     unknown_blocking_count = 0
 
@@ -285,7 +285,7 @@ def evaluate_typed_criteria(rule: Dict[str, Any], inputs: Dict[str, Any], *, bas
     elif coverage_status not in {"full", "verified"}:
         overall_status = "manual_review"
 
-    next_actions: List[str] = []
+    next_actions: list[str] = []
     if blocking_failure_count > 0:
         next_actions.append("부족 등록기준을 우선 충족해야 합니다.")
     if unknown_blocking_count > 0:

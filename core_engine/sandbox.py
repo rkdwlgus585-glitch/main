@@ -11,12 +11,12 @@ computations or consuming usage quota.
 from __future__ import annotations
 
 from core_engine.api_response import now_iso
-from typing import Any, Dict
+from typing import Any
 
 __all__ = ["is_sandbox_request", "sandbox_permit_response", "sandbox_yangdo_response"]
 
 
-_PERMIT_SANDBOX_RESPONSE: Dict[str, Any] = {
+_PERMIT_SANDBOX_RESPONSE: dict[str, Any] = {
     "ok": True,
     "sandbox": True,
     "result": {
@@ -38,7 +38,7 @@ _PERMIT_SANDBOX_RESPONSE: Dict[str, Any] = {
     },
 }
 
-_YANGDO_SANDBOX_RESPONSE: Dict[str, Any] = {
+_YANGDO_SANDBOX_RESPONSE: dict[str, Any] = {
     "ok": True,
     "sandbox": True,
     "result": {
@@ -100,7 +100,7 @@ def is_sandbox_request(
     return False
 
 
-def sandbox_permit_response() -> Dict[str, Any]:
+def sandbox_permit_response() -> dict[str, Any]:
     """Return a static permit precheck response for sandbox mode."""
     resp = dict(_PERMIT_SANDBOX_RESPONSE)
     resp["timestamp"] = now_iso()
@@ -108,7 +108,7 @@ def sandbox_permit_response() -> Dict[str, Any]:
     return resp
 
 
-def sandbox_yangdo_response() -> Dict[str, Any]:
+def sandbox_yangdo_response() -> dict[str, Any]:
     """Return a static yangdo estimate response for sandbox mode."""
     resp = dict(_YANGDO_SANDBOX_RESPONSE)
     resp["timestamp"] = now_iso()

@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from functools import cmp_to_key
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any
+from collections.abc import Callable
 
 __all__ = ["RecommendationOps", "build_recommendation_bundle"]
 
@@ -15,25 +16,25 @@ class RecommendationOps:
     single_token_target_core: Callable[[set], str]
     is_single_token_same_core: Callable[[set, set, Any], bool]
     company_type_key: Callable[[Any], str]
-    feature_scale_mismatch: Callable[..., Tuple[int, int]]
+    feature_scale_mismatch: Callable[..., tuple[int, int]]
     token_containment: Callable[[set, set], float]
     relative_closeness: Callable[[Any, Any], float]
-    sales_fit_score: Callable[[Dict[str, Any], Dict[str, Any]], float]
-    yearly_shape_similarity: Callable[[Dict[str, Any], Dict[str, Any]], Dict[str, float]]
-    derive_display_range_eok: Callable[[Any, Any, Any, Any], Tuple[Any, Any]]
+    sales_fit_score: Callable[[dict[str, Any], dict[str, Any]], float]
+    yearly_shape_similarity: Callable[[dict[str, Any], dict[str, Any]], dict[str, float]]
+    derive_display_range_eok: Callable[[Any, Any, Any, Any], tuple[Any, Any]]
     listing_number_band: Callable[[Any], int]
-    to_float: Callable[[Any], Optional[float]]
+    to_float: Callable[[Any], float | None]
     compact: Callable[..., str]
     round4: Callable[[Any], Any]
     site_url: str
 
 
 def _range_pair_from_record(
-    rec: Dict[str, Any],
+    rec: dict[str, Any],
     *,
-    to_float: Callable[[Any], Optional[float]],
-    derive_display_range_eok: Callable[[Any, Any, Any, Any], Tuple[Any, Any]],
-) -> Tuple[Optional[float], Optional[float]]:
+    to_float: Callable[[Any], float | None],
+    derive_display_range_eok: Callable[[Any, Any, Any, Any], tuple[Any, Any]],
+) -> tuple[float | None, float | None]:
     low = to_float(rec.get("display_low_eok"))
     high = to_float(rec.get("display_high_eok"))
     current_price = to_float(rec.get("current_price_eok"))
@@ -62,8 +63,8 @@ def _range_pair_from_record(
 
 
 def _price_overlap_score(
-    left: Dict[str, Any],
-    right: Dict[str, Any],
+    left: dict[str, Any],
+    right: dict[str, Any],
     *,
     ops: RecommendationOps,
 ) -> float:
@@ -84,7 +85,7 @@ def _price_overlap_score(
     return ops.relative_closeness((l1 + h1) / 2.0, (l2 + h2) / 2.0)
 
 
-def _yearly_fit_score(target: Dict[str, Any], rec: Dict[str, Any], *, ops: RecommendationOps) -> Tuple[float, float]:
+def _yearly_fit_score(target: dict[str, Any], rec: dict[str, Any], *, ops: RecommendationOps) -> tuple[float, float]:
     yearly = ops.yearly_shape_similarity(target, rec)
     strength = float(yearly.get("strength") or 0.0)
     if strength <= 0:
@@ -101,7 +102,7 @@ def _yearly_fit_score(target: Dict[str, Any], rec: Dict[str, Any], *, ops: Recom
     return yearly_fit, strength
 
 
-def _infer_balance_excluded(target: Dict[str, Any], *, target_tokens: set) -> bool:
+def _infer_balance_excluded(target: dict[str, Any], *, target_tokens: set) -> bool:
     if bool(target.get("balance_excluded")):
         return True
     for token in target_tokens or set():
@@ -125,9 +126,9 @@ def _matched_axes(
     yearly_fit: float,
     company_match: float,
     balance_excluded: bool,
-) -> Tuple[List[str], List[str]]:
-    matched: List[str] = []
-    weak: List[str] = []
+) -> tuple[list[str], list[str]]:
+    matched: list[str] = []
+    weak: list[str] = []
     if token_match >= 0.999:
         matched.append("면허 일치")
     elif same_core >= 0.999:
@@ -174,7 +175,7 @@ def _build_recommendation_reasons(
     yearly_fit: float,
     company_match: float,
     balance_excluded: bool,
-) -> List[str]:
+) -> list[str]:
     matched, weak = _matched_axes(
         token_match=token_match,
         same_core=same_core,
@@ -187,7 +188,7 @@ def _build_recommendation_reasons(
         company_match=company_match,
         balance_excluded=balance_excluded,
     )
-    reasons: List[str] = []
+    reasons: list[str] = []
     if "면허 일치" in matched:
         reasons.append("면허 구성이 같습니다")
     elif "핵심 업종 일치" in matched:
@@ -211,7 +212,7 @@ def _build_recommendation_reasons(
             reasons.append("면허는 유사하지만 일부 규모 축 차이가 있어 보조 검토용으로 추천합니다")
         else:
             reasons.append("입력한 면허와 가격대가 가까운 매물입니다")
-    out: List[str] = []
+    out: list[str] = []
     for reason in reasons:
         if reason and reason not in out:
             out.append(reason)
@@ -221,8 +222,8 @@ def _build_recommendation_reasons(
 
 
 def _fit_summary(
-    matched_axes: List[str],
-    mismatch_flags: List[str],
+    matched_axes: list[str],
+    mismatch_flags: list[str],
     *,
     score: float,
 ) -> str:
@@ -250,7 +251,7 @@ def _score_candidate(
     company_match: float,
     signal_count: int,
     mismatch_count: int,
-    matched_axes: List[str],
+    matched_axes: list[str],
 ) -> float:
     score = 0.0
     score += (similarity / 100.0) * 0.27
@@ -284,9 +285,9 @@ def _recommendation_label(
     *,
     token_match: float = 0.0,
     same_core: float = 0.0,
-    matched_axes: Optional[List[str]] = None,
-    mismatch_flags: Optional[List[str]] = None,
-) -> Tuple[int, str, str]:
+    matched_axes: list[str] | None = None,
+    mismatch_flags: list[str] | None = None,
+) -> tuple[int, str, str]:
     matched_count = len(list(matched_axes or []))
     mismatch_count = len(list(mismatch_flags or []))
     if score >= 0.80:
@@ -300,7 +301,7 @@ def _recommendation_label(
     return 0, "보조 검토", "assist"
 
 
-def _build_recommendation_meta(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
+def _build_recommendation_meta(rows: list[dict[str, Any]]) -> dict[str, Any]:
     total = len(rows)
     if not total:
         return {
@@ -352,7 +353,7 @@ def _build_recommendation_meta(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     }
 
 
-def _recommendation_price_band(row: Dict[str, Any], *, ops: RecommendationOps) -> str:
+def _recommendation_price_band(row: dict[str, Any], *, ops: RecommendationOps) -> str:
     low = ops.to_float(row.get("display_low_eok"))
     high = ops.to_float(row.get("display_high_eok"))
     price = ops.to_float(row.get("price_eok"))
@@ -376,8 +377,8 @@ def _recommendation_price_band(row: Dict[str, Any], *, ops: RecommendationOps) -
     return "6_plus"
 
 
-def _recommendation_focus_signature(row: Dict[str, Any]) -> str:
-    parts: List[str] = []
+def _recommendation_focus_signature(row: dict[str, Any]) -> str:
+    parts: list[str] = []
     matched_axes = [str(axis).strip() for axis in (row.get("matched_axes") or []) if str(axis).strip()]
     mismatch_flags = [str(flag).strip() for flag in (row.get("mismatch_flags") or []) if str(flag).strip()]
     price_band = str(row.get("recommendation_price_band") or "").strip()
@@ -394,17 +395,17 @@ def _recommendation_focus_signature(row: Dict[str, Any]) -> str:
 
 
 def _rerank_with_diversity(
-    ranked: List[Tuple[int, int, float, float, float, Dict[str, Any]]],
+    ranked: list[tuple[int, int, float, float, float, dict[str, Any]]],
     *,
     limit: int,
-) -> List[Tuple[int, int, float, float, float, Dict[str, Any]]]:
+) -> list[tuple[int, int, float, float, float, dict[str, Any]]]:
     wanted = max(1, int(limit or 0))
     if len(ranked) <= 2 or wanted <= 2:
         return ranked[:wanted]
 
-    selected: List[Tuple[int, int, float, float, float, Dict[str, Any]]] = [ranked[0]]
+    selected: list[tuple[int, int, float, float, float, dict[str, Any]]] = [ranked[0]]
     remaining = list(ranked[1:])
-    used_counts: Dict[str, Dict[str, int]] = {
+    used_counts: dict[str, dict[str, int]] = {
         "price_band": {},
         "focus_signature": {},
         "precision_tier": {},
@@ -412,7 +413,7 @@ def _rerank_with_diversity(
         "label": {},
     }
 
-    def _remember(entry: Tuple[int, int, float, float, float, Dict[str, Any]]) -> None:
+    def _remember(entry: tuple[int, int, float, float, float, dict[str, Any]]) -> None:
         row = entry[5]
         keys = {
             "price_band": str(row.get("recommendation_price_band") or "").strip(),
@@ -469,8 +470,8 @@ def _rerank_with_diversity(
 
 
 def _compare_recommendation_entries(
-    left: Tuple[int, int, float, float, float, Dict[str, Any]],
-    right: Tuple[int, int, float, float, float, Dict[str, Any]],
+    left: tuple[int, int, float, float, float, dict[str, Any]],
+    right: tuple[int, int, float, float, float, dict[str, Any]],
 ) -> int:
     if left[0] != right[0]:
         return -1 if left[0] > right[0] else 1
@@ -490,14 +491,14 @@ def _compare_recommendation_entries(
 
 def build_recommendation_bundle(
     *,
-    target: Dict[str, Any],
-    rows: List[Tuple[float, Dict[str, Any]]],
+    target: dict[str, Any],
+    rows: list[tuple[float, dict[str, Any]]],
     center: Any,
     low: Any,
     high: Any,
     ops: RecommendationOps,
     limit: int = 4,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Score, filter, and rank candidate listings into a recommendation bundle.
 
     Evaluate each candidate against the *target* on fit (price, sales,
@@ -519,7 +520,7 @@ def build_recommendation_bundle(
     target_company = ops.company_type_key(target.get("company_type"))
     balance_excluded = _infer_balance_excluded(target, target_tokens=target_tokens)
     target_has_sales = any((ops.to_float(target.get(field)) or 0.0) > 0.0 for field in ("sales3_eok", "sales5_eok"))
-    ranked: List[Tuple[int, int, float, float, float, Dict[str, Any]]] = []
+    ranked: list[tuple[int, int, float, float, float, dict[str, Any]]] = []
     seen = set()
 
     for sim, rec in src:

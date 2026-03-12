@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import math
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 __all__ = ["collapse_duplicate_neighbors"]
 
 
-def _to_float(value: Any) -> Optional[float]:
+def _to_float(value: Any) -> float | None:
     try:
         if value is None:
             return None
@@ -18,7 +18,7 @@ def _to_float(value: Any) -> Optional[float]:
     return out
 
 
-def _tokens(rec: Dict[str, Any]) -> set:
+def _tokens(rec: dict[str, Any]) -> set:
     raw = rec.get("license_tokens") or rec.get("tokens") or []
     if isinstance(raw, set):
         return set(x for x in raw if str(x).strip())
@@ -52,7 +52,7 @@ def _closeness(left: Any, right: Any) -> float:
     return max(0.0, min(1.0, score))
 
 
-def _ratio(left: Any, right: Any) -> Optional[float]:
+def _ratio(left: Any, right: Any) -> float | None:
     lv = _to_float(left)
     rv = _to_float(right)
     if lv is None or rv is None or lv <= 0 or rv <= 0:
@@ -62,7 +62,7 @@ def _ratio(left: Any, right: Any) -> Optional[float]:
     return a / max(0.05, b)
 
 
-def _range_pair(rec: Dict[str, Any]) -> Tuple[Optional[float], Optional[float]]:
+def _range_pair(rec: dict[str, Any]) -> tuple[float | None, float | None]:
     low = _to_float(rec.get("display_low_eok"))
     high = _to_float(rec.get("display_high_eok"))
     if low is None and high is None:
@@ -77,7 +77,7 @@ def _range_pair(rec: Dict[str, Any]) -> Tuple[Optional[float], Optional[float]]:
     return low, high
 
 
-def _price_overlap_score(left: Dict[str, Any], right: Dict[str, Any]) -> float:
+def _price_overlap_score(left: dict[str, Any], right: dict[str, Any]) -> float:
     l1, h1 = _range_pair(left)
     l2, h2 = _range_pair(right)
     if None in {l1, h1, l2, h2}:
@@ -100,7 +100,7 @@ def _text_key(value: Any) -> str:
     return " ".join(str(value or "").strip().lower().split())
 
 
-def _location_match(left: Dict[str, Any], right: Dict[str, Any]) -> float:
+def _location_match(left: dict[str, Any], right: dict[str, Any]) -> float:
     a = _text_key(left.get("location"))
     b = _text_key(right.get("location"))
     if not a or not b:
@@ -120,7 +120,7 @@ def _same_text(left: Any, right: Any) -> float:
     return 1.0 if a == b else 0.0
 
 
-def _extreme_mismatch_count(left: Dict[str, Any], right: Dict[str, Any]) -> int:
+def _extreme_mismatch_count(left: dict[str, Any], right: dict[str, Any]) -> int:
     count = 0
     for key in ("specialty", "sales3_eok", "capital_eok"):
         ratio = _ratio(left.get(key), right.get(key))
@@ -129,7 +129,7 @@ def _extreme_mismatch_count(left: Dict[str, Any], right: Dict[str, Any]) -> int:
     return count
 
 
-def _duplicate_affinity(left: Dict[str, Any], right: Dict[str, Any]) -> Tuple[float, int]:
+def _duplicate_affinity(left: dict[str, Any], right: dict[str, Any]) -> tuple[float, int]:
     left_tokens = _tokens(left)
     right_tokens = _tokens(right)
     inter = left_tokens & right_tokens
@@ -171,7 +171,7 @@ def _duplicate_affinity(left: Dict[str, Any], right: Dict[str, Any]) -> Tuple[fl
     return float(score), int(secondary_hits)
 
 
-def _is_same_cluster(left: Dict[str, Any], right: Dict[str, Any]) -> bool:
+def _is_same_cluster(left: dict[str, Any], right: dict[str, Any]) -> bool:
     score, secondary_hits = _duplicate_affinity(left, right)
     if score >= 0.82:
         return True
@@ -180,7 +180,7 @@ def _is_same_cluster(left: Dict[str, Any], right: Dict[str, Any]) -> bool:
     return False
 
 
-def _completeness(rec: Dict[str, Any]) -> int:
+def _completeness(rec: dict[str, Any]) -> int:
     score = 0
     for key in ("specialty", "sales3_eok", "capital_eok", "license_year", "display_low_eok", "display_high_eok", "claim_price_eok"):
         if _to_float(rec.get(key)) is not None:
@@ -191,7 +191,7 @@ def _completeness(rec: Dict[str, Any]) -> int:
     return score
 
 
-def _choose_representative(cluster_rows: List[Tuple[float, Dict[str, Any]]]) -> Tuple[float, Dict[str, Any]]:
+def _choose_representative(cluster_rows: list[tuple[float, dict[str, Any]]]) -> tuple[float, dict[str, Any]]:
     """Select the best representative from a duplicate cluster.
 
     Rank by completeness (descending), then similarity (descending),
@@ -208,8 +208,8 @@ def _choose_representative(cluster_rows: List[Tuple[float, Dict[str, Any]]]) -> 
 
 
 def collapse_duplicate_neighbors(
-    neighbors: List[Tuple[float, Dict[str, Any]]],
-) -> Dict[str, Any]:
+    neighbors: list[tuple[float, dict[str, Any]]],
+) -> dict[str, Any]:
     """Deduplicate a neighbor list by merging records in the same cluster.
 
     Group near-identical rows using affinity scoring, pick the best
@@ -246,13 +246,13 @@ def collapse_duplicate_neighbors(
             if _is_same_cluster(rows[i][1], rows[j][1]):
                 union(i, j)
 
-    grouped: Dict[int, List[Tuple[float, Dict[str, Any]]]] = {}
+    grouped: dict[int, list[tuple[float, dict[str, Any]]]] = {}
     for idx, item in enumerate(rows):
         root = find(idx)
         grouped.setdefault(root, []).append(item)
 
-    collapsed_neighbors: List[Tuple[float, Dict[str, Any]]] = []
-    cluster_summaries: List[Dict[str, Any]] = []
+    collapsed_neighbors: list[tuple[float, dict[str, Any]]] = []
+    cluster_summaries: list[dict[str, Any]] = []
     for cluster_rows in grouped.values():
         rep_sim, rep = _choose_representative(cluster_rows)
         rep_out = dict(rep)

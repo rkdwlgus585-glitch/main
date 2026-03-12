@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Any, Dict, Iterable, List, Tuple
+from typing import Any
+from collections.abc import Iterable
 
 from core_engine.api_response import now_iso
 
@@ -25,30 +26,30 @@ def _normalize_text(value: Any) -> str:
     return " ".join(str(value or "").split()).strip()
 
 
-def _is_pending_row(row: Dict[str, Any]) -> bool:
+def _is_pending_row(row: dict[str, Any]) -> bool:
     status = _normalize_text(row.get("collection_status")).lower()
     return status not in {"criteria_extracted", "mapped", "done"}
 
 
-def _chunk(rows: List[Dict[str, Any]], size: int) -> Iterable[List[Dict[str, Any]]]:
+def _chunk(rows: list[dict[str, Any]], size: int) -> Iterable[list[dict[str, Any]]]:
     step = max(1, int(size))
     for idx in range(0, len(rows), step):
         yield rows[idx : idx + step]
 
 
 def apply_mapping_pipeline(
-    industries: Iterable[Dict[str, Any]],
+    industries: Iterable[dict[str, Any]],
     *,
     batch_size: int = 12,
-) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """Run the criteria-mapping pipeline over an industry catalog.
 
     Partition pending rows by major-code, chunk them into batches, assign
     collection metadata, and return the updated catalog together with a
     summary dict containing batch descriptors and aggregate statistics."""
-    updated: List[Dict[str, Any]] = []
-    pending_by_major: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
-    major_names: Dict[str, str] = {}
+    updated: list[dict[str, Any]] = []
+    pending_by_major: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    major_names: dict[str, str] = {}
 
     for row in list(industries or []):
         if not isinstance(row, dict):
@@ -67,9 +68,9 @@ def apply_mapping_pipeline(
             copied["mapping_batch_seq"] = 0
         updated.append(copied)
 
-    batches: List[MappingBatch] = []
-    pending_lookup: Dict[str, Tuple[str, int]] = {}
-    batch_count_by_major: Dict[str, int] = defaultdict(int)
+    batches: list[MappingBatch] = []
+    pending_lookup: dict[str, tuple[str, int]] = {}
+    batch_count_by_major: dict[str, int] = defaultdict(int)
 
     for major_code in sorted(pending_by_major.keys()):
         rows = pending_by_major[major_code]
@@ -83,7 +84,7 @@ def apply_mapping_pipeline(
         for chunk_idx, chunk_rows in enumerate(_chunk(rows, batch_size), 1):
             batch_count_by_major[major_code] += 1
             batch_id = f"M{major_code or '00'}-B{chunk_idx:02d}"
-            service_codes: List[str] = []
+            service_codes: list[str] = []
             for seq, row in enumerate(chunk_rows, 1):
                 code = _normalize_text(row.get("service_code"))
                 service_codes.append(code)

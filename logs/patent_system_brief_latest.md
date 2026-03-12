@@ -45,7 +45,7 @@
   - cluster-weight 제한
 - Evidence:
   - 요청 투영/응답 tier: H:\auto\yangdo_blackbox_api.py:781
-  - 유사 매물 추천 코어: H:\auto\core_engine\yangdo_listing_recommender.py:491
+  - 유사 매물 추천 코어: H:\auto\core_engine\yangdo_listing_recommender.py:492
   - 추천 정밀도 QA 매트릭스: H:\auto\scripts\generate_yangdo_recommendation_precision_matrix.py:384
   - 추천 다양성 감사: H:\auto\scripts\generate_yangdo_recommendation_diversity_audit.py:407
   - 특수 업종 정밀화 packet: H:\auto\scripts\generate_yangdo_special_sector_packet.py:130
@@ -90,7 +90,7 @@
   - permit 시스템 차단: H:\auto\permit_precheck_api.py:264
   - permit precheck 엔드포인트: H:\auto\permit_precheck_api.py:1301
   - 확장 기준 수집: H:\auto\scripts\collect_permit_extended_criteria.py:390
-  - 법령 매핑 파이프라인: H:\auto\core_engine\permit_mapping_pipeline.py:39
+  - 법령 매핑 파이프라인: H:\auto\core_engine\permit_mapping_pipeline.py:40
 
 ## Track P - 독립 시스템을 공유 인프라로 공급하는 멀티테넌트 계산 플랫폼
 - Scope: yangdo/permit 독립 시스템을 tenant/channel/billing/activation으로 공급
@@ -117,7 +117,7 @@
   - activation and smoke rollback
 - Evidence:
   - tenant system gate: H:\auto\core_engine\tenant_gateway.py:37
-  - channel system gate: H:\auto\core_engine\channel_profiles.py:46
+  - channel system gate: H:\auto\core_engine\channel_profiles.py:47
   - 공통 응답 envelope: H:\auto\core_engine\api_response.py:35
   - 공통 요청 contract: H:\auto\core_engine\api_contract.py
   - 파트너 활성화: H:\auto\scripts\activate_partner_tenant.py:170

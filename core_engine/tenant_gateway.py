@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
-from typing import Dict, Iterable, List, Optional, Set
+from collections.abc import Iterable
 
 from core_engine.host_utils import host_from_origin, normalize_host, to_bool
 
@@ -29,7 +29,7 @@ class TenantProfile:
 
 @dataclass(frozen=True)
 class TenantResolution:
-    tenant: Optional[TenantProfile]
+    tenant: TenantProfile | None
     matched_host: str = ""
     source: str = ""
 
@@ -46,8 +46,8 @@ class TenantGateway:
     ) -> None:
         self.strict = bool(strict)
         self.default_tenant_id = str(default_tenant_id or "").strip().lower()
-        self._tenants: Dict[str, TenantProfile] = {}
-        self._by_host: Dict[str, TenantProfile] = {}
+        self._tenants: dict[str, TenantProfile] = {}
+        self._by_host: dict[str, TenantProfile] = {}
         for tenant in tenants:
             tid = str(tenant.tenant_id or "").strip().lower()
             if not tid:
@@ -64,7 +64,7 @@ class TenantGateway:
 
     def resolve(self, host: str = "", origin: str = "") -> TenantResolution:
         """Resolve *host* or *origin* to a ``TenantResolution``."""
-        candidates: List[tuple[str, str]] = []
+        candidates: list[tuple[str, str]] = []
         h = normalize_host(host)
         if h:
             candidates.append((h, "host"))
@@ -124,8 +124,8 @@ class TenantGateway:
 
 def tenant_from_json_entry(
     entry: dict,
-    plan_feature_defaults: Optional[Dict[str, Set[str]]] = None,
-) -> Optional[TenantProfile]:
+    plan_feature_defaults: dict[str, set[str]] | None = None,
+) -> TenantProfile | None:
     """Parse a raw JSON dict into a ``TenantProfile``; return None on invalid input."""
     if not isinstance(entry, dict):
         return None
@@ -135,7 +135,7 @@ def tenant_from_json_entry(
     display_name = str(entry.get("display_name") or tenant_id).strip() or tenant_id
 
     hosts_raw = entry.get("hosts") or []
-    hosts: List[str] = []
+    hosts: list[str] = []
     if isinstance(hosts_raw, list):
         for h in hosts_raw:
             nh = normalize_host(str(h))
@@ -146,7 +146,7 @@ def tenant_from_json_entry(
     enabled = to_bool(entry.get("enabled"), True)
 
     features_raw = entry.get("allowed_features") or []
-    features: Set[str] = set()
+    features: set[str] = set()
     if isinstance(features_raw, list):
         for f in features_raw:
             key = str(f or "").strip().lower()
@@ -158,7 +158,7 @@ def tenant_from_json_entry(
         features = set(defaults)
 
     systems_raw = entry.get("allowed_systems") or []
-    systems: Set[str] = set()
+    systems: set[str] = set()
     if isinstance(systems_raw, list):
         for value in systems_raw:
             key = str(value or "").strip().lower()
@@ -171,7 +171,7 @@ def tenant_from_json_entry(
             systems.add("yangdo")
 
     blocked_raw = entry.get("blocked_api_tokens") or []
-    blocked_tokens: Set[str] = set()
+    blocked_tokens: set[str] = set()
     if isinstance(blocked_raw, list):
         for item in blocked_raw:
             token = str(item or "").strip()
@@ -206,13 +206,13 @@ def load_tenant_gateway_from_file(path: str, *, strict: bool = False, default_te
     tenants_raw = data.get("tenants") if isinstance(data, dict) else []
     plan_defaults_raw = data.get("plan_feature_defaults") if isinstance(data, dict) else {}
 
-    plan_feature_defaults: Dict[str, Set[str]] = {}
+    plan_feature_defaults: dict[str, set[str]] = {}
     if isinstance(plan_defaults_raw, dict):
         for plan, raw_features in plan_defaults_raw.items():
             plan_key = str(plan or "").strip().lower()
             if not plan_key:
                 continue
-            fs: Set[str] = set()
+            fs: set[str] = set()
             if isinstance(raw_features, list):
                 for f in raw_features:
                     key = str(f or "").strip().lower()
@@ -221,7 +221,7 @@ def load_tenant_gateway_from_file(path: str, *, strict: bool = False, default_te
             if fs:
                 plan_feature_defaults[plan_key] = fs
 
-    tenants: List[TenantProfile] = []
+    tenants: list[TenantProfile] = []
     if isinstance(tenants_raw, list):
         for raw in tenants_raw:
             profile = tenant_from_json_entry(raw, plan_feature_defaults=plan_feature_defaults)

@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
-from typing import Any, Dict, Iterable, List, Optional
+from typing import Any
+from collections.abc import Iterable
 
 from core_engine.host_utils import host_from_origin, normalize_host, to_bool
 
@@ -38,7 +39,7 @@ class ChannelProfile:
 
 @dataclass(frozen=True)
 class ChannelResolution:
-    profile: Optional[ChannelProfile]
+    profile: ChannelProfile | None
     matched_host: str = ""
     source: str = ""
 
@@ -55,8 +56,8 @@ class ChannelRouter:
     ) -> None:
         self.strict = bool(strict)
         self.default_channel_id = str(default_channel_id or "").strip().lower()
-        self._profiles: Dict[str, ChannelProfile] = {}
-        self._by_host: Dict[str, ChannelProfile] = {}
+        self._profiles: dict[str, ChannelProfile] = {}
+        self._by_host: dict[str, ChannelProfile] = {}
 
         for profile in profiles:
             channel_id = str(profile.channel_id or "").strip().lower()
@@ -74,7 +75,7 @@ class ChannelRouter:
 
     def resolve(self, host: str = "", origin: str = "") -> ChannelResolution:
         """Resolve a request's host/origin to a ``ChannelResolution``."""
-        candidates: List[tuple[str, str]] = []
+        candidates: list[tuple[str, str]] = []
         host_norm = normalize_host(host)
         if host_norm:
             candidates.append((host_norm, "host"))
@@ -108,7 +109,7 @@ class ChannelRouter:
 
 
 
-def channel_profile_from_json_entry(entry: dict) -> Optional[ChannelProfile]:
+def channel_profile_from_json_entry(entry: dict) -> ChannelProfile | None:
     """Parse a raw JSON dict into a ``ChannelProfile``; return ``None`` on invalid input."""
     if not isinstance(entry, dict):
         return None
@@ -122,7 +123,7 @@ def channel_profile_from_json_entry(entry: dict) -> Optional[ChannelProfile]:
         return None
     public_calculator_mount_base = str(entry.get("public_calculator_mount_base") or "").strip().rstrip("/")
     hosts_raw = entry.get("channel_hosts") or []
-    hosts: List[str] = []
+    hosts: list[str] = []
     if isinstance(hosts_raw, list):
         for host in hosts_raw:
             norm = normalize_host(str(host))
@@ -185,7 +186,7 @@ def load_channel_router_from_file(
         profiles_raw = data.get("channels") or []
         if not default_id:
             default_id = str(data.get("default_channel_id") or "").strip().lower()
-    profiles: List[ChannelProfile] = []
+    profiles: list[ChannelProfile] = []
     if isinstance(profiles_raw, list):
         for row in profiles_raw:
             profile = channel_profile_from_json_entry(row)

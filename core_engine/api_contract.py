@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Mapping
+from typing import Any
+from collections.abc import Mapping
 
 from core_engine.api_response import _compact
 
@@ -10,18 +11,18 @@ __all__ = ["RESERVED_WRAPPER_KEYS", "normalize_v1_request"]
 RESERVED_WRAPPER_KEYS = {"request", "inputs", "input", "selector", "target", "meta", "context"}
 
 
-def _dict(value: Any) -> Dict[str, Any]:
+def _dict(value: Any) -> dict[str, Any]:
     """Safely coerce *value* to a dict; return empty dict for non-dict input."""
     return dict(value) if isinstance(value, dict) else {}
 
 
 def normalize_v1_request(
-    payload: Dict[str, Any] | None,
+    payload: dict[str, Any] | None,
     *,
     headers: Mapping[str, Any] | None = None,
     default_source: str = "",
     default_page_url: str = "",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Normalise a v1 API request payload into a canonical structure.
 
     Accept multiple input formats (nested ``request``/``inputs``/``selector``
@@ -38,7 +39,7 @@ def normalize_v1_request(
 
     flat_fields = {k: v for k, v in raw.items() if str(k or "") not in RESERVED_WRAPPER_KEYS}
 
-    request_meta: Dict[str, Any] = {}
+    request_meta: dict[str, Any] = {}
     request_meta.update(meta_block)
     request_meta.update(request_block)
 
