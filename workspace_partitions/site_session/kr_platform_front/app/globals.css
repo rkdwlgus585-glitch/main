@@ -249,6 +249,12 @@ img { max-width: 100%; display: block; }
   box-shadow: 0 4px 16px rgba(0, 163, 255, 0.3);
 }
 
+.cta-primary:active {
+  transform: translateY(0) scale(0.97);
+  box-shadow: 0 1px 4px rgba(0, 163, 255, 0.2);
+  transition-duration: 80ms;
+}
+
 .cta-secondary {
   background: rgba(255, 255, 255, 0.15);
   color: white;
@@ -257,6 +263,11 @@ img { max-width: 100%; display: block; }
 
 .cta-secondary:hover {
   background: rgba(255, 255, 255, 0.22);
+}
+
+.cta-secondary:active {
+  transform: scale(0.97);
+  transition-duration: 80ms;
 }
 
 /* ── Section Headers ───────────────────────────────────────── */
@@ -652,7 +663,8 @@ img { max-width: 100%; display: block; }
   border: 1px solid var(--line);
   transition: box-shadow 200ms var(--ease), border-color 200ms var(--ease);
 }
-.knowledge-card:hover {
+.knowledge-card:hover,
+.knowledge-card:focus-within {
   border-color: rgba(0, 163, 255, 0.25);
   box-shadow: var(--shadow-md);
 }
@@ -689,10 +701,14 @@ img { max-width: 100%; display: block; }
 .knowledge-articles a {
   color: var(--brand);
   font-weight: 500;
-  transition: color 200ms var(--ease);
+  text-decoration: underline transparent;
+  text-underline-offset: 3px;
+  transition: color 200ms var(--ease), text-decoration-color 200ms var(--ease);
 }
-.knowledge-articles a:hover {
+.knowledge-articles a:hover,
+.knowledge-articles a:focus-visible {
   color: var(--point);
+  text-decoration-color: var(--point);
 }
 .knowledge-cta {
   text-align: center;
@@ -753,7 +769,8 @@ img { max-width: 100%; display: block; }
   border: 1px solid var(--line);
   transition: box-shadow 200ms var(--ease), border-color 200ms var(--ease);
 }
-.benefit-card:hover {
+.benefit-card:hover,
+.benefit-card:focus-within {
   border-color: rgba(0, 163, 255, 0.18);
   box-shadow: var(--shadow-md);
 }
@@ -1031,7 +1048,8 @@ img { max-width: 100%; display: block; }
   border: 1px solid var(--line);
   transition: box-shadow 200ms var(--ease), border-color 200ms var(--ease);
 }
-.feature-card:hover {
+.feature-card:hover,
+.feature-card:focus-within {
   border-color: rgba(0, 163, 255, 0.18);
   box-shadow: var(--shadow-md);
 }
@@ -1195,6 +1213,23 @@ img { max-width: 100%; display: block; }
     linear-gradient(145deg, #021225 0%, #05325f 55%, #0a4d8c 100%);
   color: white;
   box-shadow: var(--shadow-xl);
+}
+
+.home-hero-copy::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(0, 163, 255, 0.08) 0%, transparent 60%);
+  animation: hero-glow 8s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes hero-glow {
+  0%   { transform: translate(-10%, -10%); }
+  100% { transform: translate(10%, 10%); }
 }
 
 .home-hero-copy::after {
