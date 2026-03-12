@@ -3,6 +3,9 @@ import Link from "next/link";
 import { platformConfig, widgetUrl } from "@/components/platform-config";
 import { breadcrumbSchema, organizationRef } from "@/lib/json-ld";
 import { WidgetFrame } from "@/components/widget-frame";
+import { YangdoCalculator } from "@/components/yangdo/yangdo-calculator";
+
+const USE_NATIVE = process.env.NEXT_PUBLIC_NATIVE_CALC === "true";
 
 const pageTitle = "AI 양도가 산정 | 서울건설정보";
 const pageDescription =
@@ -138,6 +141,10 @@ export default function YangdoPage() {
 
       {/* ── 특징 그리드 ── */}
       <section className="service-features" aria-label="서비스 특징">
+        <div className="section-header">
+          <p className="eyebrow">주요 특징</p>
+          <h2>정밀한 양도가, 투명한 근거</h2>
+        </div>
         <div className="features-grid">
           {features.map((f) => (
             <div className="feature-item" key={f.title}>
@@ -148,16 +155,27 @@ export default function YangdoPage() {
         </div>
       </section>
 
-      {/* ── 위젯 실행 ── */}
-      <WidgetFrame
-        title="AI 양도가 산정"
-        description="양도가 산정을 바로 실행하고, 결과 확인 후 전문 상담까지 이어집니다."
-        widgetUrl={widgetUrl("yangdo")}
-        openUrl="/widget/yangdo"
-        eyebrow="양도가 실행 화면"
-        launchLabel="AI 양도가 산정 실행"
-        gateNote="페이지 진입만으로는 분석이 시작되지 않습니다. 산정을 원할 때 직접 실행하세요."
-      />
+      {/* ── 계산기 ── */}
+      {USE_NATIVE ? (
+        <section className="service-calculator" aria-label="AI 양도가 산정">
+          <div className="section-header">
+            <p className="eyebrow">양도가 산정</p>
+            <h2>AI 양도가 산정 실행</h2>
+          </div>
+          <YangdoCalculator />
+        </section>
+      ) : (
+        <WidgetFrame
+          title="AI 양도가 산정"
+          description="양도가 산정을 바로 실행하고, 결과 확인 후 전문 상담까지 이어집니다."
+          widgetUrl={widgetUrl("yangdo")}
+          openUrl="/widget/yangdo"
+          fallbackUrl="https://seoulmna.kr/yangdo-ai-customer-24/"
+          eyebrow="양도가 실행 화면"
+          launchLabel="AI 양도가 산정 실행"
+          gateNote="페이지 진입만으로는 분석이 시작되지 않습니다. 산정을 원할 때 직접 실행하세요."
+        />
+      )}
 
       {/* ── FAQ ── */}
       <section className="service-faq" aria-label="자주 묻는 질문">

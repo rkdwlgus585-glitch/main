@@ -12,6 +12,8 @@ from core_engine.api_response import now_iso
 from core_engine.yangdo_duplicate_cluster import collapse_duplicate_neighbors
 from core_engine.yangdo_listing_recommender import RecommendationOps, build_recommendation_bundle
 from scripts.widget_health_contract import load_widget_health_contract
+from yangdo_calculator import build_meta as _calc_build_meta
+from yangdo_calculator import _build_license_ui_profiles as _calc_build_license_ui_profiles
 
 _BASE_PYC = Path(__file__).resolve().parent / "tmp" / "yangdo_blackbox_api_recovery.cpython-314.pyc"
 if not _BASE_PYC.exists():
@@ -1285,8 +1287,82 @@ class YangdoBlackboxEstimator(_BaseYangdoBlackboxEstimator):
         result["recommended_listings"] = [_clean_row_license_text(row, clean_license) for row in list(result.get("recommended_listings") or []) if isinstance(row, dict)]
         return _apply_special_sector_publication_guard(result, target)
 
+    def meta_with_profiles(self) -> dict[str, Any]:
+        """Return meta stats + license UI profiles for the native React calculator.
+
+        Thread-safe: acquires the estimator lock to snapshot ``_records`` and
+        ``_train_records``, then computes ``build_meta()`` and
+        ``_build_license_ui_profiles()`` outside the lock.
+        """
+        with self._lock:
+            all_records = list(self._records or [])
+            train_records = list(self._train_records or [])
+        meta = _calc_build_meta(all_records, train_records)
+        license_profiles = _calc_build_license_ui_profiles(train_records)
+        return {"meta": meta, "license_profiles": license_profiles}
+
 
 _ORIGINAL_HANDLER_DO_GET = getattr(Handler, "do_GET", None)
+
+
+def _write_json_response(handler: Any, status: int, data: dict[str, Any], response_tier: str = "meta") -> None:
+    """Write a standard JSON response with security headers and CORS."""
+    request_id = ""
+    try:
+        request_id = str(handler._request_id() or "")
+    except (AttributeError, TypeError, ValueError):
+        request_id = ""
+    if not request_id:
+        request_id = response_tier
+    try:
+        channel_id = _compact(_channel_id_value(handler._channel_resolution()), _LIM_CHANNEL_ID)
+    except (AttributeError, TypeError, ValueError, KeyError):
+        channel_id = ""
+    try:
+        tenant_plan = _compact(_tenant_plan_key(handler._tenant_resolution()), _LIM_TENANT_PLAN)
+    except (AttributeError, TypeError, ValueError, KeyError):
+        tenant_plan = ""
+    response_payload = build_response_envelope(
+        data,
+        service=SERVICE_NAME,
+        api_version="v1",
+        request_id=request_id,
+        channel_id=channel_id,
+        tenant_plan=tenant_plan,
+        response_tier=response_tier,
+    )
+    body = json.dumps(response_payload, ensure_ascii=False).encode("utf-8")
+    allow_origin = ""
+    try:
+        allow_origin = str(handler._allow_origin() or "")
+    except (AttributeError, TypeError, ValueError):
+        allow_origin = ""
+    handler.send_response(int(status))
+    handler.send_header("Content-Type", "application/json; charset=utf-8")
+    handler.send_header("Content-Length", str(len(body)))
+    handler.send_header("Cache-Control", "no-store")
+    handler.send_header("X-Api-Version", "v1")
+    handler.send_header("X-Service-Name", SERVICE_NAME)
+    handler.send_header("X-Request-Id", request_id)
+    handler.send_header("X-Response-Tier", response_tier)
+    try:
+        for hk, hv in handler._channel_headers().items():
+            handler.send_header(str(hk), str(hv))
+    except (AttributeError, TypeError, ValueError, KeyError):
+        pass
+    for hk, hv in DEFAULT_SECURITY_HEADERS:
+        handler.send_header(hk, hv)
+    if allow_origin:
+        handler.send_header("Access-Control-Allow-Origin", allow_origin)
+        handler.send_header("Vary", "Origin")
+        handler.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        handler.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-API-Key, X-Request-Id, X-Correlation-Id, X-Channel-Id")
+        handler.send_header("Access-Control-Expose-Headers", "X-Request-Id")
+    handler.end_headers()
+    try:
+        handler.wfile.write(body)
+    except OSError:
+        pass
 
 
 def _patched_handler_do_get(self) -> None:  # noqa: ANN001
@@ -1297,6 +1373,27 @@ def _patched_handler_do_get(self) -> None:  # noqa: ANN001
         if hasattr(self, "_require_channel_ready") and not self._require_channel_ready():
             return
         _write_partner_health_json(self, 200)
+        return
+    if path in {"/meta", "/v1/meta"}:
+        if hasattr(self, "_allow_request") and not self._allow_request():
+            return
+        if hasattr(self, "_require_channel_ready") and not self._require_channel_ready():
+            return
+        server = getattr(self, "server", None)
+        if server and getattr(server, "admin_api_keys", None):
+            if hasattr(self, "_require_api_key") and not self._require_api_key(admin=True):
+                return
+        estimator = getattr(server, "estimator", None) if server else None
+        if estimator is None:
+            _write_json_response(self, 503, {"ok": False, "error": "estimator_not_ready"}, "error")
+            return
+        try:
+            payload = estimator.meta_with_profiles()
+            payload["ok"] = True
+            _write_json_response(self, 200, payload, "meta")
+        except (AttributeError, TypeError, ValueError, KeyError) as exc:
+            _write_json_response(self, 500, {"ok": False, "error": "meta_build_failed"}, "error")
+            return
         return
     if _ORIGINAL_HANDLER_DO_GET is None:
         return None

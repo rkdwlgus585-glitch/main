@@ -855,6 +855,30 @@ class PermitPrecheckEngine:
         """Catalog metadata snapshot (industry count, focus targets, etc.)."""
         return dict(self._meta)
 
+    def meta_with_industries(self) -> dict[str, Any]:
+        """Return meta + trimmed industry list for the native React calculator.
+
+        Each industry is trimmed to only the fields needed by the frontend
+        selector: ``service_code``, ``service_name``, ``major_code``,
+        ``major_name``, ``has_rule``.
+        """
+        _INDUSTRY_KEYS = {"service_code", "service_name", "major_code", "major_name", "has_rule"}
+        with self._lock:
+            meta = dict(self._meta)
+            raw_industries = list(self.payload.get("industries") or [])
+            raw_categories = list(self.payload.get("major_categories") or [])
+        industries = [
+            {k: row.get(k) for k in _INDUSTRY_KEYS if k in row}
+            for row in raw_industries
+            if isinstance(row, dict) and row.get("service_code")
+        ]
+        major_categories = [
+            {"major_code": row.get("major_code"), "major_name": row.get("major_name"), "industry_count": row.get("industry_count", 0)}
+            for row in raw_categories
+            if isinstance(row, dict) and row.get("major_code")
+        ]
+        return {"meta": meta, "industries": industries, "major_categories": major_categories}
+
     def _resolve_rule(self, payload: dict[str, Any]) -> dict[str, Any] | None:
         service_code = _compact(payload.get("service_code"))
         service_name = _compact(payload.get("service_name") or payload.get("industry_name"))
@@ -1309,7 +1333,9 @@ class Handler(BaseHTTPRequestHandler):
                 return
             if not self._require_feature("meta"):
                 return
-            self._write_json(200, {"ok": True, "meta": self.server.engine.meta})
+            payload = self.server.engine.meta_with_industries()
+            payload["ok"] = True
+            self._write_json(200, payload)
             return
         self._write_json(404, {"ok": False, "error": "not_found"})
 

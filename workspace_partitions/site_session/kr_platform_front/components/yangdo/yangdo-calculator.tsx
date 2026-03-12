@@ -1,0 +1,288 @@
+/** YangdoCalculator — AI 양도가 산정 계산기 루트 컴포넌트 */
+"use client";
+
+import { useReducer, useEffect } from "react";
+import type { YangdoMetaResponse, YangdoEstimateResponse, LicenseProfile } from "@/lib/yangdo-types";
+import { fetchYangdoMeta, fetchYangdoEstimate } from "@/lib/api-client";
+import { LicenseInput } from "./license-input";
+import { ScaleModeSelector } from "./scale-mode-selector";
+import { MetricInput } from "./metric-input";
+import { AdvancedPanel } from "./advanced-panel";
+import { ResultPanel } from "./result-panel";
+import { SettlementPanel } from "./settlement-panel";
+import { RecommendedListings } from "./recommended-listings";
+import { Calculator, Loader2 } from "lucide-react";
+
+type Phase = "idle" | "ready" | "submitting" | "result" | "error";
+
+interface CalcState {
+  phase: Phase;
+  meta: YangdoMetaResponse | null;
+  metaError: string | null;
+  // Form
+  licenseText: string;
+  selectedToken: string;
+  scaleMode: "specialty" | "sales";
+  specialty: string;
+  sales3: string;
+  sales5: string;
+  balanceEok: string;
+  capitalEok: string;
+  surplusEok: string;
+  debtRatio: string;
+  liqRatio: string;
+  reorgMode: string;
+  creditLevel: string;
+  adminHistory: string;
+  balanceUsageMode: string;
+  // Result
+  result: YangdoEstimateResponse | null;
+  errorMsg: string | null;
+}
+
+type Action =
+  | { type: "META_LOADED"; payload: YangdoMetaResponse }
+  | { type: "META_ERROR"; payload: string }
+  | { type: "SET_LICENSE"; payload: { text: string; token: string; profile?: LicenseProfile } }
+  | { type: "SET_SCALE_MODE"; payload: "specialty" | "sales" }
+  | { type: "SET_FIELD"; field: string; value: string }
+  | { type: "SUBMIT" }
+  | { type: "RESULT"; payload: YangdoEstimateResponse }
+  | { type: "ERROR"; payload: string }
+  | { type: "RESET" };
+
+const initialState: CalcState = {
+  phase: "idle",
+  meta: null,
+  metaError: null,
+  licenseText: "",
+  selectedToken: "",
+  scaleMode: "specialty",
+  specialty: "",
+  sales3: "",
+  sales5: "",
+  balanceEok: "",
+  capitalEok: "",
+  surplusEok: "",
+  debtRatio: "",
+  liqRatio: "",
+  reorgMode: "",
+  creditLevel: "",
+  adminHistory: "",
+  balanceUsageMode: "",
+  result: null,
+  errorMsg: null,
+};
+
+function reducer(state: CalcState, action: Action): CalcState {
+  switch (action.type) {
+    case "META_LOADED":
+      return { ...state, phase: "ready", meta: action.payload, metaError: null };
+    case "META_ERROR":
+      return { ...state, phase: "error", metaError: action.payload };
+    case "SET_LICENSE": {
+      const p = action.payload.profile;
+      return {
+        ...state,
+        licenseText: action.payload.text,
+        selectedToken: action.payload.token,
+        capitalEok: p ? String(p.prefill_capital_eok) : state.capitalEok,
+        surplusEok: p ? String(p.prefill_surplus_eok) : state.surplusEok,
+        balanceEok: p ? String(p.default_balance_eok) : state.balanceEok,
+        specialty: p?.typical_specialty_eok != null ? String(p.typical_specialty_eok) : "",
+        sales3: p?.typical_sales3_eok != null ? String(p.typical_sales3_eok) : "",
+        sales5: p?.typical_sales5_eok != null ? String(p.typical_sales5_eok) : "",
+      };
+    }
+    case "SET_SCALE_MODE":
+      return { ...state, scaleMode: action.payload };
+    case "SET_FIELD":
+      return { ...state, [action.field]: action.value };
+    case "SUBMIT":
+      return { ...state, phase: "submitting", errorMsg: null };
+    case "RESULT":
+      return { ...state, phase: "result", result: action.payload };
+    case "ERROR":
+      return { ...state, phase: "ready", errorMsg: action.payload };
+    case "RESET":
+      return { ...initialState, phase: "ready", meta: state.meta };
+    default:
+      return state;
+  }
+}
+
+export function YangdoCalculator() {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  /* ── Load meta on mount ── */
+  useEffect(() => {
+    let cancelled = false;
+    fetchYangdoMeta()
+      .then((data) => { if (!cancelled) dispatch({ type: "META_LOADED", payload: data }); })
+      .catch(() => { if (!cancelled) dispatch({ type: "META_ERROR", payload: "업종 데이터를 불러올 수 없습니다." }); });
+    return () => { cancelled = true; };
+  }, []);
+
+  /* ── Submit handler ── */
+  const handleSubmit = async () => {
+    if (!state.licenseText.trim()) {
+      dispatch({ type: "ERROR", payload: "업종을 선택해 주세요." });
+      return;
+    }
+    dispatch({ type: "SUBMIT" });
+    try {
+      const body: Record<string, unknown> = {
+        license_text: state.licenseText,
+        scale_mode: state.scaleMode,
+      };
+      if (state.scaleMode === "specialty" && state.specialty) body.specialty = Number(state.specialty);
+      if (state.scaleMode === "sales") {
+        if (state.sales3) body.sales3_eok = Number(state.sales3);
+        if (state.sales5) body.sales5_eok = Number(state.sales5);
+      }
+      if (state.balanceEok) body.balance_eok = Number(state.balanceEok);
+      if (state.capitalEok) body.capital_eok = Number(state.capitalEok);
+      if (state.surplusEok) body.surplus_eok = Number(state.surplusEok);
+      if (state.debtRatio) body.debt_ratio = Number(state.debtRatio);
+      if (state.liqRatio) body.liq_ratio = Number(state.liqRatio);
+      if (state.reorgMode) body.reorg_mode = state.reorgMode;
+      if (state.creditLevel) body.credit_level = state.creditLevel;
+      if (state.adminHistory) body.admin_history = state.adminHistory;
+      if (state.balanceUsageMode) body.balance_usage_mode = state.balanceUsageMode;
+
+      const res = await fetchYangdoEstimate(body as any);
+      if (!res.ok) {
+        dispatch({ type: "ERROR", payload: res.error ?? "산정에 실패했습니다." });
+      } else {
+        dispatch({ type: "RESULT", payload: res });
+      }
+    } catch {
+      dispatch({ type: "ERROR", payload: "서버 연결에 실패했습니다. 잠시 후 다시 시도해 주세요." });
+    }
+  };
+
+  /* ── Loading skeleton ── */
+  if (state.phase === "idle") {
+    return (
+      <div className="yangdo-calc" aria-busy="true" aria-label="양도가 계산기 로딩 중">
+        <div className="yangdo-loading">
+          <div className="calc-skeleton" style={{ height: 40, width: "60%" }} />
+          <div className="calc-skeleton" style={{ height: 120 }} />
+          <div className="calc-skeleton" style={{ height: 48, width: "40%" }} />
+        </div>
+      </div>
+    );
+  }
+
+  /* ── Meta error ── */
+  if (state.metaError) {
+    return (
+      <div className="yangdo-calc">
+        <div className="calc-error-banner" role="alert">{state.metaError}</div>
+      </div>
+    );
+  }
+
+  const profiles = state.meta?.license_profiles;
+
+  return (
+    <div className="yangdo-calc">
+      <form
+        className="calc-form"
+        onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}
+        aria-label="AI 양도가 산정"
+      >
+        {/* 1. 업종 선택 */}
+        <LicenseInput
+          profiles={profiles ?? { profiles: {}, quick_tokens: [] }}
+          selectedToken={state.selectedToken}
+          licenseText={state.licenseText}
+          onSelect={(text, token, profile) =>
+            dispatch({ type: "SET_LICENSE", payload: { text, token, profile } })
+          }
+        />
+
+        {/* 2. 기준 모드 */}
+        <ScaleModeSelector
+          mode={state.scaleMode}
+          onChange={(m) => dispatch({ type: "SET_SCALE_MODE", payload: m })}
+        />
+
+        {/* 3. 수치 입력 */}
+        <MetricInput
+          scaleMode={state.scaleMode}
+          specialty={state.specialty}
+          sales3={state.sales3}
+          sales5={state.sales5}
+          balanceEok={state.balanceEok}
+          capitalEok={state.capitalEok}
+          surplusEok={state.surplusEok}
+          onChange={(field, value) => dispatch({ type: "SET_FIELD", field, value })}
+        />
+
+        {/* 4. 고급 옵션 */}
+        <AdvancedPanel
+          debtRatio={state.debtRatio}
+          liqRatio={state.liqRatio}
+          reorgMode={state.reorgMode}
+          creditLevel={state.creditLevel}
+          adminHistory={state.adminHistory}
+          balanceUsageMode={state.balanceUsageMode}
+          onChange={(field, value) => dispatch({ type: "SET_FIELD", field, value })}
+        />
+
+        {/* Error banner */}
+        {state.errorMsg && (
+          <div className="calc-error-banner" role="alert">{state.errorMsg}</div>
+        )}
+
+        {/* Submit */}
+        <button
+          type="submit"
+          className="calc-submit"
+          disabled={state.phase === "submitting"}
+        >
+          {state.phase === "submitting" ? (
+            <><Loader2 size={18} className="yangdo-spinner" aria-hidden="true" />AI가 분석 중입니다...</>
+          ) : (
+            <><Calculator size={18} aria-hidden="true" />양도가 산정하기</>
+          )}
+        </button>
+      </form>
+
+      {/* 5. 결과 */}
+      {state.phase === "result" && state.result && (
+        <div className="yangdo-results" aria-live="polite">
+          <ResultPanel result={state.result} />
+
+          {state.result.settlement_scenarios && state.result.settlement_scenarios.length > 0 && (
+            <SettlementPanel scenarios={state.result.settlement_scenarios} />
+          )}
+
+          {state.result.recommended_listings && state.result.recommended_listings.length > 0 && (
+            <RecommendedListings listings={state.result.recommended_listings} />
+          )}
+
+          {state.result.risk_notes && state.result.risk_notes.length > 0 && (
+            <div className="yangdo-risk-notes">
+              {state.result.risk_notes.map((note, i) => (
+                <p key={i} className="yangdo-risk-note">{note}</p>
+              ))}
+            </div>
+          )}
+
+          <div className="yangdo-result-actions">
+            <a href="/consult" className="calc-submit">전문가 상담 연결</a>
+            <button
+              type="button"
+              className="yangdo-reset-btn"
+              onClick={() => dispatch({ type: "RESET" })}
+            >
+              다시 산정하기
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

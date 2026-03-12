@@ -3,6 +3,9 @@ import Link from "next/link";
 import { platformConfig, widgetUrl } from "@/components/platform-config";
 import { breadcrumbSchema, organizationRef } from "@/lib/json-ld";
 import { WidgetFrame } from "@/components/widget-frame";
+import { PermitCalculator } from "@/components/permit/permit-calculator";
+
+const USE_NATIVE = process.env.NEXT_PUBLIC_NATIVE_CALC === "true";
 
 const pageTitle = "AI 인허가 검토 | 서울건설정보";
 const pageDescription =
@@ -139,6 +142,10 @@ export default function PermitPage() {
 
       {/* ── 특징 그리드 ── */}
       <section className="service-features" aria-label="서비스 특징">
+        <div className="section-header">
+          <p className="eyebrow">주요 특징</p>
+          <h2>191개 업종, 항목별 즉시 진단</h2>
+        </div>
         <div className="features-grid">
           {features.map((f) => (
             <div className="feature-item" key={f.title}>
@@ -149,16 +156,27 @@ export default function PermitPage() {
         </div>
       </section>
 
-      {/* ── 위젯 실행 ── */}
-      <WidgetFrame
-        title="AI 인허가 검토"
-        description="등록기준 충족 여부를 바로 검토하고, 부족 항목과 보완 방법을 즉시 확인할 수 있습니다."
-        widgetUrl={widgetUrl("permit")}
-        openUrl="/widget/permit"
-        eyebrow="AI 인허가 검토 화면"
-        launchLabel="AI 인허가 검토 실행"
-        gateNote="페이지 진입만으로는 검토가 시작되지 않습니다. 점검을 원할 때 직접 실행하세요."
-      />
+      {/* ── 계산기 ── */}
+      {USE_NATIVE ? (
+        <section className="service-calculator" aria-label="AI 인허가 검토">
+          <div className="section-header">
+            <p className="eyebrow">인허가 검토</p>
+            <h2>AI 인허가 검토 실행</h2>
+          </div>
+          <PermitCalculator />
+        </section>
+      ) : (
+        <WidgetFrame
+          title="AI 인허가 검토"
+          description="등록기준 충족 여부를 바로 검토하고, 부족 항목과 보완 방법을 즉시 확인할 수 있습니다."
+          widgetUrl={widgetUrl("permit")}
+          openUrl="/widget/permit"
+          fallbackUrl="https://seoulmna.kr/ai-license-acquisition-calculator-2/"
+          eyebrow="AI 인허가 검토 화면"
+          launchLabel="AI 인허가 검토 실행"
+          gateNote="페이지 진입만으로는 검토가 시작되지 않습니다. 점검을 원할 때 직접 실행하세요."
+        />
+      )}
 
       {/* ── FAQ ── */}
       <section className="service-faq" aria-label="자주 묻는 질문">
