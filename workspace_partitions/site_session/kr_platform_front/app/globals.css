@@ -777,6 +777,22 @@ img { max-width: 100%; display: block; }
   font-size: 0.92rem;
   line-height: 1.7;
 }
+
+/* dark-bg 섹션 p 태그 — .page-shell section p 오버라이드 방지 (specificity 0,2,1) */
+.page-shell .home-hero-kicker {
+  color: #4AEDB5;
+  font-size: 0.9rem;
+}
+.page-shell .home-hero-body {
+  color: rgba(255, 255, 255, 0.98);
+  font-size: 1.1rem;
+  line-height: 1.75;
+}
+.page-shell .cta-content p {
+  color: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
 .page-shell section ul {
   margin: 8px 0 12px;
   padding-left: 20px;
@@ -1734,8 +1750,8 @@ img { max-width: 100%; display: block; }
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(180deg, rgba(0, 10, 30, 0.92) 0%, rgba(0, 12, 35, 0.82) 35%, rgba(0, 10, 30, 0.94) 100%),
-    linear-gradient(90deg, rgba(0, 30, 60, 0.4) 0%, transparent 50%);
+    linear-gradient(180deg, rgba(0, 8, 24, 0.96) 0%, rgba(0, 10, 30, 0.88) 40%, rgba(0, 8, 24, 0.96) 100%),
+    linear-gradient(90deg, rgba(0, 20, 50, 0.3) 0%, transparent 50%);
 }
 
 .home-hero-content {
@@ -1750,12 +1766,12 @@ img { max-width: 100%; display: block; }
 }
 
 .home-hero-kicker {
-  margin: 0 0 14px;
-  color: #00C48C;
-  font-size: 0.85rem;
+  margin: 0 0 16px;
+  color: #4AEDB5;
+  font-size: 0.9rem;
   font-weight: 700;
   letter-spacing: 0.18em;
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.6);
 }
 
 .home-hero-content h1 {
@@ -1766,21 +1782,24 @@ img { max-width: 100%; display: block; }
   letter-spacing: -0.03em;
   text-wrap: balance;
   word-break: keep-all;
-  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.55), 0 1px 4px rgba(0, 0, 0, 0.3);
+  color: #ffffff;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.7), 0 1px 6px rgba(0, 0, 0, 0.5);
 }
 
 .home-hero-content h1 span {
-  color: #4dd4ff;
+  color: #7BE0FF;
 }
 
 .home-hero-body {
   margin: 20px auto 0;
   max-width: 54ch;
-  color: rgba(255, 255, 255, 0.92);
-  font-size: 1.08rem;
+  color: rgba(255, 255, 255, 0.98);
+  font-size: 1.1rem;
   font-weight: 500;
-  line-height: 1.8;
-  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
+  line-height: 1.75;
+  word-break: keep-all;
+  text-wrap: balance;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.5);
 }
 
 .home-hero-actions {
@@ -2239,7 +2258,8 @@ img { max-width: 100%; display: block; }
   }
 
   .home-hero-body {
-    font-size: 0.95rem;
+    font-size: 0.92rem;
+    line-height: 1.7;
   }
 
   .home-hero-twin-cta {
