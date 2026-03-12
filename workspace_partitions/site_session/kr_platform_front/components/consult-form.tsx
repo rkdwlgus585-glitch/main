@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { CheckCircle } from "lucide-react";
 
 type FormState = "idle" | "submitting" | "success" | "error";
 
@@ -64,7 +65,7 @@ export function ConsultForm() {
   if (state === "success") {
     return (
       <div className="consult-form-success" role="status">
-        <span className="consult-form-success-icon" aria-hidden="true">✅</span>
+        <span className="consult-form-success-icon" aria-hidden="true"><CheckCircle size={32} /></span>
         <h3>상담 요청이 접수되었습니다</h3>
         <p>확인 후 영업일 기준 1일 이내에 연락드리겠습니다.</p>
         <button

@@ -1,12 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Phone } from "lucide-react";
 import { platformConfig } from "@/components/platform-config";
-
-const metrics = [
-  { value: "191+", label: "분석 대상 업종" },
-  { value: "AI", label: "데이터 기반 산정" },
-  { value: "무료", label: "양도가·등록 검토" },
-];
+import { AnimatedCounter } from "@/components/animated-counter";
 
 export function HomeHero() {
   return (
@@ -40,12 +35,18 @@ export function HomeHero() {
           </div>
 
           <div className="home-hero-metrics">
-            {metrics.map((metric) => (
-              <div key={metric.label} className="home-metric-card">
-                <strong>{metric.value}</strong>
-                <span>{metric.label}</span>
-              </div>
-            ))}
+            <div className="home-metric-card">
+              <strong><AnimatedCounter end={191} suffix="+" /></strong>
+              <span>분석 대상 업종</span>
+            </div>
+            <div className="home-metric-card">
+              <strong>AI</strong>
+              <span>데이터 기반 산정</span>
+            </div>
+            <div className="home-metric-card">
+              <strong>무료</strong>
+              <span>양도가·등록 검토</span>
+            </div>
           </div>
         </div>
 

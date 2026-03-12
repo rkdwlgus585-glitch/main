@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BarChart3, Search, Tag, Target } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { platformConfig } from "@/components/platform-config";
 import { breadcrumbSchema, organizationRef, siteBase, websiteRef } from "@/lib/json-ld";
 
@@ -25,26 +27,30 @@ export const metadata: Metadata = {
   },
 };
 
-const marketFeatures = [
+const marketFeatures: Array<{
+  title: string;
+  description: string;
+  icon: LucideIcon;
+}> = [
   {
     title: "실매물 리스트",
     description: "양도인이 직접 등록하거나 전문 행정사가 검증한 매물만 게시합니다. 허위·중복 매물은 자동 필터링됩니다.",
-    icon: "🔍",
+    icon: Search,
   },
   {
     title: "AI 양도가 참고",
     description: "각 매물의 호가와 AI 산정가를 비교하여, 적정 가격 여부를 즉시 판단할 수 있습니다.",
-    icon: "📊",
+    icon: BarChart3,
   },
   {
     title: "업종별 분류",
     description: "토목·건축·전기·소방·정보통신 등 업종별로 매물을 분류하여, 원하는 면허를 빠르게 찾습니다.",
-    icon: "🏷️",
+    icon: Tag,
   },
   {
     title: "매칭 추천",
     description: "양수인의 조건(자본금, 기술인력, 원하는 업종)에 맞는 매물을 자동으로 추천합니다.",
-    icon: "🎯",
+    icon: Target,
   },
 ];
 
@@ -131,11 +137,11 @@ export default function MnaMarketPage() {
           <h2>실시간 매물이 특별한 이유</h2>
         </div>
         <div className="features-grid">
-          {marketFeatures.map((f) => (
-            <div key={f.title} className="feature-card">
-              <span className="feature-icon" aria-hidden="true">{f.icon}</span>
-              <h3>{f.title}</h3>
-              <p>{f.description}</p>
+          {marketFeatures.map(({ title, description, icon: Icon }) => (
+            <div key={title} className="feature-card">
+              <span className="feature-icon" aria-hidden="true"><Icon size={22} /></span>
+              <h3>{title}</h3>
+              <p>{description}</p>
             </div>
           ))}
         </div>

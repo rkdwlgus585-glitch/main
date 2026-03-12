@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BarChart3, ClipboardList, Scale, TrendingUp } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { platformConfig } from "@/components/platform-config";
 import { breadcrumbSchema, siteBase, websiteRef } from "@/lib/json-ld";
 
@@ -34,7 +36,7 @@ const categories: {
   title: string;
   description: string;
   articles: Article[];
-  icon: string;
+  icon: LucideIcon;
   categorySlug: string;
 }[] = [
   {
@@ -47,7 +49,7 @@ const categories: {
       { title: "전기공사업 양도양수 특수 정산 방식", slug: "전기공사업-특수-정산" },
       { title: "양도양수 절차 체크리스트 (2026년 기준)", slug: "양도양수-절차-체크리스트" },
     ],
-    icon: "📊",
+    icon: BarChart3,
   },
   {
     title: "인허가 · 등록기준",
@@ -59,7 +61,7 @@ const categories: {
       { title: "정보통신공사업 자격 요건 변경사항 정리", slug: "정보통신공사업-자격-변경" },
       { title: "신규 면허 취득 비용, AI로 미리 계산하기", slug: "신규-면허-취득-비용" },
     ],
-    icon: "📋",
+    icon: ClipboardList,
   },
   {
     title: "시장 동향 · 분석",
@@ -71,7 +73,7 @@ const categories: {
       { title: "건설업 면허 가격에 영향을 주는 5가지 요인", slug: "면허-가격-영향-요인" },
       { title: "공시 실적 변동과 양도가의 상관관계", slug: "공시-실적-양도가-상관관계" },
     ],
-    icon: "📈",
+    icon: TrendingUp,
   },
   {
     title: "법률 · 규정",
@@ -83,7 +85,7 @@ const categories: {
       { title: "건설업 면허 취소·정지 사유 정리", slug: "면허-취소-정지-사유" },
       { title: "인허가 반려 사례와 대응 방법", slug: "인허가-반려-사례-대응" },
     ],
-    icon: "⚖️",
+    icon: Scale,
   },
 ];
 
@@ -156,10 +158,12 @@ export default function KnowledgePage() {
       </section>
 
       <div className="knowledge-grid" role="region" aria-label="지식 카테고리">
-        {categories.map((cat) => (
+        {categories.map((cat) => {
+          const Icon = cat.icon;
+          return (
           <div key={cat.title} className="knowledge-card">
             <div className="knowledge-card-header">
-              <span className="knowledge-icon" aria-hidden="true">{cat.icon}</span>
+              <span className="knowledge-icon" aria-hidden="true"><Icon size={22} /></span>
               <h2>{cat.title}</h2>
             </div>
             <p className="knowledge-card-desc">{cat.description}</p>
@@ -177,7 +181,8 @@ export default function KnowledgePage() {
               ))}
             </ul>
           </div>
-        ))}
+          );
+        })}
       </div>
 
       <section className="knowledge-cta" aria-label="블로그 안내">
