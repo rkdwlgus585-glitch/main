@@ -15,7 +15,7 @@ import logging
 import os
 import time
 from collections.abc import Callable, Sequence
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from functools import wraps
 from typing import Any
 

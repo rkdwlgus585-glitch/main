@@ -6,7 +6,7 @@ import re
 import signal
 import sqlite3
 import uuid
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
