@@ -45,9 +45,7 @@ export function HomeExpert() {
           </div>
 
           <p className="expert-quote">
-            건설업 현장의 실무 경험과 데이터를 AI에 녹여,
-            누구나 쉽고 정확하게 양도가를 확인하고
-            인허가 요건을 사전검토할 수 있도록 만들었습니다.
+            현장 실무와 데이터를 AI에 녹여, 양도가·인허가를 누구나 쉽게 검토할 수 있도록 설계했습니다.
           </p>
 
           <div className="expert-credentials">

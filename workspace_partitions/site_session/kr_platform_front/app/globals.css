@@ -361,7 +361,7 @@ img { max-width: 100%; display: block; }
 
 .expert-credential {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 10px;
   padding: 12px 14px;
   border-radius: var(--radius-md);
@@ -370,7 +370,7 @@ img { max-width: 100%; display: block; }
 }
 
 .expert-credential-icon {
-  display: flex;
+  display: flex !important;
   align-items: center;
   justify-content: center;
   width: 32px;
@@ -388,7 +388,7 @@ img { max-width: 100%; display: block; }
   color: var(--text-primary);
 }
 
-.expert-credential span {
+.expert-credential div > span {
   display: block;
   color: var(--muted);
   font-size: 0.78rem;
@@ -407,8 +407,8 @@ img { max-width: 100%; display: block; }
 
 /* ── Consultation CTA ──────────────────────────────────────── */
 .cta-section {
-  margin-top: 80px;
-  padding: 72px 40px;
+  margin-top: 88px;
+  padding: 80px 48px;
   border-radius: var(--radius-xl);
   background: linear-gradient(145deg, var(--brand-dark) 0%, var(--brand) 40%, var(--brand-light) 100%);
   color: white;
@@ -434,7 +434,9 @@ img { max-width: 100%; display: block; }
 
 .cta-content .eyebrow {
   color: rgba(255,255,255,0.6);
-  margin-bottom: 12px;
+  margin: 0 0 12px;
+  max-width: none;
+  font-size: 0.8rem;
 }
 
 .cta-content h2 {
@@ -791,12 +793,7 @@ img { max-width: 100%; display: block; }
   line-height: 1.75;
   margin: 20px auto 0;
 }
-.page-shell .cta-content p {
-  color: inherit;
-  font-size: inherit;
-  line-height: inherit;
-  margin: inherit;
-}
+/* .page-shell .cta-content p override 제거됨 (Round 104 :not() 리팩터로 불필요) */
 .page-shell section ul {
   margin: 8px 0 12px;
   padding-left: 20px;
