@@ -12,7 +12,8 @@ tsconfig.tsbuildinfo
 # environment variables (secrets must stay local)
 .env*.local
 
-# IDE
+# IDE / tooling
 .vscode
 .idea
+.claude
 *.swp
