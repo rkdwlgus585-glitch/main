@@ -67,8 +67,19 @@ export async function POST(req: NextRequest) {
         { status: upstream.status >= 500 ? 502 : upstream.status },
       );
     }
-    const data = await upstream.json().catch(() => ({ ok: false }));
-    return NextResponse.json(data);
+    const raw_data = await upstream.json().catch(() => ({ ok: false }));
+    const d = (typeof raw_data === "object" && raw_data !== null) ? raw_data : {};
+
+    // Strip server-internal fields — only forward what the frontend needs.
+    const {
+      tenant_id: _t, neighbors: _n, target: _tgt,
+      response_policy: _rp, response_meta: _rm,
+      service: _s, api_version: _av, channel_id: _c, request_id: _r,
+      data: _nested, // drop nested duplicate
+      ...safeFields
+    } = d as Record<string, unknown>;
+
+    return NextResponse.json(safeFields);
   } catch {
     return NextResponse.json(
       { ok: false, error: "upstream_unavailable" },

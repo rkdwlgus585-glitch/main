@@ -22,7 +22,9 @@ export function AnimatedCounter({
   duration = 1600,
 }: AnimatedCounterProps) {
   const ref = useRef<HTMLSpanElement>(null);
-  const [display, setDisplay] = useState(`0${suffix}`);
+  /* Guard: NaN/Infinity → 0 */
+  const safeEnd = Number.isFinite(end) ? end : 0;
+  const [display, setDisplay] = useState(`${safeEnd}${suffix}`);
   const triggered = useRef(false);
 
   useEffect(() => {
@@ -31,7 +33,7 @@ export function AnimatedCounter({
 
     /* Reduced motion → show final value immediately */
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setDisplay(`${end}${suffix}`);
+      setDisplay(`${safeEnd}${suffix}`);
       return;
     }
 
@@ -54,7 +56,7 @@ export function AnimatedCounter({
         const progress = Math.min(elapsed / duration, 1);
         /* easeOutExpo: fast start, slow finish */
         const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-        const current = Math.round(eased * end);
+        const current = Math.round(eased * safeEnd);
         setDisplay(`${current}${suffix}`);
         if (progress < 1) requestAnimationFrame(tick);
       }
@@ -64,7 +66,7 @@ export function AnimatedCounter({
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, [end, suffix, duration]);
+  }, [safeEnd, suffix, duration]);
 
   return <span ref={ref}>{display}</span>;
 }

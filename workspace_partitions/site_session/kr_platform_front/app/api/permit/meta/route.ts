@@ -23,8 +23,15 @@ export async function GET() {
         { status: upstream.status >= 500 ? 502 : upstream.status },
       );
     }
-    const data = await upstream.json().catch(() => ({ ok: false }));
-    return NextResponse.json(data);
+    const raw = await upstream.json().catch(() => ({ ok: false }));
+    const d = (typeof raw === "object" && raw !== null) ? raw : {};
+    // Strip server envelope — keep only what the frontend needs
+    return NextResponse.json({
+      ok: (d as Record<string, unknown>).ok ?? false,
+      meta: (d as Record<string, unknown>).meta,
+      industries: (d as Record<string, unknown>).industries ?? [],
+      major_categories: (d as Record<string, unknown>).major_categories ?? [],
+    });
   } catch {
     return NextResponse.json(
       { ok: false, error: "upstream_unavailable" },

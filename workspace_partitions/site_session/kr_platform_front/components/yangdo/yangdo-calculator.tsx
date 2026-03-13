@@ -7,7 +7,7 @@ import { fetchYangdoMeta, fetchYangdoEstimate } from "@/lib/api-client";
 import { LicenseInput } from "./license-input";
 import { ScaleModeSelector } from "./scale-mode-selector";
 import { MetricInput } from "./metric-input";
-import { AdvancedPanel } from "./advanced-panel";
+import { AdvancedPanel, isSpecialBalanceSector } from "./advanced-panel";
 import { ScrollAnimate } from "@/components/scroll-animate";
 import { ResultPanel } from "./result-panel";
 import { SettlementPanel } from "./settlement-panel";
@@ -138,6 +138,10 @@ export function YangdoCalculator() {
       dispatch({ type: "ERROR", payload: "실적(3년 또는 5년)을 하나 이상 입력해 주세요." });
       return;
     }
+    if (isSpecialBalanceSector(state.licenseText) && !state.reorgMode) {
+      dispatch({ type: "ERROR", payload: "전기·정보통신·소방 업종은 고급 옵션에서 양도양수 방식(포괄/분할)을 선택해 주세요." });
+      return;
+    }
     dispatch({ type: "SUBMIT" });
     try {
       const body: YangdoEstimateRequest = {
@@ -235,6 +239,7 @@ export function YangdoCalculator() {
           creditLevel={state.creditLevel}
           adminHistory={state.adminHistory}
           balanceUsageMode={state.balanceUsageMode}
+          licenseText={state.licenseText}
           onChange={(field, value) => dispatch({ type: "SET_FIELD", field, value })}
         />
 
