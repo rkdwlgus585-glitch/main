@@ -6,7 +6,8 @@ interface ConfidenceMeterProps {
 }
 
 export function ConfidenceMeter({ percent, label }: ConfidenceMeterProps) {
-  const clamped = Math.max(0, Math.min(100, percent));
+  const safe = Number.isFinite(percent) ? percent : 0;
+  const clamped = Math.max(0, Math.min(100, safe));
   const level = clamped >= 80 ? "high" : clamped >= 50 ? "mid" : "low";
 
   return (

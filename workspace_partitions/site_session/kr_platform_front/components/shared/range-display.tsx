@@ -9,10 +9,13 @@ interface RangeDisplayProps {
 }
 
 export function RangeDisplay({ low, center, high, unit = "억원", label }: RangeDisplayProps) {
-  const lo = Math.min(low, high);
-  const hi = Math.max(low, high);
+  const safeLow = Number.isFinite(low) ? low : 0;
+  const safeCenter = Number.isFinite(center) ? center : 0;
+  const safeHigh = Number.isFinite(high) ? high : 0;
+  const lo = Math.min(safeLow, safeHigh);
+  const hi = Math.max(safeLow, safeHigh);
   const range = hi - lo;
-  const centerPct = range > 0 ? ((center - lo) / range) * 100 : 50;
+  const centerPct = range > 0 ? ((safeCenter - lo) / range) * 100 : 50;
 
   return (
     <div className="calc-range" aria-label={label ?? "추정 범위"}>
@@ -27,13 +30,13 @@ export function RangeDisplay({ low, center, high, unit = "억원", label }: Rang
       </div>
       <div className="calc-range-labels">
         <span className="calc-range-low">
-          {low.toFixed(2)} {unit}
+          {safeLow.toFixed(2)} {unit}
         </span>
         <span className="calc-range-center">
-          <strong>{center.toFixed(2)}</strong> {unit}
+          <strong>{safeCenter.toFixed(2)}</strong> {unit}
         </span>
         <span className="calc-range-high">
-          {high.toFixed(2)} {unit}
+          {safeHigh.toFixed(2)} {unit}
         </span>
       </div>
     </div>

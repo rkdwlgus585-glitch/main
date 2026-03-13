@@ -76,7 +76,7 @@ function reducer(state: CalcState, action: Action): CalcState {
     case "RESULT":
       return { ...state, phase: "result", result: action.payload };
     case "ERROR":
-      return { ...state, phase: "ready", errorMsg: action.payload };
+      return { ...state, phase: "ready", errorMsg: action.payload, result: null };
     case "RESET":
       return { ...initialState, phase: "ready", meta: state.meta };
     default:
@@ -211,7 +211,10 @@ export function PermitCalculator() {
           )}
 
           <div className="permit-result-actions">
-            <a href="/consult" className="calc-submit">전문가 상담 연결</a>
+            <a
+              href={`/consult?service=${encodeURIComponent(state.selectedIndustry?.service_name ?? "")}&status=${state.result?.overall_status ?? ""}`}
+              className="calc-submit"
+            >전문가 상담 연결</a>
             <button
               type="button"
               className="permit-reset-btn"

@@ -4,7 +4,7 @@
 import type { PermitPrecheckResponse } from "@/lib/permit-types";
 import { ResultBadge } from "@/components/shared/result-badge";
 import { AnimatedCounter } from "@/components/animated-counter";
-import { AlertTriangle, TrendingDown } from "lucide-react";
+import { AlertTriangle, TrendingDown, CheckCircle } from "lucide-react";
 
 /** Format shortfall field values for Korean display. */
 function formatFieldValue(v: unknown): string {
@@ -30,6 +30,14 @@ export function DiagnosisResult({ result }: DiagnosisResultProps) {
           <ResultBadge status={status} />
         </div>
       </div>
+
+      {/* All pass message */}
+      {status === "pass" && (!result.shortfall_items || result.shortfall_items.length === 0) && (
+        <div className="permit-pass-message">
+          <CheckCircle size={20} aria-hidden="true" />
+          <span>모든 등록기준을 충족합니다.</span>
+        </div>
+      )}
 
       {/* Shortfall gap cards */}
       {result.shortfall_items && result.shortfall_items.length > 0 && (

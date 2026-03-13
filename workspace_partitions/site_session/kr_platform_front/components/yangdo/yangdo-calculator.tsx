@@ -104,7 +104,7 @@ function reducer(state: CalcState, action: Action): CalcState {
     case "RESULT":
       return { ...state, phase: "result", result: action.payload };
     case "ERROR":
-      return { ...state, phase: "ready", errorMsg: action.payload };
+      return { ...state, phase: "ready", errorMsg: action.payload, result: null };
     case "RESET":
       return { ...initialState, phase: "ready", meta: state.meta };
     default:
@@ -128,6 +128,14 @@ export function YangdoCalculator() {
   const handleSubmit = async () => {
     if (!state.licenseText.trim()) {
       dispatch({ type: "ERROR", payload: "업종을 선택해 주세요." });
+      return;
+    }
+    if (state.scaleMode === "specialty" && !state.specialty) {
+      dispatch({ type: "ERROR", payload: "시공능력 평가액을 입력해 주세요." });
+      return;
+    }
+    if (state.scaleMode === "sales" && !state.sales3 && !state.sales5) {
+      dispatch({ type: "ERROR", payload: "실적(3년 또는 5년)을 하나 이상 입력해 주세요." });
       return;
     }
     dispatch({ type: "SUBMIT" });
@@ -277,7 +285,10 @@ export function YangdoCalculator() {
           )}
 
           <div className="yangdo-result-actions">
-            <a href="/consult" className="calc-submit">전문가 상담 연결</a>
+            <a
+              href={`/consult?license=${encodeURIComponent(state.licenseText)}&estimate=${state.result?.public_center_eok ?? state.result?.estimate_center_eok ?? ""}`}
+              className="calc-submit"
+            >전문가 상담 연결</a>
             <button
               type="button"
               className="yangdo-reset-btn"
