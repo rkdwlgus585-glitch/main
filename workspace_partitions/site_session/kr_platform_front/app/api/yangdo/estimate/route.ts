@@ -13,19 +13,26 @@ const BACKEND_URL =
 const MAX_BODY = 16_384; // 16 KB
 
 export async function POST(req: NextRequest) {
-  /* ── Size guard ───────────────────────────────────── */
-  const contentLength = Number(req.headers.get("content-length") ?? 0);
-  if (contentLength > MAX_BODY) {
+  /* ── Parse + size guard (body-based, not header-based) ── */
+  let raw: string;
+  try {
+    raw = await req.text();
+  } catch {
+    return NextResponse.json(
+      { ok: false, error: "invalid_body" },
+      { status: 400 },
+    );
+  }
+  if (raw.length > MAX_BODY) {
     return NextResponse.json(
       { ok: false, error: "payload_too_large" },
       { status: 413 },
     );
   }
 
-  /* ── Parse body ───────────────────────────────────── */
   let body: Record<string, unknown>;
   try {
-    body = await req.json();
+    body = JSON.parse(raw);
   } catch {
     return NextResponse.json(
       { ok: false, error: "invalid_json" },
@@ -49,8 +56,14 @@ export async function POST(req: NextRequest) {
       signal: AbortSignal.timeout(15_000),
     });
 
+    if (!upstream.ok) {
+      return NextResponse.json(
+        { ok: false, error: "upstream_error" },
+        { status: upstream.status >= 500 ? 502 : upstream.status },
+      );
+    }
     const data = await upstream.json().catch(() => ({ ok: false }));
-    return NextResponse.json(data, { status: upstream.status });
+    return NextResponse.json(data);
   } catch {
     return NextResponse.json(
       { ok: false, error: "upstream_unavailable" },

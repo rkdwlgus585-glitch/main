@@ -1,7 +1,7 @@
 /** LicenseInput — 업종 자동완성 + quick chips */
 "use client";
 
-import { useState, useRef, useId, useMemo } from "react";
+import { useState, useEffect, useRef, useId, useMemo } from "react";
 import type { LicenseProfileBundle, LicenseProfile } from "@/lib/yangdo-types";
 import { FormField } from "@/components/shared/form-field";
 import { ChipSelect } from "@/components/shared/chip-select";
@@ -16,6 +16,7 @@ interface LicenseInputProps {
 
 export function LicenseInput({ profiles, selectedToken, licenseText, onSelect }: LicenseInputProps) {
   const [query, setQuery] = useState(licenseText);
+  useEffect(() => { setQuery(licenseText); }, [licenseText]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [highlightIdx, setHighlightIdx] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);

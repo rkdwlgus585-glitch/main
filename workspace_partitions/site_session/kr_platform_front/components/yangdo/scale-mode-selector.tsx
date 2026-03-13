@@ -12,9 +12,9 @@ export function ScaleModeSelector({ mode, onChange }: ScaleModeSelectorProps) {
   const groupId = useId();
 
   return (
-    <fieldset className="yangdo-scale-mode" aria-label="산정 기준 선택">
+    <fieldset className="yangdo-scale-mode">
       <legend className="calc-field-label">산정 기준</legend>
-      <div className="yangdo-scale-mode-btns" role="radiogroup">
+      <div className="yangdo-scale-mode-btns" role="radiogroup" aria-label="산정 기준 선택">
         <button
           type="button"
           role="radio"

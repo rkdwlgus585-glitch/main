@@ -17,8 +17,14 @@ export async function GET() {
       signal: AbortSignal.timeout(10_000),
     });
 
+    if (!upstream.ok) {
+      return NextResponse.json(
+        { ok: false, error: "upstream_error" },
+        { status: upstream.status >= 500 ? 502 : upstream.status },
+      );
+    }
     const data = await upstream.json().catch(() => ({ ok: false }));
-    return NextResponse.json(data, { status: upstream.status });
+    return NextResponse.json(data);
   } catch {
     return NextResponse.json(
       { ok: false, error: "upstream_unavailable" },

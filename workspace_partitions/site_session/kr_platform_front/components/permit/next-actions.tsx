@@ -14,7 +14,7 @@ export function NextActions({ actions }: NextActionsProps) {
       <h4 className="permit-actions-title">다음 조치 사항</h4>
       <ol className="permit-actions-list">
         {sorted.map((act, i) => (
-          <li key={i} className="permit-action-item">
+          <li key={`${act.action.slice(0, 40)}-${act.priority}`} className="permit-action-item">
             <div className="permit-action-header">
               <ArrowRight size={14} aria-hidden="true" />
               <span className="permit-action-text">{act.action}</span>

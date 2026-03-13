@@ -21,18 +21,15 @@ interface FetchOptions {
 async function apiFetch<T>(url: string, init?: RequestInit & FetchOptions): Promise<T> {
   const { timeout = DEFAULT_TIMEOUT_MS, signal: externalSignal, ...fetchInit } = init ?? {};
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeout);
-
-  // Combine external signal with timeout
-  if (externalSignal) {
-    externalSignal.addEventListener("abort", () => controller.abort());
-  }
+  const timeoutSignal = AbortSignal.timeout(timeout);
+  const signal = externalSignal
+    ? AbortSignal.any([timeoutSignal, externalSignal])
+    : timeoutSignal;
 
   try {
     const res = await fetch(url, {
       ...fetchInit,
-      signal: controller.signal,
+      signal,
     });
 
     if (!res.ok) {
@@ -53,8 +50,6 @@ async function apiFetch<T>(url: string, init?: RequestInit & FetchOptions): Prom
       throw new ApiError(0, "timeout", "요청 시간이 초과되었습니다.");
     }
     throw new ApiError(0, "network_error", "네트워크 연결을 확인해 주세요.");
-  } finally {
-    clearTimeout(timeoutId);
   }
 }
 

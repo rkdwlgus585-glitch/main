@@ -1,7 +1,7 @@
 /** IndustrySelector — 191개 업종 검색 드롭다운 (카테고리 그룹) */
 "use client";
 
-import { useState, useMemo, useRef, useId } from "react";
+import { useState, useEffect, useMemo, useRef, useId } from "react";
 import type { PermitIndustry, MajorCategory } from "@/lib/permit-types";
 import { FormField } from "@/components/shared/form-field";
 import { Search, ChevronDown } from "lucide-react";
@@ -15,6 +15,7 @@ interface IndustrySelectorProps {
 
 export function IndustrySelector({ industries, categories, selected, onSelect }: IndustrySelectorProps) {
   const [query, setQuery] = useState(selected?.service_name ?? "");
+  useEffect(() => { setQuery(selected?.service_name ?? ""); }, [selected]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [highlightIdx, setHighlightIdx] = useState(-1);
@@ -78,7 +79,7 @@ export function IndustrySelector({ industries, categories, selected, onSelect }:
             type="text"
             className="permit-combobox-input"
             role="combobox"
-            aria-expanded={showDropdown}
+            aria-expanded={showDropdown && filteredIndustries.length > 0}
             aria-controls={listId}
             aria-activedescendant={highlightIdx >= 0 ? `${listId}-${highlightIdx}` : undefined}
             autoComplete="off"

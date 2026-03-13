@@ -34,7 +34,7 @@ export function CollapsiblePanel({ title, defaultOpen = false, children }: Colla
         aria-label={title}
         hidden={!open}
       >
-        {open && children}
+        {children}
       </div>
     </div>
   );

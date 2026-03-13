@@ -2,7 +2,7 @@
 "use client";
 
 import { useReducer, useEffect } from "react";
-import type { YangdoMetaResponse, YangdoEstimateResponse, LicenseProfile } from "@/lib/yangdo-types";
+import type { YangdoMetaResponse, YangdoEstimateRequest, YangdoEstimateResponse, LicenseProfile } from "@/lib/yangdo-types";
 import { fetchYangdoMeta, fetchYangdoEstimate } from "@/lib/api-client";
 import { LicenseInput } from "./license-input";
 import { ScaleModeSelector } from "./scale-mode-selector";
@@ -131,26 +131,24 @@ export function YangdoCalculator() {
     }
     dispatch({ type: "SUBMIT" });
     try {
-      const body: Record<string, unknown> = {
+      const body: YangdoEstimateRequest = {
         license_text: state.licenseText,
         scale_mode: state.scaleMode,
+        ...(state.scaleMode === "specialty" && state.specialty ? { specialty: Number(state.specialty) } : {}),
+        ...(state.scaleMode === "sales" && state.sales3 ? { sales3_eok: Number(state.sales3) } : {}),
+        ...(state.scaleMode === "sales" && state.sales5 ? { sales5_eok: Number(state.sales5) } : {}),
+        ...(state.balanceEok ? { balance_eok: Number(state.balanceEok) } : {}),
+        ...(state.capitalEok ? { capital_eok: Number(state.capitalEok) } : {}),
+        ...(state.surplusEok ? { surplus_eok: Number(state.surplusEok) } : {}),
+        ...(state.debtRatio ? { debt_ratio: Number(state.debtRatio) } : {}),
+        ...(state.liqRatio ? { liq_ratio: Number(state.liqRatio) } : {}),
+        ...(state.reorgMode ? { reorg_mode: state.reorgMode } : {}),
+        ...(state.creditLevel ? { credit_level: state.creditLevel } : {}),
+        ...(state.adminHistory ? { admin_history: state.adminHistory } : {}),
+        ...(state.balanceUsageMode ? { balance_usage_mode: state.balanceUsageMode } : {}),
       };
-      if (state.scaleMode === "specialty" && state.specialty) body.specialty = Number(state.specialty);
-      if (state.scaleMode === "sales") {
-        if (state.sales3) body.sales3_eok = Number(state.sales3);
-        if (state.sales5) body.sales5_eok = Number(state.sales5);
-      }
-      if (state.balanceEok) body.balance_eok = Number(state.balanceEok);
-      if (state.capitalEok) body.capital_eok = Number(state.capitalEok);
-      if (state.surplusEok) body.surplus_eok = Number(state.surplusEok);
-      if (state.debtRatio) body.debt_ratio = Number(state.debtRatio);
-      if (state.liqRatio) body.liq_ratio = Number(state.liqRatio);
-      if (state.reorgMode) body.reorg_mode = state.reorgMode;
-      if (state.creditLevel) body.credit_level = state.creditLevel;
-      if (state.adminHistory) body.admin_history = state.adminHistory;
-      if (state.balanceUsageMode) body.balance_usage_mode = state.balanceUsageMode;
 
-      const res = await fetchYangdoEstimate(body as any);
+      const res = await fetchYangdoEstimate(body);
       if (!res.ok) {
         dispatch({ type: "ERROR", payload: res.error ?? "산정에 실패했습니다." });
       } else {
