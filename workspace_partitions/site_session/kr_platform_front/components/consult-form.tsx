@@ -8,6 +8,14 @@ type FormState = "idle" | "submitting" | "success" | "error";
 
 const API_ENDPOINT = "/api/consult-intake";
 
+/** Auto-format Korean phone: 01012345678 → 010-1234-5678 */
+function formatPhone(raw: string): string {
+  const digits = raw.replace(/\D/g, "").slice(0, 11);
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 7) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+  return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`;
+}
+
 /** Map URL query params from calculator CTAs to form defaults. */
 function deriveDefaults(params: URLSearchParams) {
   // From yangdo: /consult?license=건축공사업&estimate=2.5
@@ -42,6 +50,7 @@ export function ConsultForm() {
 
   const [state, setState] = useState<FormState>("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const [phone, setPhone] = useState("");
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent<HTMLFormElement>) => {
@@ -139,8 +148,9 @@ export function ConsultForm() {
             inputMode="tel"
             autoComplete="tel"
             placeholder="010-1234-5678"
-            pattern="[0-9\-]{9,20}"
-            maxLength={20}
+            value={phone}
+            onChange={(e) => setPhone(formatPhone(e.target.value))}
+            maxLength={13}
           />
         </div>
         <div className="consult-form-field">

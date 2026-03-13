@@ -1,7 +1,7 @@
 /** PermitCalculator — AI 인허가 사전검토 계산기 루트 컴포넌트 */
 "use client";
 
-import { useReducer, useEffect, useRef } from "react";
+import { useReducer, useEffect, useRef, useCallback } from "react";
 import type { PermitMetaResponse, PermitPrecheckResponse, PermitIndustry } from "@/lib/permit-types";
 import { fetchPermitMeta, fetchPermitPrecheck } from "@/lib/api-client";
 import { IndustrySelector } from "./industry-selector";
@@ -42,7 +42,8 @@ type Action =
   | { type: "SUBMIT" }
   | { type: "RESULT"; payload: PermitPrecheckResponse }
   | { type: "ERROR"; payload: string }
-  | { type: "RESET" };
+  | { type: "RESET" }
+  | { type: "RETRY_META" };
 
 const initialState: CalcState = {
   phase: "idle",
@@ -79,6 +80,8 @@ function reducer(state: CalcState, action: Action): CalcState {
       return { ...state, phase: "ready", errorMsg: action.payload, result: null };
     case "RESET":
       return { ...initialState, phase: "ready", meta: state.meta };
+    case "RETRY_META":
+      return { ...state, phase: "idle", metaError: null };
     default:
       return state;
   }
@@ -88,13 +91,14 @@ export function PermitCalculator() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const resultsRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    let cancelled = false;
+  const loadMeta = useCallback(() => {
+    dispatch({ type: "RETRY_META" });
     fetchPermitMeta()
-      .then((data) => { if (!cancelled) dispatch({ type: "META_LOADED", payload: data }); })
-      .catch(() => { if (!cancelled) dispatch({ type: "META_ERROR", payload: "업종 데이터를 불러올 수 없습니다." }); });
-    return () => { cancelled = true; };
+      .then((data) => dispatch({ type: "META_LOADED", payload: data }))
+      .catch(() => dispatch({ type: "META_ERROR", payload: "업종 데이터를 불러올 수 없습니다." }));
   }, []);
+
+  useEffect(() => { loadMeta(); }, [loadMeta]);
 
   /* ── Auto-scroll to results ── */
   useEffect(() => {
@@ -104,6 +108,7 @@ export function PermitCalculator() {
   }, [state.phase]);
 
   const handleSubmit = async () => {
+    if (state.phase === "submitting") return;
     if (!state.selectedIndustry) {
       dispatch({ type: "ERROR", payload: "업종을 선택해 주세요." });
       return;
@@ -155,7 +160,10 @@ export function PermitCalculator() {
   if (state.metaError) {
     return (
       <div className="permit-calc">
-        <div className="calc-error-banner" role="alert">{state.metaError}</div>
+        <div className="calc-error-banner" role="alert">
+          {state.metaError}
+          <button type="button" className="calc-retry-btn" onClick={loadMeta}>다시 시도</button>
+        </div>
       </div>
     );
   }

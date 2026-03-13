@@ -3476,7 +3476,24 @@ img { max-width: 100%; display: block; }
   color: var(--red);
   font-size: 0.78rem;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
+.calc-retry-btn {
+  padding: 6px 14px;
+  border: 1px solid rgba(255, 71, 87, 0.3);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--red);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+.calc-retry-btn:hover { background: rgba(255, 71, 87, 0.1); }
 
 /* ── Info Banner (contextual guidance) ── */
 .calc-info-banner {

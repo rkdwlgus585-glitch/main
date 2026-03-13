@@ -1,7 +1,7 @@
 /** YangdoCalculator — AI 양도가 산정 계산기 루트 컴포넌트 */
 "use client";
 
-import { useReducer, useEffect, useRef } from "react";
+import { useReducer, useEffect, useRef, useCallback } from "react";
 import type { YangdoMetaResponse, YangdoEstimateRequest, YangdoEstimateResponse, LicenseProfile } from "@/lib/yangdo-types";
 import { fetchYangdoMeta, fetchYangdoEstimate } from "@/lib/api-client";
 import { LicenseInput } from "./license-input";
@@ -50,7 +50,8 @@ type Action =
   | { type: "SUBMIT" }
   | { type: "RESULT"; payload: YangdoEstimateResponse }
   | { type: "ERROR"; payload: string }
-  | { type: "RESET" };
+  | { type: "RESET" }
+  | { type: "RETRY_META" };
 
 const initialState: CalcState = {
   phase: "idle",
@@ -107,6 +108,8 @@ function reducer(state: CalcState, action: Action): CalcState {
       return { ...state, phase: "ready", errorMsg: action.payload, result: null };
     case "RESET":
       return { ...initialState, phase: "ready", meta: state.meta };
+    case "RETRY_META":
+      return { ...state, phase: "idle", metaError: null };
     default:
       return state;
   }
@@ -116,14 +119,15 @@ export function YangdoCalculator() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const resultsRef = useRef<HTMLDivElement>(null);
 
-  /* ── Load meta on mount ── */
-  useEffect(() => {
-    let cancelled = false;
+  /* ── Load meta on mount + retry ── */
+  const loadMeta = useCallback(() => {
+    dispatch({ type: "RETRY_META" });
     fetchYangdoMeta()
-      .then((data) => { if (!cancelled) dispatch({ type: "META_LOADED", payload: data }); })
-      .catch(() => { if (!cancelled) dispatch({ type: "META_ERROR", payload: "업종 데이터를 불러올 수 없습니다." }); });
-    return () => { cancelled = true; };
+      .then((data) => dispatch({ type: "META_LOADED", payload: data }))
+      .catch(() => dispatch({ type: "META_ERROR", payload: "업종 데이터를 불러올 수 없습니다." }));
   }, []);
+
+  useEffect(() => { loadMeta(); }, [loadMeta]);
 
   /* ── Auto-scroll to results ── */
   useEffect(() => {
@@ -134,6 +138,7 @@ export function YangdoCalculator() {
 
   /* ── Submit handler ── */
   const handleSubmit = async () => {
+    if (state.phase === "submitting") return;
     if (!state.licenseText.trim()) {
       dispatch({ type: "ERROR", payload: "업종을 선택해 주세요." });
       return;
@@ -203,7 +208,10 @@ export function YangdoCalculator() {
   if (state.metaError) {
     return (
       <div className="yangdo-calc">
-        <div className="calc-error-banner" role="alert">{state.metaError}</div>
+        <div className="calc-error-banner" role="alert">
+          {state.metaError}
+          <button type="button" className="calc-retry-btn" onClick={loadMeta}>다시 시도</button>
+        </div>
       </div>
     );
   }
