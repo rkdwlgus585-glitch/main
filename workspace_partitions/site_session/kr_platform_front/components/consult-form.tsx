@@ -123,7 +123,7 @@ export function ConsultForm() {
         <label htmlFor="cf-service">상담 분야</label>
         <select id="cf-service" name="service" defaultValue="">
           <option value="">선택해 주세요</option>
-          <option value="transfer_price_estimation">양도양수 (양도가 산정)</option>
+          <option value="transfer_price_estimation">면허 양도 (양도가 산정)</option>
           <option value="permit_precheck_new_registration">AI 인허가 검토</option>
           <option value="general">일반 문의</option>
         </select>

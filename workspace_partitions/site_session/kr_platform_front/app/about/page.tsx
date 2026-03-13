@@ -6,7 +6,7 @@ import { ScrollAnimate } from "@/components/scroll-animate";
 
 const pageTitle = "회사소개 | 서울건설정보";
 const pageDescription =
-  "건설업 양도양수·인허가 전문 AI 플랫폼 서울건설정보를 소개합니다. 데이터와 전문성을 결합한 건설업 원스톱 서비스.";
+  "건설업 면허·인허가 전문 AI 플랫폼 서울건설정보를 소개합니다. 데이터와 전문성을 결합한 건설업 원스톱 서비스.";
 
 export const metadata: Metadata = {
   title: pageTitle,
@@ -50,7 +50,7 @@ const values = [
 ];
 
 const milestones = [
-  { year: "2024", event: "건설업 양도양수 시장 분석 데이터 구축 착수" },
+  { year: "2024", event: "건설업 면허 시장 분석 데이터 구축 착수" },
   { year: "2025", event: "AI 양도가 산정 시스템 v1.0 개발 완료" },
   { year: "2025", event: "AI 인허가 사전검토 시스템 v1.0 개발 완료" },
   { year: "2026", event: "AI 양도가 산정 · AI 인허가 사전검토 알고리즘 특허 출원" },
@@ -82,7 +82,7 @@ function AboutJsonLd() {
         addressCountry: "KR",
       },
       knowsAbout: [
-        "건설업 양도양수",
+        "건설업 면허 거래",
         "건설업 면허",
         "인허가 사전검토",
         "건설업 등록기준",
@@ -117,7 +117,7 @@ export default function AboutPage() {
         <p className="eyebrow">회사소개</p>
         <h1>건설업 면허 거래의 새로운 기준을 만듭니다</h1>
         <p className="about-hero-body">
-          건설업 양도양수와 인허가를 데이터·AI로 혁신하는 전문 플랫폼입니다.<br />
+          건설업 면허 거래와 인허가를 데이터·AI로 혁신하는 전문 플랫폼입니다.<br />
           불투명했던 면허 시장에 객관적 분석과 전문 상담을 더합니다.
         </p>
       </section>
@@ -146,8 +146,10 @@ export default function AboutPage() {
           <div className="about-values-grid">
             {values.map((v, i) => (
               <article key={v.title} className="about-value-card">
-                <span className="about-value-index">{String(i + 1).padStart(2, "0")}</span>
-                <h3>{v.title}</h3>
+                <div className="about-value-header">
+                  <span className="about-value-index">{String(i + 1).padStart(2, "0")}</span>
+                  <h3>{v.title}</h3>
+                </div>
                 <p>{v.description}</p>
               </article>
             ))}

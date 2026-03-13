@@ -75,7 +75,7 @@ export default function TermsPage() {
             건설업 전문 행정사 상담을 연결하는 서비스
           </li>
           <li>
-            <strong>건설실무 정보</strong>: 건설업 양도양수, 인허가,
+            <strong>건설실무 정보</strong>: 건설업 면허, 인허가,
             등록기준, 시장 동향 등 실무 콘텐츠 제공
           </li>
         </ul>

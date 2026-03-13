@@ -3,10 +3,29 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
 
+  async rewrites() {
+    // Proxy /_calc/* requests to the Python backend engine servers.
+    // Vercel does not host the AI engines — they run on a separate server.
+    // ENGINE_ORIGIN env var (server-side only) points to the backend.
+    const engineOrigin =
+      process.env.ENGINE_ORIGIN ||
+      process.env.NEXT_PUBLIC_PRIVATE_ENGINE_ORIGIN ||
+      "https://calc.seoulmna.co.kr";
+
+    return [
+      {
+        source: "/_calc/:path*",
+        destination: `${engineOrigin}/:path*`,
+      },
+    ];
+  },
+
   async headers() {
     return [
       {
-        source: "/(.*)",
+        // Security headers for all pages EXCEPT proxied engine paths.
+        // /_calc/* is proxied to the backend which supplies its own headers.
+        source: "/((?!_calc/).*)",
         headers: [
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "X-Frame-Options", value: "SAMEORIGIN" },

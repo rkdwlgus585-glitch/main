@@ -41,7 +41,7 @@ export const metadata: Metadata = {
   keywords: [
     "건설업 면허",
     "양도가 산정",
-    "건설업 양도양수",
+    "건설업 면허 양도양수",
     "인허가 사전검토",
     "신규 등록 비용",
     "건설업 등록기준",
@@ -68,7 +68,7 @@ function JsonLd() {
     },
     geo: { "@type": "GeoCoordinates", latitude: 37.5665, longitude: 126.978 },
     description: siteDescription,
-    knowsAbout: ["건설업 양도양수", "건설업 면허", "인허가 사전검토", "건설업 등록기준"],
+    knowsAbout: ["건설업 면허", "건설업 면허 취득", "인허가 사전검토", "건설업 등록기준"],
     priceRange: "무료",
   };
   return (

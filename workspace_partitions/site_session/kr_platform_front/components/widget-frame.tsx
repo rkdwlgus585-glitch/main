@@ -11,6 +11,9 @@ type WidgetFrameProps = {
   description: string;
   widgetUrl: string;
   openUrl?: string;
+  /** Direct link to a working calculator page (e.g. WordPress).
+   *  Shown as prominent CTA when the iframe fails to load. */
+  fallbackUrl?: string;
   eyebrow?: string;
   launchLabel?: string;
   gateNote?: string;
@@ -27,6 +30,7 @@ export function WidgetFrame({
   description,
   widgetUrl,
   openUrl = "",
+  fallbackUrl = "",
   eyebrow = "Widget launch",
   launchLabel = "Start widget",
   gateNote = "The external engine iframe is created only after the launch button is pressed.",
@@ -174,9 +178,21 @@ export function WidgetFrame({
               <p className="widget-error-hint">
                 네트워크 상태를 확인하시거나, 잠시 후 다시 시도해 주세요.
               </p>
-              <button type="button" className="widget-retry-button" onClick={handleRetry}>
-                다시 시도
-              </button>
+              <div className="widget-error-actions">
+                <button type="button" className="widget-retry-button" onClick={handleRetry}>
+                  다시 시도
+                </button>
+                {fallbackUrl && (
+                  <a
+                    href={fallbackUrl}
+                    className="widget-fallback-link"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                  >
+                    {title} 바로가기 →
+                  </a>
+                )}
+              </div>
             </div>
           )}
           <iframe

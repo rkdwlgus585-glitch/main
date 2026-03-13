@@ -9,7 +9,7 @@ import { breadcrumbSchema, organizationRef, siteBase } from "@/lib/json-ld";
 
 const pageTitle = "고객센터 | 서울건설정보";
 const pageDescription =
-  "건설업 양도양수, 인허가, 면허 관리까지 — AI 분석 결과를 바탕으로 건설업 전문 행정사가 직접 상담합니다.";
+  "건설업 면허 취득, 양도, 인허가까지 — AI 분석 결과를 바탕으로 건설업 전문 행정사가 직접 상담합니다.";
 
 export const metadata: Metadata = {
   title: pageTitle,
@@ -48,7 +48,7 @@ const steps = [
   {
     step: "04",
     title: "실행 · 완료",
-    description: "양도양수 계약 체결, 인허가 신청, 변경 등록까지 행정사가 직접 대행합니다.",
+    description: "면허 양도 계약 체결, 인허가 신청, 변경 등록까지 행정사가 직접 대행합니다.",
   },
 ];
 
@@ -64,7 +64,7 @@ const benefits: Array<{
   },
   {
     title: "건설업 전문",
-    description: "건설업 면허 양도양수·인허가만 전문으로 다루는 행정사가 직접 담당합니다.",
+    description: "건설업 면허·인허가만 전문으로 다루는 행정사가 직접 담당합니다.",
     icon: HardHat,
   },
   {
@@ -91,7 +91,7 @@ function ConsultJsonLd() {
     telephone: platformConfig.contactPhone,
     email: platformConfig.contactEmail,
     areaServed: { "@type": "Country", name: "KR" },
-    serviceType: "건설업 양도양수·인허가 전문 상담",
+    serviceType: "건설업 면허·인허가 전문 상담",
     parentOrganization: organizationRef,
   };
   /* HowTo schema helps Google show the consultation flow as a step-by-step snippet */

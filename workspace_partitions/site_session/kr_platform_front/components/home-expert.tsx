@@ -10,7 +10,7 @@ const credentials = [
   {
     icon: Briefcase,
     label: "건설업 전문",
-    detail: "건설업 양도양수·인허가 실무 전문",
+    detail: "건설업 면허·인허가 실무 전문",
   },
   {
     icon: Shield,

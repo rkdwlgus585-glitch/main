@@ -31,7 +31,7 @@ const targets = [
   {
     title: "행정사사무소",
     description:
-      "면허 양도양수 상담 시 AI 양도가 산정 · AI 인허가 검토 시스템을 즉시 활용하세요. 고객 신뢰도와 업무 효율이 높아집니다.",
+      "면허 상담 시 AI 양도가 산정 · AI 인허가 검토 시스템을 즉시 활용하세요. 고객 신뢰도와 업무 효율이 높아집니다.",
     icon: Briefcase,
     benefits: ["AI 양도가 산정 시스템 직접 운영", "AI 인허가 검토 시스템 탑재", "복합면허 분해 분석 · 근거 자료 자동 생성"],
   },
@@ -172,8 +172,10 @@ export default function PartnersPage() {
           <div className="partners-steps-grid">
             {steps.map((s) => (
               <div key={s.step} className="partners-step-item">
-                <span className="partners-step-number">{s.step}</span>
-                <h3>{s.title}</h3>
+                <div className="partners-step-header">
+                  <span className="partners-step-number">{s.step}</span>
+                  <h3>{s.title}</h3>
+                </div>
                 <p>{s.description}</p>
               </div>
             ))}
