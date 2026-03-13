@@ -1,6 +1,9 @@
 /** DiagnosisResult — 전체 상태 + 항목별 갭 분석 */
+"use client";
+
 import type { PermitPrecheckResponse } from "@/lib/permit-types";
 import { ResultBadge } from "@/components/shared/result-badge";
+import { AnimatedCounter } from "@/components/animated-counter";
 import { AlertTriangle, TrendingDown } from "lucide-react";
 
 interface DiagnosisResultProps {
@@ -45,7 +48,7 @@ export function DiagnosisResult({ result }: DiagnosisResultProps) {
                   </div>
                 )}
                 {item.estimated_cost_eok != null && (
-                  <p className="permit-gap-cost">예상 보완 비용: {item.estimated_cost_eok.toFixed(2)} 억원</p>
+                  <p className="permit-gap-cost">예상 보완 비용: <AnimatedCounter end={Math.round(item.estimated_cost_eok * 100) / 100} suffix="" duration={1000} /> 억원</p>
                 )}
               </div>
             ))}
@@ -57,7 +60,7 @@ export function DiagnosisResult({ result }: DiagnosisResultProps) {
       {result.total_shortfall_cost_eok != null && result.total_shortfall_cost_eok > 0 && (
         <div className="permit-total-cost">
           <AlertTriangle size={16} aria-hidden="true" />
-          <span>총 예상 보완 비용: <strong>{result.total_shortfall_cost_eok.toFixed(2)} 억원</strong></span>
+          <span>총 예상 보완 비용: <strong><AnimatedCounter end={Math.round(result.total_shortfall_cost_eok * 100) / 100} suffix="" duration={1200} /> 억원</strong></span>
         </div>
       )}
     </div>

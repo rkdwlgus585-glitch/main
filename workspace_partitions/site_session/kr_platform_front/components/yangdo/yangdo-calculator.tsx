@@ -8,6 +8,7 @@ import { LicenseInput } from "./license-input";
 import { ScaleModeSelector } from "./scale-mode-selector";
 import { MetricInput } from "./metric-input";
 import { AdvancedPanel } from "./advanced-panel";
+import { ScrollAnimate } from "@/components/scroll-animate";
 import { ResultPanel } from "./result-panel";
 import { SettlementPanel } from "./settlement-panel";
 import { RecommendedListings } from "./recommended-listings";
@@ -251,14 +252,20 @@ export function YangdoCalculator() {
       {/* 5. 결과 */}
       {state.phase === "result" && state.result && (
         <div className="yangdo-results" aria-live="polite">
-          <ResultPanel result={state.result} />
+          <ScrollAnimate>
+            <ResultPanel result={state.result} />
+          </ScrollAnimate>
 
           {state.result.settlement_scenarios && state.result.settlement_scenarios.length > 0 && (
-            <SettlementPanel scenarios={state.result.settlement_scenarios} />
+            <ScrollAnimate delay={150}>
+              <SettlementPanel scenarios={state.result.settlement_scenarios} />
+            </ScrollAnimate>
           )}
 
           {state.result.recommended_listings && state.result.recommended_listings.length > 0 && (
-            <RecommendedListings listings={state.result.recommended_listings} />
+            <ScrollAnimate delay={300}>
+              <RecommendedListings listings={state.result.recommended_listings} />
+            </ScrollAnimate>
           )}
 
           {state.result.risk_notes && state.result.risk_notes.length > 0 && (

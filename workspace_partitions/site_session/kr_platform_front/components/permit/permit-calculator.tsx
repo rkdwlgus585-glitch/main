@@ -8,6 +8,7 @@ import { IndustrySelector } from "./industry-selector";
 import { AssetInput } from "./asset-input";
 import { RequirementToggles } from "./requirement-toggles";
 import { DiagnosisResult } from "./diagnosis-result";
+import { ScrollAnimate } from "@/components/scroll-animate";
 import { CriteriaList } from "./criteria-list";
 import { NextActions } from "./next-actions";
 import { ShieldCheck, Loader2 } from "lucide-react";
@@ -193,14 +194,20 @@ export function PermitCalculator() {
 
       {state.phase === "result" && state.result && (
         <div className="permit-results" aria-live="polite">
-          <DiagnosisResult result={state.result} />
+          <ScrollAnimate>
+            <DiagnosisResult result={state.result} />
+          </ScrollAnimate>
 
           {state.result.criteria_results && state.result.criteria_results.length > 0 && (
-            <CriteriaList criteria={state.result.criteria_results} />
+            <ScrollAnimate delay={150}>
+              <CriteriaList criteria={state.result.criteria_results} />
+            </ScrollAnimate>
           )}
 
           {state.result.next_actions && state.result.next_actions.length > 0 && (
-            <NextActions actions={state.result.next_actions} />
+            <ScrollAnimate delay={300}>
+              <NextActions actions={state.result.next_actions} />
+            </ScrollAnimate>
           )}
 
           <div className="permit-result-actions">
