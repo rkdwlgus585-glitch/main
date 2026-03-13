@@ -271,7 +271,7 @@ export function YangdoCalculator() {
           {state.result.risk_notes && state.result.risk_notes.length > 0 && (
             <div className="yangdo-risk-notes">
               {state.result.risk_notes.map((note, i) => (
-                <p key={i} className="yangdo-risk-note">{note}</p>
+                <p key={note.slice(0, 60)} className="yangdo-risk-note">{note}</p>
               ))}
             </div>
           )}
