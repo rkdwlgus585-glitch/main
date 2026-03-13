@@ -121,8 +121,14 @@ export function PermitCalculator() {
       } else {
         dispatch({ type: "RESULT", payload: res });
       }
-    } catch {
-      dispatch({ type: "ERROR", payload: "서버 연결에 실패했습니다. 잠시 후 다시 시도해 주세요." });
+    } catch (err) {
+      const code = err instanceof Error && "code" in err ? (err as { code: string }).code : "";
+      const msg = code === "timeout"
+        ? "요청 시간이 초과되었습니다. 잠시 후 다시 시도해 주세요."
+        : code === "mapping_required"
+          ? "해당 업종은 법령 기준 매핑이 진행 중입니다. 전문가 상담을 이용해 주세요."
+          : "서버 연결에 실패했습니다. 잠시 후 다시 시도해 주세요.";
+      dispatch({ type: "ERROR", payload: msg });
     }
   };
 
