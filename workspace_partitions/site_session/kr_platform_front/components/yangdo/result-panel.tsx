@@ -11,6 +11,14 @@ interface ResultPanelProps {
   result: YangdoEstimateResponse;
 }
 
+const PUB_MODE_LABELS: Record<string, string> = {
+  full: "정상 산정",
+  low_sample_diversity: "소수 표본",
+  capped_confidence: "신뢰도 상한 적용",
+  low_sample: "데이터 부족",
+  manual_review: "수동 검토 필요",
+};
+
 export function ResultPanel({ result }: ResultPanelProps) {
   const center = result.public_center_eok ?? result.estimate_center_eok ?? 0;
   const low = result.public_low_eok ?? result.estimate_low_eok ?? 0;
@@ -37,7 +45,7 @@ export function ResultPanel({ result }: ResultPanelProps) {
         <ConfidenceMeter percent={confidence} />
         {result.publication_mode && (
           <p className="yangdo-result-mode">
-            산정 모드: <strong>{result.publication_mode}</strong>
+            산정 모드: <strong>{PUB_MODE_LABELS[result.publication_mode] ?? result.publication_mode}</strong>
           </p>
         )}
       </div>

@@ -14,14 +14,14 @@ export function NextActions({ actions }: NextActionsProps) {
       <h4 className="permit-actions-title">다음 조치 사항</h4>
       <ol className="permit-actions-list">
         {sorted.map((act, i) => (
-          <li key={`${act.action.slice(0, 40)}-${act.priority}`} className="permit-action-item">
+          <li key={`action-${i}`} className="permit-action-item">
             <div className="permit-action-header">
               <ArrowRight size={14} aria-hidden="true" />
               <span className="permit-action-text">{act.action}</span>
             </div>
             {act.detail && <p className="permit-action-detail">{act.detail}</p>}
-            {act.estimated_cost_eok != null && (
-              <span className="permit-action-cost">예상 비용: {act.estimated_cost_eok.toFixed(2)} 억원</span>
+            {act.estimated_cost_eok != null && act.estimated_cost_eok > 0 && (
+              <span className="permit-action-cost">예상 비용: {(Math.round(act.estimated_cost_eok * 100) / 100).toFixed(2)} 억원</span>
             )}
           </li>
         ))}

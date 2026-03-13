@@ -204,16 +204,14 @@ class PatchedHandlerMetaRoutingTest(unittest.TestCase):
         api._patched_handler_do_get(handler)
         handler.send_response.assert_called()
 
-    def test_admin_key_required_when_configured(self) -> None:
+    def test_meta_no_admin_key_required(self) -> None:
+        """Meta endpoint serves public catalog data — no admin auth gate."""
         handler = self._mock_handler_for_get("/v1/meta")
         handler.server.admin_api_keys = {"secret-key"}
-        handler._require_api_key.return_value = False  # key check fails
         api._patched_handler_do_get(handler)
-        handler._require_api_key.assert_called_with(admin=True)
-        # Should not reach send_response(200) since key check failed
-        if handler.send_response.called:
-            args = handler.send_response.call_args[0]
-            self.assertNotEqual(args[0], 200)
+        # _require_api_key should NOT be called for /v1/meta
+        handler._require_api_key.assert_not_called()
+        handler.send_response.assert_called_with(200)
 
 
 if __name__ == "__main__":

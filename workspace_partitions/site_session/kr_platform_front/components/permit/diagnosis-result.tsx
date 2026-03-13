@@ -6,6 +6,15 @@ import { ResultBadge } from "@/components/shared/result-badge";
 import { AnimatedCounter } from "@/components/animated-counter";
 import { AlertTriangle, TrendingDown } from "lucide-react";
 
+/** Format shortfall field values for Korean display. */
+function formatFieldValue(v: unknown): string {
+  if (typeof v === "boolean") return v ? "보유" : "미보유";
+  if (v == null) return "—";
+  const n = Number(v);
+  if (!Number.isNaN(n)) return n.toLocaleString("ko-KR");
+  return String(v);
+}
+
 interface DiagnosisResultProps {
   result: PermitPrecheckResponse;
 }
@@ -35,16 +44,16 @@ export function DiagnosisResult({ result }: DiagnosisResultProps) {
                 <span className="permit-gap-label">{item.label}</span>
                 <div className="permit-gap-row">
                   <span>필요</span>
-                  <strong>{String(item.required)}</strong>
+                  <strong>{formatFieldValue(item.required)}</strong>
                 </div>
                 <div className="permit-gap-row">
                   <span>현재</span>
-                  <strong className="permit-gap-current">{String(item.current)}</strong>
+                  <strong className="permit-gap-current">{formatFieldValue(item.current)}</strong>
                 </div>
                 {item.gap != null && (
                   <div className="permit-gap-row permit-gap-deficit">
                     <span>부족</span>
-                    <strong>{String(item.gap)}</strong>
+                    <strong>{formatFieldValue(item.gap)}</strong>
                   </div>
                 )}
                 {item.estimated_cost_eok != null && (

@@ -2576,7 +2576,7 @@ img { max-width: 100%; display: block; }
 .calc-field-label {
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--fg);
+  color: var(--ink);
 }
 .calc-field-required {
   color: #e53e3e;
@@ -2609,7 +2609,7 @@ img { max-width: 100%; display: block; }
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   background: var(--bg);
-  color: var(--fg);
+  color: var(--ink);
   font-size: 1rem;
   transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
   -moz-appearance: textfield;
@@ -2646,7 +2646,7 @@ img { max-width: 100%; display: block; }
   border: 1px solid var(--line);
   border-radius: 999px;
   background: var(--bg);
-  color: var(--fg);
+  color: var(--ink);
   font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.2s var(--ease);
@@ -2736,7 +2736,7 @@ img { max-width: 100%; display: block; }
   color: var(--muted);
 }
 .calc-range-center {
-  color: var(--fg);
+  color: var(--ink);
   font-size: 0.9rem;
 }
 
@@ -2791,7 +2791,7 @@ img { max-width: 100%; display: block; }
   padding: 14px 18px;
   border: none;
   background: var(--surface);
-  color: var(--fg);
+  color: var(--ink);
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
@@ -2926,7 +2926,7 @@ img { max-width: 100%; display: block; }
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   background: var(--bg);
-  color: var(--fg);
+  color: var(--ink);
   font-size: 1rem;
   transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
 }
@@ -2989,7 +2989,7 @@ img { max-width: 100%; display: block; }
   padding: 10px 16px;
   border: none;
   background: var(--bg);
-  color: var(--fg);
+  color: var(--ink);
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
@@ -3045,7 +3045,7 @@ img { max-width: 100%; display: block; }
 .yangdo-result-value {
   font-size: 2.8rem;
   font-weight: 800;
-  color: var(--fg);
+  color: var(--ink);
   letter-spacing: -0.02em;
 }
 .yangdo-result-unit {
@@ -3080,6 +3080,9 @@ img { max-width: 100%; display: block; }
 .yangdo-settlement-header h4 {
   margin: 0;
   font-size: 1rem;
+}
+.yangdo-advanced-content {
+  padding-top: 12px;
 }
 .yangdo-settlement-grid {
   display: grid;
@@ -3147,7 +3150,7 @@ img { max-width: 100%; display: block; }
 .yangdo-listing-price {
   font-size: 1.1rem;
   font-weight: 700;
-  color: var(--fg);
+  color: var(--ink);
   margin: 4px 0;
 }
 .yangdo-listing-label {
@@ -3191,7 +3194,7 @@ img { max-width: 100%; display: block; }
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   background: var(--bg);
-  color: var(--fg);
+  color: var(--ink);
   font-size: 0.95rem;
   cursor: pointer;
   transition: all 0.2s var(--ease);
@@ -3244,7 +3247,7 @@ img { max-width: 100%; display: block; }
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   background: var(--bg);
-  color: var(--fg);
+  color: var(--ink);
   font-size: 1rem;
   transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
 }
@@ -3286,7 +3289,7 @@ img { max-width: 100%; display: block; }
   border: 1px solid var(--line);
   border-radius: 999px;
   background: var(--bg);
-  color: var(--fg);
+  color: var(--ink);
   font-size: 0.75rem;
   cursor: pointer;
   transition: all 0.15s;
@@ -3592,7 +3595,7 @@ img { max-width: 100%; display: block; }
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   background: var(--bg);
-  color: var(--fg);
+  color: var(--ink);
   font-size: 0.95rem;
   cursor: pointer;
   transition: all 0.2s var(--ease);
@@ -3600,6 +3603,42 @@ img { max-width: 100%; display: block; }
 .permit-reset-btn:hover {
   border-color: var(--point);
   background: rgba(0, 163, 255, 0.04);
+}
+
+/* ── Focus-visible — keyboard-only ring (WCAG 2.1 AA) ── */
+.calc-number-input-field:focus-visible,
+.calc-submit-btn:focus-visible,
+.yangdo-chip:focus-visible,
+.yangdo-suggestion-item:focus-visible,
+.permit-dropdown-trigger:focus-visible,
+.permit-dropdown-item:focus-visible,
+.permit-category-tab:focus-visible,
+.permit-toggle-checkbox:focus-visible,
+.calc-collapsible-trigger:focus-visible {
+  outline: 2px solid var(--point);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(0, 163, 255, 0.18);
+}
+
+/* ── Disabled fields while submitting ── */
+.calc-number-input-field:disabled,
+.calc-submit-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ── Hover polish — cards ── */
+.permit-gap-card:hover {
+  border-color: var(--point);
+  box-shadow: 0 2px 8px rgba(0, 55, 100, 0.06);
+}
+.yangdo-listing-card:hover {
+  border-color: var(--point);
+  box-shadow: 0 2px 8px rgba(0, 55, 100, 0.06);
+}
+.yangdo-settlement-card:hover,
+.permit-action-item:hover {
+  background: rgba(0, 163, 255, 0.03);
 }
 
 /* ── Responsive — Calculators ── */

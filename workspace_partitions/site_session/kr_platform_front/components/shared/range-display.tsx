@@ -9,8 +9,10 @@ interface RangeDisplayProps {
 }
 
 export function RangeDisplay({ low, center, high, unit = "억원", label }: RangeDisplayProps) {
-  const range = high - low;
-  const centerPct = range > 0 ? ((center - low) / range) * 100 : 50;
+  const lo = Math.min(low, high);
+  const hi = Math.max(low, high);
+  const range = hi - lo;
+  const centerPct = range > 0 ? ((center - lo) / range) * 100 : 50;
 
   return (
     <div className="calc-range" aria-label={label ?? "추정 범위"}>

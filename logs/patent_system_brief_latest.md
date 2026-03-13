@@ -44,14 +44,14 @@
   - 공개 등급에 따라 추천 요약 필드와 상담형 상세 설명 필드를 분리
   - cluster-weight 제한
 - Evidence:
-  - 요청 투영/응답 tier: H:\auto\yangdo_blackbox_api.py:781
+  - 요청 투영/응답 tier: H:\auto\yangdo_blackbox_api.py:786
   - 유사 매물 추천 코어: H:\auto\core_engine\yangdo_listing_recommender.py:496
   - 추천 정밀도 QA 매트릭스: H:\auto\scripts\generate_yangdo_recommendation_precision_matrix.py:384
   - 추천 다양성 감사: H:\auto\scripts\generate_yangdo_recommendation_diversity_audit.py:407
   - 특수 업종 정밀화 packet: H:\auto\scripts\generate_yangdo_special_sector_packet.py:130
   - 중복 매물 군집화 적용: H:\auto\yangdo_blackbox_api.py
-  - 산정 엔진 진입점: H:\auto\yangdo_blackbox_api.py:1170
-  - 사용량/과금 적재: H:\auto\yangdo_blackbox_api.py:1089
+  - 산정 엔진 진입점: H:\auto\yangdo_blackbox_api.py:1175
+  - 사용량/과금 적재: H:\auto\yangdo_blackbox_api.py:1094
   - 채널/시스템 차단: H:\auto\yangdo_blackbox_api.py
   - 로컬 계산기 공용 로직: H:\auto\yangdo_calculator.py
   - 중복 매물 코어: H:\auto\core_engine\yangdo_duplicate_cluster.py
@@ -132,7 +132,7 @@
   - Infrastructure consistency 자동 검증 (7-file synchronization)
   - Production smoke test (9 endpoint checks)
 - Evidence:
-  - yangdo SIGTERM handler: H:\auto\yangdo_blackbox_api.py:1455
+  - yangdo SIGTERM handler: H:\auto\yangdo_blackbox_api.py:1457
   - permit SIGTERM handler: H:\auto\permit_precheck_api.py:1523
   - consult SIGTERM handler: H:\auto\yangdo_consult_api.py:1075
   - 인프라 일관성 검증: H:\auto\tests\test_deploy_infrastructure.py:21

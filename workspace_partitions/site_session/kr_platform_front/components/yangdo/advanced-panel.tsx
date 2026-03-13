@@ -20,7 +20,7 @@ export function AdvancedPanel({
 }: AdvancedPanelProps) {
   return (
     <CollapsiblePanel title="고급 옵션">
-      <div className="calc-form" style={{ paddingTop: 12 }}>
+      <div className="calc-form yangdo-advanced-content">
         <div className="calc-row">
           <FormField label="부채비율" hint="높을수록 재무 리스크 증가">
             <NumberInput

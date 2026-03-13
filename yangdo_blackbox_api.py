@@ -5,6 +5,7 @@ import importlib.util
 import json
 import sqlite3
 import statistics
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -25,6 +26,10 @@ if _SPEC is None:
     raise ImportError(f"Unable to create spec for {_BASE_PYC}")
 
 _BASE = importlib.util.module_from_spec(_SPEC)
+# Recovery bytecode references modules in H:\ALL (pre-workspace-separation artifact)
+_ALL_ROOT = str(Path(__file__).resolve().parent.parent / "ALL")
+if _ALL_ROOT not in sys.path:
+    sys.path.insert(0, _ALL_ROOT)
 _LOADER.exec_module(_BASE)
 
 SERVICE_NAME = "yangdo_blackbox_api"
@@ -1380,9 +1385,6 @@ def _patched_handler_do_get(self) -> None:  # noqa: ANN001
         if hasattr(self, "_require_channel_ready") and not self._require_channel_ready():
             return
         server = getattr(self, "server", None)
-        if server and getattr(server, "admin_api_keys", None):
-            if hasattr(self, "_require_api_key") and not self._require_api_key(admin=True):
-                return
         estimator = getattr(server, "estimator", None) if server else None
         if estimator is None:
             _write_json_response(self, 503, {"ok": False, "error": "estimator_not_ready"}, "error")
