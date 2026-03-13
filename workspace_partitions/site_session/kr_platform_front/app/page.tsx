@@ -35,6 +35,8 @@ function HomeJsonLd() {
     { name: "회사소개", path: "/about" },
     { name: "AI 양도가 산정", path: "/yangdo" },
     { name: "AI 인허가 검토", path: "/permit" },
+    { name: "건설실무", path: "/knowledge" },
+    { name: "실시간 매물", path: "/mna-market" },
     { name: "시스템 도입", path: "/partners" },
     { name: "고객센터", path: "/consult" },
   ];

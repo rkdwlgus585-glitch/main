@@ -9,6 +9,8 @@ const navItems = [
   { href: "/about", label: "회사소개" },
   { href: "/yangdo", label: "AI 양도가 산정" },
   { href: "/permit", label: "AI 인허가 검토" },
+  { href: "/knowledge", label: "건설실무" },
+  { href: "/mna-market", label: "실시간 매물" },
   { href: "/partners", label: "시스템 도입" },
   { href: "/consult", label: "고객센터" },
 ];
