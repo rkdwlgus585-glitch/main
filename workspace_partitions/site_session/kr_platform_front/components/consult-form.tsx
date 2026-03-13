@@ -39,6 +39,11 @@ export function ConsultForm() {
         setState("idle");
         return;
       }
+      if (payload.customer_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.customer_email)) {
+        setErrorMsg("올바른 이메일 주소를 입력해 주세요.");
+        setState("idle");
+        return;
+      }
 
       try {
         const res = await fetch(API_ENDPOINT, {
@@ -52,10 +57,8 @@ export function ConsultForm() {
         }
         setState("success");
         form.reset();
-      } catch (err) {
-        setErrorMsg(
-          err instanceof Error ? err.message : "전송에 실패했습니다. 잠시 후 다시 시도해 주세요.",
-        );
+      } catch {
+        setErrorMsg("전송에 실패했습니다. 잠시 후 다시 시도해 주세요.");
         setState("error");
       }
     },
@@ -101,8 +104,10 @@ export function ConsultForm() {
             id="cf-phone"
             name="phone"
             type="tel"
+            inputMode="tel"
             autoComplete="tel"
             placeholder="010-1234-5678"
+            pattern="[0-9\-]{9,20}"
             maxLength={20}
           />
         </div>

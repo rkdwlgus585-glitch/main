@@ -50,8 +50,18 @@ export async function POST(req: NextRequest) {
       signal: AbortSignal.timeout(10_000),
     });
 
+    if (!upstream.ok) {
+      const errBody = await upstream.json().catch(() => ({}));
+      const errMsg = typeof errBody === "object" && errBody !== null
+        ? (errBody as Record<string, unknown>).error ?? "upstream_error"
+        : "upstream_error";
+      return NextResponse.json(
+        { ok: false, error: errMsg },
+        { status: upstream.status >= 500 ? 502 : upstream.status },
+      );
+    }
     const data = await upstream.json().catch(() => ({ ok: false }));
-    return NextResponse.json(data, { status: upstream.status });
+    return NextResponse.json(data);
   } catch {
     return NextResponse.json(
       { ok: false, error: "upstream_unavailable" },

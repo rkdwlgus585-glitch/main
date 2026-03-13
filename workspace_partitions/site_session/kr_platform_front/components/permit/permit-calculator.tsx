@@ -1,7 +1,7 @@
 /** PermitCalculator — AI 인허가 사전검토 계산기 루트 컴포넌트 */
 "use client";
 
-import { useReducer, useEffect } from "react";
+import { useReducer, useEffect, useRef } from "react";
 import type { PermitMetaResponse, PermitPrecheckResponse, PermitIndustry } from "@/lib/permit-types";
 import { fetchPermitMeta, fetchPermitPrecheck } from "@/lib/api-client";
 import { IndustrySelector } from "./industry-selector";
@@ -86,6 +86,7 @@ function reducer(state: CalcState, action: Action): CalcState {
 
 export function PermitCalculator() {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -94,6 +95,13 @@ export function PermitCalculator() {
       .catch(() => { if (!cancelled) dispatch({ type: "META_ERROR", payload: "업종 데이터를 불러올 수 없습니다." }); });
     return () => { cancelled = true; };
   }, []);
+
+  /* ── Auto-scroll to results ── */
+  useEffect(() => {
+    if (state.phase === "result" && resultsRef.current) {
+      resultsRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [state.phase]);
 
   const handleSubmit = async () => {
     if (!state.selectedIndustry) {
@@ -200,7 +208,7 @@ export function PermitCalculator() {
       </form>
 
       {state.phase === "result" && state.result && (
-        <div className="permit-results" aria-live="polite">
+        <div ref={resultsRef} className="permit-results" aria-live="polite">
           <ScrollAnimate>
             <DiagnosisResult result={state.result} />
           </ScrollAnimate>

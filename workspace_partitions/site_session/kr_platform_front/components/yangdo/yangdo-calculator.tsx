@@ -1,7 +1,7 @@
 /** YangdoCalculator — AI 양도가 산정 계산기 루트 컴포넌트 */
 "use client";
 
-import { useReducer, useEffect } from "react";
+import { useReducer, useEffect, useRef } from "react";
 import type { YangdoMetaResponse, YangdoEstimateRequest, YangdoEstimateResponse, LicenseProfile } from "@/lib/yangdo-types";
 import { fetchYangdoMeta, fetchYangdoEstimate } from "@/lib/api-client";
 import { LicenseInput } from "./license-input";
@@ -114,6 +114,7 @@ function reducer(state: CalcState, action: Action): CalcState {
 
 export function YangdoCalculator() {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   /* ── Load meta on mount ── */
   useEffect(() => {
@@ -123,6 +124,13 @@ export function YangdoCalculator() {
       .catch(() => { if (!cancelled) dispatch({ type: "META_ERROR", payload: "업종 데이터를 불러올 수 없습니다." }); });
     return () => { cancelled = true; };
   }, []);
+
+  /* ── Auto-scroll to results ── */
+  useEffect(() => {
+    if (state.phase === "result" && resultsRef.current) {
+      resultsRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [state.phase]);
 
   /* ── Submit handler ── */
   const handleSubmit = async () => {
@@ -270,7 +278,7 @@ export function YangdoCalculator() {
 
       {/* 5. 결과 */}
       {state.phase === "result" && state.result && (
-        <div className="yangdo-results" aria-live="polite">
+        <div ref={resultsRef} className="yangdo-results" aria-live="polite">
           <ScrollAnimate>
             <ResultPanel result={state.result} />
           </ScrollAnimate>

@@ -62,8 +62,12 @@ export async function POST(req: NextRequest) {
     });
 
     if (!upstream.ok) {
+      const errBody = await upstream.json().catch(() => ({}));
+      const errMsg = typeof errBody === "object" && errBody !== null
+        ? (errBody as Record<string, unknown>).error ?? "upstream_error"
+        : "upstream_error";
       return NextResponse.json(
-        { ok: false, error: "upstream_error" },
+        { ok: false, error: errMsg },
         { status: upstream.status >= 500 ? 502 : upstream.status },
       );
     }

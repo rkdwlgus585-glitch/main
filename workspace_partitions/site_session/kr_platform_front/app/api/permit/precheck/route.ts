@@ -81,10 +81,10 @@ function transformResponse(raw: Record<string, unknown>): Record<string, unknown
     action: typeof act === "string" ? act : String(act),
   }));
 
-  // 4. Compute total shortfall cost (from shortfall items if available)
+  // 4. Compute total shortfall cost (from gap values in shortfall items)
   const totalCost = shortfallItems.reduce((sum, item) => {
-    const cost = typeof item.estimated_cost_eok === "number" ? item.estimated_cost_eok : 0;
-    return sum + cost;
+    const gap = typeof item.gap === "number" ? Math.abs(item.gap) : 0;
+    return sum + gap;
   }, 0);
 
   return {
