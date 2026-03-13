@@ -1,13 +1,45 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { CheckCircle } from "lucide-react";
 
 type FormState = "idle" | "submitting" | "success" | "error";
 
 const API_ENDPOINT = "/api/consult-intake";
 
+/** Map URL query params from calculator CTAs to form defaults. */
+function deriveDefaults(params: URLSearchParams) {
+  // From yangdo: /consult?license=건축공사업&estimate=2.5
+  // From permit: /consult?service=전기공사업&status=pass
+  const license = params.get("license") ?? "";
+  const estimate = params.get("estimate") ?? "";
+  const service = params.get("service") ?? "";
+  const status = params.get("status") ?? "";
+
+  let serviceTrack = "";
+  let message = "";
+
+  if (license) {
+    serviceTrack = "transfer_price_estimation";
+    message = `[AI 양도가 산정 결과] 업종: ${license}`;
+    if (estimate) message += `, 추정 양도가: ${estimate}억원`;
+    message += "\n\n";
+  } else if (service) {
+    serviceTrack = "permit_precheck_new_registration";
+    const statusLabel = status === "pass" ? "충족" : status === "shortfall" ? "미충족" : status;
+    message = `[AI 인허가 검토 결과] 업종: ${service}`;
+    if (statusLabel) message += `, 판정: ${statusLabel}`;
+    message += "\n\n";
+  }
+
+  return { serviceTrack, message };
+}
+
 export function ConsultForm() {
+  const searchParams = useSearchParams();
+  const defaults = useMemo(() => deriveDefaults(searchParams), [searchParams]);
+
   const [state, setState] = useState<FormState>("idle");
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -126,7 +158,7 @@ export function ConsultForm() {
 
       <div className="consult-form-field">
         <label htmlFor="cf-service">상담 분야</label>
-        <select id="cf-service" name="service" defaultValue="">
+        <select id="cf-service" name="service" defaultValue={defaults.serviceTrack || ""}>
           <option value="">선택해 주세요</option>
           <option value="transfer_price_estimation">면허 양도 (양도가 산정)</option>
           <option value="permit_precheck_new_registration">AI 인허가 검토</option>
@@ -140,6 +172,7 @@ export function ConsultForm() {
           id="cf-message"
           name="message"
           rows={4}
+          defaultValue={defaults.message}
           placeholder="상담받고 싶은 내용을 간략히 적어 주세요."
           maxLength={2000}
         />

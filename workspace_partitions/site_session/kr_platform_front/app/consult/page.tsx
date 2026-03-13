@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { Gem, HardHat, Phone, Target, Zap } from "lucide-react";
 import { ScrollAnimate } from "@/components/scroll-animate";
 import type { LucideIcon } from "lucide-react";
@@ -200,7 +201,9 @@ export default function ConsultPage() {
             <a href={`tel:${platformConfig.contactPhone}`}>{platformConfig.contactPhone}</a>으로
             바로 연락 주세요.
           </p>
-          <ConsultForm />
+          <Suspense fallback={<div className="consult-form" aria-busy="true"><div className="calc-skeleton" style={{ height: 200 }} /></div>}>
+            <ConsultForm />
+          </Suspense>
         </section>
       </ScrollAnimate>
 
