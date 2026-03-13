@@ -3,12 +3,14 @@ import { NextRequest, NextResponse } from "next/server";
 /**
  * POST /api/yangdo/estimate
  *
- * Proxies to the yangdo blackbox API /v1/estimate endpoint.
+ * Proxies to the yangdo blackbox API /v1/yangdo/estimate endpoint.
  * Runs a full price estimation and returns the result.
+ * Requires X-API-Key for the backend (server-side secret).
  */
 
 const BACKEND_URL =
   process.env.YANGDO_ENGINE_ORIGIN || "http://127.0.0.1:8200";
+const API_KEY = process.env.YANGDO_BLACKBOX_API_KEY || "";
 
 const MAX_BODY = 16_384; // 16 KB
 
@@ -49,9 +51,12 @@ export async function POST(req: NextRequest) {
 
   /* ── Forward to backend ───────────────────────────── */
   try {
-    const upstream = await fetch(`${BACKEND_URL}/v1/estimate`, {
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (API_KEY) headers["X-API-Key"] = API_KEY;
+
+    const upstream = await fetch(`${BACKEND_URL}/v1/yangdo/estimate`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify(body),
       signal: AbortSignal.timeout(15_000),
     });

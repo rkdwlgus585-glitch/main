@@ -39,7 +39,7 @@ EVIDENCE_EXPECTATIONS: dict[str, str] = {
     "core_engine/channel_profiles.py:47": "ChannelRouter",
     "core_engine/api_response.py:35": "build_response_envelope",
     # Track C — Production resilience (graceful shutdown + infrastructure)
-    "yangdo_blackbox_api.py:1457": "_graceful_shutdown",
+    "yangdo_blackbox_api.py:1462": "_graceful_shutdown",
     "permit_precheck_api.py:1523": "_graceful_shutdown",
     "yangdo_consult_api.py:1075": "_graceful_shutdown",
     "tests/test_deploy_infrastructure.py:21": "_SERVICES",

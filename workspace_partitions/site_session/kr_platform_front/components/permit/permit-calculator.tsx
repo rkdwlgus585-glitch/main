@@ -104,6 +104,7 @@ export function PermitCalculator() {
     try {
       const res = await fetchPermitPrecheck({
         service_code: state.selectedIndustry.service_code,
+        service_name: state.selectedIndustry.service_name,
         inputs: {
           capital_eok: state.capitalEok ? Number(state.capitalEok) : undefined,
           technicians: state.technicians ? Number(state.technicians) : undefined,

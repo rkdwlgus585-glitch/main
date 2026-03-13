@@ -1302,6 +1302,11 @@ class YangdoBlackboxEstimator(_BaseYangdoBlackboxEstimator):
         with self._lock:
             all_records = list(self._records or [])
             train_records = list(self._train_records or [])
+        # Bytecode refresh() uses "license_tokens"; _build_license_ui_profiles()
+        # expects "tokens".  Normalise the field name before passing data through.
+        for rec in train_records:
+            if isinstance(rec, dict) and "tokens" not in rec and "license_tokens" in rec:
+                rec["tokens"] = rec["license_tokens"]
         meta = _calc_build_meta(all_records, train_records)
         license_profiles = _calc_build_license_ui_profiles(train_records)
         return {"meta": meta, "license_profiles": license_profiles}

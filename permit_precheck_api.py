@@ -1367,7 +1367,7 @@ class Handler(BaseHTTPRequestHandler):
         if path in {"/precheck", "/v1/permit/precheck"}:
             if self.server.api_keys and not self._require_api_key(admin=False):
                 return
-            if is_sandbox_request(self.headers, api_key=header_token(self.headers)):
+            if is_sandbox_request(self.headers, api_key=header_token(self.headers, "x")):
                 self._write_json(200, sandbox_permit_response())
                 return
             if not self._require_channel_system("permit"):

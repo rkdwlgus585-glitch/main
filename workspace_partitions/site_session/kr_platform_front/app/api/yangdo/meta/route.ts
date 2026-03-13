@@ -9,11 +9,16 @@ import { NextResponse } from "next/server";
 
 const BACKEND_URL =
   process.env.YANGDO_ENGINE_ORIGIN || "http://127.0.0.1:8200";
+const API_KEY = process.env.YANGDO_BLACKBOX_API_KEY || "";
 
 export async function GET() {
   try {
+    const headers: Record<string, string> = {};
+    if (API_KEY) headers["X-API-Key"] = API_KEY;
+
     const upstream = await fetch(`${BACKEND_URL}/v1/meta`, {
       method: "GET",
+      headers,
       signal: AbortSignal.timeout(10_000),
     });
 

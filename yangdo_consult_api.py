@@ -935,7 +935,7 @@ class YangdoConsultApiHandler(BaseHTTPRequestHandler):
             return
 
         if path == "/consult":
-            if is_sandbox_request(self.headers, api_key=header_token(self.headers)):
+            if is_sandbox_request(self.headers, api_key=header_token(self.headers, "x")):
                 self._write_json(200, sandbox_consult_response())
                 return
             if not self._require_feature("consult"):

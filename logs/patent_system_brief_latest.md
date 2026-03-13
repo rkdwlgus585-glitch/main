@@ -132,7 +132,7 @@
   - Infrastructure consistency 자동 검증 (7-file synchronization)
   - Production smoke test (9 endpoint checks)
 - Evidence:
-  - yangdo SIGTERM handler: H:\auto\yangdo_blackbox_api.py:1457
+  - yangdo SIGTERM handler: H:\auto\yangdo_blackbox_api.py:1462
   - permit SIGTERM handler: H:\auto\permit_precheck_api.py:1523
   - consult SIGTERM handler: H:\auto\yangdo_consult_api.py:1075
   - 인프라 일관성 검증: H:\auto\tests\test_deploy_infrastructure.py:21

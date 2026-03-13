@@ -34,6 +34,7 @@ export interface MajorCategory {
 // ── Permit Precheck API ──────────────────────────────
 export interface PermitPrecheckRequest {
   service_code: string;
+  service_name?: string;
   inputs: PermitInputs;
 }
 
