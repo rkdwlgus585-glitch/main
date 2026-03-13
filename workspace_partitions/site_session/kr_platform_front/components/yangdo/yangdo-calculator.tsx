@@ -12,6 +12,7 @@ import { ScrollAnimate } from "@/components/scroll-animate";
 import { ResultPanel } from "./result-panel";
 import { SettlementPanel } from "./settlement-panel";
 import { RecommendedListings } from "./recommended-listings";
+import { CopyResultButton } from "@/components/shared/copy-result-button";
 import { Calculator, Loader2 } from "lucide-react";
 
 type Phase = "idle" | "ready" | "submitting" | "result" | "error";
@@ -316,6 +317,19 @@ export function YangdoCalculator() {
               href={`/consult?license=${encodeURIComponent(state.licenseText)}&estimate=${state.result?.public_center_eok ?? state.result?.estimate_center_eok ?? ""}`}
               className="calc-submit"
             >전문가 상담 연결</a>
+            <CopyResultButton getText={() => {
+              const r = state.result;
+              if (!r) return "";
+              const c = r.public_center_eok ?? r.estimate_center_eok;
+              const lo = r.public_low_eok ?? r.estimate_low_eok;
+              const hi = r.public_high_eok ?? r.estimate_high_eok;
+              let txt = `[AI 양도가 산정 결과]\n업종: ${state.licenseText}\n`;
+              if (c) txt += `추정 양도가: ${c}억원 (${lo ?? "?"}~${hi ?? "?"}억원)\n`;
+              if (r.confidence_percent) txt += `신뢰도: ${r.confidence_percent}%\n`;
+              if (r.risk_notes?.length) txt += `\n주의사항:\n${r.risk_notes.map(n => `- ${n}`).join("\n")}\n`;
+              txt += `\n서울건설정보 (seoulmna.kr)`;
+              return txt;
+            }} />
             <button
               type="button"
               className="yangdo-reset-btn"

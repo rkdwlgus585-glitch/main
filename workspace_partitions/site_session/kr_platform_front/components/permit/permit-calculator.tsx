@@ -11,6 +11,7 @@ import { DiagnosisResult } from "./diagnosis-result";
 import { ScrollAnimate } from "@/components/scroll-animate";
 import { CriteriaList } from "./criteria-list";
 import { NextActions } from "./next-actions";
+import { CopyResultButton } from "@/components/shared/copy-result-button";
 import { ShieldCheck, Loader2 } from "lucide-react";
 
 type Phase = "idle" | "ready" | "submitting" | "result" | "error";
@@ -238,6 +239,25 @@ export function PermitCalculator() {
               href={`/consult?service=${encodeURIComponent(state.selectedIndustry?.service_name ?? "")}&status=${state.result?.overall_status ?? ""}`}
               className="calc-submit"
             >전문가 상담 연결</a>
+            <CopyResultButton getText={() => {
+              const r = state.result;
+              if (!r) return "";
+              const status = r.overall_status === "pass" ? "충족" : r.overall_status === "shortfall" ? "미충족" : r.overall_status ?? "";
+              let txt = `[AI 인허가 검토 결과]\n업종: ${state.selectedIndustry?.service_name ?? ""}\n판정: ${status}\n`;
+              if (r.criteria_results?.length) {
+                txt += `\n항목별 결과:\n`;
+                for (const c of r.criteria_results) {
+                  const mark = c.status === "pass" ? "✓" : c.status === "fail" ? "✗" : "?";
+                  txt += `${mark} ${c.label || c.field}\n`;
+                }
+              }
+              if (r.next_actions?.length) {
+                txt += `\n다음 조치:\n`;
+                for (const a of r.next_actions) txt += `${a.priority}. ${a.action}\n`;
+              }
+              txt += `\n서울건설정보 (seoulmna.kr)`;
+              return txt;
+            }} />
             <button
               type="button"
               className="permit-reset-btn"

@@ -3873,6 +3873,24 @@ img { max-width: 100%; display: block; }
   border-color: var(--brand);
   color: var(--brand);
 }
+.calc-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  height: 48px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+  white-space: nowrap;
+}
+.calc-copy-btn:hover { border-color: var(--brand); color: var(--brand); }
 
 /* ═══════════════════════════════════════════════════════════════════════
    Permit Calculator (permit- prefix)
