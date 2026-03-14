@@ -2355,6 +2355,16 @@ img { max-width: 100%; display: block; }
   word-break: keep-all;
 }
 
+/* ── Product Calculator Section (embedded on /yangdo, /permit) ── */
+.product-calculator-section {
+  margin-bottom: 48px;
+  scroll-margin-top: 80px;
+}
+.product-calculator-section .section-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
 /* ── Showcase Mid CTA ── */
 .showcase-mid-cta {
   text-align: center;

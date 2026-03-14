@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import Link from "next/link";
 import { Phone, ArrowRight, ClipboardCheck, Users, Banknote, AlertTriangle } from "lucide-react";
 import { platformConfig } from "@/components/platform-config";
 import { breadcrumbSchema, organizationRef } from "@/lib/json-ld";
 import { ScrollAnimate } from "@/components/scroll-animate";
+import { PermitCalculator } from "@/components/permit/permit-calculator";
 
 const pageTitle = "AI 인허가 검토 | 서울건설정보";
 const pageDescription =
@@ -151,14 +153,27 @@ export default function PermitPage() {
           부족 항목과 신규 취득 예상 비용까지 바로 확인하세요.
         </p>
         <div className="showcase-hero-actions">
-          <Link className="cta-primary cta-large" href="/consult">
-            무료 상담 신청 <ArrowRight size={14} aria-hidden="true" />
-          </Link>
+          <a className="cta-primary cta-large" href="#calculator">
+            지금 검토하기 <ArrowRight size={14} aria-hidden="true" />
+          </a>
           <Link className="cta-secondary" href="/pricing">
             요금제 보기 <ArrowRight size={14} aria-hidden="true" />
           </Link>
         </div>
       </section>
+
+      {/* ── 계산기 ── */}
+      <ScrollAnimate>
+        <section id="calculator" className="product-calculator-section" aria-label="AI 인허가 검토기">
+          <div className="section-header">
+            <p className="eyebrow">AI 인허가 검토</p>
+            <h2>등록기준을 즉시 점검하세요</h2>
+          </div>
+          <Suspense fallback={<div className="calc-skeleton" aria-label="검토기 로딩 중" role="status" />}>
+            <PermitCalculator />
+          </Suspense>
+        </section>
+      </ScrollAnimate>
 
       {/* ── 핵심 수치 ── */}
       <ScrollAnimate>
@@ -217,9 +232,9 @@ export default function PermitPage() {
       <ScrollAnimate delay={120}>
         <section className="showcase-mid-cta" aria-label="무료 체험">
           <h2>지금 바로 등록기준을 점검해 보세요</h2>
-          <Link className="cta-primary cta-large" href="/consult">
-            무료 상담 신청 <ArrowRight size={14} aria-hidden="true" />
-          </Link>
+          <a className="cta-primary cta-large" href="#calculator">
+            등록기준 검토하기 <ArrowRight size={14} aria-hidden="true" />
+          </a>
         </section>
       </ScrollAnimate>
 

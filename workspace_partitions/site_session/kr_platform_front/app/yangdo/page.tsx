@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import Link from "next/link";
 import { Phone, ArrowRight, BarChart3, Layers, Search, FileCheck } from "lucide-react";
 import { platformConfig } from "@/components/platform-config";
 import { breadcrumbSchema, organizationRef } from "@/lib/json-ld";
 import { ScrollAnimate } from "@/components/scroll-animate";
+import { YangdoCalculator } from "@/components/yangdo/yangdo-calculator";
 
 const pageTitle = "AI 양도가 산정 | 서울건설정보";
 const pageDescription =
@@ -150,14 +152,27 @@ export default function YangdoPage() {
           복합면허 분해, 중복매물 보정, 신뢰도 지표까지 한 번에.
         </p>
         <div className="showcase-hero-actions">
-          <Link className="cta-primary cta-large" href="/consult">
-            무료 상담 신청 <ArrowRight size={14} aria-hidden="true" />
-          </Link>
+          <a className="cta-primary cta-large" href="#calculator">
+            지금 산정하기 <ArrowRight size={14} aria-hidden="true" />
+          </a>
           <Link className="cta-secondary" href="/pricing">
             요금제 보기 <ArrowRight size={14} aria-hidden="true" />
           </Link>
         </div>
       </section>
+
+      {/* ── 계산기 ── */}
+      <ScrollAnimate>
+        <section id="calculator" className="product-calculator-section" aria-label="AI 양도가 산정기">
+          <div className="section-header">
+            <p className="eyebrow">AI 양도가 산정</p>
+            <h2>지금 바로 양도가를 확인하세요</h2>
+          </div>
+          <Suspense fallback={<div className="calc-skeleton" aria-label="계산기 로딩 중" role="status" />}>
+            <YangdoCalculator />
+          </Suspense>
+        </section>
+      </ScrollAnimate>
 
       {/* ── 핵심 수치 ── */}
       <ScrollAnimate>
@@ -216,9 +231,9 @@ export default function YangdoPage() {
       <ScrollAnimate delay={120}>
         <section className="showcase-mid-cta" aria-label="무료 체험">
           <h2>지금 바로 양도가를 확인해 보세요</h2>
-          <Link className="cta-primary cta-large" href="/consult">
-            무료 상담 신청 <ArrowRight size={14} aria-hidden="true" />
-          </Link>
+          <a className="cta-primary cta-large" href="#calculator">
+            양도가 산정하기 <ArrowRight size={14} aria-hidden="true" />
+          </a>
         </section>
       </ScrollAnimate>
 
