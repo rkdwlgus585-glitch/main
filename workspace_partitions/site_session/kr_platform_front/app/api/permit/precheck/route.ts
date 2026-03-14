@@ -136,9 +136,13 @@ export async function POST(req: NextRequest) {
 
   /* ── Forward to backend ───────────────────────────── */
   try {
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    const apiKey = process.env.PERMIT_API_KEY || "";
+    if (apiKey) headers["X-API-Key"] = apiKey;
+
     const upstream = await fetch(`${BACKEND_URL}/v1/permit/precheck`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify(body),
       signal: AbortSignal.timeout(10_000),
     });
