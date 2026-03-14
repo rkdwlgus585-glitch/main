@@ -1,5 +1,6 @@
 /** CriteriaList — 개별 기준 pass/fail 체크리스트 */
 import type { CriterionResult } from "@/lib/permit-types";
+import { formatFieldValue } from "@/lib/permit-format";
 import { CheckCircle, XCircle, HelpCircle, ListChecks } from "lucide-react";
 
 interface CriteriaListProps {
@@ -11,15 +12,6 @@ const STATUS_ICON = {
   fail: XCircle,
   unknown: HelpCircle,
 } as const;
-
-/** Format required/current display values. */
-function fmtValue(v: unknown): string {
-  if (v == null) return "—";
-  if (typeof v === "boolean") return v ? "보유" : "미보유";
-  const n = Number(v);
-  if (!Number.isNaN(n)) return n.toLocaleString("ko-KR");
-  return String(v);
-}
 
 export function CriteriaList({ criteria }: CriteriaListProps) {
   if (!criteria.length) {
@@ -47,7 +39,7 @@ export function CriteriaList({ criteria }: CriteriaListProps) {
                 <span className="permit-criteria-label">{c.label}</span>
                 {c.required != null && (
                   <span className="permit-criteria-detail">
-                    필요: {fmtValue(c.required)} / 현재: {fmtValue(c.current)}
+                    필요: {formatFieldValue(c.required)} / 현재: {formatFieldValue(c.current)}
                   </span>
                 )}
                 {c.note && <span className="permit-criteria-note">{c.note}</span>}

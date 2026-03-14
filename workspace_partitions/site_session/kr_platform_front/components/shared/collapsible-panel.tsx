@@ -2,8 +2,12 @@
 
 "use client";
 
-import { useState, useId, type ReactNode } from "react";
+import { useState, useId, useImperativeHandle, forwardRef, type ReactNode, type Ref } from "react";
 import { ChevronDown } from "lucide-react";
+
+export interface CollapsiblePanelHandle {
+  open: () => void;
+}
 
 interface CollapsiblePanelProps {
   title: string;
@@ -11,9 +15,16 @@ interface CollapsiblePanelProps {
   children: ReactNode;
 }
 
-export function CollapsiblePanel({ title, defaultOpen = false, children }: CollapsiblePanelProps) {
+export const CollapsiblePanel = forwardRef(function CollapsiblePanel(
+  { title, defaultOpen = false, children }: CollapsiblePanelProps,
+  ref: Ref<CollapsiblePanelHandle>,
+) {
   const [open, setOpen] = useState(defaultOpen);
   const contentId = useId();
+
+  useImperativeHandle(ref, () => ({
+    open: () => setOpen(true),
+  }), []);
 
   return (
     <div className={`calc-collapsible${open ? " calc-collapsible--open" : ""}`}>
@@ -38,4 +49,4 @@ export function CollapsiblePanel({ title, defaultOpen = false, children }: Colla
       </div>
     </div>
   );
-}
+});

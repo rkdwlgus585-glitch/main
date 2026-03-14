@@ -2,18 +2,10 @@
 "use client";
 
 import type { PermitPrecheckResponse } from "@/lib/permit-types";
+import { formatFieldValue } from "@/lib/permit-format";
 import { ResultBadge } from "@/components/shared/result-badge";
 import { AnimatedCounter } from "@/components/animated-counter";
 import { AlertTriangle, TrendingDown, CheckCircle } from "lucide-react";
-
-/** Format shortfall field values for Korean display. */
-function formatFieldValue(v: unknown): string {
-  if (typeof v === "boolean") return v ? "보유" : "미보유";
-  if (v == null) return "—";
-  const n = Number(v);
-  if (!Number.isNaN(n)) return n.toLocaleString("ko-KR");
-  return String(v);
-}
 
 interface DiagnosisResultProps {
   result: PermitPrecheckResponse;
@@ -36,6 +28,14 @@ export function DiagnosisResult({ result }: DiagnosisResultProps) {
         <div className="permit-pass-message">
           <CheckCircle size={20} aria-hidden="true" />
           <span>모든 등록기준을 충족합니다.</span>
+        </div>
+      )}
+
+      {/* Manual review notice */}
+      {status === "manual_review" && (!result.shortfall_items || result.shortfall_items.length === 0) && (
+        <div className="permit-manual-review-message">
+          <AlertTriangle size={20} aria-hidden="true" />
+          <span>자동 검토가 어려운 항목이 있습니다. 전문가 상담을 권장합니다.</span>
         </div>
       )}
 

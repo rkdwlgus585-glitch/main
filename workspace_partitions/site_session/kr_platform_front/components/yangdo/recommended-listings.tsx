@@ -14,7 +14,7 @@ export function RecommendedListings({ listings }: RecommendedListingsProps) {
       <h4 className="yangdo-listings-title">비교 매물</h4>
       <div className="yangdo-listings-grid">
         {listings.map((item, i) => (
-          <div key={`${item.license_text ?? ""}-${item.price_eok ?? i}`} className="calc-result-card yangdo-listing-card">
+          <div key={`listing-${i}`} className="calc-result-card yangdo-listing-card">
             <div className="yangdo-listing-header">
               <span className="yangdo-listing-name">{item.license_text ?? "매물"}</span>
               {item.score != null && (

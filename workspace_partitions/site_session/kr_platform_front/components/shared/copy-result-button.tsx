@@ -13,20 +13,23 @@ export function CopyResultButton({ getText, label = "결과 복사" }: CopyResul
   const [copied, setCopied] = useState(false);
 
   const handleCopy = useCallback(async () => {
+    const text = getText();
+    let ok = false;
     try {
-      await navigator.clipboard.writeText(getText());
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      await navigator.clipboard.writeText(text);
+      ok = true;
     } catch {
       // Fallback for older browsers / insecure contexts
       const ta = document.createElement("textarea");
-      ta.value = getText();
+      ta.value = text;
       ta.style.position = "fixed";
       ta.style.left = "-9999px";
       document.body.appendChild(ta);
       ta.select();
-      document.execCommand("copy");
+      try { ok = document.execCommand("copy"); } catch { /* ignore */ }
       document.body.removeChild(ta);
+    }
+    if (ok) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }

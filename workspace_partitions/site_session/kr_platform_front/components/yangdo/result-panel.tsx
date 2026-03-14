@@ -5,8 +5,6 @@ import type { YangdoEstimateResponse } from "@/lib/yangdo-types";
 import { AnimatedCounter } from "@/components/animated-counter";
 import { RangeDisplay } from "@/components/shared/range-display";
 import { ConfidenceMeter } from "@/components/shared/confidence-meter";
-import { TrendingUp } from "lucide-react";
-
 interface ResultPanelProps {
   result: YangdoEstimateResponse;
 }
@@ -31,8 +29,15 @@ export function ResultPanel({ result }: ResultPanelProps) {
   return (
     <div className="calc-result-card yangdo-result-main">
       <div className="yangdo-result-header">
-        <TrendingUp size={20} aria-hidden="true" />
-        <h3>AI 추정 양도가</h3>
+        <div className="yangdo-result-ai-badge" aria-hidden="true">AI</div>
+        <div>
+          <h3>AI 추정 양도가</h3>
+          {result.publication_mode && (
+            <span className="yangdo-result-mode-tag">
+              {PUB_MODE_LABELS[result.publication_mode] ?? result.publication_mode}
+            </span>
+          )}
+        </div>
       </div>
 
       {hasEstimate ? (
@@ -60,11 +65,6 @@ export function ResultPanel({ result }: ResultPanelProps) {
           percent={confidence}
           label={`신뢰도 ${confidence}% — ${confidence >= 80 ? "높음" : confidence >= 50 ? "보통" : "낮음"}`}
         />
-        {result.publication_mode && (
-          <p className="yangdo-result-mode">
-            산정 모드: <strong>{PUB_MODE_LABELS[result.publication_mode] ?? result.publication_mode}</strong>
-          </p>
-        )}
       </div>
     </div>
   );

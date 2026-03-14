@@ -8,6 +8,7 @@ interface NumberInputProps {
   id?: string;
   value: string;
   onChange: (value: string) => void;
+  onBlur?: () => void;
   placeholder?: string;
   suffix?: string;
   min?: number;
@@ -15,12 +16,14 @@ interface NumberInputProps {
   step?: number;
   disabled?: boolean;
   "aria-describedby"?: string;
+  "aria-invalid"?: boolean;
 }
 
 export function NumberInput({
   id,
   value,
   onChange,
+  onBlur,
   placeholder,
   suffix,
   min,
@@ -41,12 +44,14 @@ export function NumberInput({
         className="calc-number-input-field"
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        onBlur={onBlur}
         placeholder={placeholder}
         min={min}
         max={max}
         step={step ?? "any"}
         disabled={disabled}
         aria-describedby={rest["aria-describedby"]}
+        aria-invalid={rest["aria-invalid"] || undefined}
       />
       {suffix && <span className="calc-number-input-suffix" aria-hidden="true">{suffix}</span>}
     </div>
