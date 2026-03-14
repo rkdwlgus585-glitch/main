@@ -230,14 +230,14 @@ export default function PermitPage() {
             <p className="eyebrow">자주 묻는 질문</p>
             <h2>AI 인허가 검토, 이것이 궁금합니다</h2>
           </div>
-          <dl className="faq-list">
+          <div className="faq-list">
             {faqs.map((f) => (
-              <div className="faq-item" key={f.question}>
-                <dt>{f.question}</dt>
-                <dd>{f.answer}</dd>
-              </div>
+              <details className="faq-details" key={f.question}>
+                <summary>{f.question}</summary>
+                <p className="faq-details-body">{f.answer}</p>
+              </details>
             ))}
-          </dl>
+          </div>
         </section>
       </ScrollAnimate>
 

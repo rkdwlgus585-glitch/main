@@ -241,6 +241,20 @@ img { max-width: 100%; display: block; }
 .cta-primary {
   background: var(--point);
   color: white;
+  position: relative;
+  overflow: hidden;
+}
+.cta-primary::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.18) 50%, transparent 60%);
+  transform: translateX(-100%);
+  transition: transform 0s;
+}
+.cta-primary:hover::after {
+  transform: translateX(100%);
+  transition: transform 500ms var(--ease);
 }
 
 .cta-primary:hover,
@@ -1978,17 +1992,28 @@ img { max-width: 100%; display: block; }
 .home-process-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  gap: 0;
+  position: relative;
 }
-
-/* padding merged into shared selector above */
+/* Horizontal connector line between step badges */
+.home-process-grid::before {
+  content: "";
+  position: absolute;
+  top: 22px;
+  left: calc(12.5%);
+  right: calc(12.5%);
+  height: 2px;
+  background: linear-gradient(90deg, var(--point), #0077CC);
+  z-index: 0;
+  opacity: 0.35;
+}
 
 .home-process-index {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 36px;
-  height: 36px;
+  min-width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--point), #0077CC);
   color: white;
@@ -1996,12 +2021,15 @@ img { max-width: 100%; display: block; }
   font-weight: 800;
   box-shadow: 0 2px 8px rgba(0,163,255,0.25);
   flex-shrink: 0;
+  border: 3px solid var(--bg);
+  position: relative;
+  z-index: 1;
 }
 
 .home-process-card .home-process-header {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
   gap: 10px;
   margin-bottom: 10px;
 }
@@ -2049,6 +2077,9 @@ img { max-width: 100%; display: block; }
 
   .home-process-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+  .home-process-grid::before {
+    display: none;
   }
 
   .home-operations-grid {
@@ -2395,23 +2426,46 @@ img { max-width: 100%; display: block; }
   margin: 0;
   padding: 0;
 }
-.faq-item {
+.faq-details {
   border-bottom: 1px solid var(--line);
-  padding: 24px 16px;
 }
-.faq-item:first-child {
+.faq-details:first-child {
   border-top: 1px solid var(--line);
 }
-.faq-item dt {
+.faq-details summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 16px;
   font-weight: 700;
   font-size: 1.05rem;
+  cursor: pointer;
+  list-style: none;
   color: var(--ink);
-  margin: 0 0 10px;
   line-height: 1.5;
   text-wrap: balance;
   word-break: keep-all;
+  transition: color 180ms var(--ease);
 }
-.faq-item dd {
+.faq-details summary::-webkit-details-marker { display: none; }
+.faq-details summary::marker { display: none; content: ""; }
+.faq-details summary::after {
+  content: "+";
+  font-size: 1.4rem;
+  font-weight: 400;
+  color: var(--point);
+  flex-shrink: 0;
+  transition: transform 200ms var(--ease);
+}
+.faq-details[open] summary::after {
+  transform: rotate(45deg);
+}
+.faq-details[open] summary {
+  color: var(--point);
+}
+.faq-details-body {
+  padding: 0 16px 20px;
   margin: 0;
   color: var(--muted);
   font-size: 1rem;
@@ -2419,8 +2473,6 @@ img { max-width: 100%; display: block; }
   text-wrap: balance;
   word-break: keep-all;
   max-width: 56ch;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 /* ── Service Bottom CTA ── */
@@ -2672,6 +2724,9 @@ img { max-width: 100%; display: block; }
   border-bottom: 2px solid var(--line);
   background: var(--bg-warm);
   color: var(--ink);
+  position: sticky;
+  top: 0;
+  z-index: 2;
 }
 .pricing-compare-table thead th:first-child {
   text-align: left;
@@ -2690,10 +2745,17 @@ img { max-width: 100%; display: block; }
   border-bottom: 1px solid var(--line);
   color: var(--ink);
 }
+.pricing-compare-table tbody td:first-child,
+.pricing-compare-table thead th:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+}
 .pricing-compare-table tbody td:first-child {
   text-align: left;
   font-weight: 500;
   color: var(--ink);
+  background: white;
 }
 .pricing-check { color: var(--mint); }
 .pricing-x { color: #ccc; }
