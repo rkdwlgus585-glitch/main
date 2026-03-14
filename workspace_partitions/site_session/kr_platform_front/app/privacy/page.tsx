@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { platformConfig } from "@/components/platform-config";
 
 const pageTitle = "개인정보처리방침 | 서울건설정보";
@@ -25,6 +26,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <main id="main" className="page-shell legal-page">
+      <Link href="/" className="back-link">← 플랫폼 홈으로</Link>
       <h1>개인정보처리방침</h1>
 
       <p>

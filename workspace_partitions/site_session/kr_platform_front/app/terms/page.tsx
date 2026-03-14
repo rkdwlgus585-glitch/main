@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { platformConfig } from "@/components/platform-config";
 
 const pageTitle = "이용약관 | 서울건설정보";
@@ -25,6 +26,7 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <main id="main" className="page-shell legal-page">
+      <Link href="/" className="back-link">← 플랫폼 홈으로</Link>
       <h1>이용약관</h1>
 
       <section>

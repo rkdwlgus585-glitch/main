@@ -93,8 +93,11 @@ export default function BillingSuccessPage() {
         <p className="billing-card-detail">{cardInfo}</p>
         <p>1개월 무료 체험이 시작되었습니다. 체험 종료 7일 전 이메일로 안내드립니다.</p>
         <div className="billing-status-actions">
-          <Link className="cta-primary" href="/">
-            홈으로 이동
+          <Link className="cta-primary" href="/yangdo">
+            AI 양도가 산정 시작
+          </Link>
+          <Link className="cta-secondary" href="/permit">
+            AI 인허가 검토 시작
           </Link>
         </div>
       </div>

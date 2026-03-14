@@ -15,6 +15,7 @@ export function SiteFooter() {
             <Link href="/yangdo">AI 양도가 산정</Link>
             <Link href="/permit">AI 인허가 검토</Link>
             <Link href="/pricing">요금제</Link>
+            <Link href="/billing">구독 관리</Link>
             <Link href="/partners">시스템 도입</Link>
           </div>
           <div>

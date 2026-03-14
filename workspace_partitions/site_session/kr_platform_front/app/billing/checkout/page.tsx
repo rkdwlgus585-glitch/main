@@ -44,8 +44,7 @@ export default function BillingCheckoutPage() {
           successUrl: `${window.location.origin}/billing/success`,
           failUrl: `${window.location.origin}/billing/fail`,
         });
-      } catch (err) {
-        console.error("[checkout] Billing auth error:", err);
+      } catch {
         setErrorMsg("결제창을 열 수 없습니다. 잠시 후 다시 시도해 주세요.");
         setStatus("error");
       }
