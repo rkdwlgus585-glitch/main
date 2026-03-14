@@ -322,35 +322,35 @@ export default function PricingPage() {
 
       {/* ── FAQ ── */}
       <ScrollAnimate>
-      <section className="service-faq" aria-label="자주 묻는 질문">
-        <div className="section-header">
-          <p className="eyebrow">자주 묻는 질문</p>
-          <h2>요금제, 이것이 궁금합니다</h2>
-        </div>
-        <dl className="faq-list">
-          {pricingFaqs.map((f) => (
-            <div className="faq-item" key={f.question}>
-              <dt>{f.question}</dt>
-              <dd>{f.answer}</dd>
-            </div>
-          ))}
-        </dl>
-      </section>
+        <section className="service-faq" aria-label="자주 묻는 질문">
+          <div className="section-header">
+            <p className="eyebrow">자주 묻는 질문</p>
+            <h2>요금제, 이것이 궁금합니다</h2>
+          </div>
+          <dl className="faq-list">
+            {pricingFaqs.map((f) => (
+              <div className="faq-item" key={f.question}>
+                <dt>{f.question}</dt>
+                <dd>{f.answer}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
       </ScrollAnimate>
 
       {/* ── 하단 CTA ── */}
       <ScrollAnimate delay={80}>
-      <section className="service-bottom-cta" aria-label="문의 안내">
-        <p>대규모 도입이나 맞춤 견적이 필요하신가요?</p>
-        <div className="service-bottom-actions">
-          <Link className="cta-primary" href="/partners">
-            도입 상담 요청
-          </Link>
-          <a className="cta-secondary" href={`tel:${platformConfig.contactPhone}`}>
-            {platformConfig.contactPhone}
-          </a>
-        </div>
-      </section>
+        <section className="service-bottom-cta" aria-label="문의 안내">
+          <p>대규모 도입이나 맞춤 견적이 필요하신가요?</p>
+          <div className="service-bottom-actions">
+            <Link className="cta-primary" href="/partners">
+              도입 상담 요청
+            </Link>
+            <a className="cta-secondary" href={`tel:${platformConfig.contactPhone}`}>
+              {platformConfig.contactPhone}
+            </a>
+          </div>
+        </section>
       </ScrollAnimate>
     </main>
   );

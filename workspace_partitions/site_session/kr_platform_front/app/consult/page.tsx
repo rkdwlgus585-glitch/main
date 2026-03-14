@@ -208,24 +208,24 @@ export default function ConsultPage() {
       </ScrollAnimate>
 
       <ScrollAnimate delay={80}>
-      <section className="consult-start" aria-label="상담 시작 안내">
-        <h2>지금 바로 시작하세요</h2>
-        <p>
-          AI 분석을 아직 안 해보셨다면 먼저 무료 분석부터 시작하세요.<br />
-          분석 결과가 없어도 전화 상담은 언제든 가능합니다.
-        </p>
-        <div className="consult-start-actions">
-          <Link className="cta-primary" href="/yangdo">
-            AI 양도가 산정하기
-          </Link>
-          <Link className="cta-secondary" href="/permit">
-            AI 인허가 검토하기
-          </Link>
-          <a className="cta-secondary" href={`tel:${platformConfig.contactPhone}`}>
-            <Phone size={16} aria-hidden="true" /> 바로 전화하기
-          </a>
-        </div>
-      </section>
+        <section className="consult-start" aria-label="상담 시작 안내">
+          <h2>지금 바로 시작하세요</h2>
+          <p>
+            AI 분석을 아직 안 해보셨다면 먼저 무료 분석부터 시작하세요.<br />
+            분석 결과가 없어도 전화 상담은 언제든 가능합니다.
+          </p>
+          <div className="consult-start-actions">
+            <Link className="cta-primary" href="/yangdo">
+              AI 양도가 산정하기
+            </Link>
+            <Link className="cta-secondary" href="/permit">
+              AI 인허가 검토하기
+            </Link>
+            <a className="cta-secondary" href={`tel:${platformConfig.contactPhone}`}>
+              <Phone size={16} aria-hidden="true" /> 바로 전화하기
+            </a>
+          </div>
+        </section>
       </ScrollAnimate>
     </main>
   );

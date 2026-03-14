@@ -218,21 +218,21 @@ export default function PartnersPage() {
 
       {/* ── 하단 CTA ── */}
       <ScrollAnimate delay={80}>
-      <section className="consult-start" aria-label="도입 문의 안내">
-        <h2>도입을 검토하고 계신가요?</h2>
-        <p>
-          무료 데모 시연부터 맞춤 견적까지 전문 담당자가 안내합니다.<br />
-          부담 없이 문의해 주세요.
-        </p>
-        <div className="consult-start-actions">
-          <a className="cta-primary" href={`tel:${platformConfig.contactPhone}`}>
-            <Phone size={16} aria-hidden="true" /> 도입 문의 전화
-          </a>
-          <a className="cta-secondary" href={`mailto:${platformConfig.contactEmail}`}>
-            이메일로 문의 <ArrowRight size={14} aria-hidden="true" />
-          </a>
-        </div>
-      </section>
+        <section className="consult-start" aria-label="도입 문의 안내">
+          <h2>도입을 검토하고 계신가요?</h2>
+          <p>
+            무료 데모 시연부터 맞춤 견적까지 전문 담당자가 안내합니다.<br />
+            부담 없이 문의해 주세요.
+          </p>
+          <div className="consult-start-actions">
+            <a className="cta-primary" href={`tel:${platformConfig.contactPhone}`}>
+              <Phone size={16} aria-hidden="true" /> 도입 문의 전화
+            </a>
+            <a className="cta-secondary" href={`mailto:${platformConfig.contactEmail}`}>
+              이메일로 문의 <ArrowRight size={14} aria-hidden="true" />
+            </a>
+          </div>
+        </section>
       </ScrollAnimate>
     </main>
   );

@@ -207,24 +207,24 @@ export default function AboutPage() {
       </ScrollAnimate>
 
       <ScrollAnimate delay={80}>
-      <section className="consult-start" aria-label="상담 안내">
-        <h2>건설업 면허, 지금 바로 분석해 보세요</h2>
-        <p>
-          AI가 양도가격과 등록기준을 즉시 분석하고,<br />
-          전문 행정사가 맞춤 상담을 제공합니다.
-        </p>
-        <div className="consult-start-actions">
-          <Link className="cta-primary" href="/yangdo">
-            AI 양도가 무료 산정
-          </Link>
-          <Link className="cta-secondary" href="/permit">
-            AI 인허가 검토
-          </Link>
-          <Link className="cta-secondary" href="/consult">
-            전문 상담 신청
-          </Link>
-        </div>
-      </section>
+        <section className="consult-start" aria-label="상담 안내">
+          <h2>건설업 면허, 지금 바로 분석해 보세요</h2>
+          <p>
+            AI가 양도가격과 등록기준을 즉시 분석하고,<br />
+            전문 행정사가 맞춤 상담을 제공합니다.
+          </p>
+          <div className="consult-start-actions">
+            <Link className="cta-primary" href="/yangdo">
+              AI 양도가 무료 산정
+            </Link>
+            <Link className="cta-secondary" href="/permit">
+              AI 인허가 검토
+            </Link>
+            <Link className="cta-secondary" href="/consult">
+              전문 상담 신청
+            </Link>
+          </div>
+        </section>
       </ScrollAnimate>
     </main>
   );

@@ -230,35 +230,35 @@ export default function YangdoPage() {
 
       {/* ── FAQ ── */}
       <ScrollAnimate>
-      <section className="service-faq" aria-label="자주 묻는 질문">
-        <div className="section-header">
-          <p className="eyebrow">자주 묻는 질문</p>
-          <h2>AI 양도가 산정, 이것이 궁금합니다</h2>
-        </div>
-        <dl className="faq-list">
-          {faqs.map((f) => (
-            <div className="faq-item" key={f.question}>
-              <dt>{f.question}</dt>
-              <dd>{f.answer}</dd>
-            </div>
-          ))}
-        </dl>
-      </section>
+        <section className="service-faq" aria-label="자주 묻는 질문">
+          <div className="section-header">
+            <p className="eyebrow">자주 묻는 질문</p>
+            <h2>AI 양도가 산정, 이것이 궁금합니다</h2>
+          </div>
+          <dl className="faq-list">
+            {faqs.map((f) => (
+              <div className="faq-item" key={f.question}>
+                <dt>{f.question}</dt>
+                <dd>{f.answer}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
       </ScrollAnimate>
 
       {/* ── 하단 CTA ── */}
       <ScrollAnimate delay={80}>
-      <section className="service-bottom-cta" aria-label="도입 안내">
-        <p>귀사 시스템에 AI 양도가 산정을 도입하고 싶으신가요?</p>
-        <div className="service-bottom-actions">
-          <Link className="cta-primary" href="/partners">
-            시스템 도입 문의
-          </Link>
-          <a className="cta-secondary" href={`tel:${platformConfig.contactPhone}`}>
-            <Phone size={16} aria-hidden="true" /> {platformConfig.contactPhone}
-          </a>
-        </div>
-      </section>
+        <section className="service-bottom-cta" aria-label="도입 안내">
+          <p>귀사 시스템에 AI 양도가 산정을 도입하고 싶으신가요?</p>
+          <div className="service-bottom-actions">
+            <Link className="cta-primary" href="/partners">
+              시스템 도입 문의
+            </Link>
+            <a className="cta-secondary" href={`tel:${platformConfig.contactPhone}`}>
+              <Phone size={16} aria-hidden="true" /> {platformConfig.contactPhone}
+            </a>
+          </div>
+        </section>
       </ScrollAnimate>
     </main>
   );
