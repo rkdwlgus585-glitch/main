@@ -34,7 +34,8 @@ function HomeJsonLd() {
   const navItems = [
     { name: "AI 양도가 산정", path: "/yangdo" },
     { name: "AI 인허가 검토", path: "/permit" },
-    { name: "회사소개", path: "/about" },
+    { name: "요금제", path: "/pricing" },
+    { name: "시스템 도입", path: "/partners" },
     { name: "고객센터", path: "/consult" },
   ];
   const navSchema = {
@@ -47,6 +48,18 @@ function HomeJsonLd() {
       url: `${siteBase}${item.path}`,
     })),
   };
+  const howToSchema = {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    name: "4단계로 완료되는 건설업 면허 취득",
+    description: "AI 분석부터 전문가 상담, 거래 완료까지 건설업 면허 취득 절차를 안내합니다.",
+    step: [
+      { "@type": "HowToStep", position: 1, name: "서비스 선택", text: "AI 양도가 산정 또는 AI 인허가 검토 중 필요한 서비스를 선택합니다." },
+      { "@type": "HowToStep", position: 2, name: "AI 즉시 분석", text: "공시 데이터 기반으로 적정 가격대를 산정하고, 등록기준 충족 여부를 점검합니다." },
+      { "@type": "HowToStep", position: 3, name: "전문가 상담 연결", text: "분석 결과를 바탕으로 건설업 전문 행정사가 면허 거래 조건 협상과 절차를 안내합니다." },
+      { "@type": "HowToStep", position: 4, name: "거래 완료까지 지원", text: "계약, 서류 준비, 관할 기관 접수까지 원스톱으로 진행을 도와드립니다." },
+    ],
+  };
   return (
     <>
       <script
@@ -56,6 +69,10 @@ function HomeJsonLd() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(navSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(howToSchema) }}
       />
     </>
   );

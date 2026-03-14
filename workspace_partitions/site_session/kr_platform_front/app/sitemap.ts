@@ -8,6 +8,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: siteBase, lastModified: now, changeFrequency: "daily", priority: 1 },
     { url: `${siteBase}/yangdo`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     { url: `${siteBase}/permit`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${siteBase}/pricing`, lastModified: now, changeFrequency: "monthly", priority: 0.85 },
+    { url: `${siteBase}/partners`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${siteBase}/consult`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${siteBase}/about`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
     { url: `${siteBase}/terms`, lastModified: now, changeFrequency: "monthly", priority: 0.3 },
