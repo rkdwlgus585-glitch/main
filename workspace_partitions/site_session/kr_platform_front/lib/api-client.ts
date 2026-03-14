@@ -23,7 +23,9 @@ async function apiFetch<T>(url: string, init?: RequestInit & FetchOptions): Prom
 
   const timeoutSignal = AbortSignal.timeout(timeout);
   const signal = externalSignal
-    ? AbortSignal.any([timeoutSignal, externalSignal])
+    ? (typeof AbortSignal.any === "function"
+        ? AbortSignal.any([timeoutSignal, externalSignal])
+        : externalSignal)
     : timeoutSignal;
 
   try {

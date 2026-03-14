@@ -38,7 +38,7 @@ export function HomeTrust() {
   return (
     <section className="home-trust" aria-label="신뢰 지표">
       <div className="home-trust-inner">
-        <div className="section-header" style={{ textAlign: "center" }}>
+        <div className="section-header">
           <p className="eyebrow">신뢰할 수 있는 이유</p>
           <h2>데이터와 전문성으로 만든 건설업 AI 플랫폼</h2>
         </div>

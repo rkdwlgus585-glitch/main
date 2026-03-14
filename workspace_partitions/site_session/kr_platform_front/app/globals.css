@@ -33,6 +33,10 @@
 
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
   --content-w: min(1200px, calc(100% - 40px));
+
+  --text-primary: var(--ink);
+  --text-secondary: var(--muted);
+  --gutter: max(20px, 5vw);
 }
 
 /* ── Reset ─────────────────────────────────────────────────── */
@@ -3706,6 +3710,7 @@ img { max-width: 100%; display: block; }
 .calc-range-low { color: var(--muted); }
 .calc-range-center { color: var(--brand); font-weight: 700; }
 .calc-range-high { color: var(--muted); }
+.calc-range--single .calc-range-bar { display: none; }
 .calc-range-single-value {
   text-align: center;
   font-size: 0.85rem;

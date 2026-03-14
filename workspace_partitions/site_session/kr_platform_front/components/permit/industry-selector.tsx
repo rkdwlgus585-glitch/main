@@ -144,11 +144,10 @@ export function IndustrySelector({ industries, categories, selected, error, onSe
       {showDropdown && (
         <div ref={dropdownRef} className="permit-dropdown" onPointerDown={(e) => e.preventDefault()}>
           {/* Category tabs */}
-          <div className="permit-category-tabs" role="tablist" aria-label="업종 카테고리" onKeyDown={handleCategoryKeyDown}>
+          <div className="permit-category-tabs" role="group" aria-label="업종 카테고리 필터" onKeyDown={handleCategoryKeyDown}>
             <button
               type="button"
-              role="tab"
-              aria-selected={activeCategory === null}
+              aria-pressed={activeCategory === null}
               tabIndex={activeCategory === null ? 0 : -1}
               className={`permit-category-tab${activeCategory === null ? " permit-category-tab--active" : ""}`}
               onClick={() => { setActiveCategory(null); setHighlightIdx(-1); }}
@@ -159,8 +158,7 @@ export function IndustrySelector({ industries, categories, selected, error, onSe
               <button
                 key={cat.major_code}
                 type="button"
-                role="tab"
-                aria-selected={activeCategory === cat.major_code}
+                aria-pressed={activeCategory === cat.major_code}
                 tabIndex={activeCategory === cat.major_code ? 0 : -1}
                 className={`permit-category-tab${activeCategory === cat.major_code ? " permit-category-tab--active" : ""}`}
                 onClick={() => { setActiveCategory(cat.major_code); setHighlightIdx(-1); }}

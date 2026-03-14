@@ -28,7 +28,7 @@ export function HomeExpert() {
   return (
     <ScrollAnimate>
       <section className="home-expert-section" aria-label="개발 전문가 소개">
-        <div className="section-header" style={{ textAlign: "center" }}>
+        <div className="section-header">
           <p className="eyebrow">누가 만들었나</p>
           <h2>건설행정 전문가가 직접 설계한 AI</h2>
         </div>

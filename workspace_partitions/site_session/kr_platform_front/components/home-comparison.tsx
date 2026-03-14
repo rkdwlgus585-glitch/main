@@ -57,7 +57,7 @@ export function HomeComparison() {
   return (
     <ScrollAnimate>
       <section className="home-comparison" aria-label="서비스 비교">
-        <div className="section-header" style={{ textAlign: "center" }}>
+        <div className="section-header">
           <p className="eyebrow">왜 다를까</p>
           <h2>전통 중개 vs AI 플랫폼</h2>
         </div>
