@@ -19,7 +19,7 @@ export function middleware(request: NextRequest) {
   response.headers.set("X-Request-Id", requestId);
 
   /* ── API / Widget paths: no indexing + no caching ── */
-  if (pathname.startsWith("/api/") || pathname.startsWith("/widget/")) {
+  if (pathname.startsWith("/api/") || pathname.startsWith("/widget/") || pathname.startsWith("/billing/")) {
     response.headers.set("X-Robots-Tag", "noindex, nofollow");
   }
 

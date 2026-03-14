@@ -2479,6 +2479,106 @@ img { max-width: 100%; display: block; }
   max-width: 56ch;
 }
 
+/* ── Billing Pages ── */
+.billing-hero { text-align: center; padding: 48px 24px 32px; }
+.billing-hero-body { color: var(--muted); font-size: 1.1rem; margin: 8px 0 0; }
+
+.billing-plan-card { display: flex; justify-content: center; padding: 0 24px; }
+.billing-card {
+  background: var(--surface);
+  border: 2px solid var(--point);
+  border-radius: var(--radius-xl);
+  padding: 40px 32px;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+}
+.billing-card-header { margin-bottom: 24px; }
+.billing-card-header h2 { font-size: 1.5rem; margin: 8px 0; }
+.billing-price { margin: 12px 0 8px; }
+.billing-trial-note { color: var(--muted); font-size: 0.9rem; margin: 0; }
+
+.billing-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 28px;
+  text-align: left;
+}
+.billing-features li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  font-size: 0.95rem;
+  color: var(--ink);
+  border-bottom: 1px solid var(--line);
+}
+.billing-features li:last-child { border-bottom: none; }
+.billing-features svg { color: var(--mint); flex-shrink: 0; }
+
+.billing-cta { width: 100%; justify-content: center; margin-top: 8px; }
+
+.billing-guarantees { padding: 24px; }
+.billing-guarantees-row {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+.billing-guarantee {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.billing-guarantee svg { color: var(--mint); flex-shrink: 0; }
+
+/* Billing status pages (checkout, success, fail) */
+.billing-status-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+.billing-status-card {
+  text-align: center;
+  max-width: 440px;
+  padding: 48px 32px;
+  background: var(--surface);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+}
+.billing-status-card h1 { font-size: 1.3rem; margin: 16px 0 8px; }
+.billing-status-card p { color: var(--muted); font-size: 0.95rem; line-height: 1.6; }
+.billing-status-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 24px;
+}
+.billing-success-icon { color: var(--mint); }
+.billing-fail-icon { color: var(--red); }
+.billing-card-detail { font-weight: 700; color: var(--ink); font-size: 1rem; }
+.billing-error-code { font-size: 0.8rem; color: var(--muted); font-family: monospace; }
+
+.billing-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--line);
+  border-top-color: var(--point);
+  border-radius: 50%;
+  margin: 0 auto 16px;
+  animation: billing-spin 0.8s linear infinite;
+}
+@keyframes billing-spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 480px) {
+  .billing-card { padding: 28px 20px; }
+  .billing-guarantees-row { flex-direction: column; align-items: center; gap: 12px; }
+}
+
 /* ── Service Bottom CTA ── */
 .service-bottom-cta {
   text-align: center;

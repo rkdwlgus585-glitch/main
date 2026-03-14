@@ -234,8 +234,8 @@ export default function PricingPage() {
                     {plan.cta} <ArrowRight size={14} aria-hidden="true" />
                   </Link>
                 ) : (
-                  <Link className={`${plan.ctaStyle} pricing-cta`} href="/consult">
-                    {plan.cta}
+                  <Link className={`${plan.ctaStyle} pricing-cta`} href="/billing">
+                    {plan.cta} <ArrowRight size={14} aria-hidden="true" />
                   </Link>
                 )}
                 <ul className="pricing-features">
