@@ -17,7 +17,7 @@ import { AiThinkingOverlay } from "@/components/shared/ai-thinking-overlay";
 import { StepIndicator } from "@/components/shared/step-indicator";
 import { ErrorBanner } from "@/components/shared/error-banner";
 import { ResultPlaceholder } from "@/components/shared/result-placeholder";
-import { Calculator, Loader2 } from "lucide-react";
+import { Calculator, Loader2, RotateCcw } from "lucide-react";
 
 type Phase = "idle" | "ready" | "submitting" | "result" | "error";
 
@@ -417,18 +417,32 @@ export function YangdoCalculator() {
           <ErrorBanner ref={errorRef} message={state.errorMsg} onRetry={handleSubmit} />
         )}
 
-        {/* Submit */}
-        <button
-          type="submit"
-          className="calc-submit calc-submit--ai"
-          disabled={state.phase === "submitting"}
-        >
-          {state.phase === "submitting" ? (
-            <><Loader2 size={18} className="yangdo-spinner" aria-hidden="true" />AI가 분석 중입니다...</>
-          ) : (
-            <><Calculator size={18} aria-hidden="true" />AI 양도가 산정하기</>
+        {/* Submit + Reset */}
+        <div className="calc-form-actions">
+          <button
+            type="submit"
+            className="calc-submit calc-submit--ai"
+            disabled={state.phase === "submitting"}
+          >
+            {state.phase === "submitting" ? (
+              <><Loader2 size={18} className="yangdo-spinner" aria-hidden="true" />AI가 분석 중입니다...</>
+            ) : (
+              <><Calculator size={18} aria-hidden="true" />AI 양도가 산정하기</>
+            )}
+          </button>
+          {hasLicense && (
+            <button
+              type="button"
+              className="calc-reset-inline"
+              onClick={() => {
+                dispatch({ type: "RESET" });
+                setTouched(new Set());
+              }}
+            >
+              <RotateCcw size={14} aria-hidden="true" />초기화
+            </button>
           )}
-        </button>
+        </div>
       </form>
 
       {/* AI Thinking Overlay — shown during API call */}
