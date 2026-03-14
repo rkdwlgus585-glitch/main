@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
       cardCompany: result.cardCompany,
     });
   } catch (err) {
-    console.error("[billing/issue]", err);
+    console.error("[billing/issue]", err instanceof Error ? err.message : "unknown");
     return NextResponse.json(
       { ok: false, error: "billing_issue_failed" },
       { status: 500 },

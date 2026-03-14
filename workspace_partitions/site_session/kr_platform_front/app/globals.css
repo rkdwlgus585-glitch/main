@@ -1701,23 +1701,6 @@ img { max-width: 100%; display: block; }
   text-shadow: 0 1px 10px rgba(0, 0, 0, 0.5);
 }
 
-.home-hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px;
-  margin-top: 32px;
-}
-
-.home-cta-primary svg {
-  margin-left: 8px;
-}
-
-.home-cta-secondary {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(4px);
-}
-
 .home-call-link {
   display: inline-flex;
   align-items: center;
@@ -3661,11 +3644,6 @@ img { max-width: 100%; display: block; }
 }
 
 /* ── Select (custom dropdown) ── */
-.calc-select-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
 .calc-select {
   width: 100%;
   height: 48px;

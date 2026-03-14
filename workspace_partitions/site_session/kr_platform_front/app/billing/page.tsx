@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Check, ArrowRight, CreditCard, Shield, Zap } from "lucide-react";
 import { platformConfig } from "@/components/platform-config";
-import { breadcrumbSchema, siteBase } from "@/lib/json-ld";
+import { breadcrumbSchema } from "@/lib/json-ld";
 import { ScrollAnimate } from "@/components/scroll-animate";
 import { PRO_PLAN_AMOUNT } from "@/lib/subscription-types";
 

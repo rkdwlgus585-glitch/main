@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error("[webhook] Parse error:", err);
+    console.error("[webhook] Parse error:", err instanceof Error ? err.message : "unknown");
     return NextResponse.json({ ok: false }, { status: 400 });
   }
 }

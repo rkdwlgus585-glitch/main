@@ -1,4 +1,4 @@
-import { Award, Database, Scale, Shield, Server } from "lucide-react";
+import { Award, Database, Shield, Server } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { AnimatedCounter } from "@/components/animated-counter";
 

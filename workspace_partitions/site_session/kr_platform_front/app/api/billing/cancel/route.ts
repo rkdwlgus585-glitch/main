@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cancelPayment } from "@/lib/toss-billing";
-import { calculateProratedRefund, REFUND_WINDOW_DAYS } from "@/lib/subscription-types";
+import { REFUND_WINDOW_DAYS } from "@/lib/subscription-types";
 
 /**
  * POST /api/billing/cancel
@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true, status: result.status });
   } catch (err) {
-    console.error("[billing/cancel]", err);
+    console.error("[billing/cancel]", err instanceof Error ? err.message : "unknown");
     return NextResponse.json(
       { ok: false, error: "cancel_failed" },
       { status: 500 },

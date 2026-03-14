@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true, paymentKey: result.paymentKey });
   } catch (err) {
-    console.error("[billing/charge]", err);
+    console.error("[billing/charge]", err instanceof Error ? err.message : "unknown");
     return NextResponse.json(
       { ok: false, error: "charge_failed" },
       { status: 500 },
