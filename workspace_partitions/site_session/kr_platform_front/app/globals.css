@@ -3318,6 +3318,26 @@ img { max-width: 100%; display: block; }
   .consult-start { padding-bottom: max(48px, calc(48px + env(safe-area-inset-bottom))); }
 }
 
+/* ── Ultra-small 320px safety net (iPhone SE 1st gen, etc.) ── */
+@media (max-width: 320px) {
+  body { font-size: 14px; }
+  .page-shell { padding-left: 12px; padding-right: 12px; }
+  .section-header h2 { font-size: 1.3rem; }
+  .pricing-compare-table { font-size: 0.7rem; }
+  .pricing-compare-table thead th,
+  .pricing-compare-table tbody td { padding: 6px 4px; }
+  .pricing-compare-wrap { margin-left: -12px; margin-right: -12px; }
+  .partners-stats { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 1.6rem; }
+  .hero-body { font-size: 0.88rem; }
+  .cta-primary, .cta-secondary { font-size: 0.82rem; padding: 12px 16px; }
+  .calc-chip { font-size: 0.65rem; padding: 4px 8px; }
+  .calc-submit { padding: 10px; }
+  .calc-form-actions { gap: 6px; }
+  .yangdo-result-value { font-size: 1.4rem; }
+  .site-footer { padding: 24px 12px; }
+}
+
 /* ── Print ─────────────────────────────────────────────────── */
 @media print {
   .site-header,
