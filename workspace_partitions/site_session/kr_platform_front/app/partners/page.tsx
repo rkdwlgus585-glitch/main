@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Phone, Building2, Users, Briefcase, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Phone, Building2, Users, Briefcase, ArrowRight, CheckCircle2, Code2 } from "lucide-react";
 import { ScrollAnimate } from "@/components/scroll-animate";
 import { platformConfig } from "@/components/platform-config";
 import { breadcrumbSchema, organizationRef, siteBase } from "@/lib/json-ld";
@@ -179,6 +179,59 @@ export default function PartnersPage() {
                 <p>{s.description}</p>
               </div>
             ))}
+          </div>
+        </section>
+      </ScrollAnimate>
+
+      {/* ── 임베드 위젯 ── */}
+      <ScrollAnimate delay={80}>
+        <section className="partners-embed" aria-label="임베드 위젯 안내">
+          <div className="section-header">
+            <p className="eyebrow"><Code2 size={16} aria-hidden="true" /> 간편 설치</p>
+            <h2>한 줄로 AI 분석 위젯 설치</h2>
+          </div>
+          <div className="partners-embed-content">
+            <p>
+              귀사 웹사이트에 아래 코드 한 줄만 추가하면, AI 양도가 산정과
+              AI 인허가 검토 퀵메뉴가 화면 하단에 자동으로 표시됩니다.
+            </p>
+            <pre className="partners-embed-code">
+              <code>{`<script src="https://seoulmna.kr/embed/widget.js" defer></script>`}</code>
+            </pre>
+            <div className="partners-embed-options">
+              <h3>옵션</h3>
+              <table className="legal-table">
+                <thead>
+                  <tr>
+                    <th>속성</th>
+                    <th>값</th>
+                    <th>설명</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>data-position</code></td>
+                    <td><code>left</code> | <code>right</code></td>
+                    <td>위젯 위치 (기본: right)</td>
+                  </tr>
+                  <tr>
+                    <td><code>data-color</code></td>
+                    <td>HEX 코드</td>
+                    <td>버튼 색상 (기본: #003764)</td>
+                  </tr>
+                  <tr>
+                    <td><code>data-yangdo</code></td>
+                    <td><code>true</code> | <code>false</code></td>
+                    <td>양도가 산정 표시 여부</td>
+                  </tr>
+                  <tr>
+                    <td><code>data-permit</code></td>
+                    <td><code>true</code> | <code>false</code></td>
+                    <td>인허가 검토 표시 여부</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </section>
       </ScrollAnimate>

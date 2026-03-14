@@ -61,6 +61,11 @@ export default function PrivacyPage() {
               <td>업종 선택 정보, 자본금·기술인력 등 분석 조건 입력값</td>
               <td>AI 분석 결과 제공, 서비스 품질 개선</td>
             </tr>
+            <tr>
+              <td>유료 구독 결제 시</td>
+              <td>결제 수단 정보(카드 마지막 4자리, 유효기간), 결제 일시, 결제 금액, 거래 고유번호</td>
+              <td>구독 결제 처리, 결제 내역 관리, 환불 처리</td>
+            </tr>
           </tbody>
         </table>
 
@@ -83,10 +88,11 @@ export default function PrivacyPage() {
         <ul>
           <li>회원 관리: 가입 의사 확인, 본인 확인, 회원 식별, 탈퇴 처리</li>
           <li>서비스 제공: AI 양도가 산정, AI 인허가 사전검토 결과 제공</li>
+          <li>결제 처리: 유료 구독 결제, 정기결제 갱신, 환불 처리</li>
           <li>상담 연결: 전문 행정사 상담 시 회원 정보 활용</li>
           <li>서비스 개선: 이용 통계 분석, 서비스 품질 향상</li>
-          <li>고지사항 전달: 약관 변경, 서비스 변경 안내</li>
-          <li>부정이용 방지: 자동화 접근 탐지, 비정상 이용 차단</li>
+          <li>고지사항 전달: 약관 변경, 요금 변경, 서비스 변경 안내</li>
+          <li>부정이용 방지: 자동화 접근 탐지, 비정상 이용 차단, 결제 사기 방지</li>
         </ul>
       </section>
 
@@ -107,6 +113,11 @@ export default function PrivacyPage() {
           <tbody>
             <tr>
               <td>계약·청약 철회 기록</td>
+              <td>5년</td>
+              <td>전자상거래법</td>
+            </tr>
+            <tr>
+              <td>대금 결제 및 재화 공급 기록</td>
               <td>5년</td>
               <td>전자상거래법</td>
             </tr>
@@ -166,6 +177,10 @@ export default function PrivacyPage() {
               <td>Vercel</td>
               <td>웹 호스팅 및 서버 운영</td>
             </tr>
+            <tr>
+              <td>PG사 (토스페이먼츠 등)</td>
+              <td>결제 처리, 카드 토큰화, 정기결제 관리</td>
+            </tr>
           </tbody>
         </table>
       </section>
@@ -209,10 +224,29 @@ export default function PrivacyPage() {
       <section>
         <h2>8. 개인정보의 안전성 확보 조치</h2>
         <ul>
-          <li>개인정보의 암호화 저장 및 전송</li>
+          <li>개인정보의 암호화 저장 및 전송 (TLS 1.2 이상)</li>
           <li>접근 권한 관리 및 접근 통제</li>
           <li>보안 프로그램 설치 및 주기적 갱신</li>
           <li>개인정보 접근 기록 보관</li>
+        </ul>
+        <h3>결제 정보 보안 조치</h3>
+        <ul>
+          <li>
+            카드 정보는 PCI DSS 인증을 취득한 PG사(결제대행사)가
+            토큰화하여 처리하며, 회사 서버에 카드번호 원본이
+            저장되지 않습니다.
+          </li>
+          <li>
+            모든 결제 데이터는 TLS 1.2 이상으로 암호화되어 전송됩니다.
+          </li>
+          <li>
+            결제 관련 API 접근은 서버 간 통신으로만 이루어지며,
+            클라이언트에 민감 정보가 노출되지 않습니다.
+          </li>
+          <li>
+            비정상 결제 시도는 실시간 모니터링되며, 이상
+            거래 탐지 시 즉시 차단됩니다.
+          </li>
         </ul>
       </section>
 
@@ -324,7 +358,7 @@ export default function PrivacyPage() {
       </section>
 
       <p className="legal-effective-date">
-        시행일: <time dateTime="2026-03-12">2026년 3월 12일</time>
+        시행일: <time dateTime="2026-03-14">2026년 3월 14일</time>
       </p>
       <p className="legal-contact">
         문의: {platformConfig.contactPhone} ·{" "}

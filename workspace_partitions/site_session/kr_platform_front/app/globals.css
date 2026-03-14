@@ -1355,6 +1355,53 @@ img { max-width: 100%; display: block; }
   font-size: 1rem;
   line-height: 1.6;
 }
+/* ── Partners Embed Widget Section ── */
+.partners-embed {
+  max-width: var(--content-w);
+  margin: 48px auto 0;
+}
+.partners-embed-content {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+}
+.partners-embed-content > p {
+  margin: 0 0 20px;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+.partners-embed-code {
+  background: #1a1a2e;
+  color: #e2e8f0;
+  padding: 16px 20px;
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  margin: 0 0 24px;
+}
+.partners-embed-code code {
+  white-space: pre;
+  word-break: keep-all;
+}
+.partners-embed-options h3 {
+  font-size: 0.95rem;
+  margin: 0 0 12px;
+  color: var(--ink);
+}
+.partners-embed-options .legal-table {
+  font-size: 0.85rem;
+}
+.partners-embed-options .legal-table code {
+  background: rgba(0,55,100,0.06);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
 /* ── Consult-Start — shared bottom CTA (about, partners, consult) ── */
 .consult-start {
   text-align: center;
