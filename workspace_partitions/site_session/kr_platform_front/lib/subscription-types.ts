@@ -53,8 +53,9 @@ export const REFUND_WINDOW_DAYS = 7;
 /** Generate a unique order ID for billing. */
 export function generateOrderId(customerKey: string): string {
   const date = new Date().toISOString().slice(0, 10).replace(/-/g, "");
-  const rand = Math.random().toString(36).slice(2, 8);
-  return `seoulmna-${date}-${rand}`;
+  const suffix = customerKey.slice(0, 6);
+  const rand = Math.random().toString(36).slice(2, 6);
+  return `seoulmna-${date}-${suffix}-${rand}`;
 }
 
 /** Calculate prorated refund amount. */

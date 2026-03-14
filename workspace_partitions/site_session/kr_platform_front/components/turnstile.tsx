@@ -2,6 +2,18 @@
 
 import { useEffect, useRef, useCallback } from "react";
 
+/** Cloudflare Turnstile global API type declaration. */
+interface TurnstileApi {
+  render: (container: HTMLElement, options: Record<string, unknown>) => string;
+  remove: (widgetId: string) => void;
+}
+
+declare global {
+  interface Window {
+    turnstile?: TurnstileApi;
+  }
+}
+
 /**
  * Cloudflare Turnstile CAPTCHA 컴포넌트.
  *
@@ -81,7 +93,7 @@ export function Turnstile({
       !containerRef.current ||
       !siteKey ||
       typeof window === "undefined" ||
-      !(window as any).turnstile
+      !window.turnstile
     ) {
       return;
     }
@@ -89,13 +101,13 @@ export function Turnstile({
     /* 이미 렌더된 위젯이 있으면 제거 */
     if (widgetIdRef.current !== null) {
       try {
-        (window as any).turnstile.remove(widgetIdRef.current);
+        window.turnstile.remove(widgetIdRef.current);
       } catch {
         /* 무시 */
       }
     }
 
-    widgetIdRef.current = (window as any).turnstile.render(
+    widgetIdRef.current = window.turnstile.render(
       containerRef.current,
       {
         sitekey: siteKey,
@@ -116,10 +128,10 @@ export function Turnstile({
     return () => {
       if (
         widgetIdRef.current !== null &&
-        (window as any).turnstile
+        window.turnstile
       ) {
         try {
-          (window as any).turnstile.remove(widgetIdRef.current);
+          window.turnstile.remove(widgetIdRef.current);
         } catch {
           /* 언마운트 시 조용히 실패 */
         }
