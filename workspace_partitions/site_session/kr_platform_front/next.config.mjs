@@ -47,7 +47,7 @@ const nextConfig = {
               "font-src 'self' https://cdn.jsdelivr.net https://fonts.gstatic.com",
               "img-src 'self' data: https:",
               "frame-src 'self' https://seoulmna.kr https://*.seoulmna.co.kr https://tosspayments.com https://*.tosspayments.com",
-              "connect-src 'self' https://seoulmna.kr https://*.seoulmna.co.kr https://vitals.vercel-insights.com https://api.tosspayments.com https://js.tosspayments.com",
+              "connect-src 'self' https://seoulmna.kr https://*.seoulmna.co.kr https://vitals.vercel-insights.com https://*.tosspayments.com",
               "media-src 'self'",
               "worker-src 'self'",
               "manifest-src 'self'",

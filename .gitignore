@@ -22,12 +22,20 @@ site_topic_cache.json
 Thumbs.db
 .DS_Store
 
+# Dev convenience scripts (machine-specific)
+*.bat
+
+# Screenshots (development artifacts)
+*.png
+
 # Local outputs / artifacts (too large / machine-specific)
 output/
 logs/
 tmp/
 .playwright/
 .playwright-cli/
+.playwright-mcp/
+.next/
 
 # Local runtime state
 *_state.json
@@ -38,12 +46,4 @@ broth*.txt
 
 # Locks
 *.lock
-node_modules
-node_modules
-node_modules
-node_modules
-node_modules
-node_modules
-node_modules
-node_modules
-node_modules
+node_modules/
