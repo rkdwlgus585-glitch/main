@@ -7,19 +7,16 @@ export function SiteFooter() {
       <div className="footer-inner">
         <div className="footer-brand">
           <strong>{platformConfig.brandName}</strong>
-          <p>AI 양도가 산정 &middot; AI 인허가 검토 &middot; 건설업 전문 플랫폼</p>
+          <p>AI 양도가 산정 &middot; AI 인허가 검토 &middot; 건설업 AI 분석 플랫폼</p>
         </div>
         <div className="footer-links">
           <div>
-            <h4>서비스</h4>
+            <h4>AI 서비스</h4>
             <Link href="/yangdo">AI 양도가 산정</Link>
             <Link href="/permit">AI 인허가 검토</Link>
-            <Link href="/knowledge">건설실무</Link>
-            <Link href="/mna-market">실시간 매물</Link>
           </div>
           <div>
-            <h4>도입 · 상담</h4>
-            <Link href="/partners">시스템 도입</Link>
+            <h4>상담</h4>
             <Link href="/consult">고객센터</Link>
             <a href={`tel:${platformConfig.contactPhone}`} aria-label={`전화: ${platformConfig.contactPhone}`}>{platformConfig.contactPhone}</a>
             <a href={`mailto:${platformConfig.contactEmail}`} aria-label={`이메일: ${platformConfig.contactEmail}`}>{platformConfig.contactEmail}</a>
