@@ -18,7 +18,7 @@ export default function BillingFailPage() {
 
   return (
     <main id="main" className="page-shell billing-status-page">
-      <div className="billing-status-card">
+      <div className="billing-status-card" role="alert">
         <XCircle size={48} className="billing-fail-icon" aria-hidden="true" />
         <h1>등록 실패</h1>
         <p>{errorMessage}</p>
