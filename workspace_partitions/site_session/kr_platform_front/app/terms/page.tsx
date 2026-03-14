@@ -267,7 +267,7 @@ export default function TermsPage() {
       </section>
 
       <p className="legal-effective-date">
-        시행일: <time dateTime="2026-03-12">2026년 3월 12일</time>
+        시행일: <time dateTime="2026-03-14">2026년 3월 14일</time>
       </p>
       <p className="legal-contact">
         문의: {platformConfig.contactPhone} ·{" "}

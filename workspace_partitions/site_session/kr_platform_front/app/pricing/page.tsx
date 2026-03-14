@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Check, ArrowRight, Shield, Zap, Building2 } from "lucide-react";
+import { Check, X, ArrowRight, Shield, Zap, Building2 } from "lucide-react";
 import { platformConfig } from "@/components/platform-config";
 import { breadcrumbSchema, organizationRef, siteBase } from "@/lib/json-ld";
 import { ScrollAnimate } from "@/components/scroll-animate";
@@ -109,6 +109,22 @@ const guarantees = [
   },
 ];
 
+const comparisonRows: { feature: string; starter: boolean | string; pro: boolean | string; enterprise: boolean | string }[] = [
+  { feature: "AI 양도가 산정", starter: true, pro: true, enterprise: true },
+  { feature: "AI 인허가 검토", starter: true, pro: true, enterprise: true },
+  { feature: "191개 업종 커버", starter: true, pro: true, enterprise: true },
+  { feature: "비교 매물 분석", starter: true, pro: true, enterprise: true },
+  { feature: "산정 근거 리포트", starter: true, pro: true, enterprise: true },
+  { feature: "복합면허 분해 분석", starter: false, pro: true, enterprise: true },
+  { feature: "정산 시나리오 (전기·통신·소방)", starter: false, pro: true, enterprise: true },
+  { feature: "위젯 임베딩", starter: false, pro: "1 도메인", enterprise: "무제한" },
+  { feature: "API 직접 연동", starter: false, pro: false, enterprise: true },
+  { feature: "맞춤 브랜딩", starter: false, pro: false, enterprise: true },
+  { feature: "전담 매니저", starter: false, pro: false, enterprise: true },
+  { feature: "SLA 가용성 보장", starter: false, pro: false, enterprise: "99.9%" },
+  { feature: "지원 채널", starter: "이메일", pro: "이메일·전화", enterprise: "전담 매니저" },
+];
+
 const pricingFaqs = [
   {
     question: "무료 체험 후 자동으로 결제되나요?",
@@ -151,6 +167,15 @@ function PricingJsonLd() {
     url: `${siteBase}/pricing`,
     provider: organizationRef,
   };
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: pricingFaqs.map((f) => ({
+      "@type": "Question",
+      name: f.question,
+      acceptedAnswer: { "@type": "Answer", text: f.answer },
+    })),
+  };
   return (
     <>
       <script
@@ -160,6 +185,10 @@ function PricingJsonLd() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
     </>
   );
@@ -247,6 +276,46 @@ export default function PricingPage() {
                 <p>{g.detail}</p>
               </div>
             ))}
+          </div>
+        </section>
+      </ScrollAnimate>
+
+      {/* ── 기능 비교표 ── */}
+      <ScrollAnimate delay={120}>
+        <section className="pricing-compare" aria-label="기능 비교">
+          <div className="section-header">
+            <p className="eyebrow">기능 비교</p>
+            <h2>플랜별 상세 비교</h2>
+          </div>
+          <div className="pricing-compare-wrap">
+            <table className="pricing-compare-table">
+              <thead>
+                <tr>
+                  <th>기능</th>
+                  <th>스타터</th>
+                  <th className="pricing-compare-highlight">프로</th>
+                  <th>엔터프라이즈</th>
+                </tr>
+              </thead>
+              <tbody>
+                {comparisonRows.map((row) => (
+                  <tr key={row.feature}>
+                    <td>{row.feature}</td>
+                    {(["starter", "pro", "enterprise"] as const).map((plan) => (
+                      <td key={plan} className={plan === "pro" ? "pricing-compare-highlight" : ""}>
+                        {row[plan] === true ? (
+                          <Check size={18} className="pricing-check" aria-label="포함" />
+                        ) : row[plan] === false ? (
+                          <X size={16} className="pricing-x" aria-label="미포함" />
+                        ) : (
+                          <span className="pricing-compare-text">{row[plan]}</span>
+                        )}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </section>
       </ScrollAnimate>
