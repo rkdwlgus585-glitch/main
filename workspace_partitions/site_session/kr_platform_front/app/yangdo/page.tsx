@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ExternalLink, Phone, ArrowRight, BarChart3, Layers, Search, FileCheck } from "lucide-react";
+import { Phone, ArrowRight, BarChart3, Layers, Search, FileCheck } from "lucide-react";
 import { platformConfig } from "@/components/platform-config";
 import { breadcrumbSchema, organizationRef } from "@/lib/json-ld";
 import { ScrollAnimate } from "@/components/scroll-animate";
@@ -155,9 +155,9 @@ export default function YangdoPage() {
           복합면허 분해, 중복매물 보정, 신뢰도 지표까지 한 번에.
         </p>
         <div className="showcase-hero-actions">
-          <a className="cta-primary cta-large" href="/widget/yangdo" target="_blank" rel="noopener noreferrer">
-            무료 체험하기 <ExternalLink size={16} aria-hidden="true" />
-          </a>
+          <Link className="cta-primary cta-large" href="/consult">
+            무료 상담 신청 <ArrowRight size={14} aria-hidden="true" />
+          </Link>
           <Link className="cta-secondary" href="/pricing">
             요금제 보기 <ArrowRight size={14} aria-hidden="true" />
           </Link>
@@ -221,14 +221,15 @@ export default function YangdoPage() {
       <ScrollAnimate delay={120}>
         <section className="showcase-mid-cta" aria-label="무료 체험">
           <h2>지금 바로 양도가를 확인해 보세요</h2>
-          <p>회원가입 없이, 무료로 AI 양도가 산정을 체험할 수 있습니다.</p>
-          <a className="cta-primary cta-large" href="/widget/yangdo" target="_blank" rel="noopener noreferrer">
-            무료 체험하기 <ExternalLink size={16} aria-hidden="true" />
-          </a>
+          <p>전문 행정사가 AI 분석 결과를 기반으로 맞춤 상담을 제공합니다.</p>
+          <Link className="cta-primary cta-large" href="/consult">
+            무료 상담 신청 <ArrowRight size={14} aria-hidden="true" />
+          </Link>
         </section>
       </ScrollAnimate>
 
       {/* ── FAQ ── */}
+      <ScrollAnimate>
       <section className="service-faq" aria-label="자주 묻는 질문">
         <div className="section-header">
           <p className="eyebrow">자주 묻는 질문</p>
@@ -243,8 +244,10 @@ export default function YangdoPage() {
           ))}
         </dl>
       </section>
+      </ScrollAnimate>
 
       {/* ── 하단 CTA ── */}
+      <ScrollAnimate delay={80}>
       <section className="service-bottom-cta" aria-label="도입 안내">
         <p>귀사 시스템에 AI 양도가 산정을 도입하고 싶으신가요?</p>
         <div className="service-bottom-actions">
@@ -256,6 +259,7 @@ export default function YangdoPage() {
           </a>
         </div>
       </section>
+      </ScrollAnimate>
     </main>
   );
 }

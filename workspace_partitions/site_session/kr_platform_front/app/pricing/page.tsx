@@ -321,6 +321,7 @@ export default function PricingPage() {
       </ScrollAnimate>
 
       {/* ── FAQ ── */}
+      <ScrollAnimate>
       <section className="service-faq" aria-label="자주 묻는 질문">
         <div className="section-header">
           <p className="eyebrow">자주 묻는 질문</p>
@@ -335,8 +336,10 @@ export default function PricingPage() {
           ))}
         </dl>
       </section>
+      </ScrollAnimate>
 
       {/* ── 하단 CTA ── */}
+      <ScrollAnimate delay={80}>
       <section className="service-bottom-cta" aria-label="문의 안내">
         <p>대규모 도입이나 맞춤 견적이 필요하신가요?</p>
         <div className="service-bottom-actions">
@@ -348,6 +351,7 @@ export default function PricingPage() {
           </a>
         </div>
       </section>
+      </ScrollAnimate>
     </main>
   );
 }

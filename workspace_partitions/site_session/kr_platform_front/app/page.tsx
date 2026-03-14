@@ -96,9 +96,15 @@ export default function HomePage() {
       <ScrollAnimate delay={120}>
         <HomeTrust />
       </ScrollAnimate>
-      <HomeComparison />
-      <HomeExpert />
-      <ConsultationCTA />
+      <ScrollAnimate delay={80}>
+        <HomeComparison />
+      </ScrollAnimate>
+      <ScrollAnimate delay={120}>
+        <HomeExpert />
+      </ScrollAnimate>
+      <ScrollAnimate delay={80}>
+        <ConsultationCTA />
+      </ScrollAnimate>
     </main>
   );
 }

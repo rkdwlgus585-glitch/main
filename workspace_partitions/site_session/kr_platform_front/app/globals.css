@@ -1360,46 +1360,51 @@ img { max-width: 100%; display: block; }
   max-width: var(--content-w);
   margin: 48px auto 0;
 }
-.partners-embed-content {
+.partners-embed-benefits {
+  text-align: center;
+}
+.partners-embed-lead {
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.7;
+  margin: 0 0 32px;
+}
+.partners-embed-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.partners-embed-card {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
-  padding: 32px;
+  padding: 28px 20px;
+  text-align: center;
 }
-.partners-embed-content > p {
-  margin: 0 0 20px;
-  color: var(--muted);
-  font-size: 0.95rem;
+.partners-embed-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(0,55,100,0.06);
+  color: var(--brand);
+  margin-bottom: 16px;
 }
-.partners-embed-code {
-  background: #1a1a2e;
-  color: #e2e8f0;
-  padding: 16px 20px;
-  border-radius: var(--radius-md);
-  overflow-x: auto;
-  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
-  font-size: 0.85rem;
-  line-height: 1.6;
-  margin: 0 0 24px;
-}
-.partners-embed-code code {
-  white-space: pre;
-  word-break: keep-all;
-}
-.partners-embed-options h3 {
-  font-size: 0.95rem;
-  margin: 0 0 12px;
+.partners-embed-card h3 {
+  font-size: 1rem;
+  margin: 0 0 8px;
   color: var(--ink);
 }
-.partners-embed-options .legal-table {
-  font-size: 0.85rem;
+.partners-embed-card p {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.5;
 }
-.partners-embed-options .legal-table code {
-  background: rgba(0,55,100,0.06);
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  font-family: 'SF Mono', 'Fira Code', monospace;
+@media (max-width: 768px) {
+  .partners-embed-grid { grid-template-columns: 1fr; }
 }
 
 /* ── Consult-Start — shared bottom CTA (about, partners, consult) ── */

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Phone, Building2, Users, Briefcase, ArrowRight, CheckCircle2, Code2 } from "lucide-react";
+import { Phone, Building2, Users, Briefcase, ArrowRight, CheckCircle2, Zap, Shield, Palette } from "lucide-react";
 import { ScrollAnimate } from "@/components/scroll-animate";
 import { platformConfig } from "@/components/platform-config";
 import { breadcrumbSchema, organizationRef, siteBase } from "@/lib/json-ld";
@@ -183,60 +183,41 @@ export default function PartnersPage() {
         </section>
       </ScrollAnimate>
 
-      {/* ── 임베드 위젯 ── */}
+      {/* ── 임베드 위젯 장점 ── */}
       <ScrollAnimate delay={80}>
-        <section className="partners-embed" aria-label="임베드 위젯 안내">
+        <section className="partners-embed" aria-label="위젯 설치 장점">
           <div className="section-header">
-            <p className="eyebrow"><Code2 size={16} aria-hidden="true" /> 간편 설치</p>
-            <h2>한 줄로 AI 분석 위젯 설치</h2>
+            <p className="eyebrow">간편 설치</p>
+            <h2>귀사 웹사이트에 AI 분석 기능 탑재</h2>
           </div>
-          <div className="partners-embed-content">
-            <p>
-              귀사 웹사이트에 아래 코드 한 줄만 추가하면, AI 양도가 산정과
-              AI 인허가 검토 퀵메뉴가 화면 하단에 자동으로 표시됩니다.
+          <div className="partners-embed-benefits">
+            <p className="partners-embed-lead">
+              복잡한 개발 없이, 간단한 설치만으로 귀사 웹사이트에<br />
+              AI 양도가 산정과 AI 인허가 검토 기능을 즉시 제공할 수 있습니다.
             </p>
-            <pre className="partners-embed-code">
-              <code>{`<script src="https://seoulmna.kr/embed/widget.js" defer></script>`}</code>
-            </pre>
-            <div className="partners-embed-options">
-              <h3>옵션</h3>
-              <table className="legal-table">
-                <thead>
-                  <tr>
-                    <th>속성</th>
-                    <th>값</th>
-                    <th>설명</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><code>data-position</code></td>
-                    <td><code>left</code> | <code>right</code></td>
-                    <td>위젯 위치 (기본: right)</td>
-                  </tr>
-                  <tr>
-                    <td><code>data-color</code></td>
-                    <td>HEX 코드</td>
-                    <td>버튼 색상 (기본: #003764)</td>
-                  </tr>
-                  <tr>
-                    <td><code>data-yangdo</code></td>
-                    <td><code>true</code> | <code>false</code></td>
-                    <td>양도가 산정 표시 여부</td>
-                  </tr>
-                  <tr>
-                    <td><code>data-permit</code></td>
-                    <td><code>true</code> | <code>false</code></td>
-                    <td>인허가 검토 표시 여부</td>
-                  </tr>
-                </tbody>
-              </table>
+            <div className="partners-embed-grid">
+              <div className="partners-embed-card">
+                <span className="partners-embed-icon" aria-hidden="true"><Zap size={24} /></span>
+                <h3>5분 내 설치 완료</h3>
+                <p>별도 서버나 인프라 없이 빠르게 적용됩니다.</p>
+              </div>
+              <div className="partners-embed-card">
+                <span className="partners-embed-icon" aria-hidden="true"><Palette size={24} /></span>
+                <h3>브랜드 맞춤 디자인</h3>
+                <p>귀사 브랜드에 맞는 색상과 위치를 자유롭게 설정합니다.</p>
+              </div>
+              <div className="partners-embed-card">
+                <span className="partners-embed-icon" aria-hidden="true"><Shield size={24} /></span>
+                <h3>보안 · 성능 보장</h3>
+                <p>별도 데이터 수집 없이, 안전하고 가볍게 동작합니다.</p>
+              </div>
             </div>
           </div>
         </section>
       </ScrollAnimate>
 
       {/* ── 하단 CTA ── */}
+      <ScrollAnimate delay={80}>
       <section className="consult-start" aria-label="도입 문의 안내">
         <h2>도입을 검토하고 계신가요?</h2>
         <p>
@@ -252,6 +233,7 @@ export default function PartnersPage() {
           </a>
         </div>
       </section>
+      </ScrollAnimate>
     </main>
   );
 }

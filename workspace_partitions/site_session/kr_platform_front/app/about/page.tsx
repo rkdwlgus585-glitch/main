@@ -206,6 +206,7 @@ export default function AboutPage() {
         </section>
       </ScrollAnimate>
 
+      <ScrollAnimate delay={80}>
       <section className="consult-start" aria-label="상담 안내">
         <h2>건설업 면허, 지금 바로 분석해 보세요</h2>
         <p>
@@ -224,6 +225,7 @@ export default function AboutPage() {
           </Link>
         </div>
       </section>
+      </ScrollAnimate>
     </main>
   );
 }
