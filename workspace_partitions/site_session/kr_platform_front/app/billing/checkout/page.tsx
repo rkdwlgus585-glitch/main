@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
+import { Clock, Phone } from "lucide-react";
+import { platformConfig } from "@/components/platform-config";
 
 /**
  * /billing/checkout — Toss Payments billing auth widget.
@@ -9,9 +11,12 @@ import Link from "next/link";
  * Loads the Toss SDK and opens the billing authorization window.
  * On success, redirects to /billing/success with authKey + customerKey.
  * On failure, redirects to /billing/fail.
+ *
+ * When NEXT_PUBLIC_TOSS_CLIENT_KEY is not configured, shows a friendly
+ * "coming soon" page with contact info instead of a raw error.
  */
 export default function BillingCheckoutPage() {
-  const [status, setStatus] = useState<"loading" | "error">("loading");
+  const [status, setStatus] = useState<"loading" | "ready" | "coming_soon" | "error">("loading");
   const [errorMsg, setErrorMsg] = useState("");
   const initiated = useRef(false);
 
@@ -23,10 +28,11 @@ export default function BillingCheckoutPage() {
       try {
         const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY;
         if (!clientKey) {
-          setErrorMsg("결제 시스템 설정이 완료되지 않았습니다.");
-          setStatus("error");
+          setStatus("coming_soon");
           return;
         }
+
+        setStatus("ready");
 
         const { loadTossPayments } = await import(
           "@tosspayments/tosspayments-sdk"
@@ -53,10 +59,40 @@ export default function BillingCheckoutPage() {
     openBilling();
   }, []);
 
+  /* ── Coming Soon: payment system not yet configured ── */
+  if (status === "coming_soon") {
+    return (
+      <main id="main" className="page-shell billing-status-page">
+        <div className="billing-status-card" role="status">
+          <Clock size={48} className="billing-status-icon" aria-hidden="true" />
+          <h1>온라인 결제 시스템 준비 중</h1>
+          <p>
+            온라인 결제 기능은 현재 준비 중입니다.
+            <br />
+            지금 바로 이용을 원하시면 전화로 문의해 주세요.
+          </p>
+          <div className="billing-status-actions">
+            <a
+              className="cta-primary"
+              href={`tel:${platformConfig.contactPhone}`}
+            >
+              <Phone size={16} aria-hidden="true" />
+              {platformConfig.contactPhone}
+            </a>
+            <Link className="cta-secondary" href="/billing">
+              구독 관리로 돌아가기
+            </Link>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  /* ── Error state ── */
   if (status === "error") {
     return (
       <main id="main" className="page-shell billing-status-page">
-        <div className="billing-status-card">
+        <div className="billing-status-card" role="alert">
           <h1>결제 오류</h1>
           <p>{errorMsg}</p>
           <div className="billing-status-actions">
@@ -69,6 +105,7 @@ export default function BillingCheckoutPage() {
     );
   }
 
+  /* ── Loading state ── */
   return (
     <main id="main" className="page-shell billing-status-page">
       <div className="billing-status-card">

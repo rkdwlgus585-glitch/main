@@ -2542,6 +2542,8 @@ img { max-width: 100%; display: block; }
 .billing-card-detail { font-weight: 700; color: var(--ink); font-size: 1rem; }
 .billing-error-code { font-size: 0.8rem; color: var(--muted); font-family: monospace; }
 
+.billing-status-icon { color: var(--point); margin: 0 auto 12px; display: block; }
+
 .billing-spinner {
   width: 40px;
   height: 40px;
