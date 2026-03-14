@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { chargeBilling } from "@/lib/toss-billing";
 import { PRO_PLAN_AMOUNT, generateOrderId } from "@/lib/subscription-types";
@@ -11,9 +12,14 @@ import { PRO_PLAN_AMOUNT, generateOrderId } from "@/lib/subscription-types";
  */
 export async function POST(req: NextRequest) {
   try {
-    // Verify cron secret to prevent unauthorized charges
-    const cronSecret = req.headers.get("x-cron-secret");
-    if (cronSecret !== process.env.CRON_SECRET) {
+    // Verify cron secret to prevent unauthorized charges (timing-safe)
+    const cronSecret = req.headers.get("x-cron-secret") ?? "";
+    const expected = process.env.CRON_SECRET ?? "";
+    const secretMatch =
+      expected.length > 0 &&
+      cronSecret.length === expected.length &&
+      crypto.timingSafeEqual(Buffer.from(cronSecret), Buffer.from(expected));
+    if (!secretMatch) {
       return NextResponse.json({ ok: false }, { status: 401 });
     }
 

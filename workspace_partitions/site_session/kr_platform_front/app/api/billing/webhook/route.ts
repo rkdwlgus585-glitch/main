@@ -21,13 +21,17 @@ export async function POST(req: NextRequest) {
     req.headers.get("tosspayments-webhook-transmission-time") ?? "";
   const signature = req.headers.get("tosspayments-signature") ?? "";
 
-  // 2. HMAC-SHA256 verification
+  // 2. HMAC-SHA256 verification (timing-safe comparison)
   const expected = crypto
     .createHmac("sha256", webhookSecret)
     .update(`${rawBody}:${transmissionTime}`)
     .digest("hex");
 
-  if (expected !== signature) {
+  const sigMatch =
+    expected.length === signature.length &&
+    crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signature));
+
+  if (!sigMatch) {
     console.warn("[webhook] Signature mismatch — rejecting");
     return NextResponse.json({ ok: false }, { status: 401 });
   }
