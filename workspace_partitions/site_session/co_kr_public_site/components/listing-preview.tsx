@@ -8,7 +8,7 @@ export function ListingPreview({ listings }: { listings: LegacyListingSummary[] 
         <article key={item.id} className="listing-preview-card">
           <div className="listing-preview-meta">
             <span>{item.id}</span>
-            <span>{item.region || "지역 협의"}</span>
+            <span>{item.sourceKind === "sheet-only" ? "시트 최신" : item.region || "지역 협의"}</span>
           </div>
           <h3>
             <Link href={`/mna/${encodeURIComponent(item.id)}`}>{item.title}</Link>

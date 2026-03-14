@@ -36,12 +36,12 @@ export function SiteFooter() {
             <Link href="/terms">이용약관</Link>
           </nav>
           <nav className="footer-link-group" aria-labelledby="footer-ai-heading">
-            <h4 id="footer-ai-heading">AI 도구</h4>
+            <h4 id="footer-ai-heading">자가점검 도구</h4>
             <a href={`${siteConfig.platformHost}/yangdo`} target="_blank" rel="noopener noreferrer">
-              AI 양도가 산정
+              양도 기준 자가진단
             </a>
             <a href={`${siteConfig.platformHost}/permit`} target="_blank" rel="noopener noreferrer">
-              AI 인허가 사전검토
+              등록 기준 자가점검
             </a>
             <a href={siteConfig.platformHost} target="_blank" rel="noopener noreferrer">
               서울건설정보

@@ -8,6 +8,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+ALL_ROOT = ROOT.parent / "ALL"
 YEAR_KEYS = {"mp_2020[]", "mp_2021[]", "mp_2022[]", "mp_2023[]", "mp_2024[]", "mp_2025[]"}
 
 
@@ -227,8 +228,9 @@ def _write_state(path: Path, marker: dict, *, complete: bool, target_count: int,
 
 
 def main():
-    if str(ROOT) not in sys.path:
-        sys.path.insert(0, str(ROOT))
+    for path in (str(ROOT), str(ALL_ROOT)):
+        if path not in sys.path:
+            sys.path.insert(0, path)
 
     parser = argparse.ArgumentParser(description="Republish selected entries from reconcile audit targets.")
     parser.add_argument("--targets", default="", help="Path to target json (default: latest affected_row_shift_*.json).")

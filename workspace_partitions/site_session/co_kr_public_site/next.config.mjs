@@ -1,7 +1,10 @@
 /** @type {import('next').NextConfig} */
+const distDir = process.env.BUILD_DIST_DIR?.trim();
+
 const nextConfig = {
   reactStrictMode: true,
   trailingSlash: false,
+  ...(distDir ? { distDir } : {}),
   async headers() {
     return [
       {

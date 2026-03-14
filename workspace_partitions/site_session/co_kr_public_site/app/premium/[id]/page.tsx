@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 import { LegacyContentPage } from "@/components/legacy-content-page";
 import { boardConfig } from "@/lib/content-map";
-import { getBoardPostById, getBoardPostIds } from "@/lib/legacy-content";
+import { getBoardPostById } from "@/lib/legacy-content";
 import { buildPageMetadata } from "@/lib/page-metadata";
 
 type PageProps = {
@@ -12,10 +12,7 @@ type PageProps = {
 };
 
 export const revalidate = 3600;
-
-export function generateStaticParams() {
-  return getBoardPostIds("premium").map((id) => ({ id }));
-}
+export const dynamicParams = true;
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;

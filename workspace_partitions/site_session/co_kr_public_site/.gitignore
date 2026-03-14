@@ -1,5 +1,10 @@
 .next
+.next-*
 node_modules
 .vercel
+.env.local
+.env.*
 *.tsbuildinfo
+*.log
+*.pid
 data/consult-inquiries.ndjson

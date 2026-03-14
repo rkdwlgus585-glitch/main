@@ -4,7 +4,7 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ContactLink } from "@/components/contact-link";
 import { siteConfig } from "@/components/site-config";
-import { getAdjacentListings, getListingById, getListingIds } from "@/lib/listings";
+import { getAdjacentListings, getListingById } from "@/lib/listings";
 import { buildPageMetadata } from "@/lib/page-metadata";
 
 type PageProps = {
@@ -14,9 +14,11 @@ type PageProps = {
 };
 
 export const revalidate = 3600;
+export const dynamicParams = true;
 
-export function generateStaticParams() {
-  return getListingIds().map((id) => ({ id }));
+function hasDisplayValue(value: string | null | undefined) {
+  const text = String(value ?? "").trim();
+  return Boolean(text && text !== "-" && text.toLowerCase() !== "empty");
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -75,6 +77,34 @@ export default async function ListingDetailPage({ params }: PageProps) {
     완료: "https://schema.org/SoldOut",
   } as const;
   const availability = availabilityMap[listing.status as keyof typeof availabilityMap] ?? "https://schema.org/LimitedAvailability";
+  const detailPills = [
+    listing.id,
+    listing.status,
+    listing.region,
+    listing.sectorLabel,
+    `업데이트 ${listing.updatedAt.slice(0, 10)}`,
+  ].filter(hasDisplayValue);
+  const companyMeta = [listing.companyType, hasDisplayValue(listing.companyYear) ? `법인설립일 ${listing.companyYear}` : ""]
+    .filter(hasDisplayValue)
+    .join(" · ");
+  const detailKpis = [
+    {
+      label: "면허년도",
+      value:
+        listing.licenseYears.filter(hasDisplayValue).join(" / ") ||
+        (hasDisplayValue(listing.companyYear) ? listing.companyYear : ""),
+    },
+    { label: "시공능력", value: listing.capacityLabel },
+    { label: "3년 실적", value: listing.performance3Year },
+    { label: "5년 실적", value: listing.performance5Year },
+  ].filter((item) => hasDisplayValue(item.value));
+  const overviewEntries = Object.entries(listing.overview).filter(([, value]) => hasDisplayValue(value));
+  const financeEntries = Object.entries(listing.finance).filter(([, value]) => hasDisplayValue(value));
+  const performanceRows = listing.performanceRows.filter(
+    (row, index) => index === 0 || row.some((cell) => hasDisplayValue(cell)),
+  );
+  const notes = listing.notes.filter(hasDisplayValue);
+  const guidance = listing.guidance.filter(hasDisplayValue);
 
   const listingSchema = {
     "@context": "https://schema.org",
@@ -130,17 +160,24 @@ export default async function ListingDetailPage({ params }: PageProps) {
           <p>{listing.headline || listing.note || listing.sectorLabel}</p>
 
           <div className="detail-pill-row" aria-label="매물 핵심 정보">
-            <span className="detail-pill">{listing.id}</span>
-            <span className="detail-pill">{listing.status}</span>
-            <span className="detail-pill">{listing.region}</span>
-            <span className="detail-pill">{listing.sectorLabel}</span>
-            <span className="detail-pill">업데이트 {listing.updatedAt.slice(0, 10)}</span>
+            {detailPills.map((item) => (
+              <span key={item} className="detail-pill">
+                {item}
+              </span>
+            ))}
           </div>
         </div>
 
         <aside className="detail-side-cta">
           <strong>{listing.price || "협의"}</strong>
-          <p>{listing.companyType} · 법인설립일 {listing.companyYear || "-"}</p>
+          {companyMeta ? <p>{companyMeta}</p> : null}
+          <p>
+            {listing.sourceKind === "sheet-only"
+              ? "구글시트 원본 기준으로 생성된 매물입니다."
+              : listing.sourceKind === "sheet-merged"
+                ? "공개 게시판 보존본에 구글시트 최신 상태를 반영했습니다."
+                : "공개 게시판 보존본 기준 매물입니다."}
+          </p>
           <div className="detail-summary-actions">
             <ContactLink
               href={`tel:${siteConfig.phone}`}
@@ -157,88 +194,88 @@ export default async function ListingDetailPage({ params }: PageProps) {
         </aside>
       </section>
 
-      <section className="detail-kpi-grid">
-        <article className="detail-kpi">
-          <span>면허년도</span>
-          <strong>{listing.licenseYears.join(" / ") || listing.companyYear || "-"}</strong>
-        </article>
-        <article className="detail-kpi">
-          <span>시공능력</span>
-          <strong>{listing.capacityLabel || "-"}</strong>
-        </article>
-        <article className="detail-kpi">
-          <span>3년 실적</span>
-          <strong>{listing.performance3Year || "-"}</strong>
-        </article>
-        <article className="detail-kpi">
-          <span>5년 실적</span>
-          <strong>{listing.performance5Year || "-"}</strong>
-        </article>
-      </section>
+      {detailKpis.length > 0 ? (
+        <section className="detail-kpi-grid">
+          {detailKpis.map((item) => (
+            <article key={item.label} className="detail-kpi">
+              <span>{item.label}</span>
+              <strong>{item.value}</strong>
+            </article>
+          ))}
+        </section>
+      ) : null}
 
       <section className="detail-body-grid">
-        <article className="detail-card">
-          <h2>회사개요</h2>
-          <dl className="detail-pairs">
-            {Object.entries(listing.overview).map(([label, value]) => (
-              <div key={label}>
-                <dt>{label}</dt>
-                <dd>{value || "-"}</dd>
-              </div>
-            ))}
-          </dl>
-        </article>
+        {overviewEntries.length > 0 ? (
+          <article className="detail-card">
+            <h2>회사개요</h2>
+            <dl className="detail-pairs">
+              {overviewEntries.map(([label, value]) => (
+                <div key={label}>
+                  <dt>{label}</dt>
+                  <dd>{value}</dd>
+                </div>
+              ))}
+            </dl>
+          </article>
+        ) : null}
 
-        <article className="detail-card">
-          <h2>재무제표</h2>
-          <dl className="detail-pairs">
-            {Object.entries(listing.finance).map(([label, value]) => (
-              <div key={label}>
-                <dt>{label}</dt>
-                <dd>{value || "-"}</dd>
-              </div>
-            ))}
-          </dl>
-        </article>
+        {financeEntries.length > 0 ? (
+          <article className="detail-card">
+            <h2>재무제표</h2>
+            <dl className="detail-pairs">
+              {financeEntries.map(([label, value]) => (
+                <div key={label}>
+                  <dt>{label}</dt>
+                  <dd>{value}</dd>
+                </div>
+              ))}
+            </dl>
+          </article>
+        ) : null}
 
-        <article className="detail-card detail-card--wide">
-          <h2>최근년도 매출실적</h2>
-          <div className="legacy-table-shell">
-            <table className="legacy-table">
-              <thead>
-                <tr>
-                  {listing.performanceRows[0]?.map((header) => (
-                    <th key={header}>{header}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {listing.performanceRows.slice(1).map((row) => (
-                  <tr key={row.join("-")}>
-                    {row.map((cell, index) => (
-                      <td key={`${row.join("-")}-${index}`}>{cell || "-"}</td>
+        {performanceRows.length > 1 ? (
+          <article className="detail-card detail-card--wide">
+            <h2>최근년도 매출실적</h2>
+            <div className="legacy-table-shell">
+              <table className="legacy-table">
+                <thead>
+                  <tr>
+                    {performanceRows[0]?.map((header) => (
+                      <th key={header}>{header}</th>
                     ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </article>
+                </thead>
+                <tbody>
+                  {performanceRows.slice(1).map((row) => (
+                    <tr key={row.join("-")}>
+                      {row.map((cell, index) => (
+                        <td key={`${row.join("-")}-${index}`}>{cell || "-"}</td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </article>
+        ) : null}
 
-        <article className="detail-card detail-card--wide">
-          <h2>주요체크사항</h2>
-          <ul className="detail-list">
-            {listing.notes.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </article>
+        {notes.length > 0 ? (
+          <article className="detail-card detail-card--wide">
+            <h2>주요체크사항</h2>
+            <ul className="detail-list">
+              {notes.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </article>
+        ) : null}
 
-        {listing.guidance.length > 0 ? (
+        {guidance.length > 0 ? (
           <article className="detail-card detail-card--wide">
             <h2>안내</h2>
             <ul className="detail-list">
-              {listing.guidance.map((item) => (
+              {guidance.map((item) => (
                 <li key={item}>{item}</li>
               ))}
             </ul>

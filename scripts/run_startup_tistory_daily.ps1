@@ -1,4 +1,4 @@
-# Runs tistory daily-once publish mode once at startup/logon.
+# Runs legacy listing-based tistory daily-once publish mode once at startup/logon.
 param(
     [string]$RepoRoot = "",
     [string]$StartRegistration = "7540",
@@ -41,6 +41,22 @@ if (-not (Test-Path $logsDir)) {
 }
 $logFile = Join-Path $logsDir "startup_tistory_daily.log"
 
+function Get-DotEnvValue([string]$path, [string]$key) {
+    if (-not (Test-Path $path)) {
+        return ""
+    }
+    foreach ($line in Get-Content -Path $path -Encoding UTF8) {
+        if ($line -match '^\s*#') {
+            continue
+        }
+        $prefix = "$key="
+        if ($line.StartsWith($prefix)) {
+            return $line.Substring($prefix.Length).Trim()
+        }
+    }
+    return ""
+}
+
 function Write-Log([string]$message) {
     $ts = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     Add-Content -Path $logFile -Encoding UTF8 -Value ("[{0}] {1}" -f $ts, $message)
@@ -52,6 +68,13 @@ if ($StartupDelaySec -gt 0) {
     Write-Log ("startup delay begin: {0}s" -f [int]$StartupDelaySec)
     Start-Sleep -Seconds ([int]$StartupDelaySec)
     Write-Log "startup delay end"
+}
+
+$envFile = Join-Path $RepoRoot ".env"
+$blogDomain = (Get-DotEnvValue -path $envFile -key "TISTORY_BLOG_DOMAIN").ToLowerInvariant()
+if ($blogDomain -eq "seoulmna.tistory.com") {
+    Write-Log "BLOCK legacy listing daily-once for seoulmna.tistory.com"
+    exit 2
 }
 
 Push-Location $AllRoot

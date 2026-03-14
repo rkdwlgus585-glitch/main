@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ContactLink } from "@/components/contact-link";
 import { siteConfig } from "@/components/site-config";
+import type { RegulatorySourceLink } from "@/lib/regulatory-guidance";
 
 type SummaryCard = {
   label: string;
@@ -42,6 +43,8 @@ export function ServiceDetailPage({
   checklistGroups,
   notesTitle,
   notes,
+  referenceLinks,
+  referenceNote,
   afterContent,
 }: {
   eyebrow: string;
@@ -60,6 +63,8 @@ export function ServiceDetailPage({
   checklistGroups: ChecklistGroup[];
   notesTitle: string;
   notes: NoteCard[];
+  referenceLinks?: RegulatorySourceLink[];
+  referenceNote?: string;
   afterContent?: ReactNode;
 }) {
   const serviceSchema = {
@@ -202,6 +207,28 @@ export function ServiceDetailPage({
           ))}
         </div>
       </section>
+
+      {referenceLinks && referenceLinks.length > 0 ? (
+        <section className="section-block">
+          <div className="section-header">
+            <p className="eyebrow">Official Source</p>
+            <h2>이 페이지에 반영한 공식 기준</h2>
+            {referenceNote ? <p>{referenceNote}</p> : null}
+          </div>
+          <article className="reference-card">
+            <ul className="reference-list">
+              {referenceLinks.map((link) => (
+                <li key={link.href}>
+                  <a href={link.href} target="_blank" rel="noopener noreferrer">
+                    {link.label}
+                  </a>
+                  {link.note ? <p>{link.note}</p> : null}
+                </li>
+              ))}
+            </ul>
+          </article>
+        </section>
+      ) : null}
 
       {afterContent}
     </div>

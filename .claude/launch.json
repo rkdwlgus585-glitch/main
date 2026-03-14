@@ -1,0 +1,18 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "preview-server",
+      "runtimeExecutable": "C:/Users/rkdwl/AppData/Local/Python/bin/python.exe",
+      "runtimeArgs": ["-m", "http.server", "8765", "--directory", "."],
+      "port": 8765
+    },
+    {
+      "name": "platform-front",
+      "runtimeExecutable": "C:/Program Files/nodejs/node.exe",
+      "runtimeArgs": ["node_modules/next/dist/bin/next", "dev", "--port", "3100"],
+      "port": 3100,
+      "cwd": "workspace_partitions/site_session/kr_platform_front"
+    }
+  ]
+}

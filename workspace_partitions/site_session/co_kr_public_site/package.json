@@ -8,7 +8,17 @@
     "start": "next start",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "import:legacy": "python scripts/import_legacy_site.py"
+    "import:legacy": "python scripts/import_legacy_site.py",
+    "export:listings:sheet": "python scripts/export_sheet_listings.py",
+    "sync:env": "python scripts/sync_env_local.py",
+    "smoke:local": "python scripts/smoke_test_local.py",
+    "qa:local:release": "python scripts/run_local_release_check.py",
+    "validate:deploy": "python scripts/validate_deploy_ready.py",
+    "deploy:preview": "python scripts/deploy_preview.py",
+    "verify:legacy": "python scripts/verify_imported_content.py",
+    "verify:legacy:sync": "python scripts/verify_imported_content.py --sync-manifest",
+    "verify:market": "python scripts/verify_market_data.py",
+    "verify:regulatory": "python scripts/verify_regulatory_guidance.py"
   },
   "dependencies": {
     "lucide-react": "^0.577.0",

@@ -19,6 +19,8 @@ export function BoardList({
   eyebrow,
   title,
   description,
+  treatmentLabel,
+  treatmentSummary,
   posts,
   totalCount,
   currentPage,
@@ -28,6 +30,8 @@ export function BoardList({
   eyebrow: string;
   title: string;
   description: string;
+  treatmentLabel?: string;
+  treatmentSummary?: string;
   posts: LegacyPost[];
   totalCount: number;
   currentPage: number;
@@ -44,6 +48,13 @@ export function BoardList({
         <h1>{title}</h1>
         <p>{description}</p>
       </section>
+
+      {treatmentLabel || treatmentSummary ? (
+        <section className="board-treatment-banner" aria-label={`${title} 운영 기준`}>
+          {treatmentLabel ? <span className="board-treatment-badge">{treatmentLabel}</span> : null}
+          {treatmentSummary ? <p>{treatmentSummary}</p> : null}
+        </section>
+      ) : null}
 
       <section className="board-list-shell">
         <header className="board-list-header">

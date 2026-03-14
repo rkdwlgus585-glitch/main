@@ -1,9 +1,11 @@
 # Registers hidden Windows Task Scheduler job:
-# At user logon -> run startup-once tistory daily publish script.
+# At user logon -> run legacy listing-based tistory daily publish script.
 param(
     [string]$RepoRoot = "",
-    [string]$TaskName = "SeoulMNA_Tistory_DailyOnce",
-    [int]$StartupDelaySec = 360
+    [string]$TaskName = "SeoulMNA_Tistory_LegacyListing_DailyOnce",
+    [int]$StartupDelaySec = 360,
+    [string]$DailyAt = "08:40",
+    [switch]$NoLogonTrigger
 )
 
 $ErrorActionPreference = "Stop"
@@ -30,7 +32,18 @@ if (-not (Test-Path $wscriptExe)) {
 $arg = "`"$hiddenLauncher`" `"$runner`" -RepoRoot `"$RepoRoot`" -StartRegistration 7540 -StartupDelaySec $StartupDelaySec"
 
 $action = New-ScheduledTaskAction -Execute $wscriptExe -Argument $arg
-$trigger = New-ScheduledTaskTrigger -AtLogOn -User $userId
+$triggerList = New-Object 'System.Collections.Generic.List[Microsoft.Management.Infrastructure.CimInstance]'
+if (-not $NoLogonTrigger) {
+    $logonTrigger = New-ScheduledTaskTrigger -AtLogOn -User $userId
+    $triggerList.Add($logonTrigger) | Out-Null
+}
+try {
+    $dailyTime = [datetime]::ParseExact($DailyAt, "HH:mm", [System.Globalization.CultureInfo]::InvariantCulture)
+} catch {
+    throw "DailyAt must be HH:mm format. received: $DailyAt"
+}
+$dailyTrigger = New-ScheduledTaskTrigger -Daily -At $dailyTime
+$triggerList.Add($dailyTrigger) | Out-Null
 $principal = New-ScheduledTaskPrincipal -UserId $userId -LogonType Interactive -RunLevel Limited
 $settings = New-ScheduledTaskSettingsSet `
     -AllowStartIfOnBatteries `
@@ -42,10 +55,10 @@ $settings = New-ScheduledTaskSettingsSet `
 Register-ScheduledTask `
     -TaskName $TaskName `
     -Action $action `
-    -Trigger $trigger `
+    -Trigger $triggerList.ToArray() `
     -Principal $principal `
     -Settings $settings `
-    -Description "Run SeoulMNA tistory daily-once publish at logon (hidden)." `
+    -Description "Run SeoulMNA legacy listing tistory daily-once publish in background once per day (hidden)." `
     -Force | Out-Null
 
 Write-Output "registered task: $TaskName"

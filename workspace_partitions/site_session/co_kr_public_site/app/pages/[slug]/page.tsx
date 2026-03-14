@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 import { LegacyContentPage } from "@/components/legacy-content-page";
 import { pageGroupConfig } from "@/lib/content-map";
-import { getAllLegacyPages, getLegacyPageBySlug, getLegacyPagePath } from "@/lib/legacy-content";
+import { getLegacyPageBySlug, getLegacyPagePath } from "@/lib/legacy-content";
 import { buildPageMetadata } from "@/lib/page-metadata";
 
 type PageProps = {
@@ -12,10 +12,7 @@ type PageProps = {
 };
 
 export const revalidate = 3600;
-
-export function generateStaticParams() {
-  return getAllLegacyPages().map((page) => ({ slug: `${page.slug}.php` }));
-}
+export const dynamicParams = true;
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;

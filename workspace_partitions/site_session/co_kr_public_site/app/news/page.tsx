@@ -21,6 +21,8 @@ export default function NewsPage() {
       eyebrow={boardConfig.news.eyebrow}
       title={boardConfig.news.title}
       description={boardConfig.news.description}
+      treatmentLabel={boardConfig.news.treatmentLabel}
+      treatmentSummary={boardConfig.news.treatmentSummary}
       posts={posts}
       totalCount={posts.length}
       currentPage={1}

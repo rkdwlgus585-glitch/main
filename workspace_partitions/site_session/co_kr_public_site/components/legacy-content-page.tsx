@@ -50,7 +50,14 @@ export function LegacyContentPage({
       url: siteConfig.host,
     },
   };
-  const normalizedHtml = contentHtml.replace(/href="([^"]+)"/gi, (_match, href: string) => `href="${normalizeImportedHref(href)}"`);
+  const normalizedHtml = contentHtml
+    .replace(
+      /<a([^>]+)href="(?:https?:\/\/(?:www\.)?seoulmna\.co\.kr)?\/bbs\/view_image\.php\?[^"]*"([^>]*)>([\s\S]*?<img[^>]+src="([^"]+)"[\s\S]*?)<\/a>/gi,
+      (_match, prefix: string, suffix: string, innerHtml: string, imageSrc: string) => (
+        `<a${prefix}href="${imageSrc}"${suffix}>${innerHtml}</a>`
+      ),
+    )
+    .replace(/href="([^"]+)"/gi, (_match, href: string) => `href="${normalizeImportedHref(href)}"`);
 
   return (
     <div className="page-shell page-shell--inner" id="legacy-content-top">
@@ -94,7 +101,11 @@ export function LegacyContentPage({
       </section>
 
       <section className="legacy-content-shell">
-        <div className="legacy-content-body" dangerouslySetInnerHTML={{ __html: normalizedHtml }} />
+        <div
+          className="legacy-content-body"
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{ __html: normalizedHtml }}
+        />
       </section>
     </div>
   );

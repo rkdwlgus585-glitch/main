@@ -22,6 +22,7 @@ class SyncKrPlatformFrontEnvTests(unittest.TestCase):
         env_map = build_env_map(channel=channel)
         self.assertEqual(env_map['NEXT_PUBLIC_PLATFORM_FRONT_HOST'], 'https://seoulmna.kr')
         self.assertEqual(env_map['NEXT_PUBLIC_LISTING_HOST'], 'https://seoulmna.co.kr')
+        self.assertEqual(env_map['NEXT_PUBLIC_CONTENT_HOST'], 'https://seoulmna.co.kr')
         self.assertEqual(env_map['NEXT_PUBLIC_CALCULATOR_MOUNT_BASE'], 'https://seoulmna.kr/_calc')
         self.assertEqual(env_map['NEXT_PUBLIC_PRIVATE_ENGINE_ORIGIN'], 'https://calc.seoulmna.co.kr')
         self.assertEqual(env_map['NEXT_PUBLIC_TENANT_ID'], 'seoul_main')
@@ -31,6 +32,7 @@ class SyncKrPlatformFrontEnvTests(unittest.TestCase):
             {
                 'NEXT_PUBLIC_PLATFORM_FRONT_HOST': 'https://seoulmna.kr',
                 'NEXT_PUBLIC_LISTING_HOST': 'https://seoulmna.co.kr',
+                'NEXT_PUBLIC_CONTENT_HOST': 'https://seoulmna.co.kr',
                 'NEXT_PUBLIC_CALCULATOR_MOUNT_BASE': 'https://seoulmna.kr/_calc',
                 'NEXT_PUBLIC_PRIVATE_ENGINE_ORIGIN': 'https://calc.seoulmna.co.kr',
                 'NEXT_PUBLIC_CONTACT_PHONE': '1668-3548',
@@ -39,6 +41,7 @@ class SyncKrPlatformFrontEnvTests(unittest.TestCase):
             }
         )
         self.assertIn('NEXT_PUBLIC_PLATFORM_FRONT_HOST=https://seoulmna.kr', out)
+        self.assertIn('NEXT_PUBLIC_CONTENT_HOST=https://seoulmna.co.kr', out)
         self.assertIn('NEXT_PUBLIC_CALCULATOR_MOUNT_BASE=https://seoulmna.kr/_calc', out)
         self.assertTrue(out.endswith('\n'))
 

@@ -34,6 +34,8 @@ export default async function NoticePage({ searchParams }: PageProps) {
       eyebrow={boardConfig.notice.eyebrow}
       title={boardConfig.notice.title}
       description={boardConfig.notice.description}
+      treatmentLabel={boardConfig.notice.treatmentLabel}
+      treatmentSummary={boardConfig.notice.treatmentSummary}
       posts={pagePosts}
       totalCount={posts.length}
       currentPage={pageNumber}

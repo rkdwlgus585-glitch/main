@@ -20,8 +20,7 @@ class RouteStructureTest(unittest.TestCase):
         "app/yangdo/page.tsx",
         "app/permit/page.tsx",
         "app/consult/page.tsx",
-        "app/knowledge/page.tsx",
-        "app/mna-market/page.tsx",
+        "app/partners/page.tsx",
         "app/privacy/page.tsx",
         "app/terms/page.tsx",
         "app/widget/yangdo/page.tsx",
@@ -42,8 +41,6 @@ class ErrorBoundaryTest(unittest.TestCase):
         "app/yangdo/error.tsx",       # yangdo landing
         "app/permit/error.tsx",       # permit landing
         "app/consult/error.tsx",      # consult page
-        "app/knowledge/error.tsx",    # knowledge page
-        "app/mna-market/error.tsx",   # mna-market page
         "app/widget/error.tsx",       # widget iframe (no site chrome)
     ]
 
@@ -73,8 +70,6 @@ class LoadingStateTest(unittest.TestCase):
         "app/yangdo/loading.tsx",
         "app/permit/loading.tsx",
         "app/consult/loading.tsx",
-        "app/knowledge/loading.tsx",
-        "app/mna-market/loading.tsx",
     ]
 
     def test_all_loading_states_exist(self) -> None:
@@ -123,8 +118,7 @@ class MetadataExportTest(unittest.TestCase):
         "app/yangdo/page.tsx",
         "app/permit/page.tsx",
         "app/consult/page.tsx",
-        "app/knowledge/page.tsx",
-        "app/mna-market/page.tsx",
+        "app/partners/page.tsx",
         "app/privacy/page.tsx",
         "app/terms/page.tsx",
     ]

@@ -1,17 +1,62 @@
 {
   "source": "https://seoulmna.co.kr",
-  "generatedAt": "2026-03-10T23:23:46+09:00",
+  "generatedAt": "2026-03-11T22:56:22+09:00",
   "counts": {
     "tl_faq": 1,
-    "mna": 1467,
+    "mna": 1701,
     "notice": 349,
     "premium": 35,
     "news": 1,
     "pages": 26
   },
+  "files": {
+    "listingSummaries": {
+      "path": "data/imported/listing-summaries.json",
+      "bytes": 1222075,
+      "sha256": "bf9367603a5d2f1ff675a98b62f9444dd139c52bb9e44f4218c47ecb9836afe4",
+      "records": 1701
+    },
+    "listingDetails": {
+      "path": "data/imported/listing-details.json",
+      "bytes": 7915391,
+      "sha256": "b55cf453b0b7bff46b6cbd45fd9c8cb1ef7f584dad4b04880689f70c2a8d8455",
+      "records": 1701
+    },
+    "noticePosts": {
+      "path": "data/imported/notice-posts.json",
+      "bytes": 2060082,
+      "sha256": "a4ce394aff6a52b106049287a161e3881dd66e53d065e68193565a532d1fdbc8",
+      "records": 349
+    },
+    "premiumPosts": {
+      "path": "data/imported/premium-posts.json",
+      "bytes": 313582,
+      "sha256": "fba606c3a5fc86ad671e306ff759b42f43325b938651ff8991b59967cb3fdab4",
+      "records": 35
+    },
+    "newsPosts": {
+      "path": "data/imported/news-posts.json",
+      "bytes": 5977,
+      "sha256": "8f28a4be338b4f1263ebccf51e00704615c62e80b7206c902f57b472be057c74",
+      "records": 1
+    },
+    "tlFaqPage": {
+      "path": "data/imported/tl-faq-page.json",
+      "bytes": 5888,
+      "sha256": "20db6767a4b337d11338112f1e8bf60bafaf97d8d27e5e945d48627d5cefc5d9",
+      "records": 1
+    },
+    "pages": {
+      "path": "data/imported/pages.json",
+      "bytes": 199673,
+      "sha256": "0e131a6762631a2a0f695c7c968e19080a5a6c6c008168bf74437f4084c859c2",
+      "records": 26
+    }
+  },
   "options": {
-    "workers": 4,
+    "workers": 6,
     "limit": null,
+    "mnaSource": "sheet",
     "skipAssets": false
   }
 }

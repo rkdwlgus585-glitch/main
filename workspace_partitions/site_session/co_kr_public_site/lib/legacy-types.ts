@@ -1,3 +1,5 @@
+export type ListingSourceKind = "legacy-import" | "sheet-merged" | "sheet-only";
+
 export type LegacyListingSummary = {
   id: string;
   title: string;
@@ -20,6 +22,7 @@ export type LegacyListingSummary = {
   performance2025: string;
   note: string;
   sourceUrl: string;
+  sourceKind?: ListingSourceKind;
 };
 
 export type LegacyListingDetail = LegacyListingSummary & {

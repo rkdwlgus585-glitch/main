@@ -112,11 +112,11 @@ def _load_env_keys(path: Path) -> List[str]:
     if not path.exists():
         return []
     keys: List[str] = []
-    for line in path.read_text(encoding="utf-8").splitlines():
+    for line in path.read_text(encoding="utf-8-sig").splitlines():
         text = str(line or "").strip()
         if not text or text.startswith("#") or "=" not in text:
             continue
-        key = text.split("=", 1)[0].strip()
+        key = text.split("=", 1)[0].lstrip("\ufeff").strip()
         if key and key not in keys:
             keys.append(key)
     return keys

@@ -1,53 +1,57 @@
 import Link from "next/link";
-import { ArrowRight, Building2, Calculator, CircleHelp, ClipboardCheck, FileStack, Scale, Shield } from "lucide-react";
+import { ArrowRight, Building2, CircleHelp, ClipboardCheck, FileStack, Scale, Shield } from "lucide-react";
 import { AiToolBridge } from "@/components/ai-tool-bridge";
+import { ContentGovernanceSection } from "@/components/content-governance";
 import { ContactLink } from "@/components/contact-link";
+import { LegalUpdateSection } from "@/components/legal-update-section";
 import { ListingPreview } from "@/components/listing-preview";
 import { NoticePreview } from "@/components/notice-preview";
 import { quickEntries } from "@/components/sample-data";
 import { siteConfig } from "@/components/site-config";
-import { getAllListings, getImportManifest } from "@/lib/legacy-content";
+import { getAllListings, getImportManifest, getListingDatasetStats } from "@/lib/legacy-content";
+import { regulatoryReviewedAt } from "@/lib/regulatory-guidance";
 
 const serviceCards = [
   {
-    title: "양도양수 실무 안내",
-    body: "상담 이전에 매물 성격과 인수 포인트를 빠르게 정리하는 메인 동선입니다.",
+    title: "양도·합병 신고 기준",
+    body: "건설산업기본법 제17조부터 제19조까지의 신고, 공고, 진행 공사 정리 포인트를 먼저 안내합니다.",
     icon: Scale,
   },
   {
-    title: "등록기준 검토",
-    body: "건설업 신규 등록을 준비하는 고객이 바로 들어와야 할 화면을 분리합니다.",
+    title: "등록 신청 구조",
+    body: "법 제10조, 시행령 제13조, 시행규칙 제2조를 기준으로 등록 전 체크 순서를 정리했습니다.",
     icon: Building2,
   },
   {
-    title: "법인 및 구조 정리",
-    body: "법인설립과 분할합병 같은 보조 서비스도 같은 브랜드 안에서 연결합니다.",
+    title: "법인·분할 설계",
+    body: "법인설립, 양도양수, 분할합병 중 무엇이 맞는지 초기 목적과 신고 구조를 함께 비교합니다.",
     icon: Shield,
   },
   {
-    title: "실무 자료실",
-    body: "운영자가 반복 안내하는 내용을 건설실무 메뉴로 정리합니다.",
+    title: "실적·시공능력 일정",
+    body: "2026 협회 공지 기준으로 실적신고, 재무제표 제출, 시공능력 공시 일정을 관리합니다.",
     icon: FileStack,
   },
 ];
 
 const processSteps = [
-  "메인에서 서비스 성격과 대표 매물을 먼저 보여줍니다.",
-  "업종과 지역만으로 대표 유형을 빠르게 좁힙니다.",
-  "양도양수, 등록, 법인, 실무 가이드로 자연스럽게 분기합니다.",
-  "전화나 문의 채널로 연결해 운영자가 직접 후속 응대를 받습니다.",
+  "양도양수인지 신규 등록인지부터 나누고, 신고 대상 여부를 먼저 확인합니다.",
+  "업종별 등록기준과 필요 서류를 대조해 누락 항목을 초기 단계에서 정리합니다.",
+  "2026 협회 접수 일정과 관할 수탁기관 흐름에 맞춰 자료 준비 순서를 잡습니다.",
+  "실사 또는 상담 단계에서는 계약보다 신고, 공고, 진행 공사 정리 여부를 우선 확인합니다.",
 ];
 
 export function PublicHome() {
   const latestListings = getAllListings().slice(0, 4);
   const manifest = getImportManifest();
+  const listingStats = getListingDatasetStats();
 
   const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: siteConfig.brandName,
     url: siteConfig.host,
-    description: "건설업 양도양수, 등록, 법인설립, 분할합병, 건설실무를 안내하는 독립 퍼블릭 사이트",
+    description: "건설업 양도양수, 등록, 분할합병, 실적신고 일정을 최신 법령과 절차 기준으로 안내하는 퍼블릭 사이트",
     publisher: {
       "@type": "Organization",
       name: siteConfig.companyName,
@@ -63,28 +67,34 @@ export function PublicHome() {
       />
       <section className="hero">
         <div className="hero-copy">
-          <p className="hero-badge">AI System · Expert Consulting</p>
-          <p className="hero-kicker">AI 양도가 산정 · AI 인허가 사전검토 시스템 운영</p>
+          <p className="hero-badge">{regulatoryReviewedAt} 기준 법령 · 절차 업데이트</p>
+          <p className="hero-kicker">건설산업기본법 · 시행령 · 시행규칙 · 협회 공지 기준 반영</p>
           <h1>
-            건설업 면허 양도와 등록,
+            양도양수와 건설업 등록 절차를
             <br />
-            AI로 먼저 확인하고 전문가와 상담하세요
+            최신 기준으로 먼저 정리합니다
           </h1>
           <p className="hero-body">
-            AI 양도가 산정 시스템으로 면허 예상 가격을 즉시 확인하고, AI 인허가 사전검토로
-            등록 요건 충족 여부를 무료로 점검할 수 있습니다. 결과를 바탕으로 전문가 상담까지 바로 연결됩니다.
+            건설업 양도·합병·상속은 신고 대상이고, 양도는 30일 이상 공고가 필요합니다. 등록 신청은 업종별 자본금,
+            보증가능금액, 기술인력, 사무실·장비 기준을 먼저 맞춘 뒤 진행해야 하며, 2026년 실적·재무 제출 일정도 함께
+            관리해야 합니다.
           </p>
           <div className="hero-ai-pills">
-            <a href={`${siteConfig.platformHost}/yangdo`} className="hero-ai-pill" target="_blank" rel="noopener noreferrer">
-              <Calculator size={16} aria-hidden="true" />
-              <span>AI 양도가 산정</span>
-              <span className="hero-ai-pill-tag">무료</span>
-            </a>
-            <a href={`${siteConfig.platformHost}/permit`} className="hero-ai-pill" target="_blank" rel="noopener noreferrer">
+            <Link href="/mna" className="hero-ai-pill">
+              <Scale size={16} aria-hidden="true" />
+              <span>양도·합병 기준</span>
+              <span className="hero-ai-pill-tag">법령</span>
+            </Link>
+            <Link href="/registration" className="hero-ai-pill">
               <ClipboardCheck size={16} aria-hidden="true" />
-              <span>AI 인허가 사전검토</span>
-              <span className="hero-ai-pill-tag">무료</span>
-            </a>
+              <span>등록 신청 절차</span>
+              <span className="hero-ai-pill-tag">접수</span>
+            </Link>
+            <Link href="/practice" className="hero-ai-pill">
+              <FileStack size={16} aria-hidden="true" />
+              <span>2026 실적 일정</span>
+              <span className="hero-ai-pill-tag">실무</span>
+            </Link>
           </div>
 
           <div className="hero-actions">
@@ -113,8 +123,8 @@ export function PublicHome() {
             </video>
             <div className="video-overlay" />
             <div className="video-caption">
-              <strong>성공적인 건설 사업의 시작</strong>
-              <p>면허 양도부터 신규 등록까지 — AI 시스템과 전문가 상담으로 더 정확하고 빠른 첫걸음을 내딛으세요.</p>
+              <strong>신고와 접수를 먼저 읽는 건설업 브리프</strong>
+              <p>양도양수, 등록, 분할합병, 실적신고 일정을 법령과 협회 공지 기준으로 정리해 초기 판단 속도를 높입니다.</p>
             </div>
           </div>
         </div>
@@ -137,14 +147,22 @@ export function PublicHome() {
           <strong>상담 시간</strong>
           <span>{siteConfig.officeHours}</span>
         </article>
+        <article>
+          <strong>기준 검토일</strong>
+          <span>{regulatoryReviewedAt}</span>
+        </article>
       </section>
+
+      <LegalUpdateSection />
+
+      <ContentGovernanceSection />
 
       <AiToolBridge variant="full" featured />
 
       <section className="quick-entry-section">
         <div className="section-header">
           <p className="eyebrow">Quick Entry</p>
-          <h2>첫 화면에서 바로 들어가야 하는 메뉴를 고정합니다</h2>
+          <h2>최신 기준 확인 후 바로 이어져야 하는 메뉴를 고정합니다</h2>
         </div>
         <div className="quick-entry-grid">
           {quickEntries.map((item) => (
@@ -159,8 +177,11 @@ export function PublicHome() {
       <section className="section-block">
         <div className="section-header">
           <p className="eyebrow">Market Brief</p>
-          <h2>원본 게시판에서 이관한 실제 매물을 읽기 쉬운 브리프로 변환</h2>
-          <p>현재 독립 사이트에는 양도양수 {manifest.counts.mna}건, 공지 {manifest.counts.notice}건을 포함한 전체 콘텐츠가 반영되어 있습니다.</p>
+          <h2>구글시트 원본을 기준으로 운영하고 보존 게시판은 별도로 유지합니다</h2>
+          <p>
+            현재 독립 사이트에는 구글시트 기준 양도양수 {listingStats.sheetCount}건이 반영되어 있고,
+            공지 {manifest.counts.notice}건과 프리미엄 {manifest.counts.premium}건은 공개 게시판 보존본으로 함께 유지됩니다.
+          </p>
         </div>
         <ListingPreview listings={latestListings} />
       </section>
@@ -168,7 +189,7 @@ export function PublicHome() {
       <section className="section-block">
         <div className="section-header">
           <p className="eyebrow">Service Map</p>
-          <h2>퍼블릭 사이트에서 직접 운영해야 할 서비스 범위</h2>
+          <h2>퍼블릭 사이트에서 직접 운영해야 할 최신 안내 범위</h2>
         </div>
         <div className="service-card-grid">
           {serviceCards.map(({ title, body, icon: Icon }) => (
@@ -186,7 +207,7 @@ export function PublicHome() {
       <section className="section-block">
         <div className="section-header">
           <p className="eyebrow">Operating Flow</p>
-          <h2>AI 확인 결과를 바탕으로 상담과 운영이 자연스럽게 연결됩니다</h2>
+          <h2>최신 법령 확인에서 접수 준비까지 한 흐름으로 연결합니다</h2>
         </div>
         <div className="process-grid">
           {processSteps.map((step, index) => (
@@ -203,10 +224,10 @@ export function PublicHome() {
       <section className="cta-section">
         <div className="cta-content">
           <CircleHelp size={20} aria-hidden="true" />
-          <h2>AI 시스템으로 먼저 확인하고, 전문가 상담으로 완성하세요</h2>
+          <h2>홈에서 기준을 먼저 확인하고, 개별 사안은 상담 단계에서 마무리합니다</h2>
           <p>
-            면허 양도 예상 가격 산정부터 등록 기준 충족 여부 점검까지 — 무료 AI 도구로 먼저 확인하고,
-            결과를 바탕으로 전문 상담을 이어갈 수 있습니다.
+            퍼블릭 사이트에서는 최신 법령과 절차를 먼저 정리하고, 실제 계약·신고 단계에서는 업종, 지역,
+            진행 공사 여부에 맞춘 개별 검토로 이어갑니다.
           </p>
           <div className="cta-actions">
             <Link className="cta-primary cta-primary--light" href="/support">

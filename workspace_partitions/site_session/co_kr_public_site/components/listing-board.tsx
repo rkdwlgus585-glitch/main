@@ -233,7 +233,7 @@ export function ListingBoard({
 
           <div className="listing-summary-box">
             <strong>{filtered.length}건 확인 가능</strong>
-            <span>원본 운영 사이트에서 이관한 실제 매물 데이터 기준입니다.</span>
+            <span>구글시트 원본과 공개 게시판 보존본을 병합한 최신 매물 기준입니다.</span>
           </div>
         </aside>
 

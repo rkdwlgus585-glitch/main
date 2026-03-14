@@ -5,7 +5,7 @@ import { LegacyPageDirectory } from "@/components/legacy-page-directory";
 import { ListingBoard } from "@/components/listing-board";
 import { siteConfig } from "@/components/site-config";
 import { getAllListings } from "@/lib/listings";
-import { getLegacyPagesByGroup } from "@/lib/legacy-content";
+import { getLegacyPagesByGroup, getListingDatasetStats } from "@/lib/legacy-content";
 import { buildPageMetadata } from "@/lib/page-metadata";
 
 export const revalidate = 3600;
@@ -13,7 +13,7 @@ export const revalidate = 3600;
 export const metadata: Metadata = buildPageMetadata(
   "/mna",
   "양도양수 실시간 매물",
-  "원본 운영 사이트에서 이관한 건설업 양도양수 매물을 업종과 지역 기준으로 빠르게 탐색할 수 있는 페이지입니다.",
+  "구글시트 원본과 공개 게시판 보존본을 합쳐 건설업 양도양수 매물을 업종과 지역 기준으로 빠르게 탐색할 수 있는 페이지입니다.",
 );
 
 type PageProps = {
@@ -28,6 +28,7 @@ type PageProps = {
 export default async function MnaPage({ searchParams }: PageProps) {
   const filters = await searchParams;
   const listings = getAllListings();
+  const listingStats = getListingDatasetStats();
   const importedPages = getLegacyPagesByGroup("mna-info");
   const itemListSchema = {
     "@context": "https://schema.org",
@@ -57,8 +58,8 @@ export default async function MnaPage({ searchParams }: PageProps) {
         <p className="eyebrow">Live Listings</p>
         <h1>양도양수 실시간 매물</h1>
         <p>
-          seoulmna.co.kr에서 이관한 실제 양도양수 매물을 그대로 정리했습니다.
-          업종, 지역, 키워드 기준으로 빠르게 좁히고 상세 페이지에서 회사개요와 실적표를 확인할 수 있습니다.
+          구글시트 원본 {listingStats.sheetCount}건을 기준으로 최신 상태를 반영하고,
+          공개 게시판 보존본은 별도로 유지했습니다. 업종, 지역, 키워드 기준으로 빠르게 좁히고 상세 페이지에서 회사개요와 실적표를 확인할 수 있습니다.
         </p>
       </section>
       <ListingBoard listings={listings} syncWithUrl initialFilters={filters} />

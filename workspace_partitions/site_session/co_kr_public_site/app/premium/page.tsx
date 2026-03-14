@@ -34,6 +34,8 @@ export default async function PremiumPage({ searchParams }: PageProps) {
       eyebrow={boardConfig.premium.eyebrow}
       title={boardConfig.premium.title}
       description={boardConfig.premium.description}
+      treatmentLabel={boardConfig.premium.treatmentLabel}
+      treatmentSummary={boardConfig.premium.treatmentSummary}
       posts={pagePosts}
       totalCount={posts.length}
       currentPage={pageNumber}

@@ -11,6 +11,7 @@
 
 ```bash
 npm install
+npm run export:listings:sheet
 npm run dev
 npm run lint
 ```
@@ -48,6 +49,8 @@ http://127.0.0.1:3000
 - 샘플 매물 갱신 시각: `components/sample-data.ts`의 `updatedAt`
 - 브랜드/법인/연락처 설정: `components/site-config.ts`
 - 매물 접근 추상화: `lib/listings.ts`
+- 공개 게시판 보존본 갱신: `npm run import:legacy`
+- 구글시트 원본 매물 스냅샷 갱신: `npm run export:listings:sheet`
 
 현재 포함된 기본 기능:
 
@@ -60,6 +63,7 @@ http://127.0.0.1:3000
 - route-level SEO 메타데이터, `humans.txt`, `favicon.ico`, PWA 아이콘
 - 기본 보안 응답 헤더 (`nosniff`, `DENY`, `Referrer-Policy`, `Permissions-Policy`)
 - 매물 상세 canonical 정규화와 1시간 단위 ISR 재검증
+- 공개 게시판 보존본과 구글시트 원본을 병합한 매물 목록
 
 ## 문의 저장 방식
 
@@ -73,3 +77,9 @@ http://127.0.0.1:3000
 1. 매물 데이터를 DB 또는 CMS로 교체
 2. 고객센터 문의 저장을 메일, CRM, DB 중 하나로 연결
 3. 카카오 채널, 사업자 정보, 실제 주소를 운영값으로 교체
+
+## 매물 원본 규칙
+
+- `notice`, `premium`, `news`, 정적 안내 페이지는 공개 게시판 보존본을 유지합니다.
+- `/mna` 매물은 공개 게시판 보존본을 유지하면서도, 노출 기준은 구글시트 원본 스냅샷을 우선합니다.
+- 시트에만 있고 공개 게시판에 없는 매물은 synthetic detail로 노출되며, 공개 게시판 본문이 존재하는 매물은 해당 보존본 위에 시트 최신 상태를 덮어씁니다.

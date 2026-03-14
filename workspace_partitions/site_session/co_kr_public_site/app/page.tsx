@@ -4,7 +4,7 @@ import { PublicHome } from "@/components/public-home";
 import { siteConfig } from "@/components/site-config";
 
 const homeDescription =
-  "건설업 양도양수, 등록, 법인설립, 분할합병, 건설실무, 고객센터를 운영하는 독립 퍼블릭 사이트 메인 페이지입니다.";
+  "건설업 양도양수, 건설업등록, 분할합병, 실적신고 일정을 최신 법령과 절차 기준으로 안내하는 퍼블릭 사이트 메인 페이지입니다.";
 
 const homeMetadata = buildPageMetadata("/", siteConfig.brandTagline, homeDescription);
 

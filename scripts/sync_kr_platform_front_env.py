@@ -41,6 +41,7 @@ def build_env_map(*, channel: Dict[str, Any]) -> Dict[str, str]:
     return {
         'NEXT_PUBLIC_PLATFORM_FRONT_HOST': f'https://{platform_front_host}' if '://' not in platform_front_host else platform_front_host,
         'NEXT_PUBLIC_LISTING_HOST': f'https://{legacy_content_host}' if '://' not in legacy_content_host else legacy_content_host,
+        'NEXT_PUBLIC_CONTENT_HOST': f'https://{legacy_content_host}' if '://' not in legacy_content_host else legacy_content_host,
         'NEXT_PUBLIC_CALCULATOR_MOUNT_BASE': calculator_mount_base,
         'NEXT_PUBLIC_PRIVATE_ENGINE_ORIGIN': engine_origin,
         'NEXT_PUBLIC_CONTACT_PHONE': str(branding.get('contact_phone') or '1668-3548'),
@@ -53,6 +54,7 @@ def render_env(env_map: Dict[str, str]) -> str:
     ordered = [
         'NEXT_PUBLIC_PLATFORM_FRONT_HOST',
         'NEXT_PUBLIC_LISTING_HOST',
+        'NEXT_PUBLIC_CONTENT_HOST',
         'NEXT_PUBLIC_CALCULATOR_MOUNT_BASE',
         'NEXT_PUBLIC_PRIVATE_ENGINE_ORIGIN',
         'NEXT_PUBLIC_CONTACT_PHONE',
