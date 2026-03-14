@@ -33,7 +33,7 @@ const plans = [
     name: "스타터",
     price: "무료",
     period: "1개월 체험",
-    description: "AI 시스템을 직접 경험해 보세요. 모든 기능을 1개월간 무료로 이용할 수 있습니다.",
+    description: "모든 기능 1개월 무료 체험",
     cta: "무료 체험 시작",
     ctaStyle: "cta-secondary" as const,
     highlight: false,
@@ -45,7 +45,7 @@ const plans = [
       "산정 근거 리포트",
       "이메일 지원",
     ],
-    note: "체험 종료 후 프로 플랜으로 자동 전환됩니다. 전환 전 이메일로 안내드리며, 언제든 해지할 수 있습니다.",
+    note: "자동 전환 전 이메일 안내, 언제든 해지 가능",
   },
   {
     id: "pro",
@@ -95,17 +95,17 @@ const guarantees = [
   {
     icon: Shield,
     title: "안전한 결제",
-    detail: "PCI DSS 준수 PG사를 통한 결제로 카드정보가 서버에 저장되지 않습니다.",
+    detail: "PCI DSS 준수 PG사 결제, 카드정보 미저장",
   },
   {
     icon: Zap,
     title: "언제든 해지",
-    detail: "위약금 없이 다음 결제일 전까지 자유롭게 해지할 수 있습니다.",
+    detail: "위약금 없이 다음 결제일 전 자유 해지",
   },
   {
     icon: Building2,
     title: "세금계산서 발행",
-    detail: "사업자 회원에게 전자세금계산서를 자동 발행합니다.",
+    detail: "사업자 회원 전자세금계산서 자동 발행",
   },
 ];
 
@@ -128,28 +128,23 @@ const comparisonRows: { feature: string; starter: boolean | string; pro: boolean
 const pricingFaqs = [
   {
     question: "무료 체험 후 자동으로 결제되나요?",
-    answer:
-      "네, 무료 체험 종료 7일 전에 이메일로 안내드리며, 체험 기간 내 해지하시면 결제되지 않습니다. 해지는 마이페이지에서 클릭 한 번으로 가능합니다.",
+    answer: "종료 7일 전 이메일 안내, 체험 중 해지 시 결제 없음. 마이페이지에서 클릭 한 번으로 해지.",
   },
   {
     question: "결제 수단은 무엇이 있나요?",
-    answer:
-      "신용카드(국내/해외), 계좌이체, 가상계좌를 지원합니다. 사업자 회원은 CMS 자동이체도 가능합니다.",
+    answer: "신용카드·계좌이체·가상계좌. 사업자는 CMS 자동이체도 가능.",
   },
   {
     question: "환불 정책은 어떻게 되나요?",
-    answer:
-      "결제일로부터 7일 이내 서비스 미이용 시 전액 환불됩니다. 이용 이력이 있는 경우 일할 계산하여 차액을 환불합니다.",
+    answer: "7일 이내 미이용 시 전액 환불. 이용 시 일할 정산 후 차액 환불.",
   },
   {
     question: "플랜을 변경할 수 있나요?",
-    answer:
-      "언제든 업그레이드 또는 다운그레이드가 가능합니다. 변경 시 일할 정산됩니다.",
+    answer: "언제든 업·다운그레이드 가능, 일할 정산.",
   },
   {
     question: "세금계산서를 발행받을 수 있나요?",
-    answer:
-      "사업자등록번호를 등록한 회원에게 매월 자동으로 전자세금계산서를 발행합니다.",
+    answer: "사업자등록번호 등록 시 매월 자동 발행.",
   },
 ];
 
@@ -207,8 +202,7 @@ export default function PricingPage() {
         <p className="eyebrow">요금제</p>
         <h1>1개월 무료 체험으로 시작하세요</h1>
         <p className="pricing-hero-body">
-          모든 플랜은 동일한 AI 엔진을 사용합니다.<br />
-          무료 체험 기간 동안 모든 기능을 제한 없이 이용할 수 있습니다.
+          모든 플랜 동일 AI 엔진, 무제한 무료 체험.
         </p>
       </section>
 

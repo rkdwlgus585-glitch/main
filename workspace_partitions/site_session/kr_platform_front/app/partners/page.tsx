@@ -30,24 +30,21 @@ export const metadata: Metadata = {
 const targets = [
   {
     title: "행정사사무소",
-    description:
-      "면허 상담 시 AI 양도가 산정 · AI 인허가 검토 시스템을 즉시 활용하세요. 고객 신뢰도와 업무 효율이 높아집니다.",
+    description: "AI 시스템으로 상담 효율·고객 신뢰도 향상",
     icon: Briefcase,
-    benefits: ["AI 양도가 산정 시스템 직접 운영", "AI 인허가 검토 시스템 탑재", "복합면허 분해 분석 · 근거 자료 자동 생성"],
+    benefits: ["AI 양도가 산정 직접 운영", "AI 인허가 검토 탑재", "복합면허 분해·근거 자동 생성"],
   },
   {
     title: "건설 컨설팅 · 법인",
-    description:
-      "업종별 시장 동향, 면허 시세 데이터, 정책 변동 뉴스레터를 주기적으로 제공합니다.",
+    description: "업종별 시세·정책 뉴스레터 정기 제공",
     icon: Building2,
-    benefits: ["면허 시세 · 업종 트렌드 데이터 수신", "정책 변동 뉴스레터 정기 발송", "맞춤 데이터 리포트 · API 연동"],
+    benefits: ["면허 시세·트렌드 데이터 수신", "정책 변동 뉴스레터", "맞춤 리포트·API 연동"],
   },
   {
     title: "공공기관 · 협회",
-    description:
-      "건설업 면허 시장 분석 데이터와 업종별 통계를 기관 업무·정책 수립에 활용할 수 있습니다.",
+    description: "시장 분석·업종 통계로 정책 수립 지원",
     icon: Users,
-    benefits: ["시장 통계 대시보드 제공", "업종별 트렌드 분석 리포트", "정기 데이터 뉴스레터 발송"],
+    benefits: ["시장 통계 대시보드", "업종별 트렌드 리포트", "정기 뉴스레터"],
   },
 ];
 
@@ -192,8 +189,7 @@ export default function PartnersPage() {
           </div>
           <div className="partners-embed-benefits">
             <p className="partners-embed-lead">
-              복잡한 개발 없이, 간단한 설치만으로 귀사 웹사이트에<br />
-              AI 양도가 산정과 AI 인허가 검토 기능을 즉시 제공할 수 있습니다.
+              복잡한 개발 없이, 5분 내 AI 분석 기능을 제공할 수 있습니다.
             </p>
             <div className="partners-embed-grid">
               <div className="partners-embed-card">
@@ -221,8 +217,7 @@ export default function PartnersPage() {
         <section className="consult-start" aria-label="도입 문의 안내">
           <h2>도입을 검토하고 계신가요?</h2>
           <p>
-            무료 데모 시연부터 맞춤 견적까지 전문 담당자가 안내합니다.<br />
-            부담 없이 문의해 주세요.
+            무료 데모 시연부터 맞춤 견적까지 전문 담당자가 안내합니다.
           </p>
           <div className="consult-start-actions">
             <a className="cta-primary" href={`tel:${platformConfig.contactPhone}`}>

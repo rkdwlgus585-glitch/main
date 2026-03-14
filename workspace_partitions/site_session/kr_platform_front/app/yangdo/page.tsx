@@ -30,31 +30,31 @@ export const metadata: Metadata = {
 const features = [
   {
     title: "공시 데이터 기반",
-    detail: "건설업 공시 실적 데이터를 실시간 반영하여 객관적인 가격 범위를 산정합니다.",
+    detail: "공시 실적을 실시간 반영, 객관적 가격 범위 산정",
     icon: BarChart3,
   },
   {
     title: "복합면허 자동 분해",
-    detail: "2개 이상 업종이 결합된 복합면허도 업종별 기여도를 자동 분석합니다.",
+    detail: "2개 이상 업종 결합 시 업종별 기여도 자동 분석",
     icon: Layers,
   },
   {
     title: "중복매물 보정",
-    detail: "동일 면허가 여러 사이트에 중복 등록된 경우를 자동 감지하고 가격에 반영합니다.",
+    detail: "여러 사이트 중복 등록 자동 감지·가격 반영",
     icon: Search,
   },
   {
     title: "산정 근거 투명 공개",
-    detail: "비교 대상 선정, 보정 과정, 신뢰도 산출 근거를 모두 공개합니다.",
+    detail: "비교 대상·보정 과정·신뢰도 근거 전부 공개",
     icon: FileCheck,
   },
 ];
 
 const howItWorks = [
-  { step: "01", title: "업종 선택", detail: "건설업 업종을 텍스트로 검색하거나 빠른 선택 칩으로 즉시 지정합니다." },
-  { step: "02", title: "기준 입력", detail: "시공능력 점수 또는 매출 실적 등 산정에 필요한 최소 정보를 입력합니다." },
-  { step: "03", title: "AI 분석", detail: "공시 데이터와 시장 거래 패턴을 실시간 분석하여 적정 가격대를 산출합니다." },
-  { step: "04", title: "결과 확인", detail: "추정 가격 범위, 신뢰도, 비교 매물, 정산 시나리오까지 한 번에 확인합니다." },
+  { step: "01", title: "업종 선택", detail: "텍스트 검색 또는 빠른 선택으로 업종 지정" },
+  { step: "02", title: "기준 입력", detail: "시공능력·매출 등 기본 정보 입력" },
+  { step: "03", title: "AI 분석", detail: "시장 패턴 실시간 분석·가격대 산출" },
+  { step: "04", title: "결과 확인", detail: "가격·신뢰도·비교매물·정산 한 번에 확인" },
 ];
 
 const stats = [
@@ -66,28 +66,23 @@ const stats = [
 const faqs = [
   {
     question: "양도가 산정 비용이 정말 무료인가요?",
-    answer:
-      "네, AI 양도가 산정은 완전 무료입니다. 별도 회원가입 없이 바로 이용할 수 있습니다.",
+    answer: "완전 무료, 회원가입 없이 바로 이용 가능합니다.",
   },
   {
     question: "산정 결과는 얼마나 정확한가요?",
-    answer:
-      "건설업 공시 실적 데이터와 시장 거래 패턴을 분석하여 산정합니다. 산정 결과에는 신뢰도 지표가 함께 표시되어, 결과의 정확도를 직접 판단할 수 있습니다.",
+    answer: "공시 데이터 기반 분석이며, 신뢰도 지표로 정확도를 직접 판단할 수 있습니다.",
   },
   {
     question: "복합면허도 산정이 가능한가요?",
-    answer:
-      "네, 2개 이상의 업종이 결합된 복합면허도 업종별 기여도를 분해하여 정밀 산정합니다.",
+    answer: "네, 복합면허도 업종별 기여도를 분해하여 정밀 산정합니다.",
   },
   {
     question: "전기·소방·정보통신 특수 업종도 되나요?",
-    answer:
-      "전기공사업, 소방시설공사업, 정보통신공사업 등 특수 업종은 업종별 정산 정책과 별도 신뢰도 기준이 적용됩니다.",
+    answer: "특수 업종은 업종별 정산 정책과 별도 신뢰도 기준이 적용됩니다.",
   },
   {
     question: "산정 후 상담도 연결되나요?",
-    answer:
-      "AI 산정 결과를 바탕으로 건설업 전문 행정사의 맞춤 상담을 바로 연결해 드립니다. 양도가 협상 전략까지 지원합니다.",
+    answer: "전문 행정사 맞춤 상담을 바로 연결하며, 양도가 협상 전략까지 지원합니다.",
   },
 ];
 
@@ -221,7 +216,6 @@ export default function YangdoPage() {
       <ScrollAnimate delay={120}>
         <section className="showcase-mid-cta" aria-label="무료 체험">
           <h2>지금 바로 양도가를 확인해 보세요</h2>
-          <p>전문 행정사가 AI 분석 결과를 기반으로 맞춤 상담을 제공합니다.</p>
           <Link className="cta-primary cta-large" href="/consult">
             무료 상담 신청 <ArrowRight size={14} aria-hidden="true" />
           </Link>

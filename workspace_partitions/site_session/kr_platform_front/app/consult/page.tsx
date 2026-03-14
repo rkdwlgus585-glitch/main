@@ -34,22 +34,22 @@ const steps = [
   {
     step: "01",
     title: "AI 무료 분석",
-    description: "AI 양도가 산정 또는 AI 인허가 검토를 먼저 실행하세요. 분석 결과가 상담의 출발점이 됩니다.",
+    description: "AI 양도가 또는 인허가 검토를 먼저 실행하세요.",
   },
   {
     step: "02",
     title: "상담 접수",
-    description: "전화 또는 이메일로 AI 분석 결과를 전달하시면, 전문 행정사가 검토 후 연락드립니다.",
+    description: "분석 결과를 전달하면 전문 행정사가 검토 후 연락드립니다.",
   },
   {
     step: "03",
     title: "맞춤 컨설팅",
-    description: "양도가 협상 전략, 등록기준 충족 방안, 서류 준비까지 원스톱으로 안내합니다.",
+    description: "협상 전략·기준 충족·서류 준비까지 원스톱 안내",
   },
   {
     step: "04",
     title: "실행 · 완료",
-    description: "면허 양도 계약 체결, 인허가 신청, 변경 등록까지 행정사가 직접 대행합니다.",
+    description: "계약 체결부터 관할 기관 접수까지 직접 대행",
   },
 ];
 
@@ -60,22 +60,22 @@ const benefits: Array<{
 }> = [
   {
     title: "데이터 기반 상담",
-    description: "감이 아닌 AI 분석 데이터를 기초로 합리적 협상을 지원합니다.",
+    description: "AI 분석 데이터 기반 합리적 협상 지원",
     icon: Target,
   },
   {
     title: "건설업 전문",
-    description: "건설업 면허·인허가만 전문으로 다루는 행정사가 직접 담당합니다.",
+    description: "면허·인허가 전문 행정사가 직접 담당",
     icon: HardHat,
   },
   {
     title: "원스톱 처리",
-    description: "분석부터 계약, 행정 대행까지 한 곳에서 끝납니다. 별도 업체를 찾을 필요가 없습니다.",
+    description: "분석부터 계약·대행까지 한 곳에서 완료",
     icon: Zap,
   },
   {
     title: "비용 투명성",
-    description: "AI 산정가와 시장 비교 데이터를 함께 제공하여 합리적 비용 판단을 돕습니다.",
+    description: "AI 산정가·시장 비교 데이터로 합리적 판단",
     icon: Gem,
   },
 ];
@@ -196,10 +196,9 @@ export default function ConsultPage() {
             <h2>상담 신청서</h2>
           </div>
           <p className="consult-form-intro">
-            아래 양식을 작성하시면 전문 행정사가 확인 후 연락드립니다.
-            전화 상담을 원하시면{" "}
+            양식 작성 또는{" "}
             <a href={`tel:${platformConfig.contactPhone}`}>{platformConfig.contactPhone}</a>으로
-            바로 연락 주세요.
+            바로 전화 주세요.
           </p>
           <Suspense fallback={<div className="consult-form" aria-busy="true"><div className="calc-skeleton" style={{ height: 200 }} /></div>}>
             <ConsultForm />
@@ -211,8 +210,7 @@ export default function ConsultPage() {
         <section className="consult-start" aria-label="상담 시작 안내">
           <h2>지금 바로 시작하세요</h2>
           <p>
-            AI 분석을 아직 안 해보셨다면 먼저 무료 분석부터 시작하세요.<br />
-            분석 결과가 없어도 전화 상담은 언제든 가능합니다.
+            AI 분석 후 상담을 추천하지만, 분석 없이도 상담 가능합니다.
           </p>
           <div className="consult-start-actions">
             <Link className="cta-primary" href="/yangdo">
